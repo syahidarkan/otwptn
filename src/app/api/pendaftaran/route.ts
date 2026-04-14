@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/lib/email/send'
 import PendaftaranDiterima from '@/lib/email/templates/PendaftaranDiterima'
-import { generateRandomPassword } from '@/lib/utils'
 import { createElement } from 'react'
 import type { JalurCategory, PackageTier } from '@/types'
 
@@ -15,6 +14,7 @@ const schema = z.object({
   total_price: z.number().positive(),
   full_name: z.string().min(2),
   email: z.string().email(),
+  password: z.string().min(8),
   phone: z.string().min(8),
   school: z.string().min(2),
   payment_proof_url: z.string().url(),
@@ -45,11 +45,9 @@ export async function POST(request: Request) {
     if (existingProfile?.id) {
       userId = existingProfile.id
     } else {
-      // Create new account with random password → user resets via email
-      const tempPassword = generateRandomPassword()
       const { data: newUser, error: signUpError } = await supabase.auth.admin.createUser({
         email: data.email,
-        password: tempPassword,
+        password: data.password,
         user_metadata: { full_name: data.full_name },
         email_confirm: true,
       })
@@ -60,19 +58,12 @@ export async function POST(request: Request) {
 
       userId = newUser.user.id
 
-      // Update profile with phone and school
       await supabase.from('profiles').upsert({
         id: userId,
         full_name: data.full_name,
         email: data.email,
         phone: data.phone,
         school: data.school,
-      })
-
-      // Send password reset so user can set their own password
-      await supabase.auth.admin.generateLink({
-        type: 'recovery',
-        email: data.email,
       })
     }
 

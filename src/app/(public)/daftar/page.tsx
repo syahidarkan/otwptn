@@ -47,6 +47,8 @@ interface FormState {
   // Step 4
   full_name: string
   email: string
+  password: string
+  confirm_password: string
   phone: string
   school: string
   // Step 5
@@ -62,6 +64,8 @@ const initialState: FormState = {
   addon_jalur_ids: [],
   full_name: '',
   email: '',
+  password: '',
+  confirm_password: '',
   phone: '',
   school: '',
   payment_file: null,
@@ -114,6 +118,7 @@ export default function DaftarPage() {
           total_price: calcTotal(form),
           full_name: form.full_name,
           email: form.email,
+          password: form.password,
           phone: form.phone,
           school: form.school,
           payment_proof_url: paymentUrl,
@@ -322,7 +327,7 @@ export default function DaftarPage() {
           {/* ── Step 4: Data Diri ─────────────────────────────────────────── */}
           {step === 4 && (
             <div>
-              <h2 className="text-xl font-bold text-brand-black mb-6">Data Diri</h2>
+              <h2 className="text-xl font-bold text-brand-black mb-6">Data Diri & Akun</h2>
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-sm font-semibold text-brand-dark">Nama Lengkap</label>
@@ -342,6 +347,33 @@ export default function DaftarPage() {
                     placeholder="email@kamu.com"
                     className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black"
                   />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-semibold text-brand-dark">Password</label>
+                  <input
+                    type="password"
+                    value={form.password}
+                    onChange={(e) => update({ password: e.target.value })}
+                    placeholder="Minimal 8 karakter"
+                    className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-semibold text-brand-dark">Konfirmasi Password</label>
+                  <input
+                    type="password"
+                    value={form.confirm_password}
+                    onChange={(e) => update({ confirm_password: e.target.value })}
+                    placeholder="Ulangi password"
+                    className={`w-full px-4 py-3 rounded-lg border text-sm outline-none focus:border-brand-black ${
+                      form.confirm_password && form.confirm_password !== form.password
+                        ? 'border-red-400 bg-red-50'
+                        : 'border-brand-gray-2'
+                    }`}
+                  />
+                  {form.confirm_password && form.confirm_password !== form.password && (
+                    <p className="text-xs text-red-500">Password tidak cocok</p>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-sm font-semibold text-brand-dark">No. WhatsApp</label>
@@ -366,7 +398,10 @@ export default function DaftarPage() {
                 <Button variant="ghost" onClick={() => setStep(3)}>← Kembali</Button>
                 <Button
                   onClick={() => setStep(5)}
-                  disabled={!form.full_name || !form.email || !form.phone || !form.school}
+                  disabled={
+                    !form.full_name || !form.email || !form.phone || !form.school ||
+                    form.password.length < 8 || form.password !== form.confirm_password
+                  }
                 >
                   Lanjut →
                 </Button>
