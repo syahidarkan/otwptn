@@ -1,5 +1,3 @@
-import Navbar from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
 import HeroSection from '@/components/landing/HeroSection'
 import StatsBar from '@/components/landing/StatsBar'
 import HowItWorks from '@/components/landing/HowItWorks'
@@ -10,22 +8,18 @@ import TestimonialSection from '@/components/landing/TestimonialSection'
 import EcourseTeaser from '@/components/landing/EcourseTeaser'
 import FAQSection from '@/components/landing/FAQSection'
 
-export default function RootPage() {
+export default function HomePage() {
   return (
     <>
-      <Navbar />
-      <main className="flex-1">
-        <HeroSection />
-        <StatsBar />
-        <HowItWorks />
-        <KategoriSection />
-        <PricingSection />
-        <JalurDirectory />
-        <TestimonialSection />
-        <EcourseTeaser />
-        <FAQSection />
-      </main>
-      <Footer />
+      <HeroSection />
+      <StatsBar />
+      <HowItWorks />
+      <KategoriSection />
+      <PricingSection />
+      <JalurDirectory />
+      <TestimonialSection />
+      <EcourseTeaser />
+      <FAQSection />
     </>
   )
 }
