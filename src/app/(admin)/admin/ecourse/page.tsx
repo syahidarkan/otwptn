@@ -26,7 +26,7 @@ export default function AdminEcoursePage() {
   const [editMod, setEditMod] = useState<Module | null>(null)
 
   const [modForm, setModForm] = useState({
-    title: '', description: '', category: 'general', order_index: 0, thumbnail_url: '',
+    title: '', description: '', category: 'general', order_index: 0, thumbnail_url: '', file_url: '',
   })
   const [lessonForm, setLessonForm] = useState({
     title: '', description: '', content_type: 'video', content_url: '', content_body: '',
@@ -47,6 +47,7 @@ export default function AdminEcoursePage() {
       category: modForm.category,
       order_index: modForm.order_index,
       thumbnail_url: modForm.thumbnail_url || null,
+      file_url: modForm.file_url || null,
     }
     if (editMod) {
       await supabase.from('modules').update(payload).eq('id', editMod.id)
@@ -55,7 +56,7 @@ export default function AdminEcoursePage() {
     }
     setModModal(false)
     setEditMod(null)
-    setModForm({ title: '', description: '', category: 'general', order_index: 0, thumbnail_url: '' })
+    setModForm({ title: '', description: '', category: 'general', order_index: 0, thumbnail_url: '', file_url: '' })
     await load()
   }
 
@@ -107,7 +108,7 @@ export default function AdminEcoursePage() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-extrabold text-brand-black">E-Course</h1>
-        <Button onClick={() => { setEditMod(null); setModForm({ title: '', description: '', category: 'general', order_index: 0, thumbnail_url: '' }); setModModal(true) }} variant="primary" size="sm">
+        <Button onClick={() => { setEditMod(null); setModForm({ title: '', description: '', category: 'general', order_index: 0, thumbnail_url: '', file_url: '' }); setModModal(true) }} variant="primary" size="sm">
           <Plus size={15} /> Tambah Modul
         </Button>
       </div>
@@ -127,7 +128,7 @@ export default function AdminEcoursePage() {
               <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                 <Button size="sm" variant="ghost" onClick={() => {
                   setEditMod(mod)
-                  setModForm({ title: mod.title, description: mod.description ?? '', category: mod.category ?? 'general', order_index: mod.order_index, thumbnail_url: (mod as Module & { thumbnail_url?: string }).thumbnail_url ?? '' })
+                  setModForm({ title: mod.title, description: mod.description ?? '', category: mod.category ?? 'general', order_index: mod.order_index, thumbnail_url: (mod as Module & { thumbnail_url?: string }).thumbnail_url ?? '', file_url: (mod as Module & { file_url?: string }).file_url ?? '' })
                   setModModal(true)
                 }}>
                   <Edit size={13} />
@@ -202,6 +203,17 @@ export default function AdminEcoursePage() {
               <option value="hybrid">Hybrid</option>
             </select>
           </div>
+          <div className="flex flex-col gap-1 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+            <label className="text-xs font-semibold text-blue-800">📁 Link File PDF / Google Drive</label>
+            <input
+              value={modForm.file_url}
+              onChange={mf('file_url')}
+              placeholder="https://drive.google.com/file/d/..."
+              className="w-full px-4 py-3 rounded-lg border border-blue-200 text-sm outline-none focus:border-blue-500 bg-white"
+            />
+            <p className="text-xs text-blue-600 mt-0.5">Link file materi modul ini (Google Drive, dll).</p>
+          </div>
+
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold text-brand-dark">Urutan Tampil</label>
             <input type="number" value={modForm.order_index} onChange={mf('order_index')} placeholder="1, 2, 3..." min={0} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
