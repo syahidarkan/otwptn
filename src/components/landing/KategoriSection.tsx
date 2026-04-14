@@ -34,7 +34,7 @@ export default function KategoriSection() {
         <div className="text-center mb-16">
           <p className="text-brand-muted text-sm font-bold uppercase tracking-widest mb-3">Kategori Jalur</p>
           <h2 className="text-4xl md:text-5xl font-extrabold text-brand-black">
-            3 Jalur, 1 Tujuan
+            3 Jenis, 1 Tujuan
           </h2>
           <p className="text-brand-muted mt-4 max-w-2xl mx-auto">
             Setiap siswa punya profil berbeda. Kami melayani ketiganya.

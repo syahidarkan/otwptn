@@ -1,6 +1,7 @@
-import { createAdminClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { MapPin, ExternalLink } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 
 const CATEGORY_LABEL: Record<string, string> = {
   essay_only: 'Essay Only',
@@ -19,10 +20,14 @@ export default async function JalurPage({
 }: {
   searchParams: Promise<{ kategori?: string }>
 }) {
-  const { kategori } = await searchParams
-  const supabase = await createAdminClient()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
-  let query = supabase
+  const { kategori } = await searchParams
+  const admin = await createAdminClient()
+
+  let query = admin
     .from('jalur_pages')
     .select('*')
     .eq('is_active', true)

@@ -12,7 +12,7 @@ const steps = [
   {
     number: '03',
     title: 'Dapat Akses & Bimbingan',
-    desc: 'Langsung dapat akses grup WhatsApp mentor dan seluruh materi e-course. Bimbingan dimulai!',
+    desc: 'Langsung dapat akses grup WhatsApp dan kontak mentor serta akses e-course. Bimbingan dimulai!',
   },
 ]
 
@@ -23,7 +23,7 @@ export default function HowItWorks() {
         <div className="text-center mb-16">
           <p className="text-brand-yellow text-sm font-bold uppercase tracking-widest mb-3">Cara Kerja</p>
           <h2 className="text-4xl md:text-5xl font-extrabold text-white">
-            Sesederhana 3 Langkah
+            Hanya 3 Langkah
           </h2>
         </div>
 

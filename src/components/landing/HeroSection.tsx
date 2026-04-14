@@ -22,8 +22,8 @@ export default function HeroSection() {
             </h1>
 
             <p className="text-white/60 text-lg mt-6 max-w-lg leading-relaxed">
-              Bimbingan intensif untuk jalur non-test — essay, prestasi, dan hybrid.
-              Ratusan alumni berhasil tembus UI, ITB, ITS, dan 30+ PTN top Indonesia.
+              Bimbingan intensif untuk jalur non-test melainkan melalui essay, prestasi, dan wawancara.
+              Dibimbing oleh alumni yang berhasil tembus PTN top Indonesia.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mt-10">
@@ -36,8 +36,8 @@ export default function HeroSection() {
             </div>
 
             <div className="flex items-center gap-6 mt-10 text-white/40 text-sm">
-              <span>✓ Tanpa UTBK</span>
-              <span>✓ Garansi Revisi</span>
+              <span>✓ Tanpa Tes Tulis</span>
+              <span>✓ Konsultasi Private</span>
               <span>✓ Mentor Berpengalaman</span>
             </div>
           </div>

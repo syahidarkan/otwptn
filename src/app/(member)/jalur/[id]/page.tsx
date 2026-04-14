@@ -1,7 +1,7 @@
-import { createAdminClient } from '@/lib/supabase/server'
-import { notFound } from 'next/navigation'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, ExternalLink, Calendar, Banknote, BookOpen, MapPin } from 'lucide-react'
+import { ArrowLeft, ExternalLink, Calendar, Banknote, BookOpen } from 'lucide-react'
 import Button from '@/components/ui/Button'
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -21,10 +21,14 @@ export default async function JalurDetailPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const { id } = await params
-  const supabase = await createAdminClient()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
-  const { data: jalur } = await supabase
+  const { id } = await params
+  const admin = await createAdminClient()
+
+  const { data: jalur } = await admin
     .from('jalur_pages')
     .select('*')
     .eq('id', id)

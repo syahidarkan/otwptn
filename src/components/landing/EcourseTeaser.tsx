@@ -1,7 +1,7 @@
 import Button from '@/components/ui/Button'
 
 const features = [
-  { icon: '📹', label: 'Video Materi', desc: 'Penjelasan step-by-step oleh mentor' },
+  { icon: '📹', label: 'Dokumentasi Mentoring', desc: 'Penjelasan step-by-step oleh mentor' },
   { icon: '📄', label: 'Template Siap Pakai', desc: 'Kerangka essay & dokumen yang sudah terbukti' },
   { icon: '💬', label: 'Grup WA Mentor', desc: 'Tanya jawab langsung dengan mentor' },
   { icon: '📚', label: 'Panduan Jalur', desc: 'Detail syarat dan tips tiap jalur PTN' },
@@ -15,7 +15,7 @@ export default function EcourseTeaser() {
           <div>
             <p className="text-brand-black/50 text-sm font-bold uppercase tracking-widest mb-4">E-Course</p>
             <h2 className="text-4xl md:text-5xl font-extrabold text-brand-black leading-tight">
-              Materi Lengkap,<br />Akses Seumur Hidup
+              Materi Lengkap,<br />Akses Tidak Terbatas
             </h2>
             <p className="text-brand-black/60 mt-5 leading-relaxed">
               Setelah terdaftar sebagai member, kamu langsung dapat akses penuh ke semua modul dan materi bimbingan. Dipelajari kapan saja, di mana saja.

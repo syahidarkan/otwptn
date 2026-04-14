@@ -21,7 +21,7 @@ export default function PricingSection() {
             Investasi yang Tepat
           </h2>
           <p className="text-brand-muted mt-4">
-            Pilih tier sesuai kebutuhanmu. Jalur tambahan +Rp 50.000 per PTN.
+            Pilih paket sesuai kebutuhanmu.
           </p>
         </div>
 
