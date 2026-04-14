@@ -95,7 +95,7 @@ export const STATS = [
 export const FAQS = [
   {
     q: 'Apa itu jalur non-test PTN?',
-    a: 'Jalur non-test adalah jalur masuk PTN yang tidak tes tulis/CBT. Bisa berbasis essay/motivation letter, prestasi kejuaraan, atau keduanya (hybrid).',
+    a: 'Jalur non-test adalah jalur masuk PTN yang tidak ada tes tulis/CBT. Bisa berbasis essay/motivation letter, prestasi kejuaraan, atau keduanya (hybrid).',
   },
   {
     q: 'Berapa lama proses pendampingan?',
@@ -115,6 +115,6 @@ export const FAQS = [
   },
   {
     q: 'Apa bedanya Essay Only, Prestasi Only, dan Hybrid?',
-    a: 'Essay Only fokus pada penulisan motivation letter/esai. Prestasi Only berbasis sertifikat kejuaraan atau status OSIS. Hybrid mensyaratkan keduanya.',
+    a: 'Essay Only fokus pada penulisan motivation letter/esai. Prestasi Only berbasis sertifikat kejuaraan dan wawancara. Hybrid mensyaratkan keduanya.',
   },
 ]

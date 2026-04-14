@@ -6,10 +6,17 @@ import type { Module, Lesson } from '@/types'
 import { CATEGORY_LABEL } from '@/lib/constants'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
-import { ChevronDown, Plus, Trash2, Edit, ExternalLink } from 'lucide-react'
+import { ChevronDown, Plus, Trash2, Edit, ExternalLink, Link2 } from 'lucide-react'
 import type { JalurCategory } from '@/types'
 
 const supabase = createClient()
+
+// Auto-convert Google Drive share link → embeddable image URL
+function convertDriveThumb(url: string): string {
+  const match = url.match(/drive\.google\.com\/file\/d\/([^/?]+)/)
+  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`
+  return url
+}
 
 export default function AdminEcoursePage() {
   const [modules, setModules] = useState<Array<Module & { lessons: Lesson[] }>>([])
@@ -22,7 +29,8 @@ export default function AdminEcoursePage() {
     title: '', description: '', category: 'general', order_index: 0, thumbnail_url: '',
   })
   const [lessonForm, setLessonForm] = useState({
-    title: '', description: '', content_type: 'video', content_url: '', content_body: '', order_index: 0, thumbnail_url: '',
+    title: '', description: '', content_type: 'video', content_url: '', content_body: '',
+    file_url: '', order_index: 0, thumbnail_url: '',
   })
 
   const load = useCallback(async () => {
@@ -64,13 +72,14 @@ export default function AdminEcoursePage() {
       content_type: lessonForm.content_type,
       content_url: lessonForm.content_url || null,
       content_body: lessonForm.content_body || null,
+      file_url: lessonForm.file_url || null,
       order_index: lessonForm.order_index,
       thumbnail_url: lessonForm.thumbnail_url || null,
       module_id: moduleId,
       is_active: true,
     })
     setLessonModal(null)
-    setLessonForm({ title: '', description: '', content_type: 'video', content_url: '', content_body: '', order_index: 0, thumbnail_url: '' })
+    setLessonForm({ title: '', description: '', content_type: 'video', content_url: '', content_body: '', file_url: '', order_index: 0, thumbnail_url: '' })
     await load()
   }
 
@@ -85,6 +94,14 @@ export default function AdminEcoursePage() {
 
   const lf = (k: keyof typeof lessonForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setLessonForm(p => ({ ...p, [k]: k === 'order_index' ? Number(e.target.value) : e.target.value }))
+
+  // Handle thumbnail input with auto-convert for both module & lesson
+  function handleModThumb(e: React.ChangeEvent<HTMLInputElement>) {
+    setModForm(p => ({ ...p, thumbnail_url: convertDriveThumb(e.target.value) }))
+  }
+  function handleLessonThumb(e: React.ChangeEvent<HTMLInputElement>) {
+    setLessonForm(p => ({ ...p, thumbnail_url: convertDriveThumb(e.target.value) }))
+  }
 
   return (
     <div className="p-8">
@@ -133,8 +150,13 @@ export default function AdminEcoursePage() {
                       <span className="text-xs bg-brand-gray-2 px-2 py-0.5 rounded font-mono">{lesson.content_type}</span>
                       <span className="flex-1 text-sm font-medium text-brand-black">{lesson.title}</span>
                       {lesson.content_url && (
-                        <a href={lesson.content_url} target="_blank" rel="noopener noreferrer" className="text-brand-muted hover:text-brand-black">
+                        <a href={lesson.content_url} target="_blank" rel="noopener noreferrer" className="text-brand-muted hover:text-brand-black" title="Buka konten">
                           <ExternalLink size={13} />
+                        </a>
+                      )}
+                      {(lesson as Lesson & { file_url?: string }).file_url && (
+                        <a href={(lesson as Lesson & { file_url?: string }).file_url!} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700" title="Buka file">
+                          <Link2 size={13} />
                         </a>
                       )}
                       <Button size="sm" variant="danger" onClick={() => deleteLesson(lesson.id)}>
@@ -143,7 +165,7 @@ export default function AdminEcoursePage() {
                     </div>
                   ))}
                 </div>
-                <Button size="sm" variant="ghost" onClick={() => { setLessonForm({ title: '', description: '', content_type: 'video', content_url: '', content_body: '', order_index: (mod.lessons?.length ?? 0), thumbnail_url: '' }); setLessonModal(mod.id) }}>
+                <Button size="sm" variant="ghost" onClick={() => { setLessonForm({ title: '', description: '', content_type: 'video', content_url: '', content_body: '', file_url: '', order_index: (mod.lessons?.length ?? 0), thumbnail_url: '' }); setLessonModal(mod.id) }}>
                   <Plus size={14} /> Tambah Lesson
                 </Button>
               </div>
@@ -157,7 +179,10 @@ export default function AdminEcoursePage() {
         <div className="flex flex-col gap-3">
           <input value={modForm.title} onChange={mf('title')} placeholder="Judul modul" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
           <textarea value={modForm.description} onChange={mf('description')} placeholder="Deskripsi modul (opsional)" rows={3} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black resize-none" />
-          <input value={modForm.thumbnail_url} onChange={mf('thumbnail_url')} placeholder="URL thumbnail/foto (opsional)" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+          <div>
+            <input value={modForm.thumbnail_url} onChange={handleModThumb} placeholder="URL thumbnail — bisa paste link Google Drive" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+            <p className="text-xs text-brand-muted mt-1">Paste link Google Drive biasa, akan otomatis dikonversi.</p>
+          </div>
           {modForm.thumbnail_url && (
             <img src={modForm.thumbnail_url} alt="preview" className="w-full h-32 object-cover rounded-lg" />
           )}
@@ -183,16 +208,45 @@ export default function AdminEcoursePage() {
             <option value="pdf">PDF</option>
             <option value="template">Template (Download)</option>
           </select>
+
+          {/* Content URL - for video/pdf/template */}
           {lessonForm.content_type !== 'text' && (
-            <input value={lessonForm.content_url} onChange={lf('content_url')} placeholder={lessonForm.content_type === 'video' ? 'https://youtube.com/...' : lessonForm.content_type === 'pdf' ? 'https://... (link PDF)' : 'https://... (link file download)'} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+            <input
+              value={lessonForm.content_url}
+              onChange={lf('content_url')}
+              placeholder={
+                lessonForm.content_type === 'video' ? 'https://youtube.com/... (link YouTube untuk embed)' :
+                lessonForm.content_type === 'pdf' ? 'https://... (link PDF untuk ditampilkan)' :
+                'https://... (link utama konten)'
+              }
+              className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black"
+            />
           )}
           {lessonForm.content_type === 'text' && (
             <textarea value={lessonForm.content_body} onChange={lf('content_body')} placeholder="Konten teks / HTML" rows={5} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black resize-none font-mono" />
           )}
-          <input value={lessonForm.thumbnail_url} onChange={lf('thumbnail_url')} placeholder="URL thumbnail lesson (opsional)" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+
+          {/* File URL - Google Drive link for downloadable file */}
+          <div>
+            <label className="text-xs font-semibold text-brand-muted uppercase tracking-wide mb-1 block">Link File (Google Drive)</label>
+            <input
+              value={lessonForm.file_url}
+              onChange={lf('file_url')}
+              placeholder="https://drive.google.com/file/d/... (link file materi)"
+              className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black"
+            />
+            <p className="text-xs text-brand-muted mt-1">Link file materi yang bisa didownload member (Google Drive, dll).</p>
+          </div>
+
+          {/* Thumbnail */}
+          <div>
+            <input value={lessonForm.thumbnail_url} onChange={handleLessonThumb} placeholder="URL thumbnail — bisa paste link Google Drive" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+            <p className="text-xs text-brand-muted mt-1">Paste link Google Drive biasa, akan otomatis dikonversi.</p>
+          </div>
           {lessonForm.thumbnail_url && (
             <img src={lessonForm.thumbnail_url} alt="preview" className="w-full h-24 object-cover rounded-lg" />
           )}
+
           <input type="number" value={lessonForm.order_index} onChange={lf('order_index')} placeholder="Urutan" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
           <Button onClick={() => lessonModal && saveLesson(lessonModal)} variant="primary" fullWidth>
             Simpan Lesson

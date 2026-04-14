@@ -28,15 +28,6 @@ const columns = [
       { href: '/jalur', label: 'PIN IPB' },
     ],
   },
-  {
-    title: 'Kontak',
-    links: [
-      { href: 'mailto:hello@otwptn.vercel.app', label: 'Email Kami' },
-      { href: '#', label: 'Instagram' },
-      { href: '#', label: 'TikTok' },
-      { href: '#faq', label: 'FAQ' },
-    ],
-  },
 ]
 
 export default function Footer() {
@@ -50,7 +41,7 @@ export default function Footer() {
               <span className="text-white font-extrabold text-2xl">otw<span className="text-brand-yellow">ptn</span></span>
             </Link>
             <p className="mt-3 text-sm text-white/50 leading-relaxed max-w-xs">
-              Platform bimbingan masuk PTN jalur non-test terpercaya. Bantu ratusan siswa tembus PTN impian tanpa UTBK.
+              Platform bimbingan masuk PTN jalur non-test terpercaya. Dibimbing oleh para mentor dari TOP PTN di Indonesia.
             </p>
           </div>
 
