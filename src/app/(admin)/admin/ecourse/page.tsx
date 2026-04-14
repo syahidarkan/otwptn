@@ -176,78 +176,117 @@ export default function AdminEcoursePage() {
 
       {/* Module Modal */}
       <Modal isOpen={modModal} onClose={() => setModModal(false)} title={editMod ? 'Edit Modul' : 'Tambah Modul'}>
-        <div className="flex flex-col gap-3">
-          <input value={modForm.title} onChange={mf('title')} placeholder="Judul modul" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
-          <textarea value={modForm.description} onChange={mf('description')} placeholder="Deskripsi modul (opsional)" rows={3} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black resize-none" />
-          <div>
-            <input value={modForm.thumbnail_url} onChange={handleModThumb} placeholder="URL thumbnail — bisa paste link Google Drive" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
-            <p className="text-xs text-brand-muted mt-1">Paste link Google Drive biasa, akan otomatis dikonversi.</p>
+        <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto pr-1">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-brand-dark">Judul Modul</label>
+            <input value={modForm.title} onChange={mf('title')} placeholder="Contoh: Modul Essay PPKB" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
           </div>
-          {modForm.thumbnail_url && (
-            <img src={modForm.thumbnail_url} alt="preview" className="w-full h-32 object-cover rounded-lg" />
-          )}
-          <select value={modForm.category} onChange={mf('category')} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black bg-white">
-            <option value="general">Umum</option>
-            <option value="essay_only">Essay Only</option>
-            <option value="prestasi_only">Prestasi Only</option>
-            <option value="hybrid">Hybrid</option>
-          </select>
-          <input type="number" value={modForm.order_index} onChange={mf('order_index')} placeholder="Urutan" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-brand-dark">Deskripsi <span className="text-brand-muted font-normal">(opsional)</span></label>
+            <textarea value={modForm.description} onChange={mf('description')} placeholder="Deskripsi singkat modul ini..." rows={3} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black resize-none" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-brand-dark">Thumbnail <span className="text-brand-muted font-normal">(opsional)</span></label>
+            <input value={modForm.thumbnail_url} onChange={handleModThumb} placeholder="Paste link Google Drive atau URL gambar" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+            <p className="text-xs text-brand-muted">Link Google Drive otomatis dikonversi jadi gambar.</p>
+            {modForm.thumbnail_url && (
+              <img src={modForm.thumbnail_url} alt="preview" className="w-full h-32 object-cover rounded-lg mt-1" />
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-brand-dark">Kategori</label>
+            <select value={modForm.category} onChange={mf('category')} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black bg-white">
+              <option value="general">Umum (semua member)</option>
+              <option value="essay_only">Essay Only</option>
+              <option value="prestasi_only">Prestasi Only</option>
+              <option value="hybrid">Hybrid</option>
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-brand-dark">Urutan Tampil</label>
+            <input type="number" value={modForm.order_index} onChange={mf('order_index')} placeholder="1, 2, 3..." min={0} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+            <p className="text-xs text-brand-muted">Urutan modul di halaman e-course (dimulai dari 0).</p>
+          </div>
           <Button onClick={saveModule} variant="primary" fullWidth>Simpan</Button>
         </div>
       </Modal>
 
       {/* Lesson Modal */}
       <Modal isOpen={!!lessonModal} onClose={() => setLessonModal(null)} title="Tambah Lesson">
-        <div className="flex flex-col gap-3">
-          <input value={lessonForm.title} onChange={lf('title')} placeholder="Judul lesson" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
-          <textarea value={lessonForm.description} onChange={lf('description')} placeholder="Deskripsi singkat lesson (opsional)" rows={2} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black resize-none" />
-          <select value={lessonForm.content_type} onChange={lf('content_type')} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black bg-white">
-            <option value="video">Video (YouTube embed)</option>
-            <option value="text">Text / Markdown</option>
-            <option value="pdf">PDF</option>
-            <option value="template">Template (Download)</option>
-          </select>
+        <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto pr-1">
 
-          {/* Content URL - for video/pdf/template */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-brand-dark">Judul Lesson</label>
+            <input value={lessonForm.title} onChange={lf('title')} placeholder="Contoh: Cara Menulis Essay PPKB" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-brand-dark">Deskripsi Singkat <span className="text-brand-muted font-normal">(opsional)</span></label>
+            <textarea value={lessonForm.description} onChange={lf('description')} placeholder="Apa yang dipelajari di lesson ini?" rows={2} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black resize-none" />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-brand-dark">Tipe Konten</label>
+            <select value={lessonForm.content_type} onChange={lf('content_type')} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black bg-white">
+              <option value="video">Video (YouTube embed)</option>
+              <option value="text">Text / Markdown</option>
+              <option value="pdf">PDF</option>
+              <option value="template">Template (Download)</option>
+            </select>
+          </div>
+
           {lessonForm.content_type !== 'text' && (
-            <input
-              value={lessonForm.content_url}
-              onChange={lf('content_url')}
-              placeholder={
-                lessonForm.content_type === 'video' ? 'https://youtube.com/... (link YouTube untuk embed)' :
-                lessonForm.content_type === 'pdf' ? 'https://... (link PDF untuk ditampilkan)' :
-                'https://... (link utama konten)'
-              }
-              className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black"
-            />
-          )}
-          {lessonForm.content_type === 'text' && (
-            <textarea value={lessonForm.content_body} onChange={lf('content_body')} placeholder="Konten teks / HTML" rows={5} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black resize-none font-mono" />
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-brand-dark">
+                {lessonForm.content_type === 'video' ? 'Link YouTube (untuk embed video)' :
+                 lessonForm.content_type === 'pdf' ? 'Link PDF (untuk ditampilkan di halaman)' :
+                 'Link Konten Utama'}
+              </label>
+              <input
+                value={lessonForm.content_url}
+                onChange={lf('content_url')}
+                placeholder={
+                  lessonForm.content_type === 'video' ? 'https://youtube.com/watch?v=...' :
+                  'https://...'
+                }
+                className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black"
+              />
+            </div>
           )}
 
-          {/* File URL - Google Drive link for downloadable file */}
-          <div>
-            <label className="text-xs font-semibold text-brand-muted uppercase tracking-wide mb-1 block">Link File (Google Drive)</label>
+          {lessonForm.content_type === 'text' && (
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-brand-dark">Isi Konten (Teks / HTML)</label>
+              <textarea value={lessonForm.content_body} onChange={lf('content_body')} placeholder="Tulis konten di sini..." rows={5} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black resize-none font-mono" />
+            </div>
+          )}
+
+          <div className="flex flex-col gap-1 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+            <label className="text-xs font-semibold text-blue-800">📁 Link File PDF / Google Drive</label>
             <input
               value={lessonForm.file_url}
               onChange={lf('file_url')}
-              placeholder="https://drive.google.com/file/d/... (link file materi)"
-              className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black"
+              placeholder="https://drive.google.com/file/d/..."
+              className="w-full px-4 py-3 rounded-lg border border-blue-200 text-sm outline-none focus:border-blue-500 bg-white"
             />
-            <p className="text-xs text-brand-muted mt-1">Link file materi yang bisa didownload member (Google Drive, dll).</p>
+            <p className="text-xs text-blue-600 mt-0.5">Link file materi yang bisa didownload member. Paste link Google Drive biasa.</p>
           </div>
 
-          {/* Thumbnail */}
-          <div>
-            <input value={lessonForm.thumbnail_url} onChange={handleLessonThumb} placeholder="URL thumbnail — bisa paste link Google Drive" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
-            <p className="text-xs text-brand-muted mt-1">Paste link Google Drive biasa, akan otomatis dikonversi.</p>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-brand-dark">Thumbnail <span className="text-brand-muted font-normal">(opsional)</span></label>
+            <input value={lessonForm.thumbnail_url} onChange={handleLessonThumb} placeholder="Paste link Google Drive atau URL gambar" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+            <p className="text-xs text-brand-muted">Link Google Drive otomatis dikonversi jadi gambar.</p>
+            {lessonForm.thumbnail_url && (
+              <img src={lessonForm.thumbnail_url} alt="preview" className="w-full h-24 object-cover rounded-lg mt-1" />
+            )}
           </div>
-          {lessonForm.thumbnail_url && (
-            <img src={lessonForm.thumbnail_url} alt="preview" className="w-full h-24 object-cover rounded-lg" />
-          )}
 
-          <input type="number" value={lessonForm.order_index} onChange={lf('order_index')} placeholder="Urutan" className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-brand-dark">Urutan Tampil</label>
+            <input type="number" value={lessonForm.order_index} onChange={lf('order_index')} placeholder="1, 2, 3..." min={0} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+            <p className="text-xs text-brand-muted">Angka urutan lesson dalam modul ini (dimulai dari 0).</p>
+          </div>
+
           <Button onClick={() => lessonModal && saveLesson(lessonModal)} variant="primary" fullWidth>
             Simpan Lesson
           </Button>
