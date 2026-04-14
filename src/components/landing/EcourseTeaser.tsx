@@ -1,8 +1,8 @@
 import Button from '@/components/ui/Button'
 
 const features = [
-  { icon: '📹', label: 'Dokumentasi Mentoring', desc: 'Penjelasan step-by-step oleh mentor' },
-  { icon: '📄', label: 'Template Siap Pakai', desc: 'Kerangka essay & dokumen yang sudah terbukti' },
+  { icon: '📹', label: 'Dokumentasi Mentoring', desc: 'Materi dasar oleh mentor' },
+  { icon: '📄', label: 'Template Siap Pakai', desc: 'Kerangka essay & dokumen' },
   { icon: '💬', label: 'Grup WA Mentor', desc: 'Tanya jawab langsung dengan mentor' },
   { icon: '📚', label: 'Panduan Jalur', desc: 'Detail syarat dan tips tiap jalur PTN' },
 ]

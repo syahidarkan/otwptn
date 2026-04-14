@@ -9,12 +9,15 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 
-const navLinks = [
+const publicLinks = [
   { href: '/#how-it-works', label: 'Deskripsi' },
   { href: '/#kategori', label: 'Kategori' },
   { href: '/#pricing', label: 'Paket' },
+  { href: '/#mentor', label: 'Tentang Mentor' },
+]
+
+const memberLinks = [
   { href: '/jalur', label: 'Jalur PTN' },
-  { href: '/tentang-mentor', label: 'Tentang Mentor' },
 ]
 
 export default function Navbar() {
@@ -44,6 +47,8 @@ export default function Navbar() {
     router.refresh()
   }
 
+  const allLinks = [...publicLinks, ...(user ? memberLinks : [])]
+
   return (
     <nav className={cn(
       'fixed top-0 left-0 right-0 z-40 transition-all duration-300',
@@ -58,7 +63,7 @@ export default function Navbar() {
 
           {/* Nav links desktop */}
           <div className="hidden md:flex items-center gap-6">
-            {navLinks.map((l) => (
+            {allLinks.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
@@ -102,7 +107,7 @@ export default function Navbar() {
       {/* Mobile menu */}
       {open && (
         <div className="md:hidden bg-brand-dark border-t border-white/10 px-4 py-4 flex flex-col gap-3">
-          {navLinks.map((l) => (
+          {allLinks.map((l) => (
             <Link
               key={l.href}
               href={l.href}
