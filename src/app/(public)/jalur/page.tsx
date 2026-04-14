@@ -1,5 +1,4 @@
-import { createClient, createAdminClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { MapPin } from 'lucide-react'
 
@@ -20,14 +19,10 @@ export default async function JalurPage({
 }: {
   searchParams: Promise<{ kategori?: string }>
 }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
-
   const { kategori } = await searchParams
-  const admin = await createAdminClient()
+  const supabase = await createAdminClient()
 
-  let query = admin
+  let query = supabase
     .from('jalur_pages')
     .select('*')
     .eq('is_active', true)
@@ -95,21 +90,15 @@ export default async function JalurPage({
                   <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${CATEGORY_COLOR[jalur.category] ?? 'bg-gray-100 text-gray-600'}`}>
                     {CATEGORY_LABEL[jalur.category] ?? jalur.category}
                   </span>
-                  {jalur.biaya ? (
-                    <span className="text-xs text-brand-muted font-medium">
-                      Rp {(jalur.biaya / 1000).toFixed(0)}K
-                    </span>
-                  ) : null}
+                  <span className="text-xs font-semibold text-brand-muted bg-brand-gray px-2 py-0.5 rounded-full">
+                    Lihat Detail →
+                  </span>
                 </div>
                 <p className="text-xs text-brand-muted font-medium mb-1">{jalur.university}</p>
-                <h3 className="font-extrabold text-brand-black text-base leading-snug mb-3 group-hover:text-brand-yellow transition-colors">
+                <h3 className="font-extrabold text-brand-black text-base leading-snug group-hover:text-brand-yellow transition-colors">
                   {jalur.name}
                 </h3>
-                {jalur.pendaftaran && (
-                  <p className="text-xs text-brand-muted mt-auto">
-                    <span className="font-semibold text-brand-dark">Pendaftaran:</span> {jalur.pendaftaran}
-                  </p>
-                )}
+                <p className="text-xs text-brand-muted mt-2">Info lengkap tersedia untuk member</p>
               </Link>
             ))}
           </div>

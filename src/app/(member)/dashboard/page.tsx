@@ -90,7 +90,9 @@ export default async function DashboardPage() {
                     className="mt-5"
                   >
                     <MessageCircle size={16} />
-                    Buka Grup WhatsApp Mentor
+                    {(activeReg.packages as { tier?: string } | null)?.tier === 'review'
+                      ? 'Chat Mentor Sekarang'
+                      : 'Buka Grup WhatsApp Mentor'}
                   </Button>
                 )}
               </div>
