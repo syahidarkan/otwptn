@@ -13,12 +13,11 @@ const publicLinks = [
   { href: '/#how-it-works', label: 'Deskripsi' },
   { href: '/#kategori', label: 'Kategori' },
   { href: '/#pricing', label: 'Paket' },
+  { href: '/jalur', label: 'Jalur PTN' },
   { href: '/#mentor', label: 'Tentang Mentor' },
 ]
 
-const memberLinks = [
-  { href: '/jalur', label: 'Jalur PTN' },
-]
+const memberLinks: { href: string; label: string }[] = []
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
