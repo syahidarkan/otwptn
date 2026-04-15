@@ -2,6 +2,8 @@ import {
   Body, Button, Container, Head, Heading, Hr, Html, Preview, Section, Text,
 } from '@react-email/components'
 
+const WA_GROUP_ALL = 'https://chat.whatsapp.com/HtkVuPwenyPDB8iVxGrvHv'
+
 interface Props {
   full_name: string
   wa_group_link: string
@@ -73,13 +75,13 @@ export default function PembayaranDikonfirmasi({ full_name, wa_group_link, is_re
                   Langkah Selanjutnya:
                 </Text>
                 <Text style={{ color: '#1A1A1A', lineHeight: '1.8', margin: 0 }}>
-                  1. Gabung ke grup WhatsApp mentor kamu<br />
+                  1. Gabung ke Grup WhatsApp ALL dan Grup kategorimu<br />
                   2. Login ke otwptn.vercel.app<br />
                   3. Akses e-course dan mulai bimbingan
                 </Text>
-                <Section style={{ textAlign: 'center', margin: '32px 0' }}>
+                <Section style={{ textAlign: 'center', margin: '24px 0 12px' }}>
                   <Button
-                    href={wa_group_link}
+                    href={WA_GROUP_ALL}
                     style={{
                       backgroundColor: '#25D366',
                       color: '#ffffff',
@@ -90,7 +92,23 @@ export default function PembayaranDikonfirmasi({ full_name, wa_group_link, is_re
                       display: 'inline-block',
                     }}
                   >
-                    Gabung Grup WhatsApp
+                    Gabung Grup ALL
+                  </Button>
+                </Section>
+                <Section style={{ textAlign: 'center', margin: '0 0 32px' }}>
+                  <Button
+                    href={wa_group_link}
+                    style={{
+                      backgroundColor: '#128C7E',
+                      color: '#ffffff',
+                      padding: '14px 28px',
+                      borderRadius: '10px',
+                      fontWeight: '700',
+                      fontSize: '15px',
+                      display: 'inline-block',
+                    }}
+                  >
+                    Gabung Grup Kategori
                   </Button>
                 </Section>
               </>

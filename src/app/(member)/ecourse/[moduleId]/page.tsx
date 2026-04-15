@@ -10,6 +10,18 @@ import Link from 'next/link'
 
 const STORAGE_KEY = 'ecourse_completed'
 
+function toYouTubeEmbed(url: string): string {
+  // Already an embed URL
+  if (url.includes('/embed/')) return url
+  // youtu.be/VIDEO_ID
+  const shortMatch = url.match(/youtu\.be\/([^?&]+)/)
+  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`
+  // youtube.com/watch?v=VIDEO_ID
+  const longMatch = url.match(/[?&]v=([^?&]+)/)
+  if (longMatch) return `https://www.youtube.com/embed/${longMatch[1]}`
+  return url
+}
+
 function getCompleted(): string[] {
   if (typeof window === 'undefined') return []
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]') } catch { return [] }
@@ -137,9 +149,10 @@ export default function ModulePage() {
               {activeLesson.content_type === 'video' && activeLesson.content_url && (
                 <div className="aspect-video rounded-2xl overflow-hidden bg-brand-black mb-6">
                   <iframe
-                    src={activeLesson.content_url}
+                    src={toYouTubeEmbed(activeLesson.content_url)}
                     className="w-full h-full"
                     allowFullScreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     title={activeLesson.title}
                   />
                 </div>

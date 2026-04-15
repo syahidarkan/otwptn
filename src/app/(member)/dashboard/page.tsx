@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { formatDate, formatRupiah } from '@/lib/utils'
-import { CATEGORY_LABEL, TIER_LABEL } from '@/lib/constants'
+import { CATEGORY_LABEL, TIER_LABEL, WA_GROUPS } from '@/lib/constants'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import type { Registration, RegistrationStatus, JalurCategory } from '@/types'
@@ -82,19 +82,29 @@ export default async function DashboardPage() {
                   </div>
                 </div>
 
-                {activeReg.wa_group_link && (
-                  <Button
-                    href={activeReg.wa_group_link}
-                    variant="primary"
-                    fullWidth
-                    className="mt-5"
-                  >
-                    <MessageCircle size={16} />
-                    {(activeReg.packages as { tier?: string } | null)?.tier === 'review'
-                      ? 'Chat Mentor Sekarang'
-                      : 'Buka Grup WhatsApp Mentor'}
-                  </Button>
-                )}
+                {activeReg.wa_group_link && (() => {
+                  const tier = (activeReg.packages as { tier?: string; category?: string } | null)?.tier
+                  const category = (activeReg.packages as { tier?: string; category?: string } | null)?.category
+                  const isReview = tier === 'review'
+                  return (
+                    <div className="flex flex-col gap-2 mt-5">
+                      {isReview ? (
+                        <Button href={activeReg.wa_group_link} variant="primary" fullWidth>
+                          <MessageCircle size={16} /> Chat Mentor Sekarang
+                        </Button>
+                      ) : (
+                        <>
+                          <Button href={WA_GROUPS.all} variant="primary" fullWidth>
+                            <MessageCircle size={16} /> Gabung Group ALL
+                          </Button>
+                          <Button href={category ? WA_GROUPS[category] ?? activeReg.wa_group_link : activeReg.wa_group_link} variant="ghost" fullWidth className="border-brand-black/20">
+                            <MessageCircle size={16} /> Gabung Group {category ? CATEGORY_LABEL[category as keyof typeof CATEGORY_LABEL] : 'Kategori'}
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  )
+                })()}
               </div>
             ) : (
               <div className="bg-white rounded-2xl border border-dashed border-brand-gray-2 p-8 text-center">
