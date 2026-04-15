@@ -61,7 +61,7 @@ export default function LoginPage() {
           <div className="mb-8 text-center">
             <Link href="/">
               <span className="text-brand-black font-extrabold text-2xl">
-                ayo<span className="text-brand-yellow">masukptn</span>
+                otw<span className="text-brand-yellow">ptn</span>
               </span>
             </Link>
             <h1 className="text-xl font-bold mt-4 text-brand-black">Masuk ke akun</h1>
