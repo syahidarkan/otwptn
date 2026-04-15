@@ -23,13 +23,28 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [user, setUser] = useState<User | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user))
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+    async function loadUser() {
+      const { data } = await supabase.auth.getUser()
+      setUser(data.user)
+      if (data.user) {
+        const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single()
+        setIsAdmin(profile?.role === 'admin')
+      }
+    }
+    loadUser()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
       setUser(session?.user ?? null)
+      if (session?.user) {
+        const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single()
+        setIsAdmin(profile?.role === 'admin')
+      } else {
+        setIsAdmin(false)
+      }
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -77,7 +92,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <>
-                <Button href="/dashboard" variant="ghost" size="sm" className="text-white border-white/20 hover:bg-white/10">
+                <Button href={isAdmin ? '/admin' : '/dashboard'} variant="ghost" size="sm" className="text-white border-white/20 hover:bg-white/10">
                   Dashboard
                 </Button>
                 <Button onClick={handleLogout} variant="primary" size="sm">
@@ -119,7 +134,7 @@ export default function Navbar() {
           <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
             {user ? (
               <>
-                <Button href="/dashboard" variant="ghost" size="sm" fullWidth className="text-white border-white/20">
+                <Button href={isAdmin ? '/admin' : '/dashboard'} variant="ghost" size="sm" fullWidth className="text-white border-white/20">
                   Dashboard
                 </Button>
                 <Button onClick={handleLogout} variant="primary" size="sm" fullWidth>
