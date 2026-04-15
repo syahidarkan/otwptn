@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { formatRupiah, formatDateTime } from '@/lib/utils'
-import { CATEGORY_LABEL, TIER_LABEL, MENTORS } from '@/lib/constants'
+import { CATEGORY_LABEL, TIER_LABEL, MENTORS, WA_GROUPS } from '@/lib/constants'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
@@ -90,7 +90,9 @@ export default function AdminPendaftarPage() {
 
   function openDetail(reg: Registration) {
     setSelected(reg)
-    setWaLink(reg.wa_group_link ?? '')
+    const category = (reg.packages as { category?: string } | null)?.category
+    const autoLink = reg.wa_group_link || (category ? WA_GROUPS[category] : WA_GROUPS.all) || ''
+    setWaLink(autoLink)
     setMentorId(MENTORS[0].id)
     setNotes(reg.notes ?? '')
     setMsg(null)
@@ -247,6 +249,7 @@ export default function AdminPendaftarPage() {
                     <>
                       <label className="text-xs font-semibold text-brand-dark block mb-1.5">
                         Link Grup WhatsApp <span className="text-red-500">*</span>
+                        <span className="ml-2 font-normal text-brand-muted">(auto-filled sesuai kategori)</span>
                       </label>
                       <input
                         value={waLink}
@@ -254,6 +257,11 @@ export default function AdminPendaftarPage() {
                         placeholder="https://chat.whatsapp.com/..."
                         className="w-full px-3 py-2.5 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black"
                       />
+                      {pkg && (
+                        <p className="text-xs text-green-700 mt-1">
+                          ✓ Group {CATEGORY_LABEL[pkg.category]} ({pkg.category === 'essay_only' ? 'Essay' : pkg.category === 'prestasi_only' ? 'Prestasi' : 'Hybrid'})
+                        </p>
+                      )}
                     </>
                   )}
                 </div>

@@ -37,7 +37,7 @@ export default function KategoriSection() {
             3 Jenis, 1 Tujuan
           </h2>
           <p className="text-brand-muted mt-4 max-w-2xl mx-auto">
-            Setiap siswa punya profil berbeda. Kami melayani ketiganya.
+            Setiap siswa punya kelebihan berbeda. Kami melayani ketiganya.
           </p>
         </div>
 

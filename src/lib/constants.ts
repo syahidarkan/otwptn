@@ -80,6 +80,13 @@ export const TIER_FEATURES: Record<JalurCategory, Record<string, string[]>> = {
   },
 }
 
+export const WA_GROUPS: Record<string, string> = {
+  essay_only: 'https://chat.whatsapp.com/GwyVB7iiZys0A5LhAj6l6w',
+  prestasi_only: 'https://chat.whatsapp.com/J0tnTGbTZeTALrUfATGJOY',
+  hybrid: 'https://chat.whatsapp.com/FDxX2V7thsiEQyLYZa39Bk',
+  all: 'https://chat.whatsapp.com/HtkVuPwenyPDB8iVxGrvHv',
+}
+
 export const MENTORS = [
   { id: 'mentor-essay', name: 'Mentor Essay', wa: '6281326197196', label: 'Mentor Essay (Essay Only)' },
   { id: 'mentor-prestasi', name: 'Mentor Prestasi', wa: '6285781099101', label: 'Mentor Prestasi (Prestasi & Hybrid)' },
