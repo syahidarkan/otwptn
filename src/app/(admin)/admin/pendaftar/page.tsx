@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { formatRupiah, formatDateTime } from '@/lib/utils'
-import { CATEGORY_LABEL, TIER_LABEL, MENTORS, WA_GROUPS } from '@/lib/constants'
+import { CATEGORY_LABEL, TIER_LABEL, MENTORS, WA_GROUPS, JALUR_LIST } from '@/lib/constants'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
@@ -101,6 +101,8 @@ export default function AdminPendaftarPage() {
 
   const profile = selected?.profiles as { full_name: string; email: string; phone?: string; school?: string } | null
   const pkg = selected?.packages as { category: JalurCategory; tier: string } | null
+  const jalurUtama = selected ? JALUR_LIST.find((j) => j.id === selected.jalur_utama_id) : null
+  const jalurAddon = selected?.addon_jalur_ids?.map((id) => JALUR_LIST.find((j) => j.id === id)).filter(Boolean) ?? []
 
   return (
     <div className="p-8">
@@ -198,7 +200,7 @@ export default function AdminPendaftarPage() {
                 <p className="font-semibold">{profile?.phone ?? '—'}</p>
               </div>
               <div>
-                <p className="text-brand-muted text-xs">Sekolah</p>
+                <p className="text-brand-muted text-xs">Asal Sekolah</p>
                 <p className="font-semibold">{profile?.school ?? '—'}</p>
               </div>
               <div>
@@ -206,9 +208,39 @@ export default function AdminPendaftarPage() {
                 <p className="font-semibold">{pkg ? `${CATEGORY_LABEL[pkg.category]} — ${TIER_LABEL[pkg.tier]}` : '—'}</p>
               </div>
               <div>
-                <p className="text-brand-muted text-xs">Total</p>
+                <p className="text-brand-muted text-xs">Total Dibayar</p>
                 <p className="font-semibold">{formatRupiah(selected.total_price)}</p>
               </div>
+              <div>
+                <p className="text-brand-muted text-xs">No. Pendaftaran</p>
+                <p className="font-semibold font-mono text-xs">{selected.id.slice(0, 8).toUpperCase()}</p>
+              </div>
+              <div>
+                <p className="text-brand-muted text-xs">Tanggal Daftar</p>
+                <p className="font-semibold">{formatDateTime(selected.created_at)}</p>
+              </div>
+            </div>
+
+            {/* Jalur info */}
+            <div className="bg-brand-gray rounded-xl p-4 text-sm flex flex-col gap-2">
+              <div>
+                <p className="text-brand-muted text-xs mb-0.5">Jalur Utama</p>
+                {jalurUtama ? (
+                  <p className="font-semibold text-brand-black">{jalurUtama.name} <span className="text-brand-muted font-normal">— {jalurUtama.ptn}</span></p>
+                ) : (
+                  <p className="font-semibold text-brand-muted">{selected.jalur_utama_id ?? '—'}</p>
+                )}
+              </div>
+              {jalurAddon.length > 0 && (
+                <div>
+                  <p className="text-brand-muted text-xs mb-1">Jalur Tambahan ({jalurAddon.length})</p>
+                  <div className="flex flex-col gap-1">
+                    {jalurAddon.map((j) => j && (
+                      <p key={j.id} className="text-brand-dark">• {j.name} <span className="text-brand-muted">— {j.ptn}</span></p>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Bukti transfer */}
