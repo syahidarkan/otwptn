@@ -123,8 +123,8 @@ export default function AdminPaketPage() {
             </select>
             <select value={form.tier} onChange={(e) => setForm((f) => ({ ...f, tier: e.target.value }))} className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm bg-white outline-none focus:border-brand-black">
               <option value="review">Review</option>
-              <option value="dokumen">Dokumen</option>
-              <option value="menyeluruh">Menyeluruh</option>
+              <option value="dokumen">Reguler</option>
+              <option value="menyeluruh">Intensif</option>
             </select>
           </div>
           <div className="grid grid-cols-2 gap-3">
