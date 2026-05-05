@@ -100,6 +100,13 @@ export default function AdminPendaftarPage() {
   }
 
   const profile = selected?.profiles as { full_name: string; email: string; phone?: string; school?: string } | null
+
+  function clientWaHref(phone?: string) {
+    if (!phone) return null
+    const digits = phone.replace(/\D/g, '')
+    const intl = digits.startsWith('0') ? '62' + digits.slice(1) : digits
+    return `https://wa.me/${intl}`
+  }
   const pkg = selected?.packages as { category: JalurCategory; tier: string } | null
   const jalurUtama = selected ? JALUR_LIST.find((j) => j.id === selected.jalur_utama_id) : null
   const jalurAddon = selected?.addon_jalur_ids?.map((id) => JALUR_LIST.find((j) => j.id === id)).filter(Boolean) ?? []
@@ -197,7 +204,19 @@ export default function AdminPendaftarPage() {
               </div>
               <div>
                 <p className="text-brand-muted text-xs">WhatsApp</p>
-                <p className="font-semibold">{profile?.phone ?? '—'}</p>
+                {clientWaHref(profile?.phone) ? (
+                  <a
+                    href={clientWaHref(profile?.phone)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-green-700 hover:underline flex items-center gap-1"
+                  >
+                    {profile?.phone}
+                    <ExternalLink size={12} />
+                  </a>
+                ) : (
+                  <p className="font-semibold">—</p>
+                )}
               </div>
               <div>
                 <p className="text-brand-muted text-xs">Asal Sekolah</p>
