@@ -1,6 +1,7 @@
 import Button from '@/components/ui/Button'
 import { JALUR_LIST } from '@/lib/constants'
 import Image from 'next/image'
+import Countdown from './Countdown'
 
 export default function HeroSection() {
   const marqueeItems = [...JALUR_LIST, ...JALUR_LIST]
@@ -26,7 +27,11 @@ export default function HeroSection() {
               Dibimbing oleh alumni yang berhasil tembus PTN top Indonesia.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mt-10">
+            <div className="mt-8">
+              <Countdown />
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 mt-8">
               <Button href="/daftar" variant="primary" size="lg">
                 Mulai Bimbingan Sekarang
               </Button>

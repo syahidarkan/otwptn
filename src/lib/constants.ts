@@ -64,12 +64,12 @@ export const TIER_DESCRIPTION: Record<string, string> = {
 
 export const TIER_FEATURES: Record<JalurCategory, Record<string, string[]>> = {
   essay_only: {
-    review: ['Free konsultasi awal', 'Cek dokumen', 'Koreksi essay', '2x putaran revisi', '1x Sesi Zoom', 'Via chat WhatsApp', 'Belum termasuk akses grup WhatsApp'],
+    review: ['Free konsultasi awal', 'Cek dokumen', 'Koreksi essay', '2x putaran revisi', 'Via chat WhatsApp', 'Belum termasuk akses grup WhatsApp'],
     dokumen: ['Free konsultasi awal', 'Panduan kerangka dokumen', 'Bimbingan step by step', 'Strategi pemilihan jurusan', '5x putaran revisi', '2x Sesi Zoom', 'Via chat WhatsApp', 'Akses grup WhatsApp eksklusif'],
     menyeluruh: ['Free konsultasi awal', 'Panduan kerangka dokumen', 'Bimbingan step by step', 'Strategi pemilihan jurusan', 'Unlimited revisi sampai 100% yakin', 'Fleksibel via chat WhatsApp, sesi zoom, dan mentoring offline', 'Akses grup WhatsApp eksklusif', 'Exclusive Trip ke UI'],
   },
   prestasi_only: {
-    review: ['Free konsultasi', 'Koreksi dokumen', 'Revisi draft wawancara', '1x Sesi Zoom', 'Via chat WA', 'Tanpa group WA'],
+    review: ['Free konsultasi', 'Koreksi dokumen', 'Revisi draft wawancara', 'Via chat WA', 'Tanpa group WA'],
     dokumen: ['Free konsultasi', 'Bimbingan dokumen', 'Bimbingan wawancara', 'Revisi feedback 5x', '2x Sesi Zoom', 'Via chat WA', 'Group WA'],
     menyeluruh: ['Free konsultasi', 'Bimbingan dokumen', 'Bimbingan essay', 'Unlimited revisi', 'Chat + Zoom + Offline', 'Group WA', 'Trip ke UI'],
   },
