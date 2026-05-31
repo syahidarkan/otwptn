@@ -72,6 +72,8 @@ export interface Module {
   order_index: number
   is_active: boolean
   created_at: string
+  thumbnail_url?: string | null
+  file_url?: string | null
   lessons?: Lesson[]
 }
 
@@ -79,9 +81,12 @@ export interface Lesson {
   id: string
   module_id: string
   title: string
+  description?: string | null
   content_type: ContentType
   content_url: string | null
   content_body: string | null
+  file_url?: string | null
+  thumbnail_url?: string | null
   order_index: number
   is_active: boolean
   created_at: string

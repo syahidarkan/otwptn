@@ -184,6 +184,20 @@ export default function ModulePage() {
                   </Button>
                 </div>
               )}
+
+              {/* File attachment — shown for any content type if file_url is set */}
+              {activeLesson.file_url && (
+                <div className="mt-4 flex items-center gap-4 bg-brand-gray rounded-xl px-5 py-4 border border-brand-gray-2">
+                  <Download size={20} className="text-brand-muted shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-brand-black">File Materi</p>
+                    <p className="text-xs text-brand-muted">{activeLesson.title}</p>
+                  </div>
+                  <Button href={activeLesson.file_url} variant="primary" size="sm">
+                    Buka / Download
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center text-brand-muted mt-20">Pilih materi di sidebar</div>
