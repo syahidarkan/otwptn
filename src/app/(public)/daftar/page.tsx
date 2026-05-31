@@ -237,7 +237,7 @@ export default function DaftarPage() {
                 className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black"
               >
                 <option value="">-- Pilih jalur utama --</option>
-                {JALUR_LIST.filter((j) => j.category === form.category).map((j) => (
+                {JALUR_LIST.filter((j) => j.category === form.category && !j.closed).map((j) => (
                   <option key={j.id} value={j.id}>{j.name} — {j.ptn}</option>
                 ))}
               </select>
@@ -261,7 +261,7 @@ export default function DaftarPage() {
 
               <div className="flex flex-col gap-4 max-h-80 overflow-y-auto pr-2">
                 {(['essay_only', 'prestasi_only', 'hybrid'] as JalurCategory[]).map((cat) => {
-                  const jalurInCat = JALUR_LIST.filter((j) => j.category === cat && j.id !== form.jalur_utama_id)
+                  const jalurInCat = JALUR_LIST.filter((j) => j.category === cat && j.id !== form.jalur_utama_id && !j.closed)
                   if (jalurInCat.length === 0) return null
                   return (
                     <div key={cat}>

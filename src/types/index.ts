@@ -108,6 +108,7 @@ export interface JalurStatic {
   name: string
   ptn: string
   category: JalurCategory
+  closed?: boolean
 }
 
 export interface PricingMap {

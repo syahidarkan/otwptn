@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-const DEADLINE = new Date('2026-05-30T23:59:59+07:00')
+const DEADLINE = new Date('2026-06-30T23:59:59+07:00') // TODO: ganti ke tanggal PPKB UI yang benar
 
 function getTimeLeft() {
   const diff = DEADLINE.getTime() - Date.now()
@@ -36,7 +36,7 @@ export default function Countdown() {
   return (
     <div className="flex flex-col gap-2">
       <p className="text-white/50 text-xs font-semibold uppercase tracking-widest">
-        ⏳ Penutupan Pendaftaran SJP UI
+        ⏳ Penutupan Pendaftaran PPKB UI
       </p>
       <div className="flex items-center gap-2">
         {[
