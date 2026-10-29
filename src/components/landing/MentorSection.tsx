@@ -1,125 +1,106 @@
-import Link from 'next/link'
-import { Trophy, GraduationCap, Star, Award } from 'lucide-react'
+'use client'
 
-const mentors = [
-  {
-    label: 'Mentor Essay',
-    jalur: 'Essay Only (Motivation Letter & Personal Statement)',
-    achievements: [
-      { icon: 'uni', text: 'Diterima di Universitas Indonesia melalui PPKB UI 2025' },
-      { icon: 'uni', text: 'Diterima di Institut Teknologi Sepuluh Nopember melalui UTBK-SNBT 2025' },
-      { icon: 'essay', text: 'Parlemen Remaja DPR RI 2024' },
-      { icon: 'essay', text: 'Delegasi AFS Global STEM Academies 2024' },
-    ],
-    categories: ['Essay Only', 'Hybrid'],
-  },
-  {
-    label: 'Mentor Prestasi',
-    jalur: 'Prestasi & Hybrid (Portofolio & Sertifikat Kejuaraan)',
-    achievements: [
-      { icon: 'uni', text: 'Diterima di Universitas Indonesia melalui Seleksi Jalur Prestasi (SJP) 2025' },
-      { icon: 'uni', text: 'Diterima di Universitas Padjadjaran melalui SMUP Jalur Prestasi 2025' },
-      { icon: 'uni', text: 'Diterima di Universitas Diponegoro melalui SBUB 2025' },
-      { icon: 'uni', text: 'Diterima di IPB University UTBK-SNBT 2025' },
-    ],
-    categories: ['Prestasi Only', 'Hybrid'],
-  },
+// Adapted from pintarly — mentor package promo (replaces plain comparison table)
+
+import { useRef } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import Image from 'next/image'
+import Link from 'next/link'
+import { Check, Star } from 'lucide-react'
+
+const FEATS = [
+  'Konsultasi 1-on-1 langsung dengan mentor alumni',
+  'Review essay personal, bukan cuma dari AI',
+  'Strategi khusus sesuai jalur dan profilmu',
+  'Akses prioritas ke semua fitur otwptn',
 ]
 
-const categoryColor: Record<string, string> = {
-  'Essay Only': 'bg-blue-100 text-blue-700',
-  'Prestasi Only': 'bg-green-100 text-green-700',
-  'Hybrid': 'bg-purple-100 text-purple-700',
-}
-
-function AchievementIcon({ type }: { type: string }) {
-  if (type === 'essay') return <Trophy size={15} className="text-brand-yellow shrink-0 mt-0.5" />
-  return <GraduationCap size={15} className="text-brand-yellow shrink-0 mt-0.5" />
-}
-
 export default function MentorSection() {
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const y1 = useTransform(scrollYProgress, [0, 1], [40, -40])
+  const y2 = useTransform(scrollYProgress, [0, 1], [-20, 20])
+  const rotate = useTransform(scrollYProgress, [0, 1], [-4, 4])
+
+  const STARS = [
+    { top: '8%', left: '6%', size: 18, op: 0.25, speed: y1 },
+    { top: '18%', left: '88%', size: 14, op: 0.18, speed: y2 },
+    { top: '70%', left: '92%', size: 40, op: 0.12, speed: y2 },
+    { top: '82%', left: '4%', size: 22, op: 0.2, speed: y1 },
+    { top: '45%', left: '95%', size: 10, op: 0.3, speed: y1 },
+    { top: '55%', left: '2%', size: 16, op: 0.15, speed: y2 },
+  ]
+
   return (
-    <section className="bg-brand-gray py-24" id="mentor">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-14">
-          <p className="text-brand-muted text-sm font-bold uppercase tracking-widest mb-3">Tim Mentor</p>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-brand-black mb-4">
-            Dibimbing oleh Mereka<br className="hidden sm:block" /> yang Sudah Melewatinya
-          </h2>
-          <p className="text-brand-muted max-w-xl mx-auto text-base leading-relaxed">
-            Mentor otwptn adalah alumni yang dirinya sendiri diterima melalui jalur-jalur non-test
-            yang sama dengan yang akan kamu tempuh.
-          </p>
-        </div>
+    <section ref={ref} className="section-pad px-4 relative overflow-hidden" style={{ background: 'var(--dark)' }}>
+      {/* Dot-grid texture */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: 'radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px)',
+        backgroundSize: '28px 28px',
+        maskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 85%)',
+        WebkitMaskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 85%)',
+      }} />
 
-        {/* Mentor Cards */}
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
-          {mentors.map((mentor) => (
-            <div key={mentor.label} className="bg-white rounded-2xl border border-brand-gray-2 overflow-hidden flex flex-col">
-              {/* Card Header */}
-              <div className="bg-brand-black px-6 py-5">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full bg-brand-yellow flex items-center justify-center shrink-0">
-                    <Star size={18} className="text-brand-black" fill="currentColor" />
-                  </div>
-                  <div>
-                    <p className="font-extrabold text-white text-base">{mentor.label}</p>
-                    <p className="text-white/50 text-xs">{mentor.jalur}</p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {mentor.categories.map((cat) => (
-                    <span key={cat} className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${categoryColor[cat]}`}>
-                      {cat}
-                    </span>
-                  ))}
-                </div>
-              </div>
+      {/* Scattered floating stars via parallax */}
+      {STARS.map((s, i) => (
+        <motion.div key={i} style={{ y: s.speed, top: s.top, left: s.left, opacity: s.op }} className="absolute pointer-events-none">
+          <Star size={s.size} fill="var(--accent)" stroke="none" />
+        </motion.div>
+      ))}
+      <motion.div style={{ y: y2, rotate }} className="absolute bottom-16 right-[10%] opacity-10 pointer-events-none">
+        <Star size={48} fill="var(--accent)" stroke="none" />
+      </motion.div>
 
-              {/* Achievements */}
-              <div className="px-6 py-5 flex flex-col gap-2.5">
-                <p className="text-xs font-bold text-brand-muted uppercase tracking-wider mb-1">Pencapaian</p>
-                {mentor.achievements.map((ach, i) => (
-                  <div key={i} className="flex items-start gap-2.5">
-                    <AchievementIcon type={ach.icon} />
-                    <span className="text-sm text-brand-black leading-snug">{ach.text}</span>
-                  </div>
-                ))}
-              </div>
+      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center relative z-10">
+        <motion.div
+          initial={{ opacity: 0, x: -24 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        >
+          <div className="inline-flex items-center gap-2 mb-6">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-black uppercase rounded-full"
+              style={{
+                border: '2px solid var(--accent)',
+                color: 'var(--accent)',
+                letterSpacing: '0.12em',
+                background: 'rgba(255,212,0,0.1)',
+              }}>
+              <Star size={9} fill="var(--accent)" stroke="none" />
+              Layanan Setiap Tahun
+              <Star size={9} fill="var(--accent)" stroke="none" />
             </div>
-          ))}
-        </div>
-
-        {/* Why section */}
-        <div className="bg-brand-yellow/10 border border-brand-yellow/30 rounded-2xl px-6 py-8 mb-10">
-          <div className="flex items-center gap-3 mb-5">
-            <Award size={20} className="text-brand-black" />
-            <h3 className="font-extrabold text-brand-black text-base">Kenapa Ini Penting?</h3>
           </div>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {[
-              { title: 'Pengalaman Nyata', desc: 'Mentor tahu persis apa yang dicari PTN karena pernah lolos seleksi yang sama.' },
-              { title: 'Feedback Relevan', desc: 'Bukan sekedar koreksi kalimat, tapi masukan substansi yang berpengaruh ke keputusan seleksi.' },
-              { title: 'Strategi Terbukti', desc: 'Strategi yang sudah terbukti berhasil membawa mereka diterima di berbagai PTN.' },
-            ].map((item) => (
-              <div key={item.title}>
-                <p className="font-bold text-brand-black text-sm mb-1">{item.title}</p>
-                <p className="text-brand-muted text-sm leading-relaxed">{item.desc}</p>
-              </div>
+          <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--accent)', letterSpacing: '0.1em' }}>Paket Mentor</div>
+          <h2 className="text-section-heading mt-3 mb-5" style={{ color: 'var(--dark-fg)' }}>
+            Butuh bimbingan lebih personal?
+          </h2>
+          <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--dark-muted)' }}>
+            AI bisa bantu banyak hal, tapi kadang kamu butuh ngobrol langsung sama orang yang pernah di posisimu.
+            Paket Intensif otwptn kasih kamu akses ke mentor asli — alumni yang lolos lewat jalur yang sama.
+          </p>
+          <ul className="space-y-2.5 mb-7">
+            {FEATS.map(f => (
+              <li key={f} className="flex items-start gap-2.5 text-sm">
+                <Check size={14} className="flex-shrink-0 mt-0.5" style={{ color: 'var(--accent)' }} />
+                <span style={{ color: 'rgba(255,255,255,0.85)' }}>{f}</span>
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
+          <Link href="/checkout/intensif" className="btn btn-primary px-6 py-3 text-sm">Lihat Paket Intensif</Link>
+        </motion.div>
 
-        {/* CTA */}
-        <div className="text-center">
-          <Link
-            href="/tentang-mentor"
-            className="inline-block text-sm font-bold text-brand-black underline underline-offset-4 hover:text-brand-yellow transition-colors"
-          >
-            Lihat profil lengkap mentor →
-          </Link>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, x: 24 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+          className="flex justify-center"
+        >
+          <motion.div style={{ y: y1 }}>
+            <Image src="/mascot/mentor.png" alt="Tim mentor otwptn" width={400} height={299} className="drop-shadow-2xl" />
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   )

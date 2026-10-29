@@ -112,38 +112,79 @@ export default function AdminPendaftarPage() {
   const jalurAddon = selected?.addon_jalur_ids?.map((id) => JALUR_LIST.find((j) => j.id === id)).filter(Boolean) ?? []
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-extrabold text-brand-black mb-6">Pendaftar</h1>
+    <div className="space-y-6">
+      {/* Header Banner Card */}
+      <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xs border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-start gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center p-2.5 flex-shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/mascot-hd/maskot-papan-checklist.png"
+              alt="Pendaftar"
+              className="w-full h-full object-contain"
+              onError={e => {
+                ;(e.currentTarget as HTMLImageElement).src = '/logo.png'
+              }}
+            />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900">
+                Data Siswa & Pendaftaran
+              </span>
+              <span className="text-xs text-gray-400 font-bold">•</span>
+              <span className="text-xs text-gray-500 font-bold">{registrations.length} Total Registrasi</span>
+            </div>
+            <h1 className="text-2xl font-black text-gray-950 tracking-tight">
+              Data Pendaftar Siswa & Status Paket
+            </h1>
+            <p className="text-xs text-gray-500 font-medium max-w-2xl mt-1">
+              Verifikasi bukti bayar paket bimbingan, assign kakak mentor alumni, dan kirimkan tautan grup WhatsApp 3 pihak.
+            </p>
+          </div>
+        </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted" />
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-bold text-gray-500">
+            Menunggu: <strong className="text-rose-600 font-black">{registrations.filter(r => r.status === 'pending').length}</strong>
+          </span>
+        </div>
+      </div>
+
+      {/* Filters & Search */}
+      <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="relative w-full sm:w-80">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari nama atau email..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black"
+            placeholder="Cari nama, email, atau asal sekolah..."
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 placeholder:text-gray-400 focus:bg-white focus:border-amber-400 outline-none"
           />
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as RegistrationStatus | 'all')}
-          className="px-4 py-2.5 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black bg-white"
-        >
-          <option value="all">Semua Status</option>
-          <option value="pending">Pending</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="rejected">Rejected</option>
-        </select>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          {(['all', 'pending', 'confirmed', 'rejected'] as const).map(st => (
+            <button
+              key={st}
+              onClick={() => setStatusFilter(st)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold capitalize transition-all cursor-pointer ${
+                statusFilter === st
+                  ? 'bg-amber-400 text-amber-950 shadow-2xs'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {st === 'all' ? 'Semua Status' : st}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-2xl border border-brand-gray-2 overflow-hidden">
+      {/* Table Container */}
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="border-b border-brand-gray-2 bg-brand-gray">
-              <tr className="text-left text-brand-muted">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="bg-gray-50 text-[11px] font-black uppercase tracking-wider text-gray-500 border-b border-gray-100">
                 <th className="px-5 py-3 font-semibold">Nama</th>
                 <th className="px-5 py-3 font-semibold">Paket</th>
                 <th className="px-5 py-3 font-semibold">Total</th>

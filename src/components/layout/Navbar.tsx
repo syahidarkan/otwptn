@@ -1,159 +1,104 @@
 'use client'
 
+// Adapted from pintarly — navbar: full-width bar at top, shrinks into floating pill on scroll
+
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Menu, X } from 'lucide-react'
-import Button from '@/components/ui/Button'
-import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
-
-const publicLinks = [
-  { href: '/#how-it-works', label: 'Deskripsi' },
-  { href: '/#kategori', label: 'Kategori' },
-  { href: '/#pricing', label: 'Paket' },
-  { href: '/jalur', label: 'Jalur PTN' },
-  { href: '/#mentor', label: 'Tentang Mentor' },
-]
-
-const memberLinks: { href: string; label: string }[] = []
+import { motion, AnimatePresence } from 'framer-motion'
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const [user, setUser] = useState<User | null>(null)
-  const [isAdmin, setIsAdmin] = useState(false)
-  const router = useRouter()
-  const supabase = createClient()
+  const scrolledRef = useRef(false)
 
   useEffect(() => {
-    async function loadUser() {
-      const { data } = await supabase.auth.getUser()
-      setUser(data.user)
-      if (data.user) {
-        const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single()
-        setIsAdmin(profile?.role === 'admin')
+    createClient().auth.getUser().then(({ data }) => setUser(data.user))
+
+    const fn = () => {
+      const y = window.scrollY
+      if (!scrolledRef.current && y > 40) {
+        scrolledRef.current = true
+        setScrolled(true)
+      } else if (scrolledRef.current && y < 12) {
+        scrolledRef.current = false
+        setScrolled(false)
       }
     }
-    loadUser()
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single()
-        setIsAdmin(profile?.role === 'admin')
-      } else {
-        setIsAdmin(false)
-      }
-    })
-    return () => subscription.unsubscribe()
+    window.addEventListener('scroll', fn, { passive: true })
+    return () => window.removeEventListener('scroll', fn)
   }, [])
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  async function handleLogout() {
-    await supabase.auth.signOut()
-    router.push('/')
-    router.refresh()
-  }
-
-  const allLinks = [...publicLinks, ...(user ? memberLinks : [])]
 
   return (
-    <nav className={cn(
-      'fixed top-0 left-0 right-0 z-40 transition-all duration-300',
-      scrolled ? 'bg-brand-black/95 backdrop-blur-sm' : 'bg-brand-black'
-    )}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-white font-extrabold text-xl">otw<span className="text-brand-yellow">ptn</span></span>
-          </Link>
+    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center px-0">
+      <motion.nav
+        className="glass-nav flex items-center justify-between w-full"
+        animate={{
+          maxWidth: scrolled ? 640 : 10000,
+          marginTop: scrolled ? 14 : 0,
+          borderRadius: scrolled ? 9999 : 0,
+          paddingTop: scrolled ? 8 : 16,
+          paddingBottom: scrolled ? 8 : 16,
+          boxShadow: scrolled ? '0 4px 20px rgba(0,0,0,0.07)' : '0 1px 0 rgba(0,0,0,0.05)',
+        }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        style={{ paddingLeft: 24, paddingRight: 24 }}
+      >
+        <Link href="/" className="flex items-center flex-shrink-0 py-1">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="otwptn" style={{ height: 52, width: 'auto' }} className="transition-transform hover:scale-105" />
+        </Link>
 
-          {/* Nav links desktop */}
-          <div className="hidden md:flex items-center gap-6">
-            {allLinks.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="text-sm text-white/80 hover:text-brand-yellow transition-colors font-medium"
-              >
-                {l.label}
-              </Link>
+        <div className="hidden md:flex items-center gap-1.5">
+          <Link href="/#fitur" className="px-3.5 py-1.5 text-sm font-semibold rounded-full hover:bg-black/5 transition-colors" style={{ color: 'var(--muted)' }}>Fitur</Link>
+          <Link href="/#harga" className="px-3.5 py-1.5 text-sm font-semibold rounded-full hover:bg-black/5 transition-colors" style={{ color: 'var(--muted)' }}>Harga</Link>
+          <Link href="/artikel" className="px-3.5 py-1.5 text-sm font-semibold rounded-full hover:bg-black/5 transition-colors" style={{ color: 'var(--muted)' }}>Artikel</Link>
+        </div>
+
+        <div className="hidden md:flex items-center gap-2 flex-shrink-0">
+          {user ? (
+            <Link href="/dashboard" className="btn btn-primary text-sm px-4 py-2">Dashboard</Link>
+          ) : (
+            <>
+              <Link href="/login" className="px-3 py-2 text-sm font-medium" style={{ color: 'var(--fg)' }}>Masuk</Link>
+              <Link href="/register" className="btn btn-primary text-sm px-4 py-2">Daftar</Link>
+            </>
+          )}
+        </div>
+
+        <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)} style={{ color: 'var(--fg)' }}>
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </motion.nav>
+
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18 }}
+            className="absolute top-20 w-full max-w-xs mx-4 glass-nav rounded-2xl p-2.5 z-50 shadow-xl"
+            style={{ border: '1px solid rgba(0,0,0,0.06)' }}
+          >
+            {[['Fitur', '/#fitur'], ['Harga', '/#harga'], ['Artikel', '/artikel']].map(([l, h]) => (
+              <Link key={h} href={h} onClick={() => setMobileOpen(false)} className="block px-4 py-2.5 text-sm font-bold rounded-xl hover:bg-black/5" style={{ color: 'var(--fg)' }}>{l}</Link>
             ))}
-          </div>
-
-          {/* CTA */}
-          <div className="hidden md:flex items-center gap-3">
+            <div className="border-t my-1" style={{ borderColor: 'var(--border)' }} />
             {user ? (
-              <>
-                <Button href={isAdmin ? '/admin' : '/dashboard'} variant="ghost" size="sm" className="text-white border-white/20 hover:bg-white/10">
-                  Dashboard
-                </Button>
-                <Button onClick={handleLogout} variant="primary" size="sm">
-                  Keluar
-                </Button>
-              </>
+              <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="btn btn-primary w-full py-2.5 text-sm mt-1">Dashboard</Link>
             ) : (
               <>
-                <Button href="/login" variant="ghost" size="sm" className="text-white border-white/20 hover:bg-white/10">
-                  Masuk
-                </Button>
-                <Button href="/daftar" variant="primary" size="sm">
-                  Daftar Sekarang
-                </Button>
+                <Link href="/login" onClick={() => setMobileOpen(false)} className="block px-4 py-2.5 text-sm font-medium text-center" style={{ color: 'var(--fg)' }}>Masuk</Link>
+                <Link href="/register" onClick={() => setMobileOpen(false)} className="btn btn-primary w-full py-2.5 text-sm mt-1">Daftar</Link>
               </>
             )}
-          </div>
-
-          {/* Mobile menu toggle */}
-          <button className="md:hidden text-white p-2" onClick={() => setOpen(!open)}>
-            {open ? <X size={22} /> : <Menu size={22} />}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      {open && (
-        <div className="md:hidden bg-brand-dark border-t border-white/10 px-4 py-4 flex flex-col gap-3">
-          {allLinks.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className="text-white/80 hover:text-brand-yellow text-sm font-medium py-2"
-            >
-              {l.label}
-            </Link>
-          ))}
-          <div className="flex flex-col gap-2 pt-2 border-t border-white/10">
-            {user ? (
-              <>
-                <Button href={isAdmin ? '/admin' : '/dashboard'} variant="ghost" size="sm" fullWidth className="text-white border-white/20">
-                  Dashboard
-                </Button>
-                <Button onClick={handleLogout} variant="primary" size="sm" fullWidth>
-                  Keluar
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button href="/login" variant="ghost" size="sm" fullWidth className="text-white border-white/20">
-                  Masuk
-                </Button>
-                <Button href="/daftar" variant="primary" size="sm" fullWidth>
-                  Daftar Sekarang
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-    </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }

@@ -1,6 +1,9 @@
 import type { JalurStatic, PricingMap, JalurCategory } from '@/types'
 
 export const JALUR_LIST: JalurStatic[] = [
+  // SNBP — jalur nasional berbasis rapor & peringkat sekolah, bukan per-PTN
+  { id: 'snbp', name: 'SNBP', ptn: 'Seluruh PTN Negeri', category: 'snbp' },
+
   // ESSAY ONLY
   { id: 'ppkb-ui', name: 'PPKB UI', ptn: 'Universitas Indonesia', category: 'essay_only' },
   { id: 'ssu-tes-tulis-itb', name: 'SSU Jalur Tes Tulis ITB', ptn: 'Institut Teknologi Bandung', category: 'essay_only' },
@@ -33,9 +36,9 @@ export const BANK_INFO = {
 }
 
 export const PRICING: Record<JalurCategory, PricingMap> = {
-  essay_only: { review: 65000, dokumen: 129000, menyeluruh: 259000 },
-  prestasi_only: { review: 50000, dokumen: 125000, menyeluruh: 249000 },
-  hybrid: { review: 75000, dokumen: 149000, menyeluruh: 269000 },
+  essay_only: { review: 99000, dokumen: 199000, menyeluruh: 399000 },
+  prestasi_only: { review: 99000, dokumen: 199000, menyeluruh: 399000 },
+  hybrid: { review: 99000, dokumen: 199000, menyeluruh: 399000 },
 }
 
 export const ADDON_PRICE: Record<JalurCategory, number> = {
@@ -44,22 +47,30 @@ export const ADDON_PRICE: Record<JalurCategory, number> = {
   hybrid: 50000,
 }
 
-export const CATEGORY_LABEL: Record<JalurCategory, string> = {
+export const CATEGORY_LABEL: Record<JalurCategory | 'snbp', string> = {
+  snbp: 'SNBP',
   essay_only: 'Essay Only',
   prestasi_only: 'Prestasi Only',
   hybrid: 'Hybrid',
 }
 
+export const LEGAL_ENTITY = {
+  name: 'PT. Lembaga Sains Nasional',
+  brand: 'otwptn',
+}
+
 export const TIER_LABEL: Record<string, string> = {
-  review: 'Review',
-  dokumen: 'Reguler',
-  menyeluruh: 'Intensif',
+  review: 'Nectar (Review)',
+  dokumen: 'Honeycomb (Reguler)',
+  menyeluruh: 'Queen Bee / Royal Jelly (Intensif)',
+  premium: 'Akun Premium (Fitur Only)',
 }
 
 export const TIER_DESCRIPTION: Record<string, string> = {
-  review: 'Udah bikin draf tapi masih ragu? Mentor kami bantu review dan poles dokumenmu biar bebas dari blind-spot dan siap bersaing!',
-  dokumen: 'Bingung mulai dari mana? Kami pandu kamu langkah demi langkah menyusun dokumen yang stand out sampai benar-benar siap dan pede untuk submit.',
-  menyeluruh: 'Dapatkan privilege bimbingan eksklusif! Dengan akses langsung ke mentor, kamu bisa bedah strategi dan konsultasi kapan saja untuk hasilkan dokumen terbaik.',
+  review: 'Udah punya draft tapi masih ragu? Nectar itu bahan dasar tiap madu, di sini kami review dan poles dokumenmu biar bebas dari blind spot dan siap buat langkah berikutnya.',
+  dokumen: 'Honeycomb itu struktur rapi tempat madu terbentuk. Kami bimbing kamu susun dokumen step-by-step, dari kerangka sampai strategi jurusan, sampai hasilnya benar-benar solid.',
+  menyeluruh: 'Ratu lebah selalu diprioritaskan sama seluruh sarang. Paket Queen Bee (Royal Jelly) kasih kamu akses mentor unlimited, revisi tanpa batas, dan perlakuan paling eksklusif sampai kamu 100% yakin.',
+  premium: 'Akses tanpa batas ke seluruh fitur kecerdasan buatan dan materi otwptn: AI Essay Reviewer, Kalkulator Peluang 5 Semester Rapor, Chat Otbee AI, Bebas buat Circle, dan Atur Strategi (tanpa mentor alumni).',
 }
 
 export const TIER_FEATURES: Record<JalurCategory, Record<string, string[]>> = {

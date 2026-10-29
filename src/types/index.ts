@@ -112,7 +112,7 @@ export interface JalurStatic {
   id: string
   name: string
   ptn: string
-  category: JalurCategory
+  category: JalurCategory | 'snbp'
   closed?: boolean
 }
 

@@ -105,18 +105,51 @@ export default function AdminJalurPage() {
     setForm(prev => ({ ...prev, [k]: e.target.value }))
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-extrabold text-brand-black">Jalur Masuk</h1>
-        <Button onClick={openAdd} variant="primary" size="sm">
-          <Plus size={15} /> Tambah Jalur
-        </Button>
+    <div className="space-y-6">
+      {/* Header Banner Card */}
+      <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xs border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-start gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center p-2.5 flex-shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/mascot-hd/roadmap-flags.png"
+              alt="Jalur Masuk"
+              className="w-full h-full object-contain"
+              onError={e => {
+                ;(e.currentTarget as HTMLImageElement).src = '/logo.png'
+              }}
+            />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900">
+                Direktori Jalur Masuk PTN
+              </span>
+              <span className="text-xs text-gray-400 font-bold">•</span>
+              <span className="text-xs text-gray-500 font-bold">{list.length} Jalur Terdaftar</span>
+            </div>
+            <h1 className="text-2xl font-black text-gray-950 tracking-tight">
+              Direktori Jalur Masuk PTN Non-Tes & Mandiri
+            </h1>
+            <p className="text-xs text-gray-500 font-medium max-w-2xl mt-1">
+              Database universitas, persyaratan sertifikat, jadwal pendaftaran, dan biaya registrasi seleksi mandiri PTN se-Indonesia.
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={openAdd}
+          className="bg-amber-400 hover:bg-amber-500 active:scale-95 text-amber-950 font-black px-5 py-3 rounded-2xl text-xs md:text-sm shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer flex-shrink-0"
+        >
+          <Plus size={18} strokeWidth={2.5} />
+          <span>Tambah Jalur Baru</span>
+        </button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-brand-gray-2 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="border-b border-brand-gray-2 bg-brand-gray">
-            <tr className="text-left text-brand-muted">
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-xs overflow-hidden">
+        <table className="w-full text-left text-xs">
+          <thead>
+            <tr className="bg-gray-50 text-[11px] font-black uppercase tracking-wider text-gray-500 border-b border-gray-100">
               <th className="px-5 py-3 font-semibold">Universitas / Nama</th>
               <th className="px-5 py-3 font-semibold">Kategori</th>
               <th className="px-5 py-3 font-semibold">Pendaftaran</th>

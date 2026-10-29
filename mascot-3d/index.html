@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mascot 3D Studio & Viewer - OTWPTN</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090B10;
+      --card-bg: rgba(18, 22, 34, 0.78);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-glow: rgba(253, 184, 19, 0.15);
+      --accent-yellow: #FDB813;
+      --accent-cyan: #2DD4BF;
+      --text-main: #F3F4F6;
+      --text-muted: #94A3B8;
+      --panel-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background: radial-gradient(circle at 50% 20%, #151A28 0%, #080A0F 100%);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    #webgl-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* Top Bar */
+    header {
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      right: 24px;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .brand-pill {
+      pointer-events: auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 999px;
+      padding: 8px 18px 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--panel-shadow);
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FDB813, #F59E0B);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 16px rgba(253, 184, 19, 0.5);
+    }
+
+    .brand-text h1 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.2px;
+    }
+
+    .brand-text p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .top-actions {
+      pointer-events: auto;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--panel-shadow);
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #FDB813, #D97706);
+      color: #090B10;
+      border: none;
+      font-weight: 700;
+      box-shadow: 0 4px 18px rgba(253, 184, 19, 0.35);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #FCD34D, #F59E0B);
+      box-shadow: 0 6px 24px rgba(253, 184, 19, 0.5);
+      color: #000;
+    }
+
+    /* Left Floating Control Panel */
+    .controls-panel {
+      position: absolute;
+      top: 86px;
+      left: 24px;
+      width: 270px;
+      z-index: 10;
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: var(--panel-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--accent-yellow);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Camera Preset Angles Grid */
+    .angle-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .angle-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: #CBD5E1;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 7px 4px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .angle-btn:hover {
+      background: rgba(253, 184, 19, 0.15);
+      border-color: rgba(253, 184, 19, 0.4);
+      color: #fff;
+    }
+
+    .angle-btn.active {
+      background: var(--accent-yellow);
+      color: #090B10;
+      border-color: var(--accent-yellow);
+      font-weight: 700;
+    }
+
+    /* Switches */
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #E2E8F0;
+      padding: 4px 0;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 20px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.12);
+      transition: .25s;
+      border-radius: 999px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .25s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--accent-yellow);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(18px);
+      background-color: #090B10;
+    }
+
+    /* Right Floating Reference Card */
+    .reference-panel {
+      position: absolute;
+      top: 86px;
+      right: 24px;
+      width: 310px;
+      z-index: 10;
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: var(--panel-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+    }
+
+    .reference-panel.minimized {
+      transform: translateX(330px);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .ref-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ref-img-wrapper {
+      width: 100%;
+      height: 230px;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+
+    .ref-img-wrapper img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: transform 0.2s;
+    }
+
+    .ref-tabs {
+      display: flex;
+      gap: 5px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .ref-tab {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #CBD5E1;
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .ref-tab.active {
+      background: var(--accent-cyan);
+      color: #090B10;
+      border-color: var(--accent-cyan);
+      font-weight: 700;
+    }
+
+    /* Bottom Drag and Drop Notification Bar */
+    .drop-banner {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px dashed rgba(253, 184, 19, 0.4);
+      border-radius: 16px;
+      padding: 10px 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 12px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .drop-banner:hover, .drop-banner.drag-over {
+      border-color: var(--accent-yellow);
+      background: rgba(253, 184, 19, 0.08);
+      color: #fff;
+    }
+
+    .drop-icon {
+      font-size: 16px;
+      color: var(--accent-yellow);
+    }
+
+    #file-input {
+      display: none;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(30px);
+      background: #10B981;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 999px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Three.js Canvas Container -->
+  <canvas id="webgl-canvas"></canvas>
+
+  <!-- Top Navigation & Actions -->
+  <header>
+    <div class="brand-pill">
+      <div class="brand-icon">🐝</div>
+      <div class="brand-text">
+        <h1>OTWPTN 3D Mascot Studio</h1>
+        <p>Interactive Turnaround & GLTF Inspector</p>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button class="btn" id="toggle-ref-btn">
+        <span>🖼️</span> 2D Reference
+      </button>
+      <button class="btn" id="screenshot-btn">
+        <span>📸</span> Snapshot
+      </button>
+      <button class="btn btn-primary" id="export-glb-btn">
+        <span>📦</span> Export .GLB
+      </button>
+    </div>
+  </header>
+
+  <!-- Left Control Panel -->
+  <div class="controls-panel">
+    <div>
+      <div class="section-title"><span>📐</span> View Angle Preset</div>
+      <div class="angle-grid" style="margin-top: 8px;">
+        <button class="angle-btn active" data-pos="0,1.48,6.8" data-look="0,1.48,0">Front</button>
+        <button class="angle-btn" data-pos="4.8,1.8,5.4" data-look="0,1.48,0">3/4 Front</button>
+        <button class="angle-btn" data-pos="7.2,1.48,0" data-look="0,1.48,0">Right</button>
+        <button class="angle-btn" data-pos="-7.2,1.48,0" data-look="0,1.48,0">Left</button>
+        <button class="angle-btn" data-pos="0,1.48,-7.2" data-look="0,1.48,0">Back</button>
+        <button class="angle-btn" data-pos="0,8.0,0.5" data-look="0,1.48,0">Top</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title"><span>⚙️</span> Motion & Shading</div>
+      <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 8px;">
+        <div class="toggle-row">
+          <span>Turntable Rotate</span>
+          <label class="switch">
+            <input type="checkbox" id="turntable-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <span>Wing Flap / Hover</span>
+          <label class="switch">
+            <input type="checkbox" id="anim-toggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <span>Orthographic Sheet</span>
+          <label class="switch">
+            <input type="checkbox" id="ortho-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title"><span>💡</span> Studio Lighting & Background</div>
+      <div class="angle-grid" style="margin-top: 8px;">
+        <button class="angle-btn" id="light-sheet">#F0F0F0</button>
+        <button class="angle-btn active" id="light-studio">Studio Dark</button>
+        <button class="angle-btn" id="light-warm">Warm</button>
+        <button class="angle-btn" id="light-neon">Neon</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Floating 2D Reference Card -->
+  <div class="reference-panel" id="reference-panel">
+    <div class="ref-header">
+      <div class="section-title"><span>🎨</span> 2D Reference Comparison</div>
+      <button class="angle-btn" id="close-ref-btn" style="padding: 2px 7px;">✕</button>
+    </div>
+
+    <div class="ref-tabs">
+      <button class="ref-tab active" data-img="references/bee_hd_front.png">HD Front</button>
+      <button class="ref-tab" data-img="references/three_quarter.png">3/4 View</button>
+      <button class="ref-tab" data-img="references/front.png">Front</button>
+      <button class="ref-tab" data-img="references/right.png">Right</button>
+      <button class="ref-tab" data-img="references/back.png">Back</button>
+      <button class="ref-tab" data-img="references/top.png">Top</button>
+      <button class="ref-tab" data-img="references/bottom.png">Bottom</button>
+    </div>
+
+    <div class="ref-img-wrapper">
+      <img id="ref-image-view" src="references/bee_hd_front.png" alt="2D Mascot Reference">
+    </div>
+  </div>
+
+  <!-- Bottom Drag & Drop Model Inspector -->
+  <div class="drop-banner" id="drop-banner">
+    <span class="drop-icon">📥</span>
+    <span>Drag & drop file <strong>.GLB / .GLTF</strong> ke sini (hasil AI/Blender) untuk langsung di-render</span>
+    <input type="file" id="file-input" accept=".glb,.gltf">
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">Berhasil diekspor!</div>
+
+  <!-- Script Imports -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+    import { MascotBee } from './src/mascot-model.js?v=user-perfect-v13';
+
+    // Scene Setup
+    const canvas = document.getElementById('webgl-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a0c13);
+
+    const cameraPersp = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+    cameraPersp.position.set(0, 1.48, 6.8);
+
+    const aspect = window.innerWidth / window.innerHeight;
+    const frustumHeight = 4.6;
+    const cameraOrtho = new THREE.OrthographicCamera(
+      -frustumHeight * aspect / 2,
+      frustumHeight * aspect / 2,
+      frustumHeight / 2,
+      -frustumHeight / 2,
+      0.1,
+      100
+    );
+    cameraOrtho.position.set(0, 1.48, 6.8);
+
+    let activeCamera = cameraPersp;
+
+    const controls = new OrbitControls(activeCamera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.target.set(0, 1.48, 0);
+    controls.minDistance = 1.5;
+    controls.maxDistance = 15;
+    controls.maxPolarAngle = Math.PI / 2 + 0.1;
+
+    // Ground Grid & Shadow Plane (Feet rest exactly at y = 0.0)
+    const groundGeo = new THREE.PlaneGeometry(30, 30);
+    const groundMat = new THREE.ShadowMaterial({ opacity: 0.35 });
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = 0.0;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    const gridHelper = new THREE.GridHelper(20, 20, 0x334155, 0x1E293B);
+    gridHelper.position.y = -0.001;
+    scene.add(gridHelper);
+
+    // Studio Lighting - Warm, vibrant toon studio lighting
+    const ambientLight = new THREE.AmbientLight(0xfff8f0, 0.95);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xfffaee, 2.0);
+    keyLight.position.set(4, 8, 6);
+    keyLight.castShadow = true;
+    keyLight.shadow.mapSize.width = 2048;
+    keyLight.shadow.mapSize.height = 2048;
+    keyLight.shadow.camera.near = 0.5;
+    keyLight.shadow.camera.far = 25;
+    keyLight.shadow.camera.left = -4;
+    keyLight.shadow.camera.right = 4;
+    keyLight.shadow.camera.top = 4;
+    keyLight.shadow.camera.bottom = -4;
+    keyLight.shadow.bias = -0.0005;
+    scene.add(keyLight);
+
+    const fillLight = new THREE.DirectionalLight(0xffeedd, 0.85);
+    fillLight.position.set(-5, 4, -3);
+    scene.add(fillLight);
+
+    const rimLight = new THREE.DirectionalLight(0xffdc88, 1.5);
+    rimLight.position.set(0, 6, -6);
+    scene.add(rimLight);
+
+    // Load Procedural Mascot
+    let mascot = new MascotBee();
+    let currentModelGroup = mascot.group;
+    scene.add(currentModelGroup);
+
+    // State
+    let isTurntable = false;
+    let isAnimated = true;
+    let isOrtho = false;
+    const clock = new THREE.Clock();
+
+    // Responsive resize
+    window.addEventListener('resize', () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const asp = w / h;
+
+      cameraPersp.aspect = asp;
+      cameraPersp.updateProjectionMatrix();
+
+      cameraOrtho.left = -frustumHeight * asp / 2;
+      cameraOrtho.right = frustumHeight * asp / 2;
+      cameraOrtho.top = frustumHeight / 2;
+      cameraOrtho.bottom = -frustumHeight / 2;
+      cameraOrtho.updateProjectionMatrix();
+
+      renderer.setSize(w, h);
+    });
+
+    // Angle Presets
+    document.querySelectorAll('.angle-btn[data-pos]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.angle-btn[data-pos]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const [px, py, pz] = btn.dataset.pos.split(',').map(Number);
+        const [lx, ly, lz] = btn.dataset.look.split(',').map(Number);
+
+        // Smooth tween
+        const startPos = activeCamera.position.clone();
+        const endPos = new THREE.Vector3(px, py, pz);
+        const startTarget = controls.target.clone();
+        const endTarget = new THREE.Vector3(lx, ly, lz);
+        let progress = 0;
+
+        isTurntable = false;
+        document.getElementById('turntable-toggle').checked = false;
+        currentModelGroup.rotation.y = 0;
+
+        function animateCam() {
+          progress += 0.05;
+          activeCamera.position.lerpVectors(startPos, endPos, easeOutQuad(progress));
+          controls.target.lerpVectors(startTarget, endTarget, easeOutQuad(progress));
+          if (progress < 1) {
+            requestAnimationFrame(animateCam);
+          }
+        }
+        animateCam();
+      });
+    });
+
+    function easeOutQuad(x) {
+      return 1 - (1 - x) * (1 - x);
+    }
+
+    // Controls
+    document.getElementById('turntable-toggle').addEventListener('change', (e) => {
+      isTurntable = e.target.checked;
+    });
+
+    document.getElementById('anim-toggle').addEventListener('change', (e) => {
+      isAnimated = e.target.checked;
+    });
+
+    // Orthographic Camera Toggle
+    document.getElementById('ortho-toggle').addEventListener('change', (e) => {
+      isOrtho = e.target.checked;
+      const prevPos = activeCamera.position.clone();
+      const prevTarget = controls.target.clone();
+
+      if (isOrtho) {
+        cameraOrtho.position.copy(prevPos);
+        activeCamera = cameraOrtho;
+      } else {
+        cameraPersp.position.copy(prevPos);
+        activeCamera = cameraPersp;
+      }
+
+      controls.object = activeCamera;
+      controls.target.copy(prevTarget);
+      controls.update();
+      showToast(isOrtho ? '📐 Mode Orthographic Aktif (Character Sheet)' : '🎥 Mode Perspektif Aktif');
+    });
+
+    // Lighting Modes
+    function setLightMode(name) {
+      document.querySelectorAll('#light-sheet, #light-studio, #light-warm, #light-neon').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById(name);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    document.getElementById('light-sheet').addEventListener('click', () => {
+      setLightMode('light-sheet');
+      keyLight.color.setHex(0xffffff);
+      keyLight.intensity = 2.0;
+      fillLight.color.setHex(0xe2e8f0);
+      fillLight.intensity = 1.3;
+      rimLight.color.setHex(0xfde68a);
+      rimLight.intensity = 0.9;
+      ambientLight.intensity = 1.4;
+      scene.background.setHex(0xF0F0F0);
+      groundMat.opacity = 0.16;
+      gridHelper.visible = true;
+    });
+
+    document.getElementById('light-studio').addEventListener('click', () => {
+      setLightMode('light-studio');
+      keyLight.color.setHex(0xfff6e5);
+      keyLight.intensity = 2.2;
+      fillLight.color.setHex(0xa5d8f3);
+      fillLight.intensity = 1.2;
+      rimLight.color.setHex(0xfdb813);
+      rimLight.intensity = 1.8;
+      ambientLight.intensity = 1.2;
+      scene.background.setHex(0x0a0c13);
+      groundMat.opacity = 0.35;
+      gridHelper.visible = true;
+    });
+
+    document.getElementById('light-warm').addEventListener('click', () => {
+      setLightMode('light-warm');
+      keyLight.color.setHex(0xff9944);
+      keyLight.intensity = 2.6;
+      fillLight.color.setHex(0x552211);
+      rimLight.color.setHex(0xffbb33);
+      ambientLight.intensity = 1.0;
+      scene.background.setHex(0x140a08);
+      groundMat.opacity = 0.35;
+    });
+
+    document.getElementById('light-neon').addEventListener('click', () => {
+      setLightMode('light-neon');
+      keyLight.color.setHex(0x00f0ff);
+      keyLight.intensity = 2.5;
+      fillLight.color.setHex(0xff0077);
+      rimLight.color.setHex(0xfdb813);
+      ambientLight.intensity = 0.8;
+      scene.background.setHex(0x050814);
+      groundMat.opacity = 0.35;
+    });
+
+    // Reference Panel Tabs
+    const refImgView = document.getElementById('ref-image-view');
+    document.querySelectorAll('.ref-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.ref-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        refImgView.src = tab.dataset.img;
+      });
+    });
+
+    const refPanel = document.getElementById('reference-panel');
+    document.getElementById('toggle-ref-btn').addEventListener('click', () => {
+      refPanel.classList.toggle('minimized');
+    });
+    document.getElementById('close-ref-btn').addEventListener('click', () => {
+      refPanel.classList.add('minimized');
+    });
+
+    // Snapshot Screenshot
+    document.getElementById('screenshot-btn').addEventListener('click', () => {
+      renderer.render(scene, activeCamera);
+      const url = renderer.domElement.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `otwptn-mascot-3d-${Date.now()}.png`;
+      a.click();
+      showToast('📸 Screenshot tersimpan!');
+    });
+
+    // GLB Export
+    document.getElementById('export-glb-btn').addEventListener('click', () => {
+      const exporter = new GLTFExporter();
+      exporter.parse(
+        currentModelGroup,
+        (gltf) => {
+          const blob = new Blob([gltf], { type: 'application/octet-stream' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'otwptn-mascot-bee.glb';
+          a.click();
+          URL.revokeObjectURL(url);
+          showToast('📦 Model Mascot diekspor ke .GLB!');
+        },
+        (err) => {
+          console.error('Export error:', err);
+        },
+        { binary: true }
+      );
+    });
+
+    // Toast
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // Drag and Drop GLB Loader
+    const dropBanner = document.getElementById('drop-banner');
+    const fileInput = document.getElementById('file-input');
+
+    dropBanner.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        loadGLBFile(e.target.files[0]);
+      }
+    });
+
+    ['dragenter', 'dragover'].forEach(name => {
+      window.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropBanner.classList.add('drag-over');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+      window.addEventListener(name, (e) => {
+        e.preventDefault();
+        dropBanner.classList.remove('drag-over');
+      });
+    });
+
+    window.addEventListener('drop', (e) => {
+      if (e.dataTransfer.files.length > 0) {
+        loadGLBFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    function loadGLBFile(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const contents = e.target.result;
+        const loader = new GLTFLoader();
+        loader.parse(contents, '', (gltf) => {
+          scene.remove(currentModelGroup);
+          currentModelGroup = gltf.scene;
+
+          // Compute bounding box and center
+          const box = new THREE.Box3().setFromObject(currentModelGroup);
+          const size = box.getSize(new THREE.Vector3());
+          const center = box.getCenter(new THREE.Vector3());
+
+          // Scale normalize
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const scale = 2.4 / maxDim;
+          currentModelGroup.scale.setScalar(scale);
+
+          currentModelGroup.position.x = -center.x * scale;
+          currentModelGroup.position.y = (-center.y * scale) + 1.2;
+          currentModelGroup.position.z = -center.z * scale;
+
+          currentModelGroup.traverse(child => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+
+          scene.add(currentModelGroup);
+          showToast(`✅ Model '${file.name}' berhasil dimuat!`);
+        });
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // Main Animation Loop
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const time = clock.getElapsedTime();
+
+      if (isTurntable) {
+        currentModelGroup.rotation.y += 0.008;
+      }
+
+      if (isAnimated && mascot && currentModelGroup === mascot.group) {
+        mascot.update(time);
+      }
+
+      controls.update();
+      renderer.render(scene, activeCamera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>

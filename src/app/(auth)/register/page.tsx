@@ -1,138 +1,104 @@
 'use client'
 
+// Adapted from aimasukptn — centered auth card, mascot, floating symbols
+
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import Button from '@/components/ui/Button'
-import Input from '@/components/ui/Input'
-
-const schema = z.object({
-  full_name: z.string().min(3, 'Nama minimal 3 karakter'),
-  email: z.string().email('Email tidak valid'),
-  password: z.string().min(8, 'Password minimal 8 karakter'),
-  confirm: z.string(),
-}).refine((d) => d.password === d.confirm, {
-  message: 'Password tidak cocok',
-  path: ['confirm'],
-})
-type FormData = z.infer<typeof schema>
+import Image from 'next/image'
+import { motion } from 'framer-motion'
+import { Check } from 'lucide-react'
 
 export default function RegisterPage() {
+  const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
-    resolver: zodResolver(schema),
-  })
-
-  async function onSubmit(data: FormData) {
-    setError(null)
-    const { error: authError } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        data: { full_name: data.full_name },
-      },
-    })
-
-    if (authError) {
-      if (authError.message.includes('already registered')) {
-        setError('Email sudah terdaftar. Silakan login.')
-      } else {
-        setError('Terjadi kesalahan. Coba lagi.')
-      }
+  async function handleRegister(e: React.FormEvent) {
+    e.preventDefault()
+    if (password.length < 8) { setError('Password minimal 8 karakter.'); return }
+    setLoading(true); setError(null)
+    const { data, error: err } = await createClient().auth.signUp({ email, password, options: { data: { full_name: fullName } } })
+    if (err) { setError(err.message); setLoading(false); return }
+    // If email confirmation is disabled, session is returned immediately
+    if (data.session) {
+      router.push('/onboarding')
       return
     }
+    setSuccess(true); setLoading(false)
+  }
 
-    setSuccess(true)
-    setTimeout(() => router.push('/login'), 3000)
+  async function handleGoogle() {
+    await createClient().auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}/auth/callback` } })
   }
 
   if (success) {
     return (
-      <div className="min-h-screen bg-brand-gray flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-sm border border-brand-gray-2 p-8 max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">✓</span>
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--hero-grad)' }}>
+        <div className="w-full max-w-sm card p-8 text-center" style={{ background: 'rgba(255,255,255,0.92)' }}>
+          <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-5" style={{ background: '#dcfce7' }}>
+            <Check size={24} style={{ color: '#15803d' }} />
           </div>
-          <h2 className="text-xl font-bold text-brand-black">Cek email kamu!</h2>
-          <p className="text-brand-muted text-sm mt-2">
-            Kami kirim link verifikasi ke emailmu. Klik link tersebut untuk mengaktifkan akun, lalu login.
-          </p>
-          <p className="text-xs text-brand-muted mt-4">Mengalihkan ke halaman login...</p>
+          <h1 className="text-lg font-bold text-fg mb-2">Cek email kamu!</h1>
+          <p className="text-sm mb-5" style={{ color: 'var(--muted)' }}>Link konfirmasi sudah dikirim ke <strong>{email}</strong>.</p>
+          <Link href="/login" className="btn btn-dark w-full py-3 text-sm">Sudah konfirmasi? Masuk →</Link>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-brand-gray flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-sm border border-brand-gray-2 p-8">
-          <div className="mb-8 text-center">
-            <Link href="/">
-              <span className="text-brand-black font-extrabold text-2xl">
-                otw<span className="text-brand-yellow">ptn</span>
-              </span>
-            </Link>
-            <h1 className="text-xl font-bold mt-4 text-brand-black">Buat akun baru</h1>
-            <p className="text-sm text-brand-muted mt-1">Sudah daftar? Akun dibuat otomatis saat checkout</p>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <Input
-              label="Nama Lengkap"
-              placeholder="Nama lengkap kamu"
-              register={register('full_name')}
-              error={errors.full_name?.message}
-            />
-            <Input
-              label="Email"
-              type="email"
-              placeholder="email@kamu.com"
-              register={register('email')}
-              error={errors.email?.message}
-            />
-            <Input
-              label="Password"
-              type="password"
-              placeholder="Minimal 8 karakter"
-              register={register('password')}
-              error={errors.password?.message}
-            />
-            <Input
-              label="Konfirmasi Password"
-              type="password"
-              placeholder="Ulangi password"
-              register={register('confirm')}
-              error={errors.confirm?.message}
-            />
-
-            {error && (
-              <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-                {error}
-              </div>
-            )}
-
-            <Button type="submit" variant="primary" fullWidth loading={isSubmitting}>
-              Buat Akun
-            </Button>
-          </form>
-
-          <p className="text-center text-sm text-brand-muted mt-6">
-            Sudah punya akun?{' '}
-            <Link href="/login" className="font-semibold text-brand-black hover:underline">
-              Masuk di sini
-            </Link>
-          </p>
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden" style={{ background: 'var(--hero-grad)' }}>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="w-full max-w-sm card p-8 text-center"
+        style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(16px)' }}
+      >
+        <div className="flex justify-center mb-5">
+          <Image src="/logo.png" alt="otwptn" width={180} height={60}  />
         </div>
-      </div>
+
+        <h1 className="text-xl font-bold text-fg mb-1" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>Mulai persiapanmu!</h1>
+        <p className="text-sm mb-6" style={{ color: 'var(--muted)' }}>Gratis selamanya — upgrade kapan aja.</p>
+
+        <button onClick={handleGoogle} className="w-full flex items-center justify-center gap-3 py-3 px-5 rounded-full text-sm font-semibold mb-4" style={{ background: 'var(--bg)', border: '1.5px solid var(--border)', color: 'var(--fg)' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Daftar dengan Google
+        </button>
+
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
+          <span className="text-xs" style={{ color: 'var(--muted)' }}>atau</span>
+          <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
+        </div>
+
+        <form onSubmit={handleRegister} className="space-y-3 text-left">
+          <div>
+            <label className="block text-xs font-semibold text-fg mb-1">Nama Lengkap</label>
+            <input value={fullName} onChange={e => setFullName(e.target.value)} required placeholder="Nama kamu" className="input" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-fg mb-1">Email</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="kamu@email.com" className="input" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-fg mb-1">Password</label>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="Min. 8 karakter" className="input" />
+          </div>
+          {error && <div className="text-xs px-3 py-2 rounded-lg" style={{ background: '#fee2e2', color: '#b91c1c' }}>{error}</div>}
+          <button type="submit" disabled={loading} className="btn btn-dark w-full py-3 text-sm disabled:opacity-40">{loading ? 'Membuat akun...' : 'Buat Akun Gratis'}</button>
+        </form>
+
+        <p className="text-xs mt-5" style={{ color: 'var(--muted)' }}>Sudah punya akun? <Link href="/login" className="font-bold text-fg hover:underline">Masuk</Link></p>
+        <p className="text-xs mt-4" style={{ color: 'var(--muted-2)' }}>Dipercaya 500+ pelajar kejar PTN impian</p>
+      </motion.div>
     </div>
   )
 }
