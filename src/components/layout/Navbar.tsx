@@ -49,15 +49,13 @@ export default function Navbar() {
       >
         <Link href="/" className="flex items-center flex-shrink-0 py-1">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="otwptn" style={{ height: 52, width: 'auto' }} className="dark:hidden transition-transform hover:scale-105" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-dark.png" alt="otwptn" style={{ height: 52, width: 'auto' }} className="hidden dark:block transition-transform hover:scale-105" />
+          <img src="/logo.png" alt="otwptn" style={{ height: 52, width: 'auto' }} className="transition-transform hover:scale-105" />
         </Link>
 
         <div className="hidden md:flex items-center gap-1.5">
-          <Link href="/#fitur" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-600 dark:text-gray-200 hover:text-gray-950 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors">Fitur</Link>
-          <Link href="/#harga" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-600 dark:text-gray-200 hover:text-gray-950 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors">Harga</Link>
-          <Link href="/artikel" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-600 dark:text-gray-200 hover:text-gray-950 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors">Artikel</Link>
+          <Link href="/#fitur" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-700 hover:text-gray-950 hover:bg-black/5 transition-colors">Fitur</Link>
+          <Link href="/#harga" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-700 hover:text-gray-950 hover:bg-black/5 transition-colors">Harga</Link>
+          <Link href="/artikel" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-700 hover:text-gray-950 hover:bg-black/5 transition-colors">Artikel</Link>
         </div>
 
         <div className="hidden md:flex items-center gap-2 flex-shrink-0">
@@ -65,13 +63,13 @@ export default function Navbar() {
             <Link href="/dashboard" className="btn btn-primary text-sm px-4 py-2 font-bold shadow-sm">Dashboard</Link>
           ) : (
             <>
-              <Link href="/login" className="px-3.5 py-2 text-sm font-bold text-gray-800 dark:text-gray-100 hover:text-amber-500 transition-colors">Masuk</Link>
+              <Link href="/login" className="px-3.5 py-2 text-sm font-bold text-gray-800 hover:text-amber-600 transition-colors">Masuk</Link>
               <Link href="/register" className="btn btn-primary text-sm px-4 py-2 font-black shadow-sm">Daftar</Link>
             </>
           )}
         </div>
 
-        <button className="md:hidden p-2 text-gray-800 dark:text-gray-100" onClick={() => setMobileOpen(!mobileOpen)}>
+        <button className="md:hidden p-2 text-gray-800" onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </motion.nav>

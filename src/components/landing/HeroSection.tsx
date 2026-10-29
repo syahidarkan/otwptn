@@ -157,11 +157,11 @@ export default function HeroSection() {
       />
 
       <div className="relative z-10 px-4 flex flex-col items-center text-center max-w-3xl mx-auto w-full py-12 md:py-16">
-        <motion.h1 {...fadeUp(0.04)} className="text-hero text-gray-950 dark:text-white mb-6 md:mb-7 leading-[1.14] tracking-tight">
+        <motion.h1 {...fadeUp(0.04)} className="text-hero text-gray-950 mb-6 md:mb-7 leading-[1.14] tracking-tight">
           Masuk PTN Impianmu{' '}
           <span className="inline-flex items-center align-middle flex-wrap gap-2.5 justify-center">
-            <span className="text-gray-950 dark:text-white font-extrabold">Tanpa</span>
-            <span className="inline-flex items-center justify-center px-4 py-1 rounded-2xl bg-amber-400 text-amber-950 dark:bg-amber-400 dark:text-amber-950 shadow-sm font-black overflow-hidden">
+            <span className="text-gray-950 font-extrabold">Tanpa</span>
+            <span className="inline-flex items-center justify-center px-4 py-1 rounded-2xl bg-amber-400 text-amber-950 shadow-sm font-black overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.span
                   key={WORDS[idx]}
@@ -178,7 +178,7 @@ export default function HeroSection() {
           </span>
         </motion.h1>
 
-        <motion.p {...fadeUp(0.16)} className="mb-8 max-w-xl mx-auto text-sm sm:text-base leading-relaxed px-2 text-gray-600 dark:text-gray-300 font-medium">
+        <motion.p {...fadeUp(0.16)} className="mb-8 max-w-xl mx-auto text-sm sm:text-base leading-relaxed px-2 text-gray-700 font-medium">
           Upload essay-mu, isi profil akademikmu, dan otwptn langsung beri analisis AI canggih —
           skor essay, estimasi peluang rasionalisasi SNBP, dan bimbingan 1-on-1 mentor alumni UI, ITB, & UGM.
         </motion.p>
@@ -188,22 +188,22 @@ export default function HeroSection() {
             <Zap size={15} fill="currentColor" />
             Mulai Belajar Sekarang
           </Link>
-          <Link href="/dashboard/kalkulator" className="btn btn-outline px-6 py-3.5 text-sm font-bold w-full sm:w-auto border-gray-200 dark:border-zinc-700 hover:bg-gray-100/60 dark:hover:bg-zinc-800 text-gray-900 dark:text-gray-100">
+          <Link href="/dashboard/kalkulator" className="btn btn-outline px-6 py-3.5 text-sm font-bold w-full sm:w-auto border-gray-300 hover:bg-white/80 text-gray-900 bg-white/50">
             Simulasi Peluang Gratis
           </Link>
         </motion.div>
 
         {/* Social Proof Stats */}
-        <motion.div {...fadeUp(0.32)} className="flex items-center justify-center flex-wrap gap-6 text-xs text-gray-500 dark:text-gray-400 font-semibold pt-4 border-t border-gray-200 dark:border-zinc-800 w-full max-w-md">
+        <motion.div {...fadeUp(0.32)} className="flex items-center justify-center flex-wrap gap-6 text-xs text-gray-600 font-semibold pt-4 border-t border-amber-950/10 w-full max-w-md">
           <div className="flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
             <span>Mentor Alumni Terverifikasi</span>
           </div>
           <div>
-            <strong className="text-gray-950 dark:text-white font-extrabold">12.500+</strong> Pejuang PTN
+            <strong className="text-gray-950 font-extrabold">12.500+</strong> Pejuang PTN
           </div>
           <div>
-            <strong className="text-gray-950 dark:text-white font-extrabold">94.8%</strong> Lolos Prodi Pilihan
+            <strong className="text-gray-950 font-extrabold">94.8%</strong> Lolos Prodi Pilihan
           </div>
         </motion.div>
       </div>

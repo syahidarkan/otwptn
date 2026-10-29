@@ -1,40 +1,43 @@
 'use client'
 
 import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 
 export default function ThemeHydrator() {
+  const pathname = usePathname()
+
   useEffect(() => {
     try {
-      const applyTheme = (theme: 'dark' | 'light') => {
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark')
-          document.documentElement.setAttribute('data-theme', 'dark')
-        } else {
-          document.documentElement.classList.remove('dark')
-          document.documentElement.setAttribute('data-theme', 'light')
-        }
+      // 1. Homepage & Public Landing Pages are FIXED LIGHT (tidak terpengaruh device dark mode)
+      const isPublicLanding =
+        pathname === '/' ||
+        pathname === '/artikel' ||
+        pathname?.startsWith('/artikel/') ||
+        pathname === '/upgrade' ||
+        pathname === '/panduan' ||
+        pathname === '/jalur' ||
+        pathname?.startsWith('/jalur/') ||
+        pathname === '/daftar' ||
+        pathname === '/login' ||
+        pathname === '/register'
+
+      if (isPublicLanding) {
+        document.documentElement.classList.remove('dark')
+        document.documentElement.setAttribute('data-theme', 'light')
+        return
       }
 
+      // 2. Member / Dashboard / Admin Area: follow explicit user preference
       const stored = localStorage.getItem('theme')
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-
-      if (stored === 'dark' || stored === 'light') {
-        applyTheme(stored)
+      if (stored === 'dark') {
+        document.documentElement.classList.add('dark')
+        document.documentElement.setAttribute('data-theme', 'dark')
       } else {
-        applyTheme(mediaQuery.matches ? 'dark' : 'light')
+        document.documentElement.classList.remove('dark')
+        document.documentElement.setAttribute('data-theme', 'light')
       }
-
-      const handler = (e: MediaQueryListEvent) => {
-        const currentStored = localStorage.getItem('theme')
-        if (!currentStored || currentStored === 'system') {
-          applyTheme(e.matches ? 'dark' : 'light')
-        }
-      }
-
-      mediaQuery.addEventListener('change', handler)
-      return () => mediaQuery.removeEventListener('change', handler)
     } catch {}
-  }, [])
+  }, [pathname])
 
   return null
 }
