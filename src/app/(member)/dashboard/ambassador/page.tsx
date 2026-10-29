@@ -32,7 +32,7 @@ export default function AmbassadorDashboardPage() {
   const [promoFilter, setPromoFilter] = useState<'Semua' | 'Story' | 'Feed' | 'Landscape'>('Semua')
   const [katalogCategory, setKatalogCategory] = useState<'Semua' | 'Nectar' | 'Honeycomb' | 'Queen Bee' | 'Akun Premium'>('Semua')
   const [posterAspect, setPosterAspect] = useState<'Story 9:16' | 'Feed 4:5'>('Story 9:16')
-  const [activeDemoVideo, setActiveDemoVideo] = useState<{ title: string; desc: string; duration: string } | null>(null)
+  const [activeDemoVideo, setActiveDemoVideo] = useState<{ title: string; desc: string; duration: string; videoUrl: string; feature: string } | null>(null)
 
   // Monitoring Stats & Financials
   const [totalReferred] = useState(6)
@@ -86,47 +86,151 @@ export default function AmbassadorDashboardPage() {
     }, 2000)
   }
 
-  // Screen Record Demos per Feature of otwptn
+  // Screen Record Demos per Feature of otwptn (12 Individual Lightweight 60FPS Video Recordings)
   const screenRecordDemos = [
     {
-      id: 'demo-1',
-      title: 'Demo: AI Essay Reviewer (Anotasi Kata per Kata)',
-      feature: 'Essay AI Review',
-      category: 'Landscape',
-      duration: '01:15',
-      previewImg: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80',
-      desc: 'Screen recording walkthrough cara AI membedah esai PPKB & SNBP kata demi kata, mendeteksi kalimat klise, dan memperbaiki hook pembuka.',
-      caption: `Bingung draf esai kamu sudah bagus atau masih klise? Tonton demo AI Essay Reviewer otwptn ini! Cek esaimu sekarang dan pakai kode "${referralCode}" untuk diskon pendaftaran di ${referralUrl}`,
-    },
-    {
-      id: 'demo-2',
-      title: 'Demo: Kalkulator Peluang 5 Semester Rapor',
+      id: 'demo-kalkulator',
+      slug: 'kalkulator-peluang',
+      title: 'Demo: Kalkulator Peluang SNBP (Rasionalisasi AI)',
       feature: 'Kalkulator Peluang',
       category: 'Story',
-      duration: '00:45',
-      previewImg: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=600&q=80',
-      desc: 'Screen recording ekstraksi nilai rapor otomatis, analisis tren kenaikan nilai, dan pencocokan kuota eligible sekolah di kampus impian.',
-      caption: `Sebelum submit SNBP, wajib tonton demo audit rapor otwptn ini. Dapatkan rasionalisasi nilai presisi dengan kode "${referralCode}" di ${referralUrl}`,
+      duration: '00:15',
+      videoUrl: '/promo-demos/kalkulator-peluang.webp',
+      previewImg: '/promo-demos/kalkulator-peluang.png',
+      desc: 'Screen recording simulasi rasionalisasi nilai rapor 5 semester, perhitungan peluang lolos prodi impian secara real-time.',
+      caption: `Mau tahu peluang lolos SNBP kamu di UI, ITB, atau UGM? Tonton demo live kalkulator AI otwptn ini! Cek sekarang pakai kode "${referralCode}" di ${referralUrl}`,
     },
     {
-      id: 'demo-3',
-      title: 'Demo: Tracking Jalur & Verifikasi Dokumen',
+      id: 'demo-essay',
+      slug: 'essay-ai-review',
+      title: 'Demo: AI Essay Reviewer (Anotasi Real-Time & Export)',
+      feature: 'Essay AI Review',
+      category: 'Landscape',
+      duration: '00:18',
+      videoUrl: '/promo-demos/essay-ai-review.webp',
+      previewImg: '/promo-demos/essay-ai-review.png',
+      desc: 'Screen recording editor esai mirip Google Docs dengan review AI 4 dimensi, deteksi kalimat klise, dan export PDF/Word.',
+      caption: `Tulis esai motivasi & prestasi anti-klise bareng AI Reviewer otwptn! Dapatkan feedback instan dengan kode "${referralCode}" di ${referralUrl}`,
+    },
+    {
+      id: 'demo-otbee',
+      slug: 'otbee-ai',
+      title: 'Demo: Otbee AI Chatbot (Konsultasi Jalur & Portofolio)',
+      feature: 'Otbee AI',
+      category: 'Story',
+      duration: '00:14',
+      videoUrl: '/promo-demos/otbee-ai.webp',
+      previewImg: '/promo-demos/otbee-ai.png',
+      desc: 'Screen recording tanya-jawab interaktif dengan Otbee AI seputar strategi prodi, audit rapor, dan tips lolos seleksi PTN.',
+      caption: `Asisten AI pintar 24/7 khusus pejuang PTN non-tes! Tanya apa saja ke Otbee AI di otwptn dengan kode "${referralCode}": ${referralUrl}`,
+    },
+    {
+      id: 'demo-strategi',
+      slug: 'atur-strategi',
+      title: 'Demo: Atur Strategi Pemilihan Prodi & Prioritas',
+      feature: 'Atur Strategi',
+      category: 'Landscape',
+      duration: '00:16',
+      videoUrl: '/promo-demos/atur-strategi.webp',
+      previewImg: '/promo-demos/atur-strategi.png',
+      desc: 'Screen recording penyusunan strategi prioritas jurusan SNBP, analisis passing grade dan pemetaan saingan sekolah.',
+      caption: `Jangan asal pilih jurusan! Susun strategi SNBP & seleksi mandiri berbasis data di otwptn. Kode referral: "${referralCode}" ➔ ${referralUrl}`,
+    },
+    {
+      id: 'demo-ecourse',
+      slug: 'modul-video',
+      title: 'Demo: Modul & Video E-Course (Skill Path Belajar)',
+      feature: 'Modul & Video',
+      category: 'Feed',
+      duration: '00:15',
+      videoUrl: '/promo-demos/modul-video.webp',
+      previewImg: '/promo-demos/modul-video.png',
+      desc: 'Screen recording materi kurikulum lengkap persiapan PTN, video penjelasan langkah demi langkah, dan rangkuman PDF.',
+      caption: `Belajar terstruktur dari dasar sampai mahir dengan E-Course interaktif otwptn. Akses modulnya pakai kode "${referralCode}": ${referralUrl}`,
+    },
+    {
+      id: 'demo-tracking',
+      slug: 'tracking-jalur',
+      title: 'Demo: Tracking Jalur & Timeline Seleksi 15+ PTN',
       feature: 'Tracking Jalur',
       category: 'Feed',
-      duration: '01:00',
-      previewImg: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=600&q=80',
-      desc: 'Screen recording checklist berkas persyaratan dan timeline pendaftaran dari 15+ PTN non-tes se-Indonesia agar tidak ada yang terlewat.',
-      caption: `Semua syarat dokumen PTN non-tes dirangkum lengkap dalam satu dashboard. Tonton demonya dan daftar dengan kode "${referralCode}": ${referralUrl}`,
+      duration: '00:16',
+      videoUrl: '/promo-demos/tracking-jalur.webp',
+      previewImg: '/promo-demos/tracking-jalur.png',
+      desc: 'Screen recording pemantauan jadwal buka-tutup pendaftaran jalur non-tes, tahapan berkas, dan notifikasi deadline.',
+      caption: `Gak bakal ketinggalan deadline jalur masuk PTN lagi! Pantau timeline seleksi di otwptn pakai kode "${referralCode}": ${referralUrl}`,
     },
     {
-      id: 'demo-4',
-      title: 'Demo: Collaborative Workspace Bersama Mentor Alumni',
+      id: 'demo-dokumen',
+      slug: 'penyimpanan-dokumen',
+      title: 'Demo: Penyimpanan Dokumen & Cloud Checklist',
+      feature: 'Penyimpanan Dokumen',
+      category: 'Feed',
+      duration: '00:12',
+      videoUrl: '/promo-demos/penyimpanan-dokumen.webp',
+      previewImg: '/promo-demos/penyimpanan-dokumen.png',
+      desc: 'Screen recording checklist berkas persyaratan (rapor, piagam prestasi, sertifikat) tersimpan rapi dan aman di cloud.',
+      caption: `Simpan dan rapikan semua dokumen pendaftaran PTN kamu di satu tempat aman! Cek otwptn dengan kode "${referralCode}": ${referralUrl}`,
+    },
+    {
+      id: 'demo-teman',
+      slug: 'cari-teman-belajar',
+      title: 'Demo: Cari Teman Belajar (Omegle Study Buddy)',
+      feature: 'Cari Teman Belajar',
+      category: 'Landscape',
+      duration: '00:15',
+      videoUrl: '/promo-demos/cari-teman-belajar.webp',
+      previewImg: '/promo-demos/cari-teman-belajar.png',
+      desc: 'Screen recording matching sesama pejuang PTN berdasarkan target kampus & jurusan, dilengkapi Pomodoro timer.',
+      caption: `Belajar bareng teman se-Indonesia yang punya target kampus sama! Coba fitur Cari Teman Belajar di otwptn: ${referralUrl}`,
+    },
+    {
+      id: 'demo-thread',
+      slug: 'komunitas-thread',
+      title: 'Demo: Komunitas Pejuang PTN (Feed Thread & Diskusi)',
+      feature: 'Komunitas Thread',
+      category: 'Feed',
+      duration: '00:15',
+      videoUrl: '/promo-demos/komunitas-thread.webp',
+      previewImg: '/promo-demos/komunitas-thread.png',
+      desc: 'Screen recording feed diskusi pejuang PTN, update info kuota, tanya jawab seputar seleksi, dan tips senior.',
+      caption: `Gabung komunitas pejuang PTN paling aktif di Indonesia! Diskusi dan tanya tips di otwptn: ${referralUrl}`,
+    },
+    {
+      id: 'demo-group',
+      slug: 'komunitas-group',
+      title: 'Demo: Komunitas Circle (Group Chat Dark Mode)',
+      feature: 'Komunitas Group',
+      category: 'Story',
+      duration: '00:16',
+      videoUrl: '/promo-demos/komunitas-group.webp',
+      previewImg: '/promo-demos/komunitas-group.png',
+      desc: 'Screen recording room group chat eksklusif per kampus (UI, ITB, UGM) dengan tampilan WhatsApp Web dark mode.',
+      caption: `Masuk Circle kampus impianmu dan ngobrol langsung bareng calon maba lain di otwptn! Daftar di ${referralUrl}`,
+    },
+    {
+      id: 'demo-mentor',
+      slug: 'mentor-alumni',
+      title: 'Demo: Mentor Alumni (1-on-1 Meet & VIP Docs Workspace)',
       feature: 'Mentor Alumni',
       category: 'Landscape',
-      duration: '01:30',
-      previewImg: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80',
-      desc: 'Screen recording sesi bimbingan 1-on-1 Google Meet dan Google Docs live annotation bersama alumni resmi Fasilkom UI & FK UGM.',
-      caption: `Bimbingan privat 1-on-1 langsung bareng alumni kampus impianmu. Gunakan kode "${referralCode}" untuk ambil kuota mentor: ${referralUrl}`,
+      duration: '00:18',
+      videoUrl: '/promo-demos/mentor-alumni.webp',
+      previewImg: '/promo-demos/mentor-alumni.png',
+      desc: 'Screen recording direktori mentor alumni resmi UI, ITB, UGM dan simulasi sesi bimbingan personal 1-on-1.',
+      caption: `Dibimbing langsung sampai lolos oleh alumni UI, ITB, UGM! Booking mentor pilihanmu dengan kode "${referralCode}" di ${referralUrl}`,
+    },
+    {
+      id: 'demo-ambassador',
+      slug: 'student-ambassador',
+      title: 'Demo: Student Ambassador (Komisi & Leaderboard)',
+      feature: 'Student Ambassador',
+      category: 'Story',
+      duration: '00:14',
+      videoUrl: '/promo-demos/student-ambassador.webp',
+      previewImg: '/promo-demos/student-ambassador.png',
+      desc: 'Screen recording dashboard ambassador, pelacakan komisi tunai instan, pencairan saldo, dan materi promosi.',
+      caption: `Dapat penghasilan jutaan sambil bantu teman lolos PTN impian! Gabung Student Ambassador otwptn sekarang: ${referralUrl}`,
     },
   ]
 
@@ -555,14 +659,20 @@ export default function AmbassadorDashboardPage() {
               <div className="space-y-3">
                 {/* Demo Video Thumbnail with Play Button */}
                 <div
-                  onClick={() => setActiveDemoVideo({ title: d.title, desc: d.desc, duration: d.duration })}
+                  onClick={() => setActiveDemoVideo({
+                    title: d.title,
+                    desc: d.desc,
+                    duration: d.duration,
+                    videoUrl: d.videoUrl,
+                    feature: d.feature
+                  })}
                   className="relative aspect-video rounded-2xl overflow-hidden bg-gray-900 cursor-pointer group"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={d.previewImg}
                     alt={d.title}
-                    className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-10 h-10 rounded-full bg-white/90 text-gray-900 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
@@ -592,8 +702,8 @@ export default function AmbassadorDashboardPage() {
                 <button
                   onClick={() => {
                     const link = document.createElement('a')
-                    link.href = '/mascot/otbee-phone.png'
-                    link.download = `${d.title.toLowerCase().replace(/\s+/g, '-')}.mp4`
+                    link.href = d.videoUrl
+                    link.download = `${d.slug}.webp`
                     link.click()
                   }}
                   className="py-1.5 rounded-xl hover:bg-gray-100 text-[11px] font-bold text-gray-700 flex flex-col items-center gap-1 transition-colors"
@@ -936,8 +1046,9 @@ export default function AmbassadorDashboardPage() {
         <InteractiveFeatureDemoPlayer
           title={activeDemoVideo.title}
           desc={activeDemoVideo.desc}
-          feature={activeDemoVideo.title}
+          feature={activeDemoVideo.feature}
           duration={activeDemoVideo.duration}
+          videoUrl={activeDemoVideo.videoUrl}
           onClose={() => setActiveDemoVideo(null)}
         />
       )}

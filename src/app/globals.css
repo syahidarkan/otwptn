@@ -403,15 +403,15 @@ html.dark .hover-lift span {
 .hover-lift { transition: transform 0.25s ease, box-shadow 0.25s ease; }
 .hover-lift:hover { transform: translateY(-5px); box-shadow: 0 20px 44px rgba(0,0,0,0.12); }
 
-/* ─── Pill highlight (hero keyword box) — true glass, same as navbar ── */
+/* ─── Pill highlight (hero keyword box) ─────────────────────────── */
 .pill-highlight {
   display: inline-block;
-  background: rgba(255,255,255,0.4);
-  backdrop-filter: blur(24px) saturate(2.2);
-  -webkit-backdrop-filter: blur(24px) saturate(2.2);
+  background: #f59e0b !important;
+  color: #1e1302 !important;
   border-radius: var(--r-xl);
   padding: 0.15em 0.5em;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.75);
+  font-weight: 900;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
 }
 
 /* ─── Glass card (pricing, feature previews) — true frosted glass ───── */

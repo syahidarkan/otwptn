@@ -122,10 +122,6 @@ export default function AdminJalurPage() {
           </div>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900">
-                Direktori Jalur Masuk PTN
-              </span>
-              <span className="text-xs text-gray-400 font-bold">•</span>
               <span className="text-xs text-gray-500 font-bold">{list.length} Jalur Terdaftar</span>
             </div>
             <h1 className="text-2xl font-black text-gray-950 tracking-tight">

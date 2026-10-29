@@ -58,21 +58,7 @@ export default function MentorSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
         >
-          <div className="inline-flex items-center gap-2 mb-6">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-black uppercase rounded-full"
-              style={{
-                border: '2px solid var(--accent)',
-                color: 'var(--accent)',
-                letterSpacing: '0.12em',
-                background: 'rgba(255,212,0,0.1)',
-              }}>
-              <Star size={9} fill="var(--accent)" stroke="none" />
-              Layanan Setiap Tahun
-              <Star size={9} fill="var(--accent)" stroke="none" />
-            </div>
-          </div>
-          <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--accent)', letterSpacing: '0.1em' }}>Paket Mentor</div>
-          <h2 className="text-section-heading mt-3 mb-5" style={{ color: 'var(--dark-fg)' }}>
+          <h2 className="text-section-heading mb-5" style={{ color: 'var(--dark-fg)' }}>
             Butuh bimbingan lebih personal?
           </h2>
           <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--dark-muted)' }}>

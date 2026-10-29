@@ -207,9 +207,6 @@ export default async function DashboardPage() {
           />
 
           <div className="relative z-10 max-w-md">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/90 backdrop-blur-md !text-amber-950 mb-2 shadow-xs" style={{ color: '#451a03' }}>
-              <Sparkles size={12} className="text-amber-600" /> Draf Aktif
-            </span>
             <p className="text-xs font-black tracking-wider uppercase mb-0.5" style={{ color: '#522b05' }}>
               Halo {firstName}
             </p>
@@ -299,9 +296,6 @@ export default async function DashboardPage() {
           <AmbientStarsCanvas />
 
           <div className="relative z-10 max-w-xl">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-sky-500/20 backdrop-blur-md text-sky-200 mb-3">
-              <Sparkles size={12} className="text-sky-300" /> Bimbingan Intensif PTN
-            </span>
             <h2 className="text-2xl md:text-3xl font-black tracking-tight text-white mb-1.5">
               Upgrade ke Paket Mentor
             </h2>

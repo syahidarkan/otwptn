@@ -11,6 +11,8 @@ interface InteractiveFeatureDemoPlayerProps {
   desc: string
   feature: string
   duration: string
+  videoUrl?: string
+  thumbnailUrl?: string
   onClose: () => void
 }
 
@@ -19,10 +21,12 @@ export default function InteractiveFeatureDemoPlayer({
   desc,
   feature,
   duration,
+  videoUrl,
+  thumbnailUrl,
   onClose,
 }: InteractiveFeatureDemoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(true)
-  const [activeTab, setActiveTab] = useState<'real_record' | 'interactive'>('real_record')
+  const currentVideo = videoUrl || '/promo-demos/kalkulator-peluang.webp'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
@@ -48,18 +52,14 @@ export default function InteractiveFeatureDemoPlayer({
           </button>
         </div>
 
-        {/* Tab Toggle */}
+        {/* Feature Pill */}
         <div className="flex items-center gap-2 p-1 bg-gray-900 rounded-xl w-fit border border-gray-800">
-          <button
-            onClick={() => setActiveTab('real_record')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition-colors ${
-              activeTab === 'real_record'
-                ? 'bg-amber-400 text-amber-950'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            📹 Screen Record Asli (Kalkulator, Essay, Otbee, E-Course, Mentor)
-          </button>
+          <span className="px-3 py-1 text-xs font-black bg-amber-400 text-amber-950 rounded-lg">
+            Fitur: {feature}
+          </span>
+          <span className="text-xs text-gray-400 font-mono pr-2">
+            Durasi {duration} • 60 FPS
+          </span>
         </div>
 
         {/* ACTUAL SCREEN RECORDING VIDEO STAGE */}
@@ -80,37 +80,37 @@ export default function InteractiveFeatureDemoPlayer({
             </span>
           </div>
 
-          {/* REAL SCREEN RECORDING ASSET (14MB Full 521-Frames Live Walkthrough) */}
+          {/* REAL SCREEN RECORDING ASSET (Lightweight ~300KB Sliced Video) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/promo-demos/otwptn_all_features_recording.webp?v=3"
-            alt="Screen Record Demo Fitur Asli OtwPTN"
+            src={currentVideo}
+            alt={title}
             className="w-full h-full object-contain bg-black"
           />
 
           {/* Overlay Features Progress Badge */}
           <div className="absolute bottom-3 left-3 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/70 backdrop-blur-md border border-white/10 text-xs font-bold text-white">
             <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            Demo Interaksi Kursor: Dashboard ➔ Kalkulator ➔ Essay AI ➔ Otbee ➔ E-Course ➔ Mentor
+            Walkthrough Interaksi Kursor: {title}
           </div>
         </div>
 
         {/* Footer Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
           <p className="text-xs text-gray-400 font-medium">
-            Video screen record asli ini memperlihatkan kursor mengklik & mengetik di seluruh fitur utama otwptn.
+            Video demo asli fitur ini memperlihatkan interaksi kursor & simulasi live di dashboard otwptn.
           </p>
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={() => {
                 const link = document.createElement('a')
-                link.href = '/promo-demos/otwptn_all_features_recording.webp'
-                link.download = `otwptn_screen_record_demo.webp`
+                link.href = currentVideo
+                link.download = `${title.toLowerCase().replace(/[^a-z0-9]/g, '_')}.webp`
                 link.click()
               }}
               className="btn-brand-primary px-4 py-2.5 rounded-full text-xs font-black flex items-center gap-1.5 shadow-sm"
             >
-              <Download size={14} /> Unduh Video Screen Record Ini (.WEBP / .MP4)
+              <Download size={14} /> Unduh Video Screen Record Ini (.WEBP)
             </button>
             <button
               onClick={onClose}
