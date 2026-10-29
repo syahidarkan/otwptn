@@ -104,9 +104,12 @@ export const metadata: Metadata = {
     canonical: 'https://otwptn.id',
   },
   icons: {
-    icon: '/favicon.png',
-    shortcut: '/favicon.png',
-    apple: '/favicon.png',
+    icon: [
+      { url: '/favicon.png?v=3', type: 'image/png' },
+      { url: '/favicon.ico?v=3', sizes: 'any' },
+    ],
+    shortcut: '/favicon.png?v=3',
+    apple: '/favicon.png?v=3',
   },
 }
 
@@ -182,9 +185,10 @@ export default function RootLayout({
       className={`${outfit.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
     >
       <head>
-        <link rel="icon" href="/favicon.png?v=2" type="image/png" />
-        <link rel="shortcut icon" href="/favicon.png?v=2" type="image/png" />
-        <link rel="apple-touch-icon" href="/favicon.png?v=2" />
+        <link rel="icon" href="/favicon.png?v=3" type="image/png" />
+        <link rel="icon" href="/favicon.ico?v=3" sizes="any" />
+        <link rel="shortcut icon" href="/favicon.png?v=3" type="image/png" />
+        <link rel="apple-touch-icon" href="/favicon.png?v=3" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

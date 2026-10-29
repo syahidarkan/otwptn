@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import OpenAI from 'openai'
+import { getAiClient } from '@/lib/ai/client'
 
 const TIER_KALKULATOR_LIMIT: Record<string, number | null> = {
   free: 1, web_premium: 5, review: 10, reguler: null, intensif: null,
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     pilihan_1?: { ptn: string; prodi: string }; pilihan_2?: { ptn: string; prodi: string }
   }
 
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  const { client, model } = getAiClient('complex')
 
   const semesterBreakdown = (semesters ?? [])
     .filter(s => s.subjects.length > 0)
@@ -70,93 +70,129 @@ export async function POST(request: Request) {
   if (jalur_type === 'snbp') {
     const quotaPct: Record<string, string> = { A: '40%', B: '25%', C: '5% (+5% jika sekolah pakai e-Rapor)' }
     const eligibilityText = is_snbp_eligible === true
-      ? `Menurut sekolah, siswa termasuk eligible (peringkat ke-${eligible_rank ?? '?'} dari kuota ${school_quota ?? '?'} siswa eligible)`
+      ? `Eligible resmi sekolah (peringkat ke-${eligible_rank ?? '?'} dari kuota ${school_quota ?? '?'} siswa)`
       : is_snbp_eligible === false
-        ? 'Menurut info yang dimiliki siswa, belum termasuk eligible'
-        : 'Status eligible belum dipastikan siswa'
+        ? 'Belum termasuk kuota eligible sekolah'
+        : 'Status eligible belum diverifikasi sekolah'
 
-    prompt = `Kamu adalah konsultan SNBP (Seleksi Nasional Berdasarkan Prestasi) Indonesia yang berpengalaman dan jujur soal keterbatasan data publik.
+    prompt = `Kamu adalah Pakar & Konsultan Senior Rasionalisasi SNBP (Seleksi Nasional Berdasarkan Prestasi) & PTN Indonesia di platform otwptn (PT. Lembaga Sains Nasional).
+Lakukan evaluasi multi-faktor yang mendalam, realistis, dan presisi tinggi sesuai dinamika seleksi SNPMB.
 
-KONTEKS PENTING yang harus kamu pegang (hasil riset terverifikasi, JANGAN menyimpang dari ini):
-- Kuota siswa eligible per sekolah ditentukan oleh akreditasi: akreditasi A dapat kuota ~40% siswa terbaik, B ~25%, C ~5% (+5% bonus jika sekolah pakai e-Rapor). Ini MENENTUKAN siapa yang BISA eligible, bukan skor akhir.
-- SIAPA yang masuk peringkat eligible di dalam kuota itu DITENTUKAN OLEH SEKOLAH masing-masing, bukan SNPMB — kriteria persis tiap sekolah tidak dipublikasikan, jadi jangan berpura-pura tahu persis.
-- Nilai rapor adalah komponen BERBOBOT TERBESAR (diperkirakan minimal 50%, tapi angka pasti tidak dipublikasikan resmi — sampaikan sebagai perkiraan, bukan fakta pasti).
-- Sisa bobot (prestasi, mapel pendukung sesuai prodi, portofolio) BERBEDA-BEDA tiap PTN/prodi dan tidak terpusat — jangan mengarang persentase pasti.
-- Sertifikat/prestasi BUKAN syarat wajib SNBP dan TIDAK punya bobot angka resmi — hanya nilai tambah kualitatif jika levelnya diakui (OSN/O2SN, tingkat provinsi/nasional), bukan sertifikat partisipasi/seminar biasa.
-- TKA (Tes Kemampuan Akademik) BUKAN komponen skor SNBP — ini syarat WAJIB (lulus/tidak) untuk bisa mendaftar SNBP 2026, terpisah dari UTBK/SNBT. Jangan beri bobot persentase ke TKA, cukup jadikan itu syarat administratif yang harus dipenuhi.
+FRAMEWORK EVALUASI MULTI-FAKTOR:
+1. Validasi Administratif & Kuota Sekolah:
+   - Akreditasi A (kuota 40% siswa paralel terbaik), B (25%), C (5%).
+   - TKA (Tes Kemampuan Akademik) merupakan syarat wajib administratif. Jika belum selesai, wajib diingatkan sebagai risiko gugur administrasi.
+2. Analisis Akademik & Mata Pelajaran Pendukung (Kepmenristekdikti):
+   - Jangan hanya melihat rata-rata umum rapor, tapi analisis tren grafik semester 1-5 (apakah naik stabil, turun, atau stagnan).
+   - Evaluasi nilai mata pelajaran pendukung spesifik untuk Program Studi Pilihan 1 & 2 (contoh: Kedokteran -> Biologi & Kimia; Teknik/Informatika -> Matematika & Fisika; Manajemen/Hukum/Sosial -> Ekonomi, Sosiologi, Bhs. Inggris).
+3. Evaluasi Sertifikat & Prestasi:
+   - Tier 1: Lomba resmi Puspresnas / BPTI / Kemendikbudristek (OSN, O2SN, FLS2N, KSM) tingkat Nasional/Internasional (bobot penguat tertinggi).
+   - Tier 2: Kejuaraan tingkat Provinsi atau kompetisi resmi universitas negeri ternama.
+   - Tier 3: Kejuaraan tingkat Kota/Kabupaten atau sertifikat non-kejuaraan.
+   - Evaluasi linieritas bidang sertifikat terhadap prodi yang dipilih.
+4. Strategi Piramida Pilihan 1 vs Pilihan 2:
+   - Pilihan 1 harus prodi idaman (dream/ambisius).
+   - Pilihan 2 wajib menjadi safety net yang lebih rasional dengan persaingan lebih terkendali agar tidak gugur di kedua pilihan.
+   - Deteksi risiko persaingan sesama rekan satu sekolah ("saling bunuh" di jurusan & PTN yang sama).
 
-Data siswa:
-- Akreditasi Sekolah: ${school_accreditation ?? 'tidak diisi'} (kuota eligible sekitar ${school_accreditation ? quotaPct[school_accreditation] ?? 'tidak diketahui' : 'tidak diketahui'})
-- Peringkat di Sekolah: ${rankText}
-- Status Eligible: ${eligibilityText}
-- Sudah mengikuti TKA: ${tka_completed === true ? 'Sudah' : tka_completed === false ? 'Belum' : 'Tidak diisi'}
-- Rata-rata Rapor Keseluruhan: ${avg_rapor}/100
-- Jumlah Sertifikat/Prestasi: ${cert_count}
-- Level Prestasi Tertinggi: ${cert_highest_level || 'tidak ada'}
-- Pilihan 1: ${pilihan_1 ? `${pilihan_1.prodi} — ${pilihan_1.ptn}` : 'belum diisi'}
-- Pilihan 2: ${pilihan_2 ? `${pilihan_2.prodi} — ${pilihan_2.ptn}` : 'belum diisi'}
+DATA PROFIL SISWA:
+- Akreditasi Sekolah: ${school_accreditation ?? 'tidak diisi'} (kuota eligible sekolah sekitar ${school_accreditation ? quotaPct[school_accreditation] ?? 'tidak diketahui' : 'tidak diketahui'})
+- Peringkat Paralel di Sekolah: ${rankText}
+- Status Siswa Eligible: ${eligibilityText}
+- Status Pelaksanaan TKA (Tes Kemampuan Akademik): ${tka_completed === true ? 'Sudah Selesai (Memenuhi Syarat)' : tka_completed === false ? 'BELUM MENGIKUTI (Risiko Gugur Syarat Wajib)' : 'Belum Terdata'}
+- Rerata Rapor Keseluruhan: ${avg_rapor}/100
+- Jumlah Sertifikat Prestasi: ${cert_count}
+- Level Prestasi Tertinggi: ${cert_highest_level || 'Belum ada'}
+- Prodi Pilihan 1: ${pilihan_1 ? `${pilihan_1.prodi} (${pilihan_1.ptn})` : 'Belum diisi'}
+- Prodi Pilihan 2: ${pilihan_2 ? `${pilihan_2.prodi} (${pilihan_2.ptn})` : 'Belum diisi'}
 ${semesterBreakdown ? `\nRincian Nilai per Semester per Mata Pelajaran:\n${semesterBreakdown}` : ''}
-${certBreakdown ? `\nRincian Sertifikat/Prestasi:\n${certBreakdown}` : ''}
+${certBreakdown ? `\nRincian Sertifikat/Prestasi Kejuaraan:\n${certBreakdown}` : ''}
 
-Analisis peluang SNBP siswa ini untuk pilihan 1 dan pilihan 2 yang dipilih. Ingatkan di bagian "weaknesses" atau "tips" kalau TKA belum diselesaikan (karena itu syarat wajib), dan jangan mengarang angka weight pasti yang tidak ada sumbernya — sampaikan sebagai estimasi kualitatif.
+INSTRUKSI SKOR:
+- Berikan estimasi angka 'score' 0-100 secara rasional dan objektif.
+- Hindari angka generik atau terlalu optimis tanpa dasar data.
+- Skor 85-96% hanya untuk kombinasi ranking top 5% di sekolah A, nilai rapor tinggi stabil/naik, dan didukung sertifikat linier.
+- Skor 65-80% untuk profil kompetitif menengah dengan catatan strategi pemilihan prodi.
+- Skor di bawah 65% jika terdapat mismatch prodi, tren nilai menurun, atau pilihan prodi terlalu ambisius dibanding peringkat.
 
-Berikan respons dalam format JSON berikut (HANYA JSON, tidak ada teks lain):
+Berikan respons HANYA dalam format JSON valid berikut (tanpa markdown backtick):
 {
-  "score": <angka 0-100 estimasi persentase peluang keseluruhan>,
-  "recommendation": "<rekomendasi strategi utama, termasuk evaluasi singkat pilihan 1 vs pilihan 2>",
-  "strengths": ["<kekuatan 1>", "<kekuatan 2>", "<kekuatan 3>"],
-  "weaknesses": ["<kelemahan/risiko 1>", "<kelemahan 2>"],
-  "tips": ["<tips spesifik 1>", "<tips 2>", "<tips 3>"]
+  "score": <angka integer/float 0-100>,
+  "recommendation": "<rekomendasi strategi utama 1-2 kalimat tajam dan lugas>",
+  "strengths": [
+    "<keunggulan spesifik 1 tentang nilai rapor / mapel pendukung>",
+    "<keunggulan spesifik 2 tentang prestasi / posisi sekolah>",
+    "<keunggulan spesifik 3 tentang pilihan prodi>"
+  ],
+  "weaknesses": [
+    "<risiko konkret 1 tentang persaingan kuota / mapel>",
+    "<risiko konkret 2 tentang pilihan 2 atau administrasi TKA>"
+  ],
+  "tips": [
+    "<tindakan strategis 1 yang harus segera dilakukan>",
+    "<tindakan strategis 2 untuk optimasi pilihan>",
+    "<tindakan strategis 3 untuk jalur cadangan>"
+  ]
 }`
   } else {
-    prompt = `Kamu adalah konsultan penerimaan PTN non-tes Indonesia yang berpengalaman.
+    prompt = `Kamu adalah Pakar Konsultan Seleksi Mandiri & Non-Tes PTN (PPKB UI, PBUB UGM, SJP IPB, Golden Ticket UNAIR, SMUP Unpad, SIMAK Prestasi) di platform otwptn.
 
-Analisis profil siswa berikut secara detail dan berikan estimasi peluang masuk jalur yang dituju:
-- Target PTN: ${target_ptn}
+Analisis profil calon mahasiswa berikut secara komprehensif, berbasis data dan kriteria khusus jalur target:
 - Target Jalur: ${target_jalur}
-- Rata-rata Rapor Keseluruhan: ${avg_rapor}/100
+- Target PTN: ${target_ptn}
+- Rerata Rapor Keseluruhan: ${avg_rapor}/100
 - Peringkat di Sekolah: ${rankText}
 - Jumlah Sertifikat/Prestasi: ${cert_count}
-- Level Prestasi Tertinggi: ${cert_highest_level || 'tidak ada'}
-${semesterBreakdown ? `\nRincian Nilai per Semester per Mata Pelajaran:\n${semesterBreakdown}` : ''}
-${certBreakdown ? `\nRincian Sertifikat/Prestasi:\n${certBreakdown}` : ''}
+- Level Prestasi Tertinggi: ${cert_highest_level || 'Belum ada'}
+${semesterBreakdown ? `\nRincian Nilai Rapor per Semester:\n${semesterBreakdown}` : ''}
+${certBreakdown ? `\nRincian Sertifikat Prestasi:\n${certBreakdown}` : ''}
 
-Perhatikan tren nilai antar semester (naik/turun/stabil) dan relevansi mata pelajaran dengan jurusan yang dituju, serta relevansi sertifikat dengan target jalur, dalam analisismu.
+Analisis mencakup:
+1. Relevansi nilai rapor mapel spesifik terhadap jurusan yang dituju di ${target_ptn}.
+2. Kesesuaian sertifikat dengan ketentuan regulasi ${target_jalur} (apakah jalur ini mensyaratkan piagam kejuaraan, kepemimpinan organisasi, atau portofolio khusus).
+3. Tren konsistensi nilai 5 semester.
 
-Berikan respons dalam format JSON berikut (HANYA JSON, tidak ada teks lain):
+Berikan respons HANYA dalam format JSON valid (tanpa markdown backtick):
 {
-  "score": <angka 0-100 estimasi persentase peluang>,
-  "recommendation": "<rekomendasi jalur/strategi utama>",
-  "strengths": ["<kekuatan 1>", "<kekuatan 2>", "<kekuatan 3>"],
-  "weaknesses": ["<kelemahan/risiko 1>", "<kelemahan 2>"],
-  "tips": ["<tips spesifik 1>", "<tips 2>", "<tips 3>"]
+  "score": <angka 0-100 estimasi peluang lolos>,
+  "recommendation": "<rekomendasi strategi utama untuk jalur ini>",
+  "strengths": ["<poin kekuatan 1>", "<poin kekuatan 2>", "<poin kekuatan 3>"],
+  "weaknesses": ["<kelemahan/risiko seleksi 1>", "<kelemahan/risiko 2>"],
+  "tips": ["<langkah taktis persiapan esai/berkas 1>", "<langkah 2>", "<langkah 3>"]
 }`
   }
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+    const completion = await client.chat.completions.create({
+      model,
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
-      max_tokens: 600,
+      max_tokens: 1200,
     })
 
-    const result = JSON.parse(completion.choices[0].message.content ?? '{}')
+    const rawContent = completion.choices[0].message.content ?? '{}'
+    const result = JSON.parse(rawContent)
 
-    await supabase.from('kalkulator_sessions').insert({
-      user_id: user.id,
-      input_data: body,
-      result_json: result,
-    })
+    try {
+      await supabase.from('kalkulator_sessions').insert({
+        user_id: user.id,
+        input_data: body,
+        result_json: result,
+      })
 
-    await supabase.from('usage_quotas').upsert({
-      user_id: user.id,
-      feature: 'ai_kalkulator',
-      used_count: (TIER_KALKULATOR_LIMIT[tier] === null ? 0 : ((await supabase.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'ai_kalkulator').single()).data?.used_count ?? 0)) + 1,
-    }, { onConflict: 'user_id,feature' })
+      await supabase.from('usage_quotas').upsert({
+        user_id: user.id,
+        feature: 'ai_kalkulator',
+        used_count: (TIER_KALKULATOR_LIMIT[tier] === null ? 0 : ((await supabase.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'ai_kalkulator').single()).data?.used_count ?? 0)) + 1,
+      }, { onConflict: 'user_id,feature' })
+    } catch (dbErr) {
+      console.warn('[AI Kalkulator] Non-blocking DB quota log warning:', dbErr)
+    }
 
     return NextResponse.json(result)
-  } catch {
+  } catch (err) {
+    console.error('[AI Kalkulator Error]:', err)
     return NextResponse.json({ error: 'AI service unavailable' }, { status: 503 })
   }
 }
+

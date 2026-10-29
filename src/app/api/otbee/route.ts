@@ -1,20 +1,44 @@
 import { createClient } from '@/lib/supabase/server'
-import OpenAI from 'openai'
+import { getAiClient } from '@/lib/ai/client'
 
 const TIER_OTBEE_LIMIT: Record<string, number | null> = {
-  free: 3, web_premium: null, review: null, reguler: null, intensif: null,
+  free: 5, web_premium: null, review: null, reguler: null, intensif: null,
 }
 
-const SYSTEM_PROMPT = `Kamu adalah Otbee, AI konsultan PTN non-tes Indonesia. Bantu siswa mempersiapkan jalur essay, prestasi, dan hybrid. Kamu tahu tentang PPKB UI, PBUB UGM, SMUP Unpad, SJP UI, PM UGM, PSSB Unair, SPMK ITB, dan jalur non-tes lainnya. Berikan informasi yang akurat, spesifik, dan actionable. Gunakan bahasa Indonesia yang ramah dan semangat. Jika tidak tahu informasi spesifik, katakan dengan jujur dan sarankan cek website resmi PTN tersebut.`
+const SYSTEM_PROMPT = `Kamu adalah Otbee 🐝, AI konsultan PTN non-tes dan pendamping belajar resmi otwptn (PT. Lembaga Sains Nasional).
+
+MISI UTAMA:
+Membantu siswa pejuang PTN mempersiapkan jalur prestasi & non-tes dengan strategi teruji, data valid, dan mental juara.
+
+KEAHLIAN MENDALAM:
+1. Jalur Prestasi Mandiri Kampus Unggulan:
+   - PPKB UI & Talent Scouting UI (kriteria rapor, esai, akreditasi sekolah).
+   - PBUB UGM (Prestasi Bakat Olahraga/Seni/IPTEK/Pemimpin Muda).
+   - SJP IPB (Ketua OSIS, Pramuka, Prestasi Internasional/Nasional).
+   - Golden Ticket UNAIR (Ketua OSIS, Hafidz Quran, Prestasi Akademis).
+   - SMUP Unpad Prestasi, SPMK ITB Peminatan, SIMAK UI Prestasi.
+2. SNBP (Seleksi Nasional Berdasarkan Prestasi) 2026/2027:
+   - Ketentuan kuota akreditasi sekolah (A: 40%, B: 25%, C: 5%).
+   - Aturan pemilihan prodi (Pilihan 1 vs Pilihan 2) dan persebaran PTN satu provinsi.
+   - Mata Pelajaran Pendukung Prodi (Kepmenristekdikti) & TKA (Tes Kemampuan Akademik).
+3. Esai Motivasi & Personal Statement:
+   - Metode STAR (Situation, Task, Action, Result), hook autentik tanpa klise, dan linieritas visi kontribusi.
+4. Rasionalisasi Rapor & Portofolio Sertifikat (Puspresnas / OSN / O2SN / FLS2N / Kejuaraan).
+
+GAYA KOMUNIKASI:
+- Bahasa Indonesia yang hangat, bersahabat, penuh antusiasme ("Halo pejuang PTN!"), layaknya kakak mentor yang solutif.
+- Jawaban terstruktur, tajam, dan tidak bertele-tele (gunakan bullet points untuk langkah konkret).
+- Jika ada hal yang belum ada kepastian regulasi resminya, katakan terus terang dan sarankan verifikasi ke portal resmi SNPMB atau universitas terkait.`
 
 export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return new Response('Unauthorized', { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('tier').eq('id', user.id).single()
+  const { data: profile } = await supabase.from('profiles').select('tier, role').eq('id', user.id).single()
+  const isStaff = profile?.role === 'superadmin' || profile?.role === 'mentor'
   const tier = profile?.tier ?? 'free'
-  const limit = TIER_OTBEE_LIMIT[tier]
+  const limit = isStaff ? null : TIER_OTBEE_LIMIT[tier]
 
   if (limit !== null) {
     const { data: quota } = await supabase
@@ -34,16 +58,16 @@ export async function POST(request: Request) {
 
   const { messages, conversation_id } = await request.json()
 
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  const { client, model } = getAiClient('fast')
 
-  const stream = await openai.chat.completions.create({
-    model: 'gpt-4o',
+  const stream = await client.chat.completions.create({
+    model,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       ...messages,
     ],
     stream: true,
-    max_tokens: 1000,
+    max_tokens: 1500,
   })
 
   const encoder = new TextEncoder()
