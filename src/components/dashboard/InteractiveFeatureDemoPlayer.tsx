@@ -80,10 +80,10 @@ export default function InteractiveFeatureDemoPlayer({
             </span>
           </div>
 
-          {/* REAL SCREEN RECORDING ASSET (7.1MB Full Live Walkthrough) */}
+          {/* REAL SCREEN RECORDING ASSET (14MB Full 521-Frames Live Walkthrough) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/promo-demos/otwptn_all_features_recording.webp?v=2"
+            src="/promo-demos/otwptn_all_features_recording.webp?v=3"
             alt="Screen Record Demo Fitur Asli OtwPTN"
             className="w-full h-full object-contain bg-black"
           />
