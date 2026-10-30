@@ -48,6 +48,7 @@ export default function CustomerServiceWidget() {
   const [inputMessage, setInputMessage] = useState('')
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
   const [isTyping, setIsTyping] = useState(false)
+  const [mascotMode, setMascotMode] = useState<'bust' | 'full'>('bust')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Auto-scroll to bottom on new message
@@ -178,40 +179,52 @@ export default function CustomerServiceWidget() {
           className="w-[350px] sm:w-[410px] h-[580px] max-h-[85vh] bg-white rounded-3xl shadow-2xl flex flex-col border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-250"
           style={{ boxShadow: '0 25px 60px -12px rgba(0, 0, 0, 0.28)' }}
         >
-          {/* Header with Aesthetic 3D Mascot Canvas */}
-          <div className="relative bg-gradient-to-b from-amber-300 via-amber-200/90 to-amber-100/60 p-4 border-b border-amber-200/50 flex-shrink-0">
-            {/* Top row: Status & Actions */}
-            <div className="flex items-center justify-between relative z-10 mb-1">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" />
-                <span className="text-[11px] font-black uppercase tracking-wider text-amber-950">
-                  Otbee CS AI · Resmi
+          {/* Header with Aesthetic 3D Companion Stage */}
+          <div className="relative bg-gradient-to-br from-amber-400 via-amber-300 to-amber-200/90 p-4 border-b border-amber-300/60 flex-shrink-0">
+            {/* Top row: Status Badge & Close button */}
+            <div className="flex items-center justify-between relative z-10 mb-2">
+              <div className="flex items-center gap-1.5 bg-white/70 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-white/60 shadow-3xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-950 flex items-center gap-1">
+                  <ShieldCheck size={11} className="text-emerald-700" /> CS AI RESMI
                 </span>
               </div>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="w-7 h-7 rounded-full bg-white/70 hover:bg-white text-gray-700 flex items-center justify-center transition-colors cursor-pointer shadow-3xs"
-                  aria-label="Tutup Chat"
-                >
-                  <X size={14} />
-                </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="w-7 h-7 rounded-full bg-white/80 hover:bg-white text-gray-700 flex items-center justify-center transition-all cursor-pointer shadow-3xs hover:scale-105 active:scale-95"
+                aria-label="Tutup Chat"
+              >
+                <X size={14} />
+              </button>
+            </div>
+
+            {/* Middle row: Brand info on left + 3D Mascot Orb on right */}
+            <div className="flex items-center justify-between gap-3 relative z-10">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-black text-gray-950 tracking-tight leading-tight">
+                  Customer Service OtwPTN
+                </h3>
+                <p className="text-[11px] font-bold text-amber-950/85 mt-1 line-clamp-1">
+                  Asisten Pintar 24/7 Masuk Kampus
+                </p>
+                <div className="mt-1.5 flex items-center gap-2 text-[9.5px] font-semibold text-amber-900/75">
+                  <span className="truncate">otwptn.com@gmail.com</span>
+                </div>
               </div>
-            </div>
 
-            {/* Aesthetic 3D Character Viewport */}
-            <div className="w-full h-28 relative my-1">
-              <Mascot3DCanvas className="w-full h-full" interactive={true} />
-            </div>
-
-            {/* Identity Bar */}
-            <div className="text-center relative z-10 -mt-1">
-              <h3 className="text-sm font-black text-gray-950 tracking-tight flex items-center justify-center gap-1">
-                Customer Service OtwPTN <ShieldCheck size={14} className="text-emerald-700" />
-              </h3>
-              <p className="text-[10px] font-bold text-amber-900/80 mt-0.5">
-                PT. Lembaga Sains Nasional · otwptn.com@gmail.com
-              </p>
+              {/* 3D Mascot Stage Orb */}
+              <div
+                onClick={() => setMascotMode(prev => (prev === 'bust' ? 'full' : 'bust'))}
+                title="Klik untuk ganti sudut pandang 3D (Close-up / Full)"
+                className="relative w-24 h-24 rounded-2xl bg-gradient-to-b from-white/95 via-amber-50/80 to-amber-100/60 p-1 shadow-lg border border-white/90 flex-shrink-0 overflow-hidden ring-2 ring-amber-400/40 cursor-pointer group hover:scale-102 transition-all"
+              >
+                <Mascot3DCanvas mode={mascotMode} className="w-full h-full" interactive={true} />
+                <div className="absolute bottom-1 left-1 right-1 text-center pointer-events-none">
+                  <span className="text-[8px] font-black uppercase tracking-wider text-amber-950/80 bg-white/85 backdrop-blur-xs px-1.5 py-0.5 rounded-full shadow-3xs group-hover:bg-amber-100 transition-colors">
+                    {mascotMode === 'bust' ? '3D Otbee' : 'Full 3D'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
