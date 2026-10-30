@@ -33,6 +33,7 @@ export default function Sidebar() {
   const pathname = usePathname()
   const [name, setName] = useState('')
   const [tier, setTier] = useState('free')
+  const [avatar, setAvatar] = useState('/avatars/avatar-1.png')
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
@@ -76,6 +77,10 @@ export default function Sidebar() {
         document.documentElement.setAttribute('data-theme', 'light')
       }
 
+      // Load avatar from localStorage
+      const localAvatar = localStorage.getItem('otwptn_user_avatar')
+      if (localAvatar) setAvatar(localAvatar)
+
       // Load stored XP and gamification stats
       const storedXP = localStorage.getItem('otwptn_xp')
       if (storedXP) setXp(Number(storedXP))
@@ -98,21 +103,40 @@ export default function Sidebar() {
       } catch {}
     }
 
+    const handleAvatarUpdate = (e: any) => {
+      if (e?.detail) setAvatar(e.detail)
+    }
+
+    const handleStorageUpdate = () => {
+      try {
+        const a = localStorage.getItem('otwptn_user_avatar')
+        if (a) setAvatar(a)
+      } catch {}
+    }
+
     window.addEventListener('otwptn_xp_updated', handleXpUpdate)
+    window.addEventListener('otwptn_avatar_update', handleAvatarUpdate)
+    window.addEventListener('storage', handleStorageUpdate)
 
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) return
-      supabase.from('profiles').select('full_name, tier').eq('id', data.user.id).single().then(({ data: profile }) => {
+      supabase.from('profiles').select('full_name, tier, avatar_url').eq('id', data.user.id).single().then(({ data: profile }) => {
         if (profile) {
           setName(profile.full_name || '')
           setTier(profile.tier || 'free')
+          if (profile.avatar_url) {
+            setAvatar(profile.avatar_url)
+            try { localStorage.setItem('otwptn_user_avatar', profile.avatar_url) } catch {}
+          }
         }
       })
     })
 
     return () => {
       window.removeEventListener('otwptn_xp_updated', handleXpUpdate)
+      window.removeEventListener('otwptn_avatar_update', handleAvatarUpdate)
+      window.removeEventListener('storage', handleStorageUpdate)
     }
   }, [])
 
@@ -192,9 +216,9 @@ export default function Sidebar() {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/mascot-hd/maskot-kepala-logo-avatar.png"
+                src={avatar}
                 alt="Avatar"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain p-0.5"
                 onError={e => {
                   ;(e.currentTarget as HTMLImageElement).src = '/logo.png'
                 }}
@@ -254,7 +278,7 @@ export default function Sidebar() {
                 <div className="w-11 h-11 rounded-full bg-amber-100 flex items-center justify-center overflow-hidden flex-shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/maskot-fitur-kalkulator-peluang.png"
+                    src={avatar}
                     alt="Otbee"
                     className="w-9 h-9 object-contain"
                   />

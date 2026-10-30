@@ -291,19 +291,16 @@ export default function UpgradePage() {
               name: 'Siti Sarah',
               univ: 'Lolos Kedokteran UI (PPKB)',
               quote: 'Mentor bener-bener teliti bedah essay motivasiku. Dokumen analisis pilihan 1 & 2 bikin aku mantap memilih prodi.',
-              avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=250&q=80',
             },
             {
               name: 'Rian Pratama',
               univ: 'Lolos STEI ITB (SSU Rapor)',
               quote: 'Simulasi wawancara dan validasi dokumennya ngebantu banget. Aku jadi pede pas submit berkas resmi.',
-              avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=250&q=80',
             },
             {
               name: 'Nathania Aurelia',
               univ: 'Lolos SBM ITB (SNBP)',
               quote: 'Penyusunan portofolio kepemimpinan terarah banget berkat bimbingan intensif Honeycomb.',
-              avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=250&q=80',
             },
           ].map((t, idx) => (
             <div key={idx} className="p-6 rounded-3xl bg-white shadow-md flex flex-col justify-between border border-gray-100">
@@ -311,8 +308,9 @@ export default function UpgradePage() {
                 “{t.quote}”
               </p>
               <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-xl object-cover" />
+                <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-900 font-black text-xs flex items-center justify-center flex-shrink-0">
+                  {t.name[0]}
+                </div>
                 <div>
                   <h4 className="text-xs font-extrabold text-gray-900">{t.name}</h4>
                   <p className="text-[11px] font-semibold text-emerald-600">{t.univ}</p>

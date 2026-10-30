@@ -27,11 +27,25 @@ import {
 } from 'lucide-react'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
 
-const OTBEE_AVATARS = [
-  { id: 'av-1', src: '/maskot-fitur-kalkulator-peluang.png', label: 'Otbee Kacamata Pintar' },
-  { id: 'av-2', src: '/mascot/check-paper-happy.png', label: 'Otbee Cek Essay' },
-  { id: 'av-3', src: '/mascot/headset-wave.png', label: 'Otbee Headset Study' },
-  { id: 'av-4', src: '/mascot/thinking-idea.png', label: 'Otbee Ide Juara' },
+export const OTBEE_AVATARS = [
+  { id: 'av-1', src: '/avatars/avatar-1.png', label: 'Otbee Pejuang UI' },
+  { id: 'av-2', src: '/avatars/avatar-2.png', label: 'Otbee Ambis ITB' },
+  { id: 'av-3', src: '/avatars/avatar-3.png', label: 'Otbee Juara UGM' },
+  { id: 'av-4', src: '/avatars/avatar-4.png', label: 'Otbee Riset Sains' },
+  { id: 'av-5', src: '/avatars/avatar-5.png', label: 'Otbee Cek Essay' },
+  { id: 'av-6', src: '/avatars/avatar-6.png', label: 'Otbee Nilai Rapor' },
+  { id: 'av-7', src: '/avatars/avatar-7.png', label: 'Otbee Calon Dokter' },
+  { id: 'av-8', src: '/avatars/avatar-8.png', label: 'Otbee Master Teknik' },
+  { id: 'av-9', src: '/avatars/avatar-9.png', label: 'Otbee Lolos SNBP' },
+  { id: 'av-10', src: '/avatars/avatar-10.png', label: 'Otbee Bisnis & SBM' },
+  { id: 'av-11', src: '/avatars/avatar-11.png', label: 'Otbee Desain Kreatif' },
+  { id: 'av-12', src: '/avatars/avatar-12.png', label: 'Otbee Hukum & Sosial' },
+  { id: 'av-13', src: '/avatars/avatar-13.png', label: 'Otbee Semangat Belajar' },
+  { id: 'av-14', src: '/avatars/avatar-14.png', label: 'Otbee Kacamata Ambis' },
+  { id: 'av-15', src: '/avatars/avatar-15.png', label: 'Otbee Fokus UTBK' },
+  { id: 'av-16', src: '/avatars/avatar-16.png', label: 'Otbee Lolos Pilihan 1' },
+  { id: 'av-17', src: '/avatars/avatar-17.png', label: 'Otbee Jaket Kuning' },
+  { id: 'av-18', src: '/avatars/avatar-18.png', label: 'Otbee Toga Juara' },
 ]
 
 export default function ProfilPage() {
@@ -40,6 +54,7 @@ export default function ProfilPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [avatarToast, setAvatarToast] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'biodata' | 'target' | 'avatar' | 'security'>('biodata')
 
@@ -58,7 +73,7 @@ export default function ProfilPage() {
     target_prodi_1: 'Kecerdasan Artifisial',
     target_ptn_2: 'Institut Teknologi Bandung',
     target_prodi_2: 'STEI-R Komputasi',
-    avatar: '/maskot-fitur-kalkulator-peluang.png',
+    avatar: '/avatars/avatar-1.png',
   })
 
   // Password update states
@@ -67,6 +82,14 @@ export default function ProfilPage() {
   const [passwordLoading, setPasswordLoading] = useState(false)
 
   useEffect(() => {
+    // Read local stored avatar first
+    try {
+      const storedAvatar = localStorage.getItem('otwptn_user_avatar')
+      if (storedAvatar) {
+        setForm(prev => ({ ...prev, avatar: storedAvatar }))
+      }
+    } catch {}
+
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) {
         router.push('/login')
@@ -79,27 +102,74 @@ export default function ProfilPage() {
         .single()
         .then(({ data: profile }) => {
           if (profile) {
-            setForm(prev => ({
-              ...prev,
-              full_name: profile.full_name ?? '',
-              phone: profile.phone ?? '',
-              school: profile.school ?? profile.school_name ?? '',
-              email: data.user.email ?? profile.email ?? '',
-            }))
+            setForm(prev => {
+              const finalAvatar = profile.avatar_url || prev.avatar
+              if (profile.avatar_url) {
+                try {
+                  localStorage.setItem('otwptn_user_avatar', profile.avatar_url)
+                } catch {}
+              }
+              return {
+                ...prev,
+                full_name: profile.full_name ?? '',
+                phone: profile.phone ?? '',
+                school: profile.school ?? profile.school_name ?? '',
+                email: data.user.email ?? profile.email ?? '',
+                avatar: finalAvatar,
+              }
+            })
           }
           setLoading(false)
         })
     })
   }, [supabase, router])
 
+  const handleSelectAvatar = async (avatarSrc: string) => {
+    setForm(prev => ({ ...prev, avatar: avatarSrc }))
+    try {
+      localStorage.setItem('otwptn_user_avatar', avatarSrc)
+      window.dispatchEvent(new CustomEvent('otwptn_avatar_update', { detail: avatarSrc }))
+    } catch {}
+
+    setAvatarToast(true)
+    setTimeout(() => setAvatarToast(false), 2500)
+
+    // Save to database in background
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await supabase
+          .from('profiles')
+          .update({
+            avatar_url: avatarSrc,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', user.id)
+      }
+    } catch (e) {
+      console.error('Failed to sync avatar to database', e)
+    }
+  }
+
   async function handleSave() {
     setSaving(true)
     setError(null)
     setSaved(false)
+
+    try {
+      localStorage.setItem('otwptn_user_avatar', form.avatar)
+      window.dispatchEvent(new CustomEvent('otwptn_avatar_update', { detail: form.avatar }))
+    } catch {}
+
     const {
       data: { user },
     } = await supabase.auth.getUser()
-    if (!user) return
+    if (!user) {
+      setSaving(false)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+      return
+    }
 
     const { error: err } = await supabase
       .from('profiles')
@@ -108,18 +178,20 @@ export default function ProfilPage() {
         phone: form.phone,
         school: form.school,
         school_name: form.school,
+        avatar_url: form.avatar,
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id)
 
     if (err) {
-      setError('Gagal menyimpan perubahan. Coba beberapa saat lagi.')
+      setError('Gagal menyimpan perubahan ke server. Namun avatar dan profil lokalmu sudah tersimpan.')
     } else {
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     }
     setSaving(false)
   }
+
 
   async function handleUpdatePassword(e: React.FormEvent) {
     e.preventDefault()
@@ -613,34 +685,47 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
       {/* TAB 3: PILIH MASKOT OTBEE */}
       {activeTab === 'avatar' && (
         <div className="p-6 md:p-8 rounded-3xl bg-white shadow-md space-y-6">
-          <div>
-            <h3 className="text-sm font-black text-gray-900">Pilih Avatar Maskot Otbee</h3>
-            <p className="text-xs text-gray-500 mt-1">
-              Avatar ini akan tampil pada profile bar, komentar cuitan komunitas, dan room video study cam.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-black text-gray-900">Pilih Avatar Maskot Otbee (18 Pilihan HD)</h3>
+              <p className="text-xs text-gray-500 mt-1">
+                Klik avatar pilihanmu. Avatar langsung tersimpan dan otomatis tampil di profil bar, sidebar, dan room belajar.
+              </p>
+            </div>
+            {avatarToast && (
+              <span className="px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-900 font-black text-xs flex items-center gap-1.5 animate-in fade-in self-start sm:self-auto">
+                <CheckCircle2 size={14} className="text-emerald-600" /> Avatar Aktif Diperbarui!
+              </span>
+            )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3.5">
             {OTBEE_AVATARS.map(av => (
               <div
                 key={av.id}
-                onClick={() => setForm({ ...form, avatar: av.src })}
-                className={`p-5 rounded-3xl cursor-pointer flex flex-col items-center text-center space-y-3 transition-all ${
+                onClick={() => handleSelectAvatar(av.src)}
+                className={`p-3.5 rounded-3xl cursor-pointer flex flex-col items-center text-center space-y-2 transition-all ${
                   form.avatar === av.src
-                    ? 'bg-amber-50 border-2 border-amber-500 shadow-sm'
-                    : 'bg-gray-50 hover:bg-gray-100/80 border-2 border-transparent'
+                    ? 'bg-amber-100/70 border-2 border-amber-500 shadow-md scale-102'
+                    : 'bg-gray-50 hover:bg-gray-100/90 border-2 border-transparent hover:scale-101'
                 }`}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={av.src}
-                  alt={av.label}
-                  className="w-16 h-16 object-contain"
-                />
-                <span className="text-xs font-bold text-gray-800">{av.label}</span>
-                {form.avatar === av.src && (
-                  <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                    ✓ Aktif
+                <div className="w-18 h-18 rounded-2xl bg-amber-50/60 p-1 flex items-center justify-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={av.src}
+                    alt={av.label}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <span className="text-[11px] font-black text-gray-800 line-clamp-1">{av.label}</span>
+                {form.avatar === av.src ? (
+                  <span className="text-[9px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                    ✓ Terpilih
+                  </span>
+                ) : (
+                  <span className="text-[9px] font-bold text-gray-400">
+                    Pilih
                   </span>
                 )}
               </div>
