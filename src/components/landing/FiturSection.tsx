@@ -244,18 +244,19 @@ function DokumenFolderPreview() {
   )
 }
 
-type Feature = { id: string; label: string; title: string; desc: string; mascot: string; preview: (p: { active: boolean }) => React.ReactNode }
+type Feature = { id: string; label: string; title: string; desc: string; mascot: string; video?: string; preview: (p: { active: boolean }) => React.ReactNode }
 
 const FEATURES: Feature[] = [
   { id: 'mentor', label: 'Mentor Alumni', title: 'Konsultasi grup, sharescreen bareng mentor.', desc: 'Sesi video call grup bareng mentor alumni — sharescreen langsung di essay-mu lewat Google Docs, kayak kelas kecil.', mascot: '/mascot/medal.png', preview: () => <MentorZoomPreview /> },
-  { id: 'essay', label: 'Essay AI Review', title: 'Dikoreksi kayak di Google Docs, tapi sama AI.', desc: 'Tiap kalimat di-highlight dengan catatan revisi spesifik — bagian yang kuat, yang perlu diperbaiki, dan saran kalimat pengganti.', mascot: '/mascot/writing-essay.png', preview: () => <EssayPaperPreview /> },
-  { id: 'kalkulator', label: 'Kalkulator Peluang', title: 'Estimasi peluang, bukan tebak-tebakan.', desc: 'Isi rapor, peringkat sekolah, dan sertifikatmu — otwptn hitung estimasi peluangmu dengan animasi real-time.', mascot: '/mascot/bar-chart-point.png', preview: ({ active }) => <KalkulatorFormPreview active={active} /> },
-  { id: 'otbee', label: 'Otbee AI', title: 'Konsultan yang gak pernah tidur.', desc: 'Chat 24/7 dengan AI yang udah dilatih dari data kelulusan jalur non-tes tahun-tahun sebelumnya, langsung dari HP-mu.', mascot: '/mascot/otbee-phone.png', preview: () => <OtbeePhonePreview /> },
-  { id: 'modul', label: 'Modul & Video', title: 'Belajar terstruktur lewat video dan modul.', desc: 'Materi dipecah per jalur — strategi essay, portofolio, sampai simulasi wawancara, dalam video singkat yang gampang dicerna.', mascot: '/mascot/tablet-play.png', preview: () => <ModulGridPreview /> },
-  { id: 'komunitas', label: 'Komunitas', title: 'Gak berjuang sendirian.', desc: 'Forum diskusi real-time dengan sesama pejuang jalur non-tes — tanya jawab, sharing pengalaman, saling semangatin.', mascot: '/mascot/megaphone-community.png', preview: () => <KomunitasPostPreview /> },
-  { id: 'tracking', label: 'Tracking Jalur', title: 'Pantau progres semua jalur yang kamu ikuti.', desc: 'Timeline yang nunjukin status tiap pendaftaran jalur — draf, submit, hasil — biar gak ada yang kelewat.', mascot: '/mascot/roadmap-flags.png', preview: () => <TrackingTimelinePreview /> },
-  { id: 'dokumen', label: 'Penyimpanan Dokumen', title: 'Semua dokumen pendaftaran, satu tempat.', desc: 'Simpan rapor, sertifikat, dan essay versi terbaru — tinggal download pas butuh submit.', mascot: '/mascot/file-box-storage.png', preview: () => <DokumenFolderPreview /> },
-  { id: 'matching', label: 'Cari Teman Belajar', title: 'Belajar bareng, kayak Omegle buat PTN.', desc: 'Terhubung instan dengan sesama pejuang jalur non-tes buat ngobrol, sharing strategi, atau saling semangatin.', mascot: '/mascot/video-call-match.png', preview: () => <MatchingPreview /> },
+  { id: 'essay', label: 'Essay AI Review', title: 'Dikoreksi kayak di Google Docs, tapi sama AI.', desc: 'Tiap kalimat di-highlight dengan catatan revisi spesifik — bagian yang kuat, yang perlu diperbaiki, dan saran kalimat pengganti.', mascot: '/mascot/writing-essay.png', video: '/demos/essay-ai-review.mp4', preview: () => <EssayPaperPreview /> },
+  { id: 'kalkulator', label: 'Kalkulator Peluang', title: 'Estimasi peluang, bukan tebak-tebakan.', desc: 'Isi rapor, peringkat sekolah, dan sertifikatmu — otwptn hitung estimasi peluangmu dengan animasi real-time.', mascot: '/mascot/bar-chart-point.png', video: '/demos/kalkulator-peluang.mp4', preview: ({ active }) => <KalkulatorFormPreview active={active} /> },
+  { id: 'otbee', label: 'Otbee AI', title: 'Konsultan yang gak pernah tidur.', desc: 'Chat 24/7 dengan AI yang udah dilatih dari data kelulusan jalur non-tes tahun-tahun sebelumnya, langsung dari HP-mu.', mascot: '/mascot/otbee-phone.png', video: '/demos/otbee-ai.mp4', preview: () => <OtbeePhonePreview /> },
+  { id: 'modul', label: 'Modul & Video', title: 'Belajar terstruktur lewat video dan modul.', desc: 'Materi dipecah per jalur — strategi essay, portofolio, sampai simulasi wawancara, dalam video singkat yang gampang dicerna.', mascot: '/mascot/tablet-play.png', video: '/demos/modul-video.mp4', preview: () => <ModulGridPreview /> },
+  { id: 'strategi', label: 'Atur Strategi', title: 'Strategi personal, bukan template kosong.', desc: 'AI bikin rencana persiapan yang disesuaikan sama data kamu — dari kalkulator peluang langsung jadi langkah konkret berikutnya.', mascot: '/mascot/bar-chart-point.png', video: '/demos/atur-strategi.mp4', preview: () => <KalkulatorFormPreview active={true} /> },
+  { id: 'komunitas', label: 'Komunitas', title: 'Gak berjuang sendirian.', desc: 'Forum diskusi real-time dengan sesama pejuang jalur non-tes — tanya jawab, sharing pengalaman, saling semangatin.', mascot: '/mascot/megaphone-community.png', video: '/demos/komunitas.mp4', preview: () => <KomunitasPostPreview /> },
+  { id: 'tracking', label: 'Tracking Jalur', title: 'Pantau progres semua jalur yang kamu ikuti.', desc: 'Timeline yang nunjukin status tiap pendaftaran jalur — draf, submit, hasil — biar gak ada yang kelewat.', mascot: '/mascot/roadmap-flags.png', video: '/demos/tracking-jalur.mp4', preview: () => <TrackingTimelinePreview /> },
+  { id: 'dokumen', label: 'Penyimpanan Dokumen', title: 'Semua dokumen pendaftaran, satu tempat.', desc: 'Simpan rapor, sertifikat, dan essay versi terbaru — tinggal download pas butuh submit.', mascot: '/mascot/file-box-storage.png', video: '/demos/penyimpanan-dokumen.mp4', preview: () => <DokumenFolderPreview /> },
+  { id: 'matching', label: 'Cari Teman Belajar', title: 'Belajar bareng, kayak Omegle buat PTN.', desc: 'Terhubung instan dengan sesama pejuang jalur non-tes buat ngobrol, sharing strategi, atau saling semangatin.', mascot: '/mascot/video-call-match.png', video: '/demos/cari-teman-belajar.mp4', preview: () => <MatchingPreview /> },
 ]
 
 export default function FiturSection() {
@@ -341,12 +342,25 @@ export default function FiturSection() {
 
                 {/* Preview card */}
                 <motion.div
-                  className="card p-5"
-                  style={{ transformStyle: 'preserve-3d' }}
+                  className="card overflow-hidden"
+                  style={{ transformStyle: 'preserve-3d', padding: f.video ? 0 : '1.25rem' }}
                   whileHover={{ rotateY: 3, rotateX: -2, scale: 1.01 }}
                   transition={{ duration: 0.3 }}
                 >
-                  {f.preview({ active: true })}
+                  {f.video ? (
+                    <video
+                      key={f.video}
+                      src={f.video}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full h-full object-cover rounded-xl"
+                      style={{ display: 'block', maxHeight: 320 }}
+                    />
+                  ) : (
+                    f.preview({ active: true })
+                  )}
                 </motion.div>
               </motion.div>
             </AnimatePresence>
