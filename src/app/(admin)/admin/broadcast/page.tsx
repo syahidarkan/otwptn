@@ -83,6 +83,8 @@ const INITIAL_HISTORY: BroadcastRecord[] = [
   },
 ]
 
+import { addAdminBroadcast } from '@/lib/notifications'
+
 export default function AdminBroadcastPage() {
   const [channel, setChannel] = useState<'in_app' | 'email' | 'banner' | 'whatsapp'>('in_app')
   const [targetAudience, setTargetAudience] = useState('all')
@@ -93,6 +95,21 @@ export default function AdminBroadcastPage() {
   const [sending, setSending] = useState(false)
   const [successNotice, setSuccessNotice] = useState<string | null>(null)
   const [copiedWA, setCopiedWA] = useState(false)
+
+  // Load persistent broadcast history if present
+  useEffect(() => {
+    try {
+      const savedHistory = localStorage.getItem('otwptn_admin_broadcast_history')
+      if (savedHistory) {
+        const parsed = JSON.parse(savedHistory)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setHistory(parsed)
+        }
+      }
+    } catch (e) {
+      console.error('Error loading broadcast history', e)
+    }
+  }, [])
 
   // Estimated reach numbers
   const audienceReach: Record<string, number> = {
@@ -121,48 +138,62 @@ export default function AdminBroadcastPage() {
     setSending(true)
     setSuccessNotice(null)
 
-    // Simulate sending API call
-    setTimeout(() => {
-      const newRecord: BroadcastRecord = {
-        id: `bc-${Date.now()}`,
-        title,
-        message,
-        channel,
-        target_audience:
-          targetAudience === 'all'
-            ? 'Semua Siswa'
-            : targetAudience === 'queen_bee'
-            ? 'Khusus Queen Bee VIP'
-            : targetAudience === 'mentors'
-            ? 'Khusus Mentor Alumni'
-            : targetAudience === 'ambassador'
-            ? 'Khusus Student Ambassador'
-            : 'Paket Berbayar',
-        sent_at: 'Baru saja',
-        recipient_count: currentReach,
-        status: 'sent',
-      }
+    // Send and persist broadcast immediately to in-web notifications
+    addAdminBroadcast({
+      title,
+      message,
+      ctaUrl: ctaUrl || '/dashboard',
+      channel,
+      targetAudience,
+    })
 
-      setHistory(prev => [newRecord, ...prev])
-      setSending(false)
-      setSuccessNotice(
-        `Broadcast berhasil dikirim ke ${currentReach.toLocaleString()} penerima via ${
-          channel === 'in_app'
-            ? 'Notifikasi Lonceng In-App'
-            : channel === 'email'
-            ? 'Email Blast'
-            : channel === 'banner'
-            ? 'Banner Dashboard'
-            : 'WhatsApp Blast'
-        }!`
-      )
+    const newRecord: BroadcastRecord = {
+      id: `bc-${Date.now()}`,
+      title,
+      message,
+      channel,
+      target_audience:
+        targetAudience === 'all'
+          ? 'Semua Siswa'
+          : targetAudience === 'queen_bee'
+          ? 'Khusus Queen Bee VIP'
+          : targetAudience === 'mentors'
+          ? 'Khusus Mentor Alumni'
+          : targetAudience === 'ambassador'
+          ? 'Khusus Student Ambassador'
+          : 'Paket Berbayar',
+      sent_at: 'Baru saja',
+      recipient_count: currentReach,
+      status: 'sent',
+    }
 
-      // Reset form
-      setTitle('')
-      setMessage('')
-      setCtaUrl('')
-    }, 800)
+    const nextHistory = [newRecord, ...history]
+    setHistory(nextHistory)
+    try {
+      localStorage.setItem('otwptn_admin_broadcast_history', JSON.stringify(nextHistory))
+    } catch (e) {
+      console.error(e)
+    }
+
+    setSending(false)
+    setSuccessNotice(
+      `Broadcast berhasil dikirim ke ${currentReach.toLocaleString()} penerima via ${
+        channel === 'in_app'
+          ? 'Notifikasi Lonceng In-App'
+          : channel === 'email'
+          ? 'Email Blast'
+          : channel === 'banner'
+          ? 'Banner Dashboard'
+          : 'WhatsApp Blast'
+      }!`
+    )
+
+    // Reset form
+    setTitle('')
+    setMessage('')
+    setCtaUrl('')
   }
+
 
   const handleCopyWA = () => {
     const formatted = `*${title}*\n\n${message}\n\n👉 Buka tautan berikut: https://otwptn.com${ctaUrl || '/dashboard'}`

@@ -13,6 +13,7 @@ import {
 import SidebarPromoCard from './SidebarPromoCard'
 import NotificationPopover from './NotificationPopover'
 import XPQuestModal from './XPQuestModal'
+import { getAllNotifications, EVENT_NOTIF_UPDATE } from '@/lib/notifications'
 
 const NAV = [
   { id: 'nav-beranda', label: 'Beranda', href: '/dashboard', icon: Home },
@@ -38,13 +39,30 @@ export default function Sidebar() {
 
   // Notifications state
   const [notifOpen, setNotifOpen] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(3)
+  const [unreadCount, setUnreadCount] = useState(0)
 
   // Gamification XP state
   const [xpModalOpen, setXpModalOpen] = useState(false)
   const [xp, setXp] = useState(75)
   const [level, setLevel] = useState(1)
   const [coins, setCoins] = useState(250)
+
+  useEffect(() => {
+    // Initial sync for unread notification count
+    const syncCount = () => {
+      const items = getAllNotifications()
+      setUnreadCount(items.filter(n => n.isUnread).length)
+    }
+    syncCount()
+
+    window.addEventListener(EVENT_NOTIF_UPDATE, syncCount)
+    window.addEventListener('storage', syncCount)
+    return () => {
+      window.removeEventListener(EVENT_NOTIF_UPDATE, syncCount)
+      window.removeEventListener('storage', syncCount)
+    }
+  }, [])
+
 
   useEffect(() => {
     try {
