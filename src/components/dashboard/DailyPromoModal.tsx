@@ -109,12 +109,34 @@ export default function DailyPromoModal() {
     try {
       const today = new Date().toISOString().slice(0, 10)
       const lastShown = localStorage.getItem('otwptn_daily_promo_date')
-      // Show once per calendar day
-      if (lastShown !== today) {
+      if (lastShown === today) return
+
+      const isTourDone = localStorage.getItem('otwptn_tour_completed') === 'true'
+
+      // Case 1: Tour already completed previously -> show promo after smooth 1.5s delay
+      if (isTourDone) {
         const timer = setTimeout(() => {
           setIsOpen(true)
-        }, 800)
+        }, 1500)
         return () => clearTimeout(timer)
+      }
+
+      // Case 2: First time user (tour is active or about to start) -> DO NOT show promo.
+      // Wait until tour finishes or is skipped by the user!
+      const handleTourEnd = () => {
+        setTimeout(() => {
+          setIsOpen(true)
+        }, 1200)
+      }
+
+      const handleClosePromo = () => setIsOpen(false)
+
+      window.addEventListener('otwptn_tour_finished', handleTourEnd)
+      window.addEventListener('otwptn_close_promo', handleClosePromo)
+
+      return () => {
+        window.removeEventListener('otwptn_tour_finished', handleTourEnd)
+        window.removeEventListener('otwptn_close_promo', handleClosePromo)
       }
     } catch {}
   }, [])

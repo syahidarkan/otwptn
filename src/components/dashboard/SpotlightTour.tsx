@@ -118,6 +118,9 @@ export default function SpotlightTour() {
 
     // Expose relaunch function globally
     ;(window as any).startOtbeeTour = () => {
+      try {
+        window.dispatchEvent(new CustomEvent('otwptn_close_promo'))
+      } catch {}
       setStepIdx(0)
       setActive(true)
     }
@@ -154,6 +157,7 @@ export default function SpotlightTour() {
   const finishTour = () => {
     try {
       localStorage.setItem('otwptn_tour_completed', 'true')
+      window.dispatchEvent(new CustomEvent('otwptn_tour_finished'))
     } catch {}
     setActive(false)
   }

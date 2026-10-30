@@ -45,9 +45,9 @@ function ResponsiveBee({
 
   return (
     <>
-      {/* Mobile & Tablet Bee (Scaled, non-blocking) */}
+      {/* Mobile & Tablet Bee (Scaled, non-blocking at viewport margins) */}
       <div
-        className="block md:hidden absolute pointer-events-none select-none z-10"
+        className="block xl:hidden absolute pointer-events-none select-none z-0"
         style={{ ...mobilePos, ...(rotate ? { transform: `rotate(${rotate}deg)` } : {}) }}
       >
         <motion.div
@@ -56,7 +56,7 @@ function ResponsiveBee({
           transition={{ duration: 0.7, delay: entranceDelay, ease: [0.34, 1.56, 0.64, 1] }}
         >
           <motion.div
-            animate={{ y: [0, -floatY * 0.6, 0], rotate: [-2, 2, -2] }}
+            animate={{ y: [0, -floatY * 0.5, 0], rotate: [-2, 2, -2] }}
             transition={{ duration: floatDur, repeat: Infinity, ease: 'easeInOut', delay: floatDelay }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -64,16 +64,16 @@ function ResponsiveBee({
               src={src}
               alt=""
               style={{ width: `${mobileSize}px`, height: 'auto' }}
-              className="filter drop-shadow-sm"
+              className="filter drop-shadow-sm opacity-85"
               draggable={false}
             />
           </motion.div>
         </motion.div>
       </div>
 
-      {/* Desktop Bee (Full HD) */}
+      {/* Desktop Bee (Full HD, positioned outside the central text column) */}
       <div
-        className="hidden md:block absolute pointer-events-none select-none z-0"
+        className="hidden xl:block absolute pointer-events-none select-none z-0"
         style={{ ...desktopPos, ...(rotate ? { transform: `rotate(${rotate}deg)` } : {}) }}
       >
         <motion.div
@@ -102,12 +102,6 @@ function ResponsiveBee({
   )
 }
 
-const BEES = [
-  { left: 158, top: 365, size: 239, rotate: 8 },
-  { left: 374, top: 627, size: 149, rotate: 7 },
-  { left: 509, top: 550, size: 193, rotate: -6 },
-]
-
 export default function HeroSection() {
   const [idx, setIdx] = useState(0)
   const sectionRef = useRef<HTMLElement>(null)
@@ -120,38 +114,38 @@ export default function HeroSection() {
   return (
     <section ref={sectionRef} className="relative overflow-hidden min-h-screen flex items-center pt-20 md:pt-0">
 
-      {/* Bee 1 - Kiri (Visible on Mobile + Desktop) */}
+      {/* Bee 1 - Kiri (Visible on Mobile/Tablet + Desktop, safe margins) */}
       <ResponsiveBee
         src="/bee1-hd.png"
-        desktopSize={BEES[0].size}
-        mobileSize={68}
-        desktopPos={{ left: BEES[0].left, top: BEES[0].top }}
-        mobilePos={{ left: '10px', top: '100px' }}
-        rotate={BEES[0].rotate}
+        desktopSize={220}
+        mobileSize={58}
+        desktopPos={{ left: 'max(20px, calc(50% - 620px))', top: '32%' }}
+        mobilePos={{ left: '16px', top: '75px' }}
+        rotate={8}
         floatY={16} floatDur={4.2} floatDelay={0}
         parallaxFactor={60} entranceDelay={0.2}
       />
 
-      {/* Bee 2 - Kanan Atas (Visible on Mobile + Desktop) */}
+      {/* Bee 2 - Kanan Atas (Visible on Mobile/Tablet + Desktop, safe margins) */}
       <ResponsiveBee
         src="/bee2-hd.png"
-        desktopSize={BEES[1].size}
-        mobileSize={58}
-        desktopPos={{ right: BEES[1].left, top: BEES[1].top }}
-        mobilePos={{ right: '12px', top: '115px' }}
-        rotate={BEES[1].rotate}
+        desktopSize={145}
+        mobileSize={52}
+        desktopPos={{ right: 'max(20px, calc(50% - 600px))', top: '20%' }}
+        mobilePos={{ right: '16px', top: '80px' }}
+        rotate={7}
         floatY={12} floatDur={3.8} floatDelay={0.9}
         parallaxFactor={40} entranceDelay={0.4}
       />
 
-      {/* Bee 3 - Kanan Bawah (Visible on Mobile + Desktop) */}
+      {/* Bee 3 - Kanan Bawah (Visible on Mobile/Tablet + Desktop, safe margins) */}
       <ResponsiveBee
         src="/bee3-hd.png"
-        desktopSize={BEES[2].size}
-        mobileSize={64}
-        desktopPos={{ left: `calc(50% + ${BEES[2].left}px)`, bottom: BEES[2].top }}
-        mobilePos={{ right: '16px', bottom: '28px' }}
-        rotate={BEES[2].rotate}
+        desktopSize={175}
+        mobileSize={54}
+        desktopPos={{ right: 'max(30px, calc(50% - 560px))', bottom: '12%' }}
+        mobilePos={{ right: '16px', bottom: '24px' }}
+        rotate={-6}
         floatY={18} floatDur={5} floatDelay={1.6}
         parallaxFactor={90} entranceDelay={0.6}
       />
