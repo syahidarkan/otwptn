@@ -197,7 +197,7 @@ export default function HeroSection() {
         <motion.div {...fadeUp(0.32)} className="flex items-center justify-center flex-wrap gap-6 text-xs text-gray-600 font-semibold pt-4 border-t border-amber-950/10 w-full max-w-md">
           <div className="flex items-center gap-1.5">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Mentor Alumni Terverifikasi</span>
+            <span>Mentor Alumni Jalur Yang Sama</span>
           </div>
           <div>
             <strong className="text-gray-950 font-extrabold">12.500+</strong> Pejuang PTN

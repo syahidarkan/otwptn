@@ -29,7 +29,7 @@ const FAQS = [
   },
   {
     q: 'Bagaimana cara kerja fitur Cari Teman Belajar (Tatap Muka Virtual)?',
-    a: 'Konsepnya mirip OmeTV edukasi khusus pejuang PTN. Kamu bisa langsung terhubung tatap muka virtual dengan pejuang PTN lain dari seluruh Indonesia tanpa perlu login atau instal aplikasi tambahan. Kamu bisa sharing strategi, bertukar draf essay, atau sekadar belajar bareng biar gak jenuh.',
+    a: 'Konsepnya mirip platform sebelah tapi ini edukasi khusus pejuang PTN. Kamu bisa langsung terhubung tatap muka virtual dengan pejuang PTN lain dari seluruh Indonesia tanpa perlu login atau instal aplikasi tambahan. Kamu bisa sharing strategi, bertukar draf essay, atau sekadar belajar bareng biar gak jenuh.',
   },
   {
     q: 'Apakah data nilai rapor, essay motivasi, dan dokumen saya aman?',

@@ -34,7 +34,7 @@ export default function PTNLogoSection() {
         className="text-center text-xs font-semibold uppercase tracking-widest mb-10"
         style={{ color: 'var(--muted-2)', letterSpacing: '0.12em' }}
       >
-        Alumni kami tersebar di semua PTN terbaik Indonesia
+        Alumni & Mentor kami tersebar di semua PTN terbaik Indonesia
       </motion.p>
       <div className="animate-marquee-x4 flex items-center gap-16" style={{ width: 'max-content' }}>
         {items.map((p, i) => (

@@ -113,8 +113,8 @@ export default function OmegleSection() {
       {/* Heading */}
       <div className="max-w-5xl mx-auto px-4 text-center mb-10">
         <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45 }}>
-          <h2 className="text-section-heading text-fg mb-3">Belajar bareng, bukan sendirian.</h2>
-          <p className="text-body max-w-md mx-auto">Konsep kayak OmeTV, tapi buat sesama pejuang PTN - gak perlu login.</p>
+          <h2 className="text-section-heading text-fg mb-3">Cari Temen Belajar Bareng.</h2>
+          <p className="text-body max-w-md mx-auto">Bisa belajar dan tambah relasi dari sesama pejuang PTN!</p>
         </motion.div>
       </div>
 

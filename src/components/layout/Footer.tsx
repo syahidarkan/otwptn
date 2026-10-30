@@ -182,7 +182,7 @@ export default function Footer() {
           {/* Copyright */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-3 mb-10">
             <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
-              © {new Date().getFullYear()} otwptn · PT. Lembaga Sains Nasional · Dibuat dengan ❤ untuk pejuang PTN Indonesia
+              © {new Date().getFullYear()} otwptn · PT. Lembaga Sains Nasional · Dibuat oleh para Alumni Fasilkom UI untuk pejuang PTN Indonesia
             </p>
             <div className="flex gap-5">
               {[

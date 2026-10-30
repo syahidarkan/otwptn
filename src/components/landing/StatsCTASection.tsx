@@ -103,7 +103,7 @@ export default function StatsCTASection() {
           <div className="grid grid-cols-2 gap-8 max-w-lg mx-auto">
             <div>
               <div className="font-bold mb-2 text-white" style={{ fontFamily: 'var(--font-heading)', color: '#ffffff', letterSpacing: '-0.04em', fontSize: 'clamp(3.5rem, 8vw, 6rem)' }}>
-                <CountUpStat value={500} />+
+                <CountUpStat value={378} />+
               </div>
               <div className="text-sm font-semibold text-white" style={{ color: '#ffffff' }}>siswa aktif belajar</div>
             </div>

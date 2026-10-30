@@ -34,9 +34,9 @@ export default function EssayCheckerSection() {
           transition={{ duration: 0.45, ease: 'easeOut' }}
           className="text-center mb-10"
         >
-          <h2 className="text-section-heading text-fg mb-4">Coba Cek Essay-mu Sekarang, Gratis</h2>
+          <h2 className="text-section-heading text-fg mb-4">Coba Cek Essay-mu Sekarang, Gratis!</h2>
           <p className="text-body max-w-md mx-auto">
-            Paste essay motivasimu dan lihat gimana AI otwptn menilai strukturnya - real-time, tanpa ribet, tanpa nunggu.
+            Paste essay motivasimu dan lihat gimana AI otwptn menilai strukturnya sesuai pengalaman para alumni yang sudah lolos melalui jalur tersebut.
           </p>
         </motion.div>
 

@@ -59,7 +59,7 @@ export default function MentorSection() {
           transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           <h2 className="text-section-heading mb-5" style={{ color: 'var(--dark-fg)' }}>
-            Butuh bimbingan lebih personal?
+            Butuh bimbingan bareng alumni dari jalur yang sama seperti kamu?
           </h2>
           <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--dark-muted)' }}>
             AI bisa bantu banyak hal, tapi kadang kamu butuh ngobrol langsung sama orang yang pernah di posisimu.
