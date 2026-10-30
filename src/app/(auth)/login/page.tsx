@@ -1,6 +1,6 @@
 'use client'
 
-// Adapted from aimasukptn — centered auth card, mascot, floating symbols
+// Adapted from aimasukptn - centered auth card, mascot, floating symbols
 
 import { useState } from 'react'
 import Link from 'next/link'

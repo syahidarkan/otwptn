@@ -419,8 +419,8 @@ export default function KalkulatorPage() {
           score: simulatedScore,
           recommendation:
             simulatedScore >= 75
-              ? 'Peluang Sangat Terbuka — Rapor dan prestasimu kompetitif untuk prodi pilihan.'
-              : 'Peluang Moderat — Pertimbangkan alternatif prodi pilihan ke-2 yang lebih rasional.',
+              ? 'Peluang Sangat Terbuka - Rapor dan prestasimu kompetitif untuk prodi pilihan.'
+              : 'Peluang Moderat - Pertimbangkan alternatif prodi pilihan ke-2 yang lebih rasional.',
           strengths: [
             `Rerata nilai rapor semester mencapai ${avgRapor > 0 ? avgRapor.toFixed(1) : '88.5'}`,
             certificates.length > 0

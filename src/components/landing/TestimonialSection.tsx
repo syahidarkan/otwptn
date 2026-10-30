@@ -1,6 +1,6 @@
 'use client'
 
-// Adapted from aimasukptn — two-row opposite-direction testimonial marquee
+// Adapted from aimasukptn - two-row opposite-direction testimonial marquee
 
 import { motion } from 'framer-motion'
 import { Star } from 'lucide-react'

@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     .join('\n')
 
   const certBreakdown = (certificates ?? [])
-    .map(c => `  - ${c.name} — tingkat ${c.level}, ${c.rank}, tahun ${c.year}`)
+    .map(c => `  - ${c.name} - tingkat ${c.level}, ${c.rank}, tahun ${c.year}`)
     .join('\n')
 
   const rankText = class_rank && class_total ? `Peringkat ${class_rank} dari ${class_total} siswa (${((class_rank / class_total) * 100).toFixed(1)}% teratas)` : school_rank_tier

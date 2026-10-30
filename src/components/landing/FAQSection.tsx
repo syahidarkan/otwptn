@@ -1,6 +1,6 @@
 'use client'
 
-// Adapted from pintarly / eja — FAQ accordion (white card, subtle shadow, no gradient)
+// Adapted from pintarly / eja - FAQ accordion (white card, subtle shadow, no gradient)
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'

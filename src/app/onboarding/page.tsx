@@ -177,7 +177,7 @@ const SMAN_LIST: SMANInfo[] = [
   { name:'SMA Pradita Dirgantara',  tier:'A+', akreditasi:'Unggul',     kota:'Boyolali',        prov:'Jawa Tengah' },
   { name:'SMA Insan Cendekia MBS',  tier:'A+', akreditasi:'Unggul',     kota:'Sleman',          prov:'DI Yogyakarta' },
   { name:'SMA Al-Azhar 1 Jakarta',  tier:'A',  akreditasi:'Unggul',     kota:'Jakarta Selatan', prov:'DKI Jakarta' },
-  // Ranking LTMPT — Top 100 Nasional
+  // Ranking LTMPT - Top 100 Nasional
   { name:'MAN Insan Cendekia Serpong',     tier:'A+', akreditasi:'Unggul', kota:'Tangerang Selatan', prov:'Banten' },
   { name:'SMA Katolik St Louis 1',         tier:'A+', akreditasi:'Unggul', kota:'Surabaya',          prov:'Jawa Timur' },
   { name:'MAN Insan Cendekia Pekalongan',  tier:'A+', akreditasi:'Unggul', kota:'Pekalongan',        prov:'Jawa Tengah' },
@@ -378,7 +378,7 @@ const ESSAY_SENTENCES = [
 ]
 const ESSAY_ISSUES: Record<number, string> = {
   0: '"siswi" tidak sesuai karena nama "Budi" biasanya laki-laki. Esai harus konsisten.',
-  1: '"passionate" — gunakan kata baku: "bersemangat" atau "antusias" (KBBI)',
+  1: '"passionate" - gunakan kata baku: "bersemangat" atau "antusias" (KBBI)',
   2: '"Kenapa" tidak baku. Gunakan "Mengapa" sesuai kaidah penulisan formal.',
   4: '"cocok" terlalu lemah & tidak spesifik. Tunjukkan bukti konkret mengapa kamu layak.',
 }
@@ -400,10 +400,10 @@ const CHALLENGE_OPTIONS = [
   { key: 'waktu',     label: 'Nggak ada waktu untuk persiapan' },
 ]
 const CHALLENGE_FEATURES: Record<string, { title: string; desc: string; icon: string }> = {
-  konsisten: { title: 'Tracker Esai & Rapor',  desc: 'Progres harianmu tercatat otomatis — dari draft esai sampai target rapor.',       icon: '/mascot/otbee-phone.png' },
-  mulai:     { title: 'Template Esai AI',       desc: 'AI bisa langsung bikin draft esai pertamamu — tinggal edit sesuai gaya kamu.',    icon: '/mascot/writing-essay.png' },
-  arah:      { title: 'Roadmap Non-Tes',        desc: 'Timeline lengkap PPKB, SJP, SBUB, dan jalur lainnya — tau persis harus ngapain.', icon: '/mascot/roadmap-flags.png' },
-  distraksi: { title: 'Sesi Nulis Terfokus',    desc: 'Sesi 25 menit terfokus khusus nulis/revisi esai — pendek tapi efektif.',         icon: '/mascot/reading-clock.png' },
+  konsisten: { title: 'Tracker Esai & Rapor',  desc: 'Progres harianmu tercatat otomatis - dari draft esai sampai target rapor.',       icon: '/mascot/otbee-phone.png' },
+  mulai:     { title: 'Template Esai AI',       desc: 'AI bisa langsung bikin draft esai pertamamu - tinggal edit sesuai gaya kamu.',    icon: '/mascot/writing-essay.png' },
+  arah:      { title: 'Roadmap Non-Tes',        desc: 'Timeline lengkap PPKB, SJP, SBUB, dan jalur lainnya - tau persis harus ngapain.', icon: '/mascot/roadmap-flags.png' },
+  distraksi: { title: 'Sesi Nulis Terfokus',    desc: 'Sesi 25 menit terfokus khusus nulis/revisi esai - pendek tapi efektif.',         icon: '/mascot/reading-clock.png' },
   waktu:     { title: 'Persiapan 30 Menit',     desc: 'Jadwal harian fleksibel, 30 menit per hari bisa bikin progress signifikan.',      icon: '/mascot/calendar-zoom.png' },
 }
 const DAILY_HOURS    = [{ n: 1, label: 'Santai' }, { n: 2, label: 'Konsisten' }, { n: 3, label: 'Intensif' }]
@@ -440,22 +440,22 @@ const MASCOTS = [
 const STEP_COPY: { title: string; sub: string }[] = [
   { title: 'Halo! Aku OtBee, temenmu siap masuk PTN non-tes.',    sub: 'Cuma 5 menit buat nyusun rencana yang beneran cocok buat kamu.' },
   { title: 'Sekarang kamu kelas berapa?',                          sub: 'Biar aku bisa sesuaikan jalur yang tersedia.' },
-  { title: 'Jalur non-tes mana yang kamu incar?',                  sub: 'Bisa pilih satu dulu — bisa diubah kapan aja.' },
-  { title: 'Seberapa yakin kamu bisa lolos di jalur itu?',         sub: 'Jujur aja — ini buat ngukur titik awalmu.' },
+  { title: 'Jalur non-tes mana yang kamu incar?',                  sub: 'Bisa pilih satu dulu - bisa diubah kapan aja.' },
+  { title: 'Seberapa yakin kamu bisa lolos di jalur itu?',         sub: 'Jujur aja - ini buat ngukur titik awalmu.' },
   { title: 'Sebelum lanjut, latihan esai singkat yuk!',            sub: 'Temukan bagian mana yang perlu diperbaiki.' },
   { title: 'Hari pertamamu udah jalan!',                           sub: 'Progres persiapanmu mulai tercatat dari sekarang.' },
   { title: 'Kenalan dulu dong.',                                    sub: 'Biar makin personal rencananya.' },
   { title: 'Kampus & jurusan impianmu?',                           sub: 'Pilih yang paling kamu incer.' },
   { title: 'Seberapa kuat profil rapormu?',                        sub: 'Semakin detail, semakin akurat proyeksi peluangmu.' },
-  { title: 'Daftarkan prestasi & sertifikatmu.',                   sub: 'Opsional tapi penting — makin lengkap, makin kuat profilmu.' },
-  { title: 'Punya draft esai atau motivasi awal?',                 sub: 'Opsional — AI otwptn bisa membantu mengembangkannya.' },
+  { title: 'Daftarkan prestasi & sertifikatmu.',                   sub: 'Opsional tapi penting - makin lengkap, makin kuat profilmu.' },
+  { title: 'Punya draft esai atau motivasi awal?',                 sub: 'Opsional - AI otwptn bisa membantu mengembangkannya.' },
   { title: 'Suka belajar & nulis dengan cara apa?',                sub: 'Untuk menentukan metode persiapan esai kamu.' },
   { title: 'Ini yang bikin kamu beda di jalur non-tes.',           sub: 'Pahami kenapa rapor, esai, dan prestasi itu kunci.' },
   { title: 'Tantangan terbesarmu apa?',                            sub: 'Biar aku siapin solusi yang tepat buat kamu.' },
   { title: 'Sehari mau dedikasikan berapa jam?',                   sub: 'Dan hari apa aja kamu sempat?' },
   { title: 'Kalau rencana ini jalan terus...',                     sub: 'Begini kira-kira total persiapanmu nanti.' },
   { title: 'Biar nggak cuma niat doang.',                          sub: 'Yuk bikin rencana konkretnya.' },
-  { title: 'Terakhir, ceritain motivasimu.',                       sub: 'Opsional — ini jadi modal AI bantu nulis esaimu nanti.' },
+  { title: 'Terakhir, ceritain motivasimu.',                       sub: 'Opsional - ini jadi modal AI bantu nulis esaimu nanti.' },
   { title: 'Ringkasan rencanamu.',                                  sub: 'Semua udah aku rangkum di sini.' },
   { title: 'Janji sama diri sendiri.',                             sub: 'Tahan tombolnya sampai penuh ya.' },
   { title: 'Menyusun rencanamu...',                                sub: 'Tunggu sebentar ya.' },
@@ -654,7 +654,7 @@ function SchoolInput({ value, onChange }: { value: string; onChange: (v: string,
         </motion.div>
       )}
       {value.length > 2 && !selected && results.length === 0 && !open && (
-        <p className="text-[11px] mt-1.5" style={{ color: 'var(--muted)' }}>Tidak ditemukan di database kami — tidak apa-apa, ketik nama lengkapnya saja!</p>
+        <p className="text-[11px] mt-1.5" style={{ color: 'var(--muted)' }}>Tidak ditemukan di database kami - tidak apa-apa, ketik nama lengkapnya saja!</p>
       )}
     </div>
   )
@@ -739,7 +739,7 @@ function PrestasiStep({ list, onChange }: { list: PrestasiItem[]; onChange: (l: 
     <div className="space-y-3">
       {list.length === 0 && (
         <p className="text-xs text-center py-2" style={{ color: 'var(--muted)' }}>
-          Belum ada prestasi. Tambahkan satu per satu — bisa olimpiade, lomba, organisasi, dll.
+          Belum ada prestasi. Tambahkan satu per satu - bisa olimpiade, lomba, organisasi, dll.
         </p>
       )}
       {list.map((item, i) => (
@@ -797,7 +797,7 @@ function PrestasiStep({ list, onChange }: { list: PrestasiItem[]; onChange: (l: 
         <Plus size={15} /> Tambah Prestasi
       </button>
       <p className="text-[11px] text-center" style={{ color: 'var(--muted)' }}>
-        Opsional — kalau belum ada prestasi, langsung lanjut aja
+        Opsional - kalau belum ada prestasi, langsung lanjut aja
       </p>
     </div>
   )
@@ -871,12 +871,12 @@ export default function OnboardingPage() {
       if (isEssay)   return { title: 'Seberapa kuat profil rapormu?', sub: 'Rapor & nilai akademik jadi fondasi kuat di jalur esai.' }
     }
     if (step === 9) {
-      if (isPrestasi) return { title: 'Daftarkan prestasi & sertifikatmu.', sub: 'Ini komponen utama jalur prestasi — semakin detail, semakin kuat.' }
+      if (isPrestasi) return { title: 'Daftarkan prestasi & sertifikatmu.', sub: 'Ini komponen utama jalur prestasi - semakin detail, semakin kuat.' }
       if (isEssay)   return { title: 'Ada prestasi yang mau dicantumkan?', sub: 'Opsional untuk jalur esai, tapi bisa jadi nilai tambah.' }
     }
     if (step === 10) {
       if (isPrestasi) return { title: 'Punya draft motivasi awal?', sub: 'Biasanya jalur prestasi butuh surat rekomendasi atau motivasi singkat.' }
-      if (isEssay)   return { title: 'Draft esai pertamamu yuk!', sub: 'Esai adalah jantung jalurmu — tulis bebas, AI bantu poles nanti.' }
+      if (isEssay)   return { title: 'Draft esai pertamamu yuk!', sub: 'Esai adalah jantung jalurmu - tulis bebas, AI bantu poles nanti.' }
     }
     if (step === 12) {
       if (isPrestasi) return { title: 'Ini yang bikin kamu unggul di jalur prestasi.', sub: 'Sertifikat & prestasi kamu adalah senjata utamanya.' }
@@ -993,7 +993,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen relative" style={{ background: 'var(--hero-grad)' }}>
-      {/* Separate clipped layer for particles & bees — never bleeds into content */}
+      {/* Separate clipped layer for particles & bees - never bleeds into content */}
       {(showParticles || showBees) && (
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 0, pointerEvents: 'none' }}>
           {showParticles && <ParticleField />}
@@ -1001,7 +1001,7 @@ export default function OnboardingPage() {
         </div>
       )}
 
-      {/* Main content — NO overflow clipping so mascot can extend freely */}
+      {/* Main content - NO overflow clipping so mascot can extend freely */}
       <div className="flex flex-col items-center px-4 pt-7 pb-10" style={{ position: 'relative', zIndex: 1, minHeight: '100vh' }}>
       <div className="w-full max-w-md relative z-10">
         {/* Header */}
@@ -1031,7 +1031,7 @@ export default function OnboardingPage() {
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, delay: 0.1 }} className="flex justify-center mb-4">
                   <Sparkles size={28} color="#ffd400" fill="#ffd400" />
                 </motion.div>
-                <p className="text-sm mb-1" style={{ color: 'var(--muted)' }}>otwptn khusus fokus di jalur <b>non-tes</b> —</p>
+                <p className="text-sm mb-1" style={{ color: 'var(--muted)' }}>otwptn khusus fokus di jalur <b>non-tes</b> -</p>
                 <p className="text-sm font-semibold" style={{ color: 'var(--fg)' }}>PPKB UI, SJP UI, SBUB, dan 30+ jalur prestasi lainnya.</p>
                 <p className="text-xs mt-2" style={{ color: 'var(--muted)' }}>Kita susun rencana rapor, esai, dan strategi yang beneran cocok buat kamu.</p>
               </div>
@@ -1045,7 +1045,7 @@ export default function OnboardingPage() {
               </div>
             )}
 
-            {/* 2 jalur — grouped by type */}
+            {/* 2 jalur - grouped by type */}
             {step === 2 && (
               <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
                 {jalurGrouped.map(({ type, items }) => (
@@ -1139,7 +1139,7 @@ export default function OnboardingPage() {
                 <div className="grid grid-cols-3 gap-2 mb-4">
                   {[
                     { label: 'Terdeteksi', val: `${essayPicks.size}/${Object.keys(ESSAY_ISSUES).length}` },
-                    { label: 'Jalur',      val: jalurInfo?.ptn || '—' },
+                    { label: 'Jalur',      val: jalurInfo?.ptn || '-' },
                     { label: 'XP',         val: '+15' },
                   ].map(s => (
                     <div key={s.label} className="rounded-xl py-3 text-center" style={{ background: 'rgba(255,255,255,0.65)', border: '1px solid rgba(0,0,0,0.06)' }}>
@@ -1190,7 +1190,7 @@ export default function OnboardingPage() {
                     )
                   })}
                 </div>
-                {/* Lainnya — custom PTN */}
+                {/* Lainnya - custom PTN */}
                 <div className="mb-4">
                   <p className="text-[11px] font-semibold mb-1.5" style={{ color: 'var(--muted)' }}>PTN lainnya? Ketik nama kampus:</p>
                   <input
@@ -1233,7 +1233,7 @@ export default function OnboardingPage() {
                 </Field>
                 <p className="text-[11px] -mt-2" style={{ color: 'var(--muted)' }}>
                   {isPrestasi
-                    ? 'Rapor mendukung profilmu meski bukan faktor utama — tetap isi ya.'
+                    ? 'Rapor mendukung profilmu meski bukan faktor utama - tetap isi ya.'
                     : isEssay
                     ? 'Rapor & nilai akademik jadi fondasi penting di jalur esai.'
                     : 'Semakin detail infonya, semakin akurat proyeksi peluangmu di jalur non-tes.'}
@@ -1250,7 +1250,7 @@ export default function OnboardingPage() {
                       <div key={sem}>
                         <label className="block text-[10px] font-semibold mb-1" style={{ color: 'var(--muted)' }}>{sem}</label>
                         <input type="number" value={form.rapor_per_semester[i]} onChange={e => setRaporSem(i, e.target.value)}
-                          placeholder="—" min={0} max={100} step={0.1} className="input text-center py-2" style={{ fontSize: 13 }} />
+                          placeholder="-" min={0} max={100} step={0.1} className="input text-center py-2" style={{ fontSize: 13 }} />
                       </div>
                     ))}
                   </div>
@@ -1274,7 +1274,7 @@ export default function OnboardingPage() {
                         <div key={mapel} className="flex items-center gap-3">
                           <span className="text-xs flex-1 truncate" style={{ color: 'var(--fg)' }}>{mapel}</span>
                           <input type="number" value={form.rapor_mapel[mapel] || ''} onChange={e => setMapelVal(mapel, e.target.value)}
-                            placeholder="—" min={0} max={100} step={0.1} className="input py-1.5" style={{ fontSize: 13, width: 70 }} />
+                            placeholder="-" min={0} max={100} step={0.1} className="input py-1.5" style={{ fontSize: 13, width: 70 }} />
                         </div>
                       ))}
                     </div>
@@ -1321,13 +1321,13 @@ export default function OnboardingPage() {
                 )}
                 {isEssay && (
                   <div className="mb-2 px-3 py-2 rounded-xl text-[11px] font-semibold" style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', color: '#1e40af' }}>
-                    Esai adalah komponen utama jalurmu. Draft awal apapun membantu — AI akan memolesnya nanti.
+                    Esai adalah komponen utama jalurmu. Draft awal apapun membantu - AI akan memolesnya nanti.
                   </div>
                 )}
                 <textarea value={form.essay_draft} onChange={e => set('essay_draft', e.target.value)} rows={6}
                   placeholder={isPrestasi
                     ? 'Ceritain siapa kamu, prestasi terbaik yang pernah kamu raih, dan kenapa kamu mau masuk jalur ini...'
-                    : 'Ceritain singkat siapa kamu, apa prestasi terbaikmu, dan kenapa kamu layak masuk jalur ini. Tulis bebas — AI otwptn akan membantu mengembangkannya nanti...'}
+                    : 'Ceritain singkat siapa kamu, apa prestasi terbaikmu, dan kenapa kamu layak masuk jalur ini. Tulis bebas - AI otwptn akan membantu mengembangkannya nanti...'}
                   className="input resize-none" style={{ height: 150 }} />
                 {form.essay_draft.length > 0 && <p className="text-[11px] mt-1" style={{ color: 'var(--muted)' }}>{form.essay_draft.length} karakter · AI akan bantu poles ini menjadi {isPrestasi ? 'surat motivasi' : 'esai'} yang kuat</p>}
               </div>
@@ -1340,7 +1340,7 @@ export default function OnboardingPage() {
               </div>
             )}
 
-            {/* 12 insight — bars are 100% jalur-type-dependent */}
+            {/* 12 insight - bars are 100% jalur-type-dependent */}
             {step === 12 && (() => {
               const bars = isPrestasi
                 ? [
@@ -1382,7 +1382,7 @@ export default function OnboardingPage() {
                       </div>
                     ))}
                   </div>
-                  <p className="text-center text-[11px]" style={{ color: 'var(--muted)' }}>Estimasi bobot untuk <b>{jalurInfo?.label || 'jalurmu'}</b> — bervariasi antar universitas</p>
+                  <p className="text-center text-[11px]" style={{ color: 'var(--muted)' }}>Estimasi bobot untuk <b>{jalurInfo?.label || 'jalurmu'}</b> - bervariasi antar universitas</p>
                 </div>
               )
             })()}
@@ -1477,9 +1477,9 @@ export default function OnboardingPage() {
             {step === 18 && (
               <motion.div initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }} className="space-y-2">
                 {[
-                  { label: 'Jalur Target',  val: jalurInfo?.label || '—' },
-                  { label: 'Kampus Impian', val: form.target_ptns[0] || '—' },
-                  { label: 'Keyakinan',     val: `${form.confidence}% — ${confidenceLabel}` },
+                  { label: 'Jalur Target',  val: jalurInfo?.label || '-' },
+                  { label: 'Kampus Impian', val: form.target_ptns[0] || '-' },
+                  { label: 'Keyakinan',     val: `${form.confidence}% - ${confidenceLabel}` },
                   { label: 'Komitmen',      val: `${form.daily_study_hours} jam · ${studyDaysCount}x/minggu` },
                   { label: 'Total Persiapan', val: `±${totalHours} jam sampai ${deadlineYear}` },
                 ].map(row => (
@@ -1497,7 +1497,7 @@ export default function OnboardingPage() {
               </motion.div>
             )}
 
-            {/* 19 janji / hold — PALING TERAKHIR sebelum loading */}
+            {/* 19 janji / hold - PALING TERAKHIR sebelum loading */}
             {step === 19 && (
               <div>
                 <div className="rounded-xl p-3.5 text-sm font-bold leading-relaxed text-center mb-5" style={{ background: 'rgba(255,255,255,0.65)', border: '1.5px solid rgba(0,0,0,0.08)', color: 'var(--fg)' }}>

@@ -133,9 +133,9 @@ const revenue = revenueData?.reduce((sum, r) => sum + (r.total_price ?? 0), 0) ?
                 const pkg = reg.packages as { category: JalurCategory; tier: string } | null
                 return (
                   <tr key={reg.id} className="hover:bg-amber-50/20 transition">
-                    <td className="py-3 font-medium text-brand-black">{profile?.full_name ?? '—'}</td>
+                    <td className="py-3 font-medium text-brand-black">{profile?.full_name ?? '-'}</td>
                     <td className="py-3 text-brand-muted">
-                      {pkg ? `${CATEGORY_LABEL[pkg.category]} ${TIER_LABEL[pkg.tier]}` : '—'}
+                      {pkg ? `${CATEGORY_LABEL[pkg.category]} ${TIER_LABEL[pkg.tier]}` : '-'}
                     </td>
                     <td className="py-3">{formatRupiah(reg.total_price)}</td>
                     <td className="py-3 text-brand-muted">{formatDateTime(reg.created_at)}</td>

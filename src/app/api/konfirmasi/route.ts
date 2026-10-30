@@ -63,7 +63,7 @@ export async function POST(request: Request) {
 
       await sendEmail({
         to: profile.email,
-        subject: 'Pembayaran Dikonfirmasi — Selamat Bergabung di otwptn!',
+        subject: 'Pembayaran Dikonfirmasi - Selamat Bergabung di otwptn!',
         react: createElement(PembayaranDikonfirmasi, {
           full_name: profile.full_name,
           wa_group_link,

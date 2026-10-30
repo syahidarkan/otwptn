@@ -120,7 +120,7 @@ export default function HeroSection() {
   return (
     <section ref={sectionRef} className="relative overflow-hidden min-h-screen flex items-center pt-20 md:pt-0">
 
-      {/* Bee 1 — Kiri (Visible on Mobile + Desktop) */}
+      {/* Bee 1 - Kiri (Visible on Mobile + Desktop) */}
       <ResponsiveBee
         src="/bee1-hd.png"
         desktopSize={BEES[0].size}
@@ -132,7 +132,7 @@ export default function HeroSection() {
         parallaxFactor={60} entranceDelay={0.2}
       />
 
-      {/* Bee 2 — Kanan Atas (Visible on Mobile + Desktop) */}
+      {/* Bee 2 - Kanan Atas (Visible on Mobile + Desktop) */}
       <ResponsiveBee
         src="/bee2-hd.png"
         desktopSize={BEES[1].size}
@@ -144,7 +144,7 @@ export default function HeroSection() {
         parallaxFactor={40} entranceDelay={0.4}
       />
 
-      {/* Bee 3 — Kanan Bawah (Visible on Mobile + Desktop) */}
+      {/* Bee 3 - Kanan Bawah (Visible on Mobile + Desktop) */}
       <ResponsiveBee
         src="/bee3-hd.png"
         desktopSize={BEES[2].size}
@@ -179,7 +179,7 @@ export default function HeroSection() {
         </motion.h1>
 
         <motion.p {...fadeUp(0.16)} className="mb-8 max-w-xl mx-auto text-sm sm:text-base leading-relaxed px-2 text-gray-700 font-medium">
-          Upload essay-mu, isi profil akademikmu, dan otwptn langsung beri analisis AI canggih —
+          Upload essay-mu, isi profil akademikmu, dan otwptn langsung beri analisis AI canggih -
           skor essay, estimasi peluang rasionalisasi SNBP, dan bimbingan 1-on-1 mentor alumni UI, ITB, & UGM.
         </motion.p>
 

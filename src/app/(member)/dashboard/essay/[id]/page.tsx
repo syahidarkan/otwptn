@@ -70,7 +70,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
   const handleExportTxt = () => {
     if (!editor) return
     const plain = editor.getText()
-    const content = `=====================================================\nJUDUL: ${title || 'Personal Statement'}\nTARGET PTN: ${targetPtn} | JALUR: ${targetJalur}\nKATA: ${editor.storage.characterCount?.words() ?? 0} kata\nPLATFORM: otwptn — PT. Lembaga Sains Nasional\n=====================================================\n\n${plain}`
+    const content = `=====================================================\nJUDUL: ${title || 'Personal Statement'}\nTARGET PTN: ${targetPtn} | JALUR: ${targetJalur}\nKATA: ${editor.storage.characterCount?.words() ?? 0} kata\nPLATFORM: otwptn | PT. Lembaga Sains Nasional\n=====================================================\n\n${plain}`
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -139,7 +139,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
     ],
     editorProps: {
       attributes: {
-        // ALWAYS crisp black font on white paper — never inverted by dark mode
+        // ALWAYS crisp black font on white paper - never inverted by dark mode
         class: 'prose max-w-none focus:outline-none min-h-[600px] text-base leading-relaxed font-sans !text-slate-900',
         style: 'color: #0f172a;',
       },

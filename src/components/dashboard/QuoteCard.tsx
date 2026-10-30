@@ -101,7 +101,7 @@ export default function QuoteCard() {
       ) : quote ? (
         <>
           <p className="text-sm italic mb-2" style={{ color: 'var(--fg)' }}>&ldquo;{quote.text}&rdquo;</p>
-          <p className="text-xs font-semibold" style={{ color: 'var(--muted)' }}>— {quote.author || 'Anonim'}</p>
+          <p className="text-xs font-semibold" style={{ color: 'var(--muted)' }}>- {quote.author || 'Anonim'}</p>
         </>
       ) : (
         <div className="h-10" />

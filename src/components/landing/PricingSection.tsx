@@ -1,6 +1,6 @@
 'use client'
 
-// Adapted from user-provided bento reference — asymmetric glass pricing grid (Free biggest, Reguler highlighted)
+// Adapted from user-provided bento reference - asymmetric glass pricing grid (Free biggest, Reguler highlighted)
 
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'

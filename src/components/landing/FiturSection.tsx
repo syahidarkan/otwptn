@@ -1,6 +1,6 @@
 'use client'
 
-// Adapted from pintarly — "Showcase Fitur Utama" auto-sliding feature carousel.
+// Adapted from pintarly - "Showcase Fitur Utama" auto-sliding feature carousel.
 // Each feature gets a distinct, purpose-built visual with a subtle 3D tilt (Framer Motion perspective transforms).
 
 import { useEffect, useRef, useState } from 'react'
@@ -102,7 +102,7 @@ function EssayPaperPreview() {
           <MessageCircle size={12} style={{ color: '#b91c1c' }} />
           <span className="text-xs font-bold text-fg">Catatan Revisi</span>
         </div>
-        <p className="text-xs" style={{ color: 'var(--muted)' }}>Terlalu umum — tambahkan contoh konkret.</p>
+        <p className="text-xs" style={{ color: 'var(--muted)' }}>Terlalu umum - tambahkan contoh konkret.</p>
       </motion.div>
     </div>
   )
@@ -247,14 +247,14 @@ function DokumenFolderPreview() {
 type Feature = { id: string; label: string; title: string; desc: string; mascot: string; preview: (p: { active: boolean }) => React.ReactNode }
 
 const FEATURES: Feature[] = [
-  { id: 'mentor', label: 'Mentor Alumni', title: 'Konsultasi grup, sharescreen bareng mentor.', desc: 'Sesi video call grup bareng mentor alumni — sharescreen langsung di essay-mu lewat Google Docs, kayak kelas kecil.', mascot: '/mascot/medal.png', preview: () => <MentorZoomPreview /> },
-  { id: 'essay', label: 'Essay AI Review', title: 'Dikoreksi kayak di Google Docs, tapi sama AI.', desc: 'Tiap kalimat di-highlight dengan catatan revisi spesifik — bagian yang kuat, yang perlu diperbaiki, dan saran kalimat pengganti.', mascot: '/mascot/writing-essay.png', preview: () => <EssayPaperPreview /> },
-  { id: 'kalkulator', label: 'Kalkulator Peluang', title: 'Estimasi peluang, bukan tebak-tebakan.', desc: 'Isi rapor, peringkat sekolah, dan sertifikatmu — otwptn hitung estimasi peluangmu dengan animasi real-time.', mascot: '/mascot/bar-chart-point.png', preview: ({ active }) => <KalkulatorFormPreview active={active} /> },
+  { id: 'mentor', label: 'Mentor Alumni', title: 'Konsultasi grup, sharescreen bareng mentor.', desc: 'Sesi video call grup bareng mentor alumni - sharescreen langsung di essay-mu lewat Google Docs, kayak kelas kecil.', mascot: '/mascot/medal.png', preview: () => <MentorZoomPreview /> },
+  { id: 'essay', label: 'Essay AI Review', title: 'Dikoreksi kayak di Google Docs, tapi sama AI.', desc: 'Tiap kalimat di-highlight dengan catatan revisi spesifik - bagian yang kuat, yang perlu diperbaiki, dan saran kalimat pengganti.', mascot: '/mascot/writing-essay.png', preview: () => <EssayPaperPreview /> },
+  { id: 'kalkulator', label: 'Kalkulator Peluang', title: 'Estimasi peluang, bukan tebak-tebakan.', desc: 'Isi rapor, peringkat sekolah, dan sertifikatmu - otwptn hitung estimasi peluangmu dengan animasi real-time.', mascot: '/mascot/bar-chart-point.png', preview: ({ active }) => <KalkulatorFormPreview active={active} /> },
   { id: 'otbee', label: 'Otbee AI', title: 'Konsultan yang gak pernah tidur.', desc: 'Chat 24/7 dengan AI yang udah dilatih dari data kelulusan jalur non-tes tahun-tahun sebelumnya, langsung dari HP-mu.', mascot: '/mascot/otbee-phone.png', preview: () => <OtbeePhonePreview /> },
-  { id: 'modul', label: 'Modul & Video', title: 'Belajar terstruktur lewat video dan modul.', desc: 'Materi dipecah per jalur — strategi essay, portofolio, sampai simulasi wawancara, dalam video singkat yang gampang dicerna.', mascot: '/mascot/tablet-play.png', preview: () => <ModulGridPreview /> },
-  { id: 'komunitas', label: 'Komunitas', title: 'Gak berjuang sendirian.', desc: 'Forum diskusi real-time dengan sesama pejuang jalur non-tes — tanya jawab, sharing pengalaman, saling semangatin.', mascot: '/mascot/megaphone-community.png', preview: () => <KomunitasPostPreview /> },
-  { id: 'tracking', label: 'Tracking Jalur', title: 'Pantau progres semua jalur yang kamu ikuti.', desc: 'Timeline yang nunjukin status tiap pendaftaran jalur — draf, submit, hasil — biar gak ada yang kelewat.', mascot: '/mascot/roadmap-flags.png', preview: () => <TrackingTimelinePreview /> },
-  { id: 'dokumen', label: 'Penyimpanan Dokumen', title: 'Semua dokumen pendaftaran, satu tempat.', desc: 'Simpan rapor, sertifikat, dan essay versi terbaru — tinggal download pas butuh submit.', mascot: '/mascot/file-box-storage.png', preview: () => <DokumenFolderPreview /> },
+  { id: 'modul', label: 'Modul & Video', title: 'Belajar terstruktur lewat video dan modul.', desc: 'Materi dipecah per jalur - strategi essay, portofolio, sampai simulasi wawancara, dalam video singkat yang gampang dicerna.', mascot: '/mascot/tablet-play.png', preview: () => <ModulGridPreview /> },
+  { id: 'komunitas', label: 'Komunitas', title: 'Gak berjuang sendirian.', desc: 'Forum diskusi real-time dengan sesama pejuang jalur non-tes - tanya jawab, sharing pengalaman, saling semangatin.', mascot: '/mascot/megaphone-community.png', preview: () => <KomunitasPostPreview /> },
+  { id: 'tracking', label: 'Tracking Jalur', title: 'Pantau progres semua jalur yang kamu ikuti.', desc: 'Timeline yang nunjukin status tiap pendaftaran jalur - draf, submit, hasil - biar gak ada yang kelewat.', mascot: '/mascot/roadmap-flags.png', preview: () => <TrackingTimelinePreview /> },
+  { id: 'dokumen', label: 'Penyimpanan Dokumen', title: 'Semua dokumen pendaftaran, satu tempat.', desc: 'Simpan rapor, sertifikat, dan essay versi terbaru - tinggal download pas butuh submit.', mascot: '/mascot/file-box-storage.png', preview: () => <DokumenFolderPreview /> },
   { id: 'matching', label: 'Cari Teman Belajar', title: 'Belajar bareng, kayak Omegle buat PTN.', desc: 'Terhubung instan dengan sesama pejuang jalur non-tes buat ngobrol, sharing strategi, atau saling semangatin.', mascot: '/mascot/video-call-match.png', preview: () => <MatchingPreview /> },
 ]
 

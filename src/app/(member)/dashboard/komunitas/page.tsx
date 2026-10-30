@@ -555,7 +555,7 @@ export default function KomunitasPage() {
       )}
 
       {/* =========================================================================
-          VIEW B: CIRCLE DIRECTORY (SCREENSHOT 1) — IF NO CIRCLE IS OPENED
+          VIEW B: CIRCLE DIRECTORY (SCREENSHOT 1) - IF NO CIRCLE IS OPENED
           ========================================================================= */}
       {mainView === 'circle' && !selectedCircleId && (
         <div className="space-y-8">
@@ -694,7 +694,7 @@ export default function KomunitasPage() {
       )}
 
       {/* =========================================================================
-          VIEW C: CHATBOX VIEW (SCREENSHOT 2) — WITHOUT LEFT LIST!
+          VIEW C: CHATBOX VIEW (SCREENSHOT 2) - WITHOUT LEFT LIST!
           ========================================================================= */}
       {mainView === 'circle' && selectedCircleId && activeCircle && (
         <div className="space-y-4">

@@ -1101,7 +1101,7 @@ export default function SuperAdminMentorsPage() {
                 <option value="">-- Pilih Kakak Mentor --</option>
                 {mentors.filter(m => m.status === 'approved').map(m => (
                   <option key={m.id} value={m.id}>
-                    {m.fullName} ({m.university} · {m.major}) — {m.menteeCount} Mentee Aktif
+                    {m.fullName} ({m.university} · {m.major}) - {m.menteeCount} Mentee Aktif
                   </option>
                 ))}
               </select>

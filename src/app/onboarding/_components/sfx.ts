@@ -1,5 +1,5 @@
 // Web Audio API synthesizer for step-transition SFX
-// Uses only the AudioContext API — no external dependencies or audio files required.
+// Uses only the AudioContext API - no external dependencies or audio files required.
 
 type SfxType = 'next' | 'select' | 'correct' | 'wrong' | 'complete' | 'hold'
 
@@ -107,7 +107,7 @@ function _scheduleFanfare(ctx: AudioContext): void {
     bass(196, 1.94)
     ;[196, 247, 294, 392, 494].forEach(f => tone(f, 1.94, 0.6, 0.055))
 
-    // Phase 5: BIG C major finale — full voiced, long sustain (2.58s)
+    // Phase 5: BIG C major finale - full voiced, long sustain (2.58s)
     bass(130, 2.56)
     ;[130, 165, 196, 261, 330, 392, 523, 659, 784].forEach(f => tone(f, 2.56, 2.1, 0.042))
 

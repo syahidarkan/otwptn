@@ -13,7 +13,7 @@
   --accent-hover: #f0c700;
   --accent-ink: #111111;
 
-  /* Base — pure white, no warm tint */
+  /* Base - pure white, no warm tint */
   --fg: #111111;
   --bg: #ffffff;
   --bg-alt: #f7f7f5;
@@ -34,7 +34,7 @@
   --tag-hybrid-bg: #f3e8ff;
   --tag-hybrid-fg: #7e22ce;
 
-  /* Hero gradient — separate soft color blobs on white, like pintarly */
+  /* Hero gradient - separate soft color blobs on white, like pintarly */
   --hero-grad:
     radial-gradient(ellipse 55% 50% at 8% 10%, rgba(255,212,0,0.85) 0%, transparent 65%),
     radial-gradient(ellipse 50% 45% at 92% 8%, rgba(255,200,0,0.6) 0%, transparent 65%),
@@ -71,7 +71,7 @@ table, tr, td, th {
 
 /* ───────────────────────────────────────────────────────────────
    Fixed Light Theme for Public Landing Pages & Homepage
-   Gausah ada penyesuaian mode device — selalu putih/terang original
+   Gausah ada penyesuaian mode device - selalu putih/terang original
    ─────────────────────────────────────────────────────────────── */
 .public-light-theme,
 html.dark .public-light-theme {
@@ -346,7 +346,7 @@ html.dark .hover-lift span {
   p { line-height: 1.65; }
 }
 
-/* ─── Motion — fade-up subtle, stagger ──────────────────────────── */
+/* ─── Motion - fade-up subtle, stagger ──────────────────────────── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -377,7 +377,7 @@ html.dark .hover-lift span {
 }
 .animate-float { animation: float 4s ease-in-out infinite; }
 
-/* ─── True frosted glass — strong blur + saturation, visible refraction ── */
+/* ─── True frosted glass - strong blur + saturation, visible refraction ── */
 .glass-nav {
   background: rgba(255,255,255,0.42);
   backdrop-filter: blur(28px) saturate(2.2);
@@ -385,7 +385,7 @@ html.dark .hover-lift span {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), inset 0 0 0 1px rgba(255,255,255,0.25);
 }
 
-/* ─── Buttons — pill shape, no sharp corners ─────────────────────── */
+/* ─── Buttons - pill shape, no sharp corners ─────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -470,7 +470,7 @@ html.dark .hover-lift span {
 .tag-prestasi { background: var(--tag-prestasi-bg); color: var(--tag-prestasi-fg); }
 .tag-hybrid   { background: var(--tag-hybrid-bg);   color: var(--tag-hybrid-fg); }
 
-/* ─── Cards — ZERO OUTLINE / BORDER, soft ambient shadow ─────────── */
+/* ─── Cards - ZERO OUTLINE / BORDER, soft ambient shadow ─────────── */
 .card {
   background: var(--bg);
   border-radius: var(--r-lg);
@@ -493,7 +493,7 @@ html.dark .hover-lift span {
   box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
 }
 
-/* ─── Glass card (pricing, feature previews) — true frosted glass ───── */
+/* ─── Glass card (pricing, feature previews) - true frosted glass ───── */
 .glass {
   background: rgba(255,255,255,0.38);
   backdrop-filter: blur(24px) saturate(2.2);
@@ -501,7 +501,7 @@ html.dark .hover-lift span {
   box-shadow: 0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.65);
 }
 
-/* ─── Modern Glassmorphic Suite — ZERO OUTLINE ───────────────────── */
+/* ─── Modern Glassmorphic Suite - ZERO OUTLINE ───────────────────── */
 .glass-panel {
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(24px) saturate(180%);
@@ -632,7 +632,7 @@ html.dark .hover-lift span {
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
 
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-/* text inputs get their own focus treatment (box-shadow ring) — the global
+/* text inputs get their own focus treatment (box-shadow ring) - the global
    accent outline looks like a stray yellow box around pill-shaped containers */
 input:focus-visible, textarea:focus-visible, select:focus-visible { outline: none; }
 

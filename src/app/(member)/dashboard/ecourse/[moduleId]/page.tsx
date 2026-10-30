@@ -115,7 +115,7 @@ export default function ModulePage({ params }: { params: Promise<{ moduleId: str
             </div>
           ) : (
             <div className="relative" style={{ paddingBottom: 40 }}>
-              {/* Vertical connecting SVG path — viewBox uses same 0–100 X scale as ZIGZAG */}
+              {/* Vertical connecting SVG path - viewBox uses same 0–100 X scale as ZIGZAG */}
               <svg
                 width="100%"
                 height={lessons.length * NODE_ROW_H}

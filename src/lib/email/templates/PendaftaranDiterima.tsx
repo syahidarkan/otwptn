@@ -18,7 +18,7 @@ export default function PendaftaranDiterima({ full_name, category, tier, total_p
   return (
     <Html>
       <Head />
-      <Preview>Pendaftaran bimbingan otwptn diterima — verifikasi dalam 1×24 jam</Preview>
+      <Preview>Pendaftaran bimbingan otwptn diterima - verifikasi dalam 1×24 jam</Preview>
       <Body style={{ backgroundColor: '#F5F5F0', fontFamily: 'Arial, sans-serif', margin: 0 }}>
         {/* Header */}
         <Section style={{ backgroundColor: '#FFD400', padding: '20px 40px' }}>
@@ -72,7 +72,7 @@ export default function PendaftaranDiterima({ full_name, category, tier, total_p
           </Section>
 
           <Text style={{ color: '#888888', fontSize: '12px', textAlign: 'center', marginTop: '24px' }}>
-            otwptn.vercel.app — Platform Bimbingan Jalur Non-Test PTN
+            otwptn.vercel.app - Platform Bimbingan Jalur Non-Test PTN
           </Text>
         </Container>
       </Body>

@@ -1,6 +1,6 @@
 'use client'
 
-// Adapted from pintarly — "Kenapa Belajarmu Masih Gitu-gitu Aja?" problem cards, glass + hover lift
+// Adapted from pintarly - "Kenapa Belajarmu Masih Gitu-gitu Aja?" problem cards, glass + hover lift
 
 import { motion } from 'framer-motion'
 import Image from 'next/image'

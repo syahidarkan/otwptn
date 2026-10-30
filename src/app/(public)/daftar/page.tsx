@@ -245,7 +245,7 @@ export default function DaftarPage() {
               >
                 <option value="">-- Pilih jalur utama --</option>
                 {JALUR_LIST.filter((j) => j.category === form.category && !j.closed).map((j) => (
-                  <option key={j.id} value={j.id}>{j.name} — {j.ptn}</option>
+                  <option key={j.id} value={j.id}>{j.name} - {j.ptn}</option>
                 ))}
               </select>
 
@@ -263,7 +263,7 @@ export default function DaftarPage() {
             <div>
               <h2 className="text-xl font-bold text-brand-black mb-1">Jalur Tambahan (Opsional)</h2>
               <p className="text-sm text-brand-muted mb-1">
-                Tambah jalur <strong>sesama kategori {CATEGORY_LABEL[form.category]}</strong> — +<strong>Rp 50.000</strong> per jalur.
+                Tambah jalur <strong>sesama kategori {CATEGORY_LABEL[form.category]}</strong> - +<strong>Rp 50.000</strong> per jalur.
               </p>
               <p className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-lg mb-5">
                 💡 Mau jalur dari kategori berbeda? Beli sebagai paket terpisah setelah ini selesai.

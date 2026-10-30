@@ -58,7 +58,7 @@ export default async function JalurDetailPage({
           <ArrowLeft size={14} /> Kembali ke Direktori Jalur
         </Link>
 
-        {/* Header card — always visible */}
+        {/* Header card - always visible */}
         <div className="bg-white rounded-2xl border border-brand-gray-2 p-8 mb-5">
           <div className="flex items-center gap-2 mb-4">
             <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${CATEGORY_COLOR[jalur.category] ?? 'bg-gray-100 text-gray-600'}`}>

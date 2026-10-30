@@ -98,7 +98,7 @@ const SEO_COLS = [
 export default function Footer() {
   return (
     <footer className="pt-8 md:pt-14">
-      {/* Flower PNG — transparent bg */}
+      {/* Flower PNG - transparent bg */}
       <div style={{ lineHeight: 0, background: 'transparent', position: 'relative', zIndex: 1 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -109,21 +109,24 @@ export default function Footer() {
         />
       </div>
 
-      {/* Main footer — bg matches bottom pixel of PNG (#583219), -2px kills seam */}
+      {/* Main footer - bg matches bottom pixel of PNG (#583219), -2px kills seam */}
       <div className="dark-section" style={{ background: '#583219', color: '#fff', marginTop: -2 }}>
         <div className="max-w-6xl mx-auto px-6 py-14">
 
           {/* Top row: brand + nav columns */}
           <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
-            {/* Brand col — spans 2 on md */}
+            {/* Brand col - spans 2 on md */}
             <div className="col-span-2">
               <div className="mb-4 inline-block bg-white rounded-xl p-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/logo.png" alt="otwptn" style={{ height: 40, width: 'auto', display: 'block' }} />
               </div>
-              <p className="text-sm leading-relaxed mb-5" style={{ color: '#ffffff', fontWeight: 600, maxWidth: 220, textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
-                Platform persiapan masuk PTN jalur non-tes — essay, prestasi, dan strategi personal.
+              <p className="text-sm leading-relaxed mb-2" style={{ color: '#ffffff', fontWeight: 600, maxWidth: 220, textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
+                Platform persiapan masuk PTN jalur non-tes - essay, prestasi, dan strategi personal.
               </p>
+              <div className="mb-4 text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                ✉️ <a href="mailto:otwptn.com@gmail.com" className="hover:underline text-amber-300">otwptn.com@gmail.com</a>
+              </div>
               {/* Social icons */}
               <div className="flex items-center gap-3 mb-5">
                 {[

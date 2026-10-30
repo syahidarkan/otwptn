@@ -15,7 +15,7 @@ export default function PembayaranDikonfirmasi({ full_name, wa_group_link, is_re
   return (
     <Html>
       <Head />
-      <Preview>Pembayaran dikonfirmasi — Selamat bergabung di otwptn!</Preview>
+      <Preview>Pembayaran dikonfirmasi - Selamat bergabung di otwptn!</Preview>
       <Body style={{ backgroundColor: '#F5F5F0', fontFamily: 'Arial, sans-serif', margin: 0 }}>
         <Section style={{ backgroundColor: '#FFD400', padding: '20px 40px' }}>
           <Text style={{ fontWeight: '800', fontSize: '20px', color: '#111111', margin: 0 }}>
@@ -133,7 +133,7 @@ export default function PembayaranDikonfirmasi({ full_name, wa_group_link, is_re
           </Section>
 
           <Text style={{ color: '#888888', fontSize: '12px', textAlign: 'center', marginTop: '24px' }}>
-            otwptn.vercel.app — Platform Bimbingan Jalur Non-Test PTN
+            otwptn.vercel.app - Platform Bimbingan Jalur Non-Test PTN
           </Text>
         </Container>
       </Body>

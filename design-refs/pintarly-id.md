@@ -1,4 +1,4 @@
-# pintarly.id — Design Reference Notes
+# pintarly.id - Design Reference Notes
 
 Source: https://pintarly.id (scraped 2026-10-26)
 
@@ -7,10 +7,10 @@ Source: https://pintarly.id (scraped 2026-10-26)
 ## Overall Palette
 
 - **Background**: White (#fff) base; hero uses a soft yellow-to-lime-green radial gradient blob
-- **Accent**: Warm yellow (#FFD400-ish) — used on the primary CTA button, section underlines, comparison-table highlights
-- **Dark**: Near-black (#111 / #1a1a1a) — used for dark CTA section and footer
+- **Accent**: Warm yellow (#FFD400-ish) - used on the primary CTA button, section underlines, comparison-table highlights
+- **Dark**: Near-black (#111 / #1a1a1a) - used for dark CTA section and footer
 - **Text**: Very dark (near-black), body is normal weight
-- **Cards**: Off-white (#f5f5f0 or #f7f7f7) — no border, just background fill
+- **Cards**: Off-white (#f5f5f0 or #f7f7f7) - no border, just background fill
 - **Muted text**: Gray ~#737373
 
 ---
@@ -29,21 +29,21 @@ Source: https://pintarly.id (scraped 2026-10-26)
 
 - **Layout**: Full-width white bar, logo left, links center, CTAs right
 - **Logo**: Mascot illustration + "Pintarly" wordmark (bold, dark)
-- **Links**: Plain text (no underlines), horizontal row — Produk (with chevron dropdown), Hiring, Download, Business
+- **Links**: Plain text (no underlines), horizontal row - Produk (with chevron dropdown), Hiring, Download, Business
 - **Right CTAs**: "Masuk" (ghost text link) + "Daftar" (yellow rounded-full pill button, dark text, ~px-5 py-2)
-- **Sticky behavior**: Appears to float as a pill on scroll — the nav shrinks and shows only logo + Masuk + Daftar in a rounded-2xl white card with shadow. This is the key pattern: **floating pill nav on scroll**.
-- **No glass/blur on nav** — pure white when floating.
+- **Sticky behavior**: Appears to float as a pill on scroll - the nav shrinks and shows only logo + Masuk + Daftar in a rounded-2xl white card with shadow. This is the key pattern: **floating pill nav on scroll**.
+- **No glass/blur on nav** - pure white when floating.
 
 ---
 
 ## Hero Section
 
-- **Background**: Soft gradient blob — yellow at top-right, lime-green at bottom-left — on white. NOT a standard white bg.
+- **Background**: Soft gradient blob - yellow at top-right, lime-green at bottom-left - on white. NOT a standard white bg.
 - **Layout**: Centered, single column, full viewport height
-- **H1**: Extremely large (≥72px), black, heavy weight (700–800) — "Ubah Materi Belajarmu Jadi" followed by an animated word-cycle pill below
-- **Animated word pill**: Rounded pill with blurred/frosted glass look showing cycling words — subtle glass morphism HERE is acceptable
+- **H1**: Extremely large (≥72px), black, heavy weight (700–800) - "Ubah Materi Belajarmu Jadi" followed by an animated word-cycle pill below
+- **Animated word pill**: Rounded pill with blurred/frosted glass look showing cycling words - subtle glass morphism HERE is acceptable
 - **Subtext**: Normal weight, smaller, centered, ~16px
-- **CTA**: Single yellow pill button "⚡ Mulai Belajar Sekarang" — centered, full-rounded, yellow bg, dark text, with icon
+- **CTA**: Single yellow pill button "⚡ Mulai Belajar Sekarang" - centered, full-rounded, yellow bg, dark text, with icon
 
 **Pattern for otwptn**: Bold centered heading, one CTA, gradient background blob (soft, not aggressive).
 
@@ -62,11 +62,11 @@ Source: https://pintarly.id (scraped 2026-10-26)
 
 ## "Kenapa" Section (Pain Points)
 
-- **Section heading**: Centered, H2-sized, bold — "Kenapa Belajarmu Masih Gitu-gitu Aja?" — last word/phrase underlined with a wavy yellow underline drawn via CSS/SVG
+- **Section heading**: Centered, H2-sized, bold - "Kenapa Belajarmu Masih Gitu-gitu Aja?" - last word/phrase underlined with a wavy yellow underline drawn via CSS/SVG
 - **Layout**: 3-column card row
 - **Cards**: Off-white bg (#f5f5f0), rounded-2xl, no border, generous padding (~p-8)
 - **Card contents**: GIF/animated illustration top, H3 title (bold), short paragraph body text
-- **No icons from icon libraries** — uses custom illustrations/GIFs
+- **No icons from icon libraries** - uses custom illustrations/GIFs
 
 **Pattern for otwptn "Kenapa otwptn"**: Centered heading with yellow accent underline, 3-column pain-point cards with illustration + title + body.
 
@@ -102,7 +102,7 @@ Source: https://pintarly.id (scraped 2026-10-26)
 - **Card style**: White card, rounded-xl, shadow-sm
 - **Contents**: Circular avatar (top-left), display name (bold), @handle (gray), tweet text, X logo icon (top-right, links to original tweet)
 - **Layout**: Horizontal scrolling row or 3-column grid
-- **No star ratings** — just raw tweet-style quotes
+- **No star ratings** - just raw tweet-style quotes
 
 ---
 
@@ -152,11 +152,11 @@ Source: https://pintarly.id (scraped 2026-10-26)
 
 ## Key Patterns to Steal for otwptn
 
-1. **Floating pill nav on scroll** — shrinks to logo + 2 buttons in a rounded container
-2. **Yellow underline on section headings** — wavy or solid, SVG-drawn
-3. **Yellow marker rectangle highlight on headings** — "Cara Lama?" wrapped in yellow bg
-4. **Off-white card bg** (#f5f5f0) — not white, not gray — for card sections
+1. **Floating pill nav on scroll** - shrinks to logo + 2 buttons in a rounded container
+2. **Yellow underline on section headings** - wavy or solid, SVG-drawn
+3. **Yellow marker rectangle highlight on headings** - "Cara Lama?" wrapped in yellow bg
+4. **Off-white card bg** (#f5f5f0) - not white, not gray - for card sections
 5. **Dark (#111) section** for dramatic CTA with stats
 6. **Tweet-style testimonials** with real user handles
-7. **Multi-column dark footer** — 6-7 columns, small text, app badges
-8. **Gradient blob on hero** — soft, not aggressive
+7. **Multi-column dark footer** - 6-7 columns, small text, app badges
+8. **Gradient blob on hero** - soft, not aggressive

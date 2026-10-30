@@ -52,7 +52,7 @@ export default async function JalurPage({
           </div>
           <h1 className="text-4xl font-extrabold text-brand-black mb-3">Jalur Masuk PTN</h1>
           <p className="text-brand-muted max-w-2xl">
-            Informasi lengkap jalur masuk PTN non-test — persyaratan, biaya, dan jadwal pendaftaran terbaru.
+            Informasi lengkap jalur masuk PTN non-test - persyaratan, biaya, dan jadwal pendaftaran terbaru.
           </p>
         </div>
 

@@ -389,7 +389,7 @@ export default function CariTemanBelajarPage() {
   return (
     <div className="w-full px-6 md:px-8 py-8 md:py-10">
       <FeatureHeader
-        title="Study Cam — Cari Teman Belajar"
+        title="Study Cam - Cari Teman Belajar"
         subtitle="Rasakan serunya belajar bareng via video call acak layaknya OmeTV / Umigle, temukan rekan satu target PTN, tambahkan ke kontak teman, dan jaga fokus belajar bersama."
         mascot="/fitur/cari-teman-belajar.png"
         badgeText="Interactive Video Matching"
@@ -716,7 +716,7 @@ export default function CariTemanBelajarPage() {
                       <div>
                         <div className="flex items-center gap-1.5 mb-0.5">
                           <span className="text-[11px] font-black text-amber-400">
-                            🎯 {currentPeer.targetPTN} — {currentPeer.targetMajor}
+                            🎯 {currentPeer.targetPTN} - {currentPeer.targetMajor}
                           </span>
                         </div>
                         <p className="text-[11px] text-slate-200 truncate max-w-xs font-medium">

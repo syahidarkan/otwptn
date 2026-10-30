@@ -195,7 +195,7 @@ export default function MentorAlumniPage() {
   const [activeAnnotationIdx, setActiveAnnotationIdx] = useState<number>(0)
 
   // VIP Google Docs Essay Workspace States
-  const [essayTitle, setEssayTitle] = useState('Draf Essay Motivasi PPKB UI — Fasilkom')
+  const [essayTitle, setEssayTitle] = useState('Draf Essay Motivasi PPKB UI - Fasilkom')
   const [essayContent, setEssayContent] = useState(
     `Sejak duduk di bangku kelas 10, saya menaruh minat mendalam pada integrasi kecerdasan buatan dalam pemrosesan data kesehatan. Saat mengamati sistem pendaftaran puskesmas di daerah saya yang masih mengalami antrean berulang, saya menyadari bahwa efisiensi sistem informasi bukan sekadar kemudahan teknologi, melainkan hak layanan publik yang mendesak.\n\nMelalui keikutsertaan saya dalam Olimpiade Informatika dan pengembangan aplikasi mini berbasis web untuk inventaris ekstrakurikuler, saya belajar bagaimana logika algoritma dapat memecahkan masalah nyata di sekitar kita.\n\nMemilih Fakultas Ilmu Komputer Universitas Indonesia adalah keputusan terencana untuk mendalami rekayasa perangkat lunak dan data science di bawah bimbingan para akademisi terbaik tanah air.`
   )
@@ -320,8 +320,8 @@ export default function MentorAlumniPage() {
             </span>
             <span className="text-[11px] text-gray-500 font-medium">
               {isUnlocked
-                ? 'Portal VIP Aktif — Akses Penuh ke Workspace, OCR Rapor, & Booking Meet'
-                : 'Mode Preview Siswa — Simulasi Kurikulum & Profil Mentor'}
+                ? 'Portal VIP Aktif - Akses Penuh ke Workspace, OCR Rapor, & Booking Meet'
+                : 'Mode Preview Siswa - Simulasi Kurikulum & Profil Mentor'}
             </span>
           </div>
         </div>
@@ -341,7 +341,7 @@ export default function MentorAlumniPage() {
 
       {!isUnlocked ? (
         /* =========================================================================
-           STATE A: FREE USER — CLEAN, BALANCED SHOWCASE
+           STATE A: FREE USER - CLEAN, BALANCED SHOWCASE
            ========================================================================= */
         <div className="space-y-12">
           {/* 1. HERO BANNER: BALANCED PROPORTIONS, NO OVERLAP */}

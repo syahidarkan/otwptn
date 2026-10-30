@@ -1,6 +1,6 @@
 'use client'
 
-// Adapted from pintarly — navbar: full-width bar at top, shrinks into floating pill on scroll
+// Adapted from pintarly - navbar: full-width bar at top, shrinks into floating pill on scroll
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'

@@ -1,6 +1,6 @@
 'use client'
 
-// Adapted from pintarly — trust strip with real PTN logos, seamless infinite loop
+// Adapted from pintarly - trust strip with real PTN logos, seamless infinite loop
 
 import { motion } from 'framer-motion'
 import Image from 'next/image'
@@ -19,7 +19,7 @@ const PTN = [
   { slug: 'uny', name: 'Universitas Negeri Yogyakarta' },
 ]
 
-// Repeat 4x so a single copy's width always exceeds the viewport — keeps the
+// Repeat 4x so a single copy's width always exceeds the viewport - keeps the
 // loop truly circular (no visible seam/reset even on ultra-wide screens).
 const items = [...PTN, ...PTN, ...PTN, ...PTN]
 

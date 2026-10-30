@@ -457,7 +457,7 @@ export default function CardPattern({
     )
   }
 
-  // Pintarly style subtle doodles — uses fixed-size pattern tile (userSpaceOnUse) to prevent stretching/gepeng on tall pages
+  // Pintarly style subtle doodles - uses fixed-size pattern tile (userSpaceOnUse) to prevent stretching/gepeng on tall pages
   return (
     <div className={`absolute inset-0 pointer-events-none overflow-hidden select-none ${className}`} style={{ opacity, ...style }} aria-hidden="true">
       <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">

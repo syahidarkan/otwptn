@@ -18,7 +18,7 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             )
           } catch {
-            // Server Component — cookie mutations are handled by middleware
+            // Server Component - cookie mutations are handled by middleware
           }
         },
       },
@@ -43,7 +43,7 @@ export async function createAdminClient() {
               cookieStore.set(name, value, options)
             )
           } catch {
-            // Server Component — cookie mutations are handled by middleware
+            // Server Component - cookie mutations are handled by middleware
           }
         },
       },

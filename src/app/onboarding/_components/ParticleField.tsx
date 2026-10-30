@@ -3,9 +3,9 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
-// Creates a soft radial glow canvas texture — makes THREE.Points render as
+// Creates a soft radial glow canvas texture - makes THREE.Points render as
 // round glowing stars instead of the default squares.
-// Fill the whole texture square with a radial gradient — no arc() clip
+// Fill the whole texture square with a radial gradient - no arc() clip
 // so particles render as soft glowing discs, not donuts.
 function makeGlowTex(centerRgba: string, midRgba: string) {
   const size = 64

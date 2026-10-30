@@ -12,7 +12,7 @@ const PEERS = [
   { name: 'Bima', school: 'SMAN 1 Yogyakarta', mascot: '/mascot/check-paper-happy.png' },
 ]
 
-// TV static noise — used on the RIGHT (stranger) side while searching
+// TV static noise - used on the RIGHT (stranger) side while searching
 function StaticNoise() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -114,7 +114,7 @@ export default function OmegleSection() {
       <div className="max-w-5xl mx-auto px-4 text-center mb-10">
         <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45 }}>
           <h2 className="text-section-heading text-fg mb-3">Belajar bareng, bukan sendirian.</h2>
-          <p className="text-body max-w-md mx-auto">Konsep kayak OmeTV, tapi buat sesama pejuang PTN — gak perlu login.</p>
+          <p className="text-body max-w-md mx-auto">Konsep kayak OmeTV, tapi buat sesama pejuang PTN - gak perlu login.</p>
         </motion.div>
       </div>
 
@@ -125,10 +125,10 @@ export default function OmegleSection() {
         style={{ maxWidth: 1200 }}
       >
         <div className="rounded-2xl overflow-hidden" style={{ background: '#0a0a0a', boxShadow: '0 32px 80px rgba(0,0,0,0.35)' }}>
-          {/* Two camera panels with gap — responsive stack on mobile, side-by-side on tablet/desktop */}
+          {/* Two camera panels with gap - responsive stack on mobile, side-by-side on tablet/desktop */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-2.5 sm:p-3 min-h-[460px] sm:min-h-0 sm:h-[clamp(320px,42vw,540px)]">
 
-            {/* LEFT — user's camera */}
+            {/* LEFT - user's camera */}
             <div className="rounded-xl relative flex items-center justify-center overflow-hidden min-h-[220px] sm:min-h-0" style={{ background: '#1a1a1a' }}>
               <video ref={videoRef} autoPlay muted playsInline
                 className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
@@ -154,7 +154,7 @@ export default function OmegleSection() {
               </div>
             </div>
 
-            {/* RIGHT — stranger / searching */}
+            {/* RIGHT - stranger / searching */}
             <div className="rounded-xl relative flex items-center justify-center overflow-hidden min-h-[220px] sm:min-h-0" style={{ background: '#111' }}>
               {/* Static noise always present underneath */}
               {(phase === 'searching' || phase === 'idle') && <StaticNoise />}
@@ -201,7 +201,7 @@ export default function OmegleSection() {
             </div>
           </div>
 
-          {/* Glass control bar — responsive wrapping for mobile */}
+          {/* Glass control bar - responsive wrapping for mobile */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
             <button onClick={phase === 'idle' ? handleStart : handleNext} disabled={phase === 'searching'}
               className="px-5 sm:px-7 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all hover:scale-105 disabled:opacity-50"

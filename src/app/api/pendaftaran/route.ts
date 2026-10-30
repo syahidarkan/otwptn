@@ -76,7 +76,7 @@ export async function POST(request: Request) {
       .eq('is_active', true)
       .single()
 
-    // 3. Find jalur_utama id — stored as string id from constants, match by name pattern or fallback null
+    // 3. Find jalur_utama id - stored as string id from constants, match by name pattern or fallback null
     // The jalur ids in constants are string slugs, map them to DB or store as-is
     const jalurUtamaId: string | null = pkg ? null : null // filled below
 
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
     // 4. Send confirmation email
     await sendEmail({
       to: data.email,
-      subject: 'Pendaftaran Bimbingan Diterima — otwptn',
+      subject: 'Pendaftaran Bimbingan Diterima - otwptn',
       react: createElement(PendaftaranDiterima, {
         full_name: data.full_name,
         category: data.category as JalurCategory,

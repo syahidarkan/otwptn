@@ -185,7 +185,7 @@ export default function ModulePage() {
                 </div>
               )}
 
-              {/* File attachment — shown for any content type if file_url is set */}
+              {/* File attachment - shown for any content type if file_url is set */}
               {activeLesson.file_url && (
                 <div className="mt-4 flex items-center gap-4 bg-brand-gray rounded-xl px-5 py-4 border border-brand-gray-2">
                   <Download size={20} className="text-brand-muted shrink-0" />

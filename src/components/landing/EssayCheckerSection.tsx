@@ -1,6 +1,6 @@
 'use client'
 
-// Adapted from pintarly — flagship feature intro with interactive demo
+// Adapted from pintarly - flagship feature intro with interactive demo
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
@@ -36,7 +36,7 @@ export default function EssayCheckerSection() {
         >
           <h2 className="text-section-heading text-fg mb-4">Coba Cek Essay-mu Sekarang, Gratis</h2>
           <p className="text-body max-w-md mx-auto">
-            Paste essay motivasimu dan lihat gimana AI otwptn menilai strukturnya — real-time, tanpa ribet, tanpa nunggu.
+            Paste essay motivasimu dan lihat gimana AI otwptn menilai strukturnya - real-time, tanpa ribet, tanpa nunggu.
           </p>
         </motion.div>
 

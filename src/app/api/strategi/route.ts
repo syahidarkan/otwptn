@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
   const isSnbp = input_data.jalur_type === 'snbp'
   const certificates = (input_data.certificates as { name: string; level: string; rank: string; year: string }[] | undefined) ?? []
-  const certBreakdown = certificates.map(c => `  - ${c.name} — tingkat ${c.level}, ${c.rank}, tahun ${c.year}`).join('\n')
+  const certBreakdown = certificates.map(c => `  - ${c.name} - tingkat ${c.level}, ${c.rank}, tahun ${c.year}`).join('\n')
 
   const prompt = isSnbp ? `Kamu adalah Pakar Konsultan Strategi SNBP Indonesia di platform otwptn (PT. Lembaga Sains Nasional).
 
@@ -41,8 +41,8 @@ Berdasarkan profil siswa berikut, susun strategi penetapan prodi pilihan 1 & 2 s
 - Rerata Rapor: ${input_data.avg_rapor}/100
 - Peringkat Paralel Sekolah: ${input_data.school_rank_tier}
 - Akreditasi Sekolah: ${input_data.school_accreditation ?? 'tidak diisi'}
-- Pilihan 1 saat ini (jika ada): ${(input_data.pilihan_1 as { ptn: string; prodi: string } | undefined)?.prodi ?? '-'} — ${(input_data.pilihan_1 as { ptn: string; prodi: string } | undefined)?.ptn ?? '-'}
-- Pilihan 2 saat ini (jika ada): ${(input_data.pilihan_2 as { ptn: string; prodi: string } | undefined)?.prodi ?? '-'} — ${(input_data.pilihan_2 as { ptn: string; prodi: string } | undefined)?.ptn ?? '-'}
+- Pilihan 1 saat ini (jika ada): ${(input_data.pilihan_1 as { ptn: string; prodi: string } | undefined)?.prodi ?? '-'} - ${(input_data.pilihan_1 as { ptn: string; prodi: string } | undefined)?.ptn ?? '-'}
+- Pilihan 2 saat ini (jika ada): ${(input_data.pilihan_2 as { ptn: string; prodi: string } | undefined)?.prodi ?? '-'} - ${(input_data.pilihan_2 as { ptn: string; prodi: string } | undefined)?.ptn ?? '-'}
 ${certBreakdown ? `\nSertifikat/Prestasi yang dimiliki:\n${certBreakdown}` : '\nBelum ada sertifikat yang diinput.'}
 
 Berikan rekomendasi strategi dalam JSON valid berikut (HANYA JSON):

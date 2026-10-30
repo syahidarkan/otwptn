@@ -114,13 +114,13 @@ export default function DirekturiPage() {
             </div>
             <div>
               <h2 className="font-extrabold text-base" style={{ color: 'var(--fg)' }}>SNBP (Seleksi Nasional Berbasis Prestasi)</h2>
-              <p className="text-xs" style={{ color: 'var(--muted)' }}>Jalur nasional berbasis nilai rapor & prestasi sekolah — dikelola SNPMB</p>
+              <p className="text-xs" style={{ color: 'var(--muted)' }}>Jalur nasional berbasis nilai rapor & prestasi sekolah - dikelola SNPMB</p>
             </div>
           </div>
           <div className="card p-5">
             <p className="text-sm mb-3" style={{ color: 'var(--muted)' }}>
               SNBP adalah jalur seleksi nasional yang menggunakan nilai rapor semester 1–5 dan mempertimbangkan akreditasi serta rekam jejak sekolah.
-              Tidak ada tes masuk — seleksi murni berbasis dokumen akademik.
+              Tidak ada tes masuk - seleksi murni berbasis dokumen akademik.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link href="/panduan" className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-lg" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}>

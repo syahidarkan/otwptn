@@ -220,7 +220,7 @@ export default function EcoursePage() {
 
               return (
                 <div key={stage.id} className="relative mb-14">
-                  {/* Floating Unit Header Card — Sticky top-20 so it sticks and gets pushed by the next unit */}
+                  {/* Floating Unit Header Card - Sticky top-20 so it sticks and gets pushed by the next unit */}
                   <div className="sticky top-20 z-20 mx-2 mb-6 p-5 rounded-3xl bg-white shadow-md">
                     <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">
                       Unit {stage.id} · {stage.duration}
@@ -454,7 +454,7 @@ export default function EcoursePage() {
             })}
           </div>
 
-          {/* RIGHT: Desktop Sticky Sidebar (Exact Pintarly Desktop Layout — Pinned while scrolling) */}
+          {/* RIGHT: Desktop Sticky Sidebar (Exact Pintarly Desktop Layout - Pinned while scrolling) */}
           <div className="hidden lg:block w-[360px] flex-shrink-0 sticky top-6 space-y-4 self-start z-20">
             {/* Card 1: Course Progress Overview */}
             <div className="p-5 rounded-3xl bg-white shadow-md">

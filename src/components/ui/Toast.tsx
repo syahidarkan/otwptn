@@ -46,7 +46,7 @@ export default function Toast({ type, message, onClose, duration = 4000 }: Toast
   )
 }
 
-// Toast container — place in layout
+// Toast container - place in layout
 export function ToastContainer({ toasts }: { toasts: Array<{ id: string; type: ToastType; message: string }> }) {
   return (
     <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2">

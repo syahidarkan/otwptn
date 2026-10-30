@@ -202,7 +202,7 @@ export default function CheckoutPage() {
                   <span className="text-xs font-black px-2.5 py-0.5 rounded-full text-white" style={{ background: featured.color }}>
                     {featured.name}
                   </span>
-                  <span className="text-xs font-bold" style={{ color: 'var(--muted)' }}>— {featured.price}</span>
+                  <span className="text-xs font-bold" style={{ color: 'var(--muted)' }}>- {featured.price}</span>
                 </div>
                 <p className="text-sm font-semibold mb-3" style={{ color: 'var(--fg)' }}>{featured.desc}</p>
                 <div className="flex flex-wrap gap-2">

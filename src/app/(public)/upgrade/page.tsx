@@ -121,10 +121,10 @@ const COMPARISON_ROWS = [
   { feature: 'Buat & Kelola Circle Komunitas', free: 'Hanya Join', premium: 'Bebas Buat', nectar: 'Bebas Buat', honey: 'Bebas Buat', queen: 'Bebas Buat' },
   { feature: 'Modul & Video E-Course', free: 'Preview Saja', premium: 'Unlock 100%', nectar: 'Unlock 100%', honey: 'Unlock 100%', queen: 'Unlock 100%' },
   { feature: 'Fitur Atur Strategi Kelulusan', free: 'Terkunci', premium: 'Akses Penuh', nectar: 'Akses Penuh', honey: 'Akses Penuh', queen: 'Akses Penuh' },
-  { feature: 'Pendampingan Mentor Alumni', free: '—', premium: '— (Self-Paced)', nectar: '2x Revisi WA', honey: '5x Revisi + 2x Zoom', queen: 'Unlimited + Meet' },
-  { feature: 'Grup WhatsApp Khusus (Mentor + Admin + Mentee)', free: '—', premium: '—', nectar: '—', honey: 'Tersedia', queen: 'Tersedia (Prioritas)' },
-  { feature: 'Dokumen Analisis Saran Pilihan 1 & 2 (Rapor & Sertif)', free: '—', premium: '—', nectar: '—', honey: '—', queen: 'Wajib dari Mentor' },
-  { feature: 'Exclusive Trip Campus Tour ke UI', free: '—', premium: '—', nectar: '—', honey: '—', queen: 'Termasuk Tiket' },
+  { feature: 'Pendampingan Mentor Alumni', free: '-', premium: '- (Self-Paced)', nectar: '2x Revisi WA', honey: '5x Revisi + 2x Zoom', queen: 'Unlimited + Meet' },
+  { feature: 'Grup WhatsApp Khusus (Mentor + Admin + Mentee)', free: '-', premium: '-', nectar: '-', honey: 'Tersedia', queen: 'Tersedia (Prioritas)' },
+  { feature: 'Dokumen Analisis Saran Pilihan 1 & 2 (Rapor & Sertif)', free: '-', premium: '-', nectar: '-', honey: '-', queen: 'Wajib dari Mentor' },
+  { feature: 'Exclusive Trip Campus Tour ke UI', free: '-', premium: '-', nectar: '-', honey: '-', queen: 'Termasuk Tiket' },
 ]
 
 export default function UpgradePage() {
@@ -138,7 +138,7 @@ export default function UpgradePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fcfcfb] py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#fcfcfb] pt-28 md:pt-32 pb-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Navigation & Legal Entity Logo */}
         <div className="flex items-center justify-between mb-8">
@@ -322,7 +322,7 @@ export default function UpgradePage() {
 
         {/* Legal Footer Info */}
         <div className="p-6 rounded-2xl bg-gray-50 text-center text-xs text-gray-400 space-y-1">
-          <p>© {new Date().getFullYear()} <strong>{LEGAL_ENTITY.brand}</strong> — Dikelola oleh <strong>{LEGAL_ENTITY.name}</strong>.</p>
+          <p>© {new Date().getFullYear()} <strong>{LEGAL_ENTITY.brand}</strong> - Dikelola oleh <strong>{LEGAL_ENTITY.name}</strong>.</p>
           <p>Seluruh transaksi pembayaran diproses aman dengan verifikasi otomatis & jaminan uang kembali sesuai ketentuan akademik.</p>
         </div>
       </div>

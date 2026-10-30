@@ -42,9 +42,9 @@ Karena kamu sudah memiliki turnaround sheet lengkap di `references/2d all pov.pn
 
 ### Open-Source GitHub Repositories:
 Jika ingin menjalankan model AI 3D secara lokal (membutuhkan GPU / Python):
-- **TRELLIS (Microsoft)**: [https://github.com/microsoft/TRELLIS](https://github.com/microsoft/TRELLIS) — Model AI 3D state-of-the-art dari Microsoft dengan detail geometri dan PBR tinggi.
-- **Hunyuan3D-2 (Tencent)**: [https://github.com/Tencent/Hunyuan3D-2](https://github.com/Tencent/Hunyuan3D-2) — Generator 3D generasi terbaru untuk karakter/objek beresolusi tinggi.
-- **TripoSR**: [https://github.com/VAST-AI-Research/TripoSR](https://github.com/VAST-AI-Research/TripoSR) — Fast feedforward 3D reconstruction model dari Stability AI & Tripo.
+- **TRELLIS (Microsoft)**: [https://github.com/microsoft/TRELLIS](https://github.com/microsoft/TRELLIS) - Model AI 3D state-of-the-art dari Microsoft dengan detail geometri dan PBR tinggi.
+- **Hunyuan3D-2 (Tencent)**: [https://github.com/Tencent/Hunyuan3D-2](https://github.com/Tencent/Hunyuan3D-2) - Generator 3D generasi terbaru untuk karakter/objek beresolusi tinggi.
+- **TripoSR**: [https://github.com/VAST-AI-Research/TripoSR](https://github.com/VAST-AI-Research/TripoSR) - Fast feedforward 3D reconstruction model dari Stability AI & Tripo.
 
 ---
 

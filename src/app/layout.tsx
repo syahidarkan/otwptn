@@ -3,6 +3,7 @@ import { Outfit, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { LEGAL_ENTITY } from '@/lib/constants'
 import ThemeHydrator from '@/components/ThemeHydrator'
+import CustomerServiceWidget from '@/components/chat/CustomerServiceWidget'
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -28,8 +29,8 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://otwptn.id'),
   title: {
-    default: 'otwptn — Platform #1 Lolos Masuk PTN Jalur Non-Tes | Bimbingan Mentor UI ITB UGM',
-    template: '%s | otwptn — Masuk PTN Tanpa Tes',
+    default: 'otwptn | Platform #1 Lolos Masuk PTN Jalur Non-Tes | Bimbingan Mentor UI ITB UGM',
+    template: '%s | otwptn | Masuk PTN Tanpa Tes',
   },
   description:
     'Platform bimbingan persiapan masuk PTN jalur non-tes (SNBP, PPKB UI, PBUB UGM, SJP IPB, Golden Ticket UNAIR). Dilengkapi kalkulator peluang rasionalisasi rapor, AI essay review instan, dan mentor alumni resmi PT. Lembaga Sains Nasional.',
@@ -67,7 +68,7 @@ export const metadata: Metadata = {
     telephone: false,
   },
   openGraph: {
-    title: 'otwptn — Lolos PTN Non-Tes, Bukan Keberuntungan',
+    title: 'otwptn | Lolos PTN Non-Tes, Bukan Keberuntungan',
     description:
       'Solusi persiapan jalur non-tes PTN: kalkulator peluang nilai rapor, AI essay review, dan 1-on-1 bersama mentor alumni UI, ITB, & UGM.',
     url: 'https://otwptn.id',
@@ -85,7 +86,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'otwptn — Lolos PTN Non-Tes, Bukan Keberuntungan',
+    title: 'otwptn | Lolos PTN Non-Tes, Bukan Keberuntungan',
     description: 'Bimbingan intensif seleksi non-tes PTN bersama mentor alumni dan teknologi AI.',
     images: ['/logo.png'],
   },
@@ -197,7 +198,9 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col antialiased bg-bg text-fg font-sans">
         <ThemeHydrator />
         {children}
+        <CustomerServiceWidget />
       </body>
     </html>
   )
 }
+

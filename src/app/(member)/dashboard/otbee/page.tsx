@@ -138,7 +138,7 @@ export default function OtbeePage() {
 
   return (
     <div className="flex h-[calc(100vh-56px)] md:h-screen p-3 md:p-6 gap-4">
-      {/* Conversation history panel — Borderless floating card with soft shadow */}
+      {/* Conversation history panel - Borderless floating card with soft shadow */}
       {sidebarOpen && (
         <div className="hidden md:flex flex-col flex-shrink-0 w-72 rounded-3xl bg-white shadow-md p-4">
           <div className="flex items-center justify-between pb-3 px-1">
@@ -190,7 +190,7 @@ export default function OtbeePage() {
         </div>
       )}
 
-      {/* Main chat area — Borderless floating container */}
+      {/* Main chat area - Borderless floating container */}
       <div className="flex-1 min-w-0 flex flex-col rounded-3xl bg-white shadow-md overflow-hidden">
         {/* Header bar */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white/80 backdrop-blur-md">

@@ -1,4 +1,4 @@
-// Lightweight canvas confetti burst — no external deps.
+// Lightweight canvas confetti burst - no external deps.
 // Spawns a temporary full-viewport canvas, animates particles with gravity, then cleans itself up.
 
 const COLORS = ['#ffd400', '#f0c700', '#111111', '#ffffff', '#fde68a']

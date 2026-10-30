@@ -161,7 +161,7 @@ export default function AdminJalurPage() {
                   <p className="text-xs text-brand-muted">{j.university}</p>
                 </td>
                 <td className="px-5 py-3 text-brand-dark">{CATEGORY_LABEL[j.category] ?? j.category}</td>
-                <td className="px-5 py-3 text-brand-muted text-xs max-w-[180px] truncate">{j.pendaftaran ?? '—'}</td>
+                <td className="px-5 py-3 text-brand-muted text-xs max-w-[180px] truncate">{j.pendaftaran ?? '-'}</td>
                 <td className="px-5 py-3">
                   <Badge variant={j.is_active ? 'confirmed' : 'expired'}>
                     {j.is_active ? 'Aktif' : 'Nonaktif'}

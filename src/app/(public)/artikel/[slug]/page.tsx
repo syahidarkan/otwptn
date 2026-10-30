@@ -58,7 +58,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             },
             publisher: {
               '@type': 'Organization',
-              name: 'otwptn — PT. Lembaga Sains Nasional',
+              name: 'otwptn | PT. Lembaga Sains Nasional',
               logo: {
                 '@type': 'ImageObject',
                 url: 'https://otwptn.id/logo.png',

@@ -10,7 +10,7 @@ export interface JalurDocRequirement {
 
 // Researched from official PTN admission pages where possible, otherwise secondary
 // sources (news/education sites) citing official announcements. Confidence reflects
-// how directly verifiable each entry was — "rendah" means the specific jalur's own
+// how directly verifiable each entry was - "rendah" means the specific jalur's own
 // official page could not be confirmed and the list is inferred; always tell users
 // to double-check the current year's official announcement before relying on this.
 export const JALUR_DOCUMENTS: Record<string, JalurDocRequirement> = {
@@ -81,7 +81,7 @@ export const JALUR_DOCUMENTS: Record<string, JalurDocRequirement> = {
       'Pas foto berwarna (min. 400x600px)',
       'Surat keterangan memenuhi syarat kesehatan sesuai prodi tujuan',
     ],
-    note: 'Status jalur ini ditandai "ditutup" di data kami, tapi ditemukan halaman resmi SIMAK UI untuk siklus TA 2026/2027 — kemungkinan sudah dibuka lagi. Mohon diverifikasi.',
+    note: 'Status jalur ini ditandai "ditutup" di data kami, tapi ditemukan halaman resmi SIMAK UI untuk siklus TA 2026/2027 - kemungkinan sudah dibuka lagi. Mohon diverifikasi.',
   },
   'sbub-undip': {
     confidence: 'tinggi',
@@ -113,17 +113,17 @@ export const JALUR_DOCUMENTS: Record<string, JalurDocRequirement> = {
       'Sertifikat hafalan Al-Qur’an minimal 5 juz (alternatif prestasi)',
       'Surat keterangan sehat jasmani',
     ],
-    note: 'Ada sedikit perbedaan syarat tahun kelulusan antar sumber — cek pengumuman resmi SELMA UB tahun berjalan.',
+    note: 'Ada sedikit perbedaan syarat tahun kelulusan antar sumber - cek pengumuman resmi SELMA UB tahun berjalan.',
   },
   'spmb-unsoed': {
     confidence: 'sedang',
     documents: [
-      'Rapor semester 1–5 (beberapa sumber menyebut s.d. semester 6 — cek ulang)',
+      'Rapor semester 1–5 (beberapa sumber menyebut s.d. semester 6 - cek ulang)',
       'Bukti prestasi tingkat kabupaten s.d. internasional (opsional, menambah penilaian)',
       'Bukti pengalaman organisasi/kepanitiaan tingkat kabupaten ke atas (opsional)',
       'Kesediaan membayar IPI (Iuran Pengembangan Institusi) saat registrasi',
     ],
-    note: 'Tidak ditemukan halaman resmi dengan daftar dokumen lengkap untuk tahun berjalan — daftar ini disusun dari beberapa sumber berita.',
+    note: 'Tidak ditemukan halaman resmi dengan daftar dokumen lengkap untuk tahun berjalan - daftar ini disusun dari beberapa sumber berita.',
   },
   'smjki-uns': {
     confidence: 'rendah',
@@ -179,7 +179,7 @@ export const JALUR_DOCUMENTS: Record<string, JalurDocRequirement> = {
       'Sertifikat prestasi',
       'Pas foto & dokumen identitas diri',
     ],
-    note: 'Daftar dokumen resmi untuk tahun berjalan tidak ditemukan — harap verifikasi langsung ke ppmb.unair.ac.id sebelum menyiapkan berkas.',
+    note: 'Daftar dokumen resmi untuk tahun berjalan tidak ditemukan - harap verifikasi langsung ke ppmb.unair.ac.id sebelum menyiapkan berkas.',
   },
   'sm-prestasi-unnes': {
     confidence: 'tinggi',
@@ -208,14 +208,14 @@ export const JALUR_DOCUMENTS: Record<string, JalurDocRequirement> = {
     confidence: 'sedang',
     documents: [
       'Portofolio sesuai cabang (olahraga/seni/keagamaan)',
-      'Sertifikat prestasi nasional (minimal 2) sesuai cabang — Puspresnas/FLS3N/OMI/KSM/MTQ/MHQ atau setara',
+      'Sertifikat prestasi nasional (minimal 2) sesuai cabang - Puspresnas/FLS3N/OMI/KSM/MTQ/MHQ atau setara',
       'Surat keterangan dari pengurus cabang olahraga, atau surat keterangan hafalan minimal 15 juz (jalur keagamaan)',
       'Surat rekomendasi kepala sekolah',
       'Motivation letter',
       'Rapor semester 1–5',
       'SKL / ijazah, akta kelahiran, pas foto',
     ],
-    note: 'Hanya ditemukan dari satu sumber non-resmi (cukup rinci) — harap diverifikasi ke admission.itb.ac.id.',
+    note: 'Hanya ditemukan dari satu sumber non-resmi (cukup rinci) - harap diverifikasi ke admission.itb.ac.id.',
   },
 }
 

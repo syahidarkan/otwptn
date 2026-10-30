@@ -1,7 +1,7 @@
 import type { JalurStatic, PricingMap, JalurCategory } from '@/types'
 
 export const JALUR_LIST: JalurStatic[] = [
-  // SNBP — jalur nasional berbasis rapor & peringkat sekolah, bukan per-PTN
+  // SNBP - jalur nasional berbasis rapor & peringkat sekolah, bukan per-PTN
   { id: 'snbp', name: 'SNBP', ptn: 'Seluruh PTN Negeri', category: 'snbp' },
 
   // ESSAY ONLY
@@ -72,6 +72,7 @@ export const CATEGORY_LABEL: Record<JalurCategory | 'snbp', string> = {
 export const LEGAL_ENTITY = {
   name: 'PT. Lembaga Sains Nasional',
   brand: 'otwptn',
+  email: 'otwptn.com@gmail.com',
 }
 
 export const TIER_LABEL: Record<string, string> = {

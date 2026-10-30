@@ -1,6 +1,6 @@
 'use client'
 
-// Adapted from pintarly — mentor package promo (replaces plain comparison table)
+// Adapted from pintarly - mentor package promo (replaces plain comparison table)
 
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
@@ -63,7 +63,7 @@ export default function MentorSection() {
           </h2>
           <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--dark-muted)' }}>
             AI bisa bantu banyak hal, tapi kadang kamu butuh ngobrol langsung sama orang yang pernah di posisimu.
-            Paket Intensif otwptn kasih kamu akses ke mentor asli — alumni yang lolos lewat jalur yang sama.
+            Paket Intensif otwptn kasih kamu akses ke mentor asli - alumni yang lolos lewat jalur yang sama.
           </p>
           <ul className="space-y-2.5 mb-7">
             {FEATS.map(f => (

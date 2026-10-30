@@ -196,11 +196,11 @@ export default function AdminPendaftarPage() {
                 return (
                   <tr key={reg.id} className="border-b border-brand-gray last:border-0 hover:bg-brand-gray/40">
                     <td className="px-5 py-3">
-                      <p className="font-semibold text-brand-black">{p?.full_name ?? '—'}</p>
+                      <p className="font-semibold text-brand-black">{p?.full_name ?? '-'}</p>
                       <p className="text-xs text-brand-muted">{p?.email}</p>
                     </td>
                     <td className="px-5 py-3 text-brand-dark">
-                      {pk ? `${CATEGORY_LABEL[pk.category]} — ${TIER_LABEL[pk.tier]}` : '—'}
+                      {pk ? `${CATEGORY_LABEL[pk.category]} - ${TIER_LABEL[pk.tier]}` : '-'}
                     </td>
                     <td className="px-5 py-3 font-semibold">{formatRupiah(reg.total_price)}</td>
                     <td className="px-5 py-3 text-brand-muted">{formatDateTime(reg.created_at)}</td>
@@ -252,16 +252,16 @@ export default function AdminPendaftarPage() {
                     <ExternalLink size={12} />
                   </a>
                 ) : (
-                  <p className="font-semibold">—</p>
+                  <p className="font-semibold">-</p>
                 )}
               </div>
               <div>
                 <p className="text-brand-muted text-xs">Asal Sekolah</p>
-                <p className="font-semibold">{profile?.school ?? '—'}</p>
+                <p className="font-semibold">{profile?.school ?? '-'}</p>
               </div>
               <div>
                 <p className="text-brand-muted text-xs">Paket</p>
-                <p className="font-semibold">{pkg ? `${CATEGORY_LABEL[pkg.category]} — ${TIER_LABEL[pkg.tier]}` : '—'}</p>
+                <p className="font-semibold">{pkg ? `${CATEGORY_LABEL[pkg.category]} - ${TIER_LABEL[pkg.tier]}` : '-'}</p>
               </div>
               <div>
                 <p className="text-brand-muted text-xs">Total Dibayar</p>
@@ -282,9 +282,9 @@ export default function AdminPendaftarPage() {
               <div>
                 <p className="text-brand-muted text-xs mb-0.5">Jalur Utama</p>
                 {jalurUtama ? (
-                  <p className="font-semibold text-brand-black">{jalurUtama.name} <span className="text-brand-muted font-normal">— {jalurUtama.ptn}</span></p>
+                  <p className="font-semibold text-brand-black">{jalurUtama.name} <span className="text-brand-muted font-normal">- {jalurUtama.ptn}</span></p>
                 ) : (
-                  <p className="font-semibold text-brand-muted">{selected.jalur_utama_id ?? '—'}</p>
+                  <p className="font-semibold text-brand-muted">{selected.jalur_utama_id ?? '-'}</p>
                 )}
               </div>
               {jalurAddon.length > 0 && (
@@ -292,7 +292,7 @@ export default function AdminPendaftarPage() {
                   <p className="text-brand-muted text-xs mb-1">Jalur Tambahan ({jalurAddon.length})</p>
                   <div className="flex flex-col gap-1">
                     {jalurAddon.map((j) => j && (
-                      <p key={j.id} className="text-brand-dark">• {j.name} <span className="text-brand-muted">— {j.ptn}</span></p>
+                      <p key={j.id} className="text-brand-dark">• {j.name} <span className="text-brand-muted">- {j.ptn}</span></p>
                     ))}
                   </div>
                 </div>
@@ -321,7 +321,7 @@ export default function AdminPendaftarPage() {
                     <>
                       <label className="text-xs font-semibold text-brand-dark block mb-1.5">
                         Assign Mentor <span className="text-red-500">*</span>
-                        <span className="ml-2 text-brand-muted font-normal">(Paket Review — mentor langsung, tanpa group WA)</span>
+                        <span className="ml-2 text-brand-muted font-normal">(Paket Review - mentor langsung, tanpa group WA)</span>
                       </label>
                       <select
                         value={mentorId}

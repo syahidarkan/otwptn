@@ -1,4 +1,4 @@
-# otwptn Season 2 — Design Synthesis
+# otwptn Season 2 - Design Synthesis
 
 Compiled 2026-10-26. Maps each homepage section to a specific reference pattern.
 
@@ -16,16 +16,16 @@ Compiled 2026-10-26. Maps each homepage section to a specific reference pattern.
 **Pattern**: 
 - Default: full-width white nav, logo left, links center (max 4-5), CTAs right
 - On scroll: shrinks to a floating pill (`rounded-2xl`, `shadow-md`, `bg-white`) containing logo + "Masuk" (text) + "Daftar" (yellow pill button)
-- NO glass blur on nav — pure white background
-- Logo: "otwptn" wordmark (bold, dark) — no mascot needed
+- NO glass blur on nav - pure white background
+- Logo: "otwptn" wordmark (bold, dark) - no mascot needed
 **otwptn adaptation**: Links = Jalur, Fitur, Harga, Komunitas. CTAs = "Masuk" (ghost) + "Daftar" (yellow pill).
 
 ### 3. Hero
 **Reference**: pintarly.id hero (primary) + tofly.id (floating chips idea)
 **Pattern**:
 - Centered, full-viewport
-- Background: soft gradient blob — yellow (#ffd400 at 20-30% opacity) radiating from top-right, fading to white
-- H1: Very large (≥72px, weight 800), black — headline that punches the problem/solution
+- Background: soft gradient blob - yellow (#ffd400 at 20-30% opacity) radiating from top-right, fading to white
+- H1: Very large (≥72px, weight 800), black - headline that punches the problem/solution
 - Animated word cycle: pill with glass blur cycling through jalur types
 - Subtext: ~16px, centered, muted
 - TWO CTAs: "Mulai Sekarang" (yellow pill primary) + "Lihat Jalur" (ghost secondary)
@@ -40,14 +40,14 @@ Compiled 2026-10-26. Maps each homepage section to a specific reference pattern.
 - Centered H2 with **yellow wavy underline** on key phrase (CSS/SVG)
 - 3-column pain-point cards: off-white bg (#f5f5f0), rounded-2xl, no border
 - Card: illustration/icon top, bold title, 2-3 line description
-- Do NOT use emoji icons — use SVG illustrations or Lucide icons in a styled container
+- Do NOT use emoji icons - use SVG illustrations or Lucide icons in a styled container
 - Each card addresses a specific student pain point (e.g., "Ga Tau Harus Mulai Dari Mana", "Essay-ku Ga Ada Yang Review", "Bingung Milih Jalur")
 
 ### 5. Direktori Jalur Preview
 **Reference**: aimasukptn.com category chips + pintarly.id card grid
 **Pattern**:
 - H2 section heading
-- Category chips row (jalur type filters): PPKB, Jalur Prestasi, Jalur Essay, Jalur Hybrid — pill chips with color coding (yellow/green/purple from brand tokens)
+- Category chips row (jalur type filters): PPKB, Jalur Prestasi, Jalur Essay, Jalur Hybrid - pill chips with color coding (yellow/green/purple from brand tokens)
 - Below: a preview list of 4-6 PTN entries per selected jalur
 - Each entry: PTN name, jalur name, jalur type tag (color-coded), keketatan level, "Lihat Detail →" link
 - CTA at bottom: "Lihat Semua Jalur →" button
@@ -66,7 +66,7 @@ Compiled 2026-10-26. Maps each homepage section to a specific reference pattern.
 **Reference**: tofly.id quiz+chat split layout
 **Pattern**:
 - This is a SECTION on the homepage, NOT a floating widget
-- H2: "Otbee — AI Konsultan PTN-mu"
+- H2: "Otbee - AI Konsultan PTN-mu"
 - Background: `--bg-alt` (#f5f5f0)
 - 50/50 split card:
   - Left: Example user question card + Otbee's answer preview
@@ -91,7 +91,7 @@ Compiled 2026-10-26. Maps each homepage section to a specific reference pattern.
 - Each card: tier name, price, CTA button, feature list
 - Popular tier: slightly elevated, yellow border, "TERPOPULER" badge
 - Card structure inside each: tier name (top), price large, CTA button, then features list
-- NOT 3-column stat grid — use actual feature bullets with ✓ checkmarks
+- NOT 3-column stat grid - use actual feature bullets with ✓ checkmarks
 
 ### 10. Testimonials
 **Reference**: tofly.id horizontal scroll testimonials + pintarly.id tweet-style cards
@@ -108,7 +108,7 @@ Compiled 2026-10-26. Maps each homepage section to a specific reference pattern.
 - H2: "Tim Mentor otwptn"
 - Simple 3-column grid of mentor "cards"
 - Each card: initials avatar (colored circle), name, background/specialization (1 line), university alumni label
-- No profile photos — consistent initials-only avatars
+- No profile photos - consistent initials-only avatars
 - Off-white bg cards
 - Do NOT use 3D illustrations or mascots
 
@@ -119,7 +119,7 @@ Compiled 2026-10-26. Maps each homepage section to a specific reference pattern.
 - Numbered accordion on right or full-width
 - Numbered index (01, 02, 03...) + question + +/✕ toggle
 - Thin horizontal dividers between items
-- No box cards — just lines
+- No box cards - just lines
 
 ### 13. Footer
 **Reference**: pintarly.id dark multi-column footer
@@ -143,7 +143,7 @@ These patterns were checked against all three references and confirmed as AI-slo
 - ❌ Generic 3-icon "How It Works" rows with numbered circles
 - ❌ Bento grid with shallow cards
 - ❌ Hero with laptop mockup or fake browser chrome
-- ❌ Trust badge strip with partner logos (pintarly does this but it's a large product — skip for otwptn)
+- ❌ Trust badge strip with partner logos (pintarly does this but it's a large product - skip for otwptn)
 - ❌ Dark mode toggle (otwptn is light-only)
 - ❌ Emoji as icons anywhere
 
@@ -153,7 +153,7 @@ These patterns were checked against all three references and confirmed as AI-slo
 
 Based on reference site patterns:
 
-- **Nav hide/show**: GSAP-powered on scroll direction — hide on scroll down, show on scroll up
+- **Nav hide/show**: GSAP-powered on scroll direction - hide on scroll down, show on scroll up
 - **Section entrance**: `gsap.from()` with `y: 40, opacity: 0` and ScrollTrigger `start: "top 80%"`
 - **Staggered card lists**: `gsap.from(cards, { stagger: 0.1, y: 30, opacity: 0 })`
 - **Pricing card hover**: `gsap.to(card, { y: -4, boxShadow: "..." })` on mouseenter

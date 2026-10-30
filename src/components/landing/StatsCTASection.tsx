@@ -1,6 +1,6 @@
 'use client'
 
-// Adapted from pintarly — stats ("Mereka Udah Mulai. Kamu Kapan?") stacked above the bottom CTA, dark fades into the gradient CTA bg
+// Adapted from pintarly - stats ("Mereka Udah Mulai. Kamu Kapan?") stacked above the bottom CTA, dark fades into the gradient CTA bg
 
 import { useEffect, useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
@@ -75,7 +75,7 @@ function CountUpStat({ value, decimals = 0 }: { value: number; decimals?: number
 export default function StatsCTASection() {
   return (
     <>
-      {/* Stats — dark */}
+      {/* Stats - dark */}
       <section className="section-pad px-4 dark-section" style={{ background: 'var(--dark)' }}>
         <div className="max-w-3xl mx-auto text-center">
           <motion.div
@@ -117,7 +117,7 @@ export default function StatsCTASection() {
         </div>
       </section>
 
-      {/* Bottom CTA — hero gradient, like before */}
+      {/* Bottom CTA - hero gradient, like before */}
       <section className="section-pad px-4" style={{ background: 'var(--hero-grad)' }}>
         <div className="max-w-xl mx-auto text-center">
           <motion.div
