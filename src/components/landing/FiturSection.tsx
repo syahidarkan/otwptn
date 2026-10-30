@@ -10,7 +10,6 @@ import {
   ChevronDown, PlayCircle,
   Mic, Video as VideoIcon, PhoneOff, MessageCircle, Send, Heart, Share2, FileText, Shuffle,
 } from 'lucide-react'
-import InteractiveOtbee3D from '@/components/mascot-3d/InteractiveOtbee3D'
 
 function AnimatedPercent({ active, value }: { active: boolean; value: number }) {
   const [n, setN] = useState(0)
@@ -133,69 +132,29 @@ function KalkulatorFormPreview({ active }: { active: boolean }) {
   )
 }
 
-/* ── Otbee AI: full phone chat mockup or 3D Mascot ────────────────────── */
+/* ── Otbee AI: full phone chat mockup ──────────────────────────────────── */
 function OtbeePhonePreview() {
-  const [view3D, setView3D] = useState(false)
-
-  if (view3D) {
-    return (
-      <div className="mx-auto flex flex-col items-center" style={{ maxWidth: 280 }}>
-        <div className="flex items-center gap-1.5 mb-2 bg-gray-100 p-1 rounded-full text-[11px] font-bold">
-          <button
-            onClick={() => setView3D(false)}
-            className="px-3 py-1 rounded-full text-gray-500 hover:text-gray-900 transition-colors"
-          >
-            📱 Chat Mockup
-          </button>
-          <button
-            onClick={() => setView3D(true)}
-            className="px-3 py-1 rounded-full bg-white text-gray-950 shadow-xs"
-          >
-            🐝 3D Mascot
-          </button>
-        </div>
-        <InteractiveOtbee3D mode="embedded" height={220} />
-      </div>
-    )
-  }
-
   return (
-    <div className="mx-auto flex flex-col items-center" style={{ maxWidth: 280 }}>
-      <div className="flex items-center gap-1.5 mb-2 bg-gray-100 p-1 rounded-full text-[11px] font-bold">
-        <button
-          onClick={() => setView3D(false)}
-          className="px-3 py-1 rounded-full bg-white text-gray-950 shadow-xs"
-        >
-          📱 Chat Mockup
-        </button>
-        <button
-          onClick={() => setView3D(true)}
-          className="px-3 py-1 rounded-full text-gray-500 hover:text-gray-900 transition-colors"
-        >
-          🐝 3D Mascot
-        </button>
-      </div>
-      <div className="rounded-[2.2rem] p-2 w-full" style={{ background: '#111', maxWidth: 230 }}>
-        <div className="rounded-[1.8rem] overflow-hidden bg-white">
-          <div className="h-6 flex items-center justify-center" style={{ background: '#111' }}>
-            <div className="w-16 h-3 rounded-full" style={{ background: '#111', border: '1px solid #333' }} />
+    <div className="mx-auto rounded-[2.2rem] p-2" style={{ background: '#111', maxWidth: 230 }}>
+      <div className="rounded-[1.8rem] overflow-hidden bg-white">
+        <div className="h-6 flex items-center justify-center" style={{ background: '#111' }}>
+          <div className="w-16 h-3 rounded-full" style={{ background: '#111', border: '1px solid #333' }} />
+        </div>
+        <div className="flex items-center gap-2 px-3 py-2.5 border-b" style={{ borderColor: 'var(--border)' }}>
+          <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: 'var(--dark)', color: '#fff' }}>O</div>
+          <div>
+            <div className="text-xs font-bold text-fg">Otbee AI</div>
+            <div className="text-xs" style={{ color: '#22c55e' }}>● Online</div>
           </div>
-          <div className="flex items-center gap-2 px-3 py-2.5 border-b" style={{ borderColor: 'var(--border)' }}>
-            <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: 'var(--dark)', color: '#fff' }}>O</div>
-            <div>
-              <div className="text-xs font-bold text-fg">Otbee AI</div>
-              <div className="text-xs" style={{ color: '#22c55e' }}>● Online</div>
-            </div>
-          </div>
-          <div className="p-3 space-y-2 min-h-[130px]">
-            <div className="rounded-xl rounded-bl-sm px-2.5 py-1.5 text-xs max-w-[80%]" style={{ background: 'var(--bg-alt)' }}>Syarat PPKB UI 2027?</div>
-            <div className="rounded-xl rounded-br-sm px-2.5 py-1.5 text-xs max-w-[85%] ml-auto" style={{ background: 'var(--dark)', color: '#fff' }}>Rapor ≥85, portofolio, essay 500–800 kata.</div>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-2 border-t" style={{ borderColor: 'var(--border)' }}>
-            <div className="flex-1 h-7 rounded-full" style={{ background: 'var(--bg-alt)' }} />
-            <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent)' }}>
-              <Send size={12} style={{ color: '#111' }} />
-            </div>
+        </div>
+        <div className="p-3 space-y-2 min-h-[130px]">
+          <div className="rounded-xl rounded-bl-sm px-2.5 py-1.5 text-xs max-w-[80%]" style={{ background: 'var(--bg-alt)' }}>Syarat PPKB UI 2027?</div>
+          <div className="rounded-xl rounded-br-sm px-2.5 py-1.5 text-xs max-w-[85%] ml-auto" style={{ background: 'var(--dark)', color: '#fff' }}>Rapor ≥85, portofolio, essay 500–800 kata.</div>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-2 border-t" style={{ borderColor: 'var(--border)' }}>
+          <div className="flex-1 h-7 rounded-full" style={{ background: 'var(--bg-alt)' }} />
+          <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent)' }}>
+            <Send size={12} style={{ color: '#111' }} />
           </div>
         </div>
       </div>
@@ -285,19 +244,18 @@ function DokumenFolderPreview() {
   )
 }
 
-type Feature = { id: string; label: string; title: string; desc: string; mascot: string; video?: string; preview: (p: { active: boolean }) => React.ReactNode }
+type Feature = { id: string; label: string; title: string; desc: string; mascot: string; preview: (p: { active: boolean }) => React.ReactNode }
 
 const FEATURES: Feature[] = [
   { id: 'mentor', label: 'Mentor Alumni', title: 'Konsultasi grup, sharescreen bareng mentor.', desc: 'Sesi video call grup bareng mentor alumni — sharescreen langsung di essay-mu lewat Google Docs, kayak kelas kecil.', mascot: '/mascot/medal.png', preview: () => <MentorZoomPreview /> },
-  { id: 'essay', label: 'Essay AI Review', title: 'Dikoreksi kayak di Google Docs, tapi sama AI.', desc: 'Tiap kalimat di-highlight dengan catatan revisi spesifik — bagian yang kuat, yang perlu diperbaiki, dan saran kalimat pengganti.', mascot: '/mascot/writing-essay.png', video: '/demos/essay-ai-review.mp4', preview: () => <EssayPaperPreview /> },
-  { id: 'kalkulator', label: 'Kalkulator Peluang', title: 'Estimasi peluang, bukan tebak-tebakan.', desc: 'Isi rapor, peringkat sekolah, dan sertifikatmu — otwptn hitung estimasi peluangmu dengan animasi real-time.', mascot: '/mascot/bar-chart-point.png', video: '/demos/kalkulator-peluang.mp4', preview: ({ active }) => <KalkulatorFormPreview active={active} /> },
-  { id: 'otbee', label: 'Otbee AI', title: 'Konsultan yang gak pernah tidur.', desc: 'Chat 24/7 dengan AI yang udah dilatih dari data kelulusan jalur non-tes tahun-tahun sebelumnya, langsung dari HP-mu.', mascot: '/mascot/otbee-phone.png', video: '/demos/otbee-ai.mp4', preview: () => <OtbeePhonePreview /> },
-  { id: 'modul', label: 'Modul & Video', title: 'Belajar terstruktur lewat video dan modul.', desc: 'Materi dipecah per jalur — strategi essay, portofolio, sampai simulasi wawancara, dalam video singkat yang gampang dicerna.', mascot: '/mascot/tablet-play.png', video: '/demos/modul-video.mp4', preview: () => <ModulGridPreview /> },
-  { id: 'strategi', label: 'Atur Strategi', title: 'Strategi personal, bukan template kosong.', desc: 'AI bikin rencana persiapan yang disesuaikan sama data kamu — dari kalkulator peluang langsung jadi langkah konkret berikutnya.', mascot: '/mascot/bar-chart-point.png', video: '/demos/atur-strategi.mp4', preview: () => <KalkulatorFormPreview active={true} /> },
-  { id: 'komunitas', label: 'Komunitas', title: 'Gak berjuang sendirian.', desc: 'Forum diskusi real-time dengan sesama pejuang jalur non-tes — tanya jawab, sharing pengalaman, saling semangatin.', mascot: '/mascot/megaphone-community.png', video: '/demos/komunitas.mp4', preview: () => <KomunitasPostPreview /> },
-  { id: 'tracking', label: 'Tracking Jalur', title: 'Pantau progres semua jalur yang kamu ikuti.', desc: 'Timeline yang nunjukin status tiap pendaftaran jalur — draf, submit, hasil — biar gak ada yang kelewat.', mascot: '/mascot/roadmap-flags.png', video: '/demos/tracking-jalur.mp4', preview: () => <TrackingTimelinePreview /> },
-  { id: 'dokumen', label: 'Penyimpanan Dokumen', title: 'Semua dokumen pendaftaran, satu tempat.', desc: 'Simpan rapor, sertifikat, dan essay versi terbaru — tinggal download pas butuh submit.', mascot: '/mascot/file-box-storage.png', video: '/demos/penyimpanan-dokumen.mp4', preview: () => <DokumenFolderPreview /> },
-  { id: 'matching', label: 'Cari Teman Belajar', title: 'Belajar bareng, kayak Omegle buat PTN.', desc: 'Terhubung instan dengan sesama pejuang jalur non-tes buat ngobrol, sharing strategi, atau saling semangatin.', mascot: '/mascot/video-call-match.png', video: '/demos/cari-teman-belajar.mp4', preview: () => <MatchingPreview /> },
+  { id: 'essay', label: 'Essay AI Review', title: 'Dikoreksi kayak di Google Docs, tapi sama AI.', desc: 'Tiap kalimat di-highlight dengan catatan revisi spesifik — bagian yang kuat, yang perlu diperbaiki, dan saran kalimat pengganti.', mascot: '/mascot/writing-essay.png', preview: () => <EssayPaperPreview /> },
+  { id: 'kalkulator', label: 'Kalkulator Peluang', title: 'Estimasi peluang, bukan tebak-tebakan.', desc: 'Isi rapor, peringkat sekolah, dan sertifikatmu — otwptn hitung estimasi peluangmu dengan animasi real-time.', mascot: '/mascot/bar-chart-point.png', preview: ({ active }) => <KalkulatorFormPreview active={active} /> },
+  { id: 'otbee', label: 'Otbee AI', title: 'Konsultan yang gak pernah tidur.', desc: 'Chat 24/7 dengan AI yang udah dilatih dari data kelulusan jalur non-tes tahun-tahun sebelumnya, langsung dari HP-mu.', mascot: '/mascot/otbee-phone.png', preview: () => <OtbeePhonePreview /> },
+  { id: 'modul', label: 'Modul & Video', title: 'Belajar terstruktur lewat video dan modul.', desc: 'Materi dipecah per jalur — strategi essay, portofolio, sampai simulasi wawancara, dalam video singkat yang gampang dicerna.', mascot: '/mascot/tablet-play.png', preview: () => <ModulGridPreview /> },
+  { id: 'komunitas', label: 'Komunitas', title: 'Gak berjuang sendirian.', desc: 'Forum diskusi real-time dengan sesama pejuang jalur non-tes — tanya jawab, sharing pengalaman, saling semangatin.', mascot: '/mascot/megaphone-community.png', preview: () => <KomunitasPostPreview /> },
+  { id: 'tracking', label: 'Tracking Jalur', title: 'Pantau progres semua jalur yang kamu ikuti.', desc: 'Timeline yang nunjukin status tiap pendaftaran jalur — draf, submit, hasil — biar gak ada yang kelewat.', mascot: '/mascot/roadmap-flags.png', preview: () => <TrackingTimelinePreview /> },
+  { id: 'dokumen', label: 'Penyimpanan Dokumen', title: 'Semua dokumen pendaftaran, satu tempat.', desc: 'Simpan rapor, sertifikat, dan essay versi terbaru — tinggal download pas butuh submit.', mascot: '/mascot/file-box-storage.png', preview: () => <DokumenFolderPreview /> },
+  { id: 'matching', label: 'Cari Teman Belajar', title: 'Belajar bareng, kayak Omegle buat PTN.', desc: 'Terhubung instan dengan sesama pejuang jalur non-tes buat ngobrol, sharing strategi, atau saling semangatin.', mascot: '/mascot/video-call-match.png', preview: () => <MatchingPreview /> },
 ]
 
 export default function FiturSection() {
@@ -383,25 +341,12 @@ export default function FiturSection() {
 
                 {/* Preview card */}
                 <motion.div
-                  className="card overflow-hidden"
-                  style={{ transformStyle: 'preserve-3d', padding: f.video ? 0 : '1.25rem' }}
+                  className="card p-5"
+                  style={{ transformStyle: 'preserve-3d' }}
                   whileHover={{ rotateY: 3, rotateX: -2, scale: 1.01 }}
                   transition={{ duration: 0.3 }}
                 >
-                  {f.video ? (
-                    <video
-                      key={f.video}
-                      src={f.video}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      className="w-full h-full object-cover rounded-xl"
-                      style={{ display: 'block', maxHeight: 320 }}
-                    />
-                  ) : (
-                    f.preview({ active: true })
-                  )}
+                  {f.preview({ active: true })}
                 </motion.div>
               </motion.div>
             </AnimatePresence>

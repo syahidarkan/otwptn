@@ -93,75 +93,43 @@ html.dark .public-light-theme {
   color: #111111 !important;
 }
 
-.public-light-theme main,
-html.dark .public-light-theme main {
-  background-color: #ffffff !important;
-  color: #111111 !important;
+.public-light-theme main {
+  background-color: #ffffff;
 }
 
-.public-light-theme [style*="var(--hero-grad)"],
-.public-light-theme [style*="--hero-grad"],
-html.dark .public-light-theme [style*="var(--hero-grad)"],
-html.dark .public-light-theme [style*="--hero-grad"] {
-  background:
-    radial-gradient(ellipse 55% 50% at 8% 10%, rgba(255,212,0,0.85) 0%, transparent 65%),
-    radial-gradient(ellipse 50% 45% at 92% 8%, rgba(255,200,0,0.6) 0%, transparent 65%),
-    radial-gradient(ellipse 60% 55% at 88% 90%, rgba(255,230,80,0.75) 0%, transparent 65%),
-    radial-gradient(ellipse 45% 40% at 6% 92%, rgba(255,215,50,0.55) 0%, transparent 65%),
-    radial-gradient(ellipse 35% 30% at 50% 50%, rgba(255,240,120,0.2) 0%, transparent 70%),
-    #fffbe6 !important;
+/* Ensure explicit white and accent yellow are never hijacked */
+.text-white,
+.dark-section .text-white,
+.public-light-theme .text-white,
+html.dark .public-light-theme .text-white {
+  color: #ffffff !important;
 }
 
-.public-light-theme h1,
-.public-light-theme h2,
-.public-light-theme h3,
-.public-light-theme h4,
-.public-light-theme h5,
-.public-light-theme .text-gray-950,
-.public-light-theme .text-gray-900,
-html.dark .public-light-theme h1,
-html.dark .public-light-theme h2,
-html.dark .public-light-theme h3,
-html.dark .public-light-theme h4,
-html.dark .public-light-theme h5,
-html.dark .public-light-theme .text-gray-950,
-html.dark .public-light-theme .text-gray-900 {
-  color: #0f172a !important;
+.text-amber-400,
+.text-accent,
+.public-light-theme .text-amber-400,
+html.dark .public-light-theme .text-amber-400 {
+  color: #ffd400 !important;
 }
 
-.public-light-theme p,
-.public-light-theme .text-gray-700,
-.public-light-theme .text-gray-600,
-html.dark .public-light-theme p,
-html.dark .public-light-theme .text-gray-700,
-html.dark .public-light-theme .text-gray-600 {
-  color: #334155 !important;
-}
-
-/* Dark sections (dark bg) override light-theme text forcing */
+/* Dark sections (dark bg) default text to crisp light */
+.dark-section,
+.dark-section h1,
+.dark-section h2,
+.dark-section h3,
+.dark-section h4,
+.dark-section h5,
 .public-light-theme .dark-section h1,
 .public-light-theme .dark-section h2,
 .public-light-theme .dark-section h3,
 .public-light-theme .dark-section h4,
-.public-light-theme .dark-section h5,
-html.dark .public-light-theme .dark-section h1,
-html.dark .public-light-theme .dark-section h2,
-html.dark .public-light-theme .dark-section h3,
-html.dark .public-light-theme .dark-section h4,
-html.dark .public-light-theme .dark-section h5 {
+.public-light-theme .dark-section h5 {
   color: #ffffff !important;
 }
 
-.public-light-theme .dark-section p,
-html.dark .public-light-theme .dark-section p {
-  color: rgba(255,255,255,0.82) !important;
-}
-
-.public-light-theme .dark-section div,
-.public-light-theme .dark-section span,
-html.dark .public-light-theme .dark-section div,
-html.dark .public-light-theme .dark-section span {
-  color: inherit !important;
+.dark-section p,
+.public-light-theme .dark-section p {
+  color: rgba(255,255,255,0.85);
 }
 
 .public-light-theme .glass-nav,
