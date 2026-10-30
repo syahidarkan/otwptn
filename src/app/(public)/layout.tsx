@@ -1,5 +1,6 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import InteractiveOtbee3D from '@/components/mascot-3d/InteractiveOtbee3D'
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,6 +13,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
+      <InteractiveOtbee3D mode="floating" />
     </div>
   )
 }

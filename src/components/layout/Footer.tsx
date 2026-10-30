@@ -10,17 +10,17 @@ const COLS = [
       { label: 'Kalkulator Peluang', href: '/dashboard/kalkulator' },
       { label: 'Otbee AI Chat', href: '/dashboard/otbee' },
       { label: 'E-course', href: '/dashboard/ecourse' },
-      { label: 'Direktori Jalur', href: '/#fitur' },
+      { label: 'Direktori Jalur', href: '/direktori' },
     ],
   },
   {
     heading: 'Jalur SNBP',
     links: [
-      { label: 'Jalur Prestasi', href: '/#fitur' },
-      { label: 'Jalur Essay', href: '/#fitur' },
-      { label: 'Jalur Hybrid', href: '/#fitur' },
-      { label: 'Panduan SNBP', href: '/#fitur' },
-      { label: 'Direktori PTN', href: '/#fitur' },
+      { label: 'Jalur Prestasi', href: '/direktori' },
+      { label: 'Jalur Essay', href: '/direktori' },
+      { label: 'Jalur Hybrid', href: '/direktori' },
+      { label: 'Panduan SNBP', href: '/panduan' },
+      { label: 'Direktori PTN', href: '/direktori' },
     ],
   },
   {
@@ -29,14 +29,14 @@ const COLS = [
       { label: 'Latihan Essay', href: '/dashboard/essay' },
       { label: 'Persiapan Rapor', href: '/onboarding' },
       { label: 'Komunitas', href: '/komunitas' },
-      { label: 'Paket Mentor', href: '/#harga' },
-      { label: 'Harga & Paket', href: '/#harga' },
+      { label: 'Paket Mentor', href: '/upgrade' },
+      { label: 'Harga & Paket', href: '/upgrade' },
     ],
   },
   {
     heading: 'Bantuan',
     links: [
-      { label: 'FAQ', href: '/#faq' },
+      { label: 'FAQ', href: '/panduan' },
       { label: 'Komunitas WhatsApp', href: '/komunitas' },
       { label: 'Login', href: '/login' },
       { label: 'Daftar Gratis', href: '/register' },
@@ -48,47 +48,47 @@ const SEO_COLS = [
   {
     heading: 'SNBP & Jalur Non-Tes',
     links: [
-      { label: 'Apa itu SNBP', href: '/#fitur' },
-      { label: 'Jalur Prestasi 2026', href: '/#fitur' },
-      { label: 'Jalur Essay 2026', href: '/#fitur' },
-      { label: 'Syarat SNBP', href: '/#fitur' },
-      { label: 'Cara Daftar SNBP', href: '/#fitur' },
+      { label: 'Apa itu SNBP', href: '/artikel/apa-itu-snbp' },
+      { label: 'Jalur Prestasi 2026', href: '/artikel/jalur-prestasi-2026' },
+      { label: 'Jalur Essay 2026', href: '/artikel/jalur-essay-2026' },
+      { label: 'Syarat SNBP', href: '/artikel/syarat-snbp' },
+      { label: 'Cara Daftar SNBP', href: '/artikel/cara-daftar-snbp' },
     ],
   },
   {
     heading: 'Essay SNBP',
     links: [
-      { label: 'Contoh Essay SNBP', href: '/dashboard/essay' },
-      { label: 'Tips Essay Lolos', href: '/dashboard/essay' },
+      { label: 'Contoh Essay SNBP', href: '/artikel' },
+      { label: 'Tips Essay Lolos', href: '/artikel' },
       { label: 'Review Essay AI', href: '/dashboard/essay' },
-      { label: 'Essay ITB', href: '/dashboard/essay' },
-      { label: 'Essay UI', href: '/dashboard/essay' },
+      { label: 'Essay ITB', href: '/artikel' },
+      { label: 'Essay UI', href: '/artikel' },
     ],
   },
   {
     heading: 'PTN Tujuan',
     links: [
-      { label: 'Masuk UI', href: '/#fitur' },
-      { label: 'Masuk ITB', href: '/#fitur' },
-      { label: 'Masuk UGM', href: '/#fitur' },
-      { label: 'Masuk ITS', href: '/#fitur' },
-      { label: 'Masuk UNAIR', href: '/#fitur' },
+      { label: 'Masuk UI', href: '/direktori' },
+      { label: 'Masuk ITB', href: '/direktori' },
+      { label: 'Masuk UGM', href: '/direktori' },
+      { label: 'Masuk ITS', href: '/direktori' },
+      { label: 'Masuk UNAIR', href: '/direktori' },
     ],
   },
   {
     heading: 'Persiapan',
     links: [
       { label: 'Kalkulator Peluang PTN', href: '/dashboard/kalkulator' },
-      { label: 'Nilai Rapor Ideal', href: '/dashboard/kalkulator' },
-      { label: 'Strategi Jalur Non-Tes', href: '/#fitur' },
-      { label: 'Panduan Prestasi', href: '/#fitur' },
+      { label: 'Nilai Rapor Ideal', href: '/panduan' },
+      { label: 'Strategi Jalur Non-Tes', href: '/panduan' },
+      { label: 'Panduan Prestasi', href: '/panduan' },
     ],
   },
   {
     heading: 'Tentang',
     links: [
-      { label: 'Tentang otwptn', href: '/' },
-      { label: 'Paket & Harga', href: '/#harga' },
+      { label: 'Tentang otwptn', href: '/tentang' },
+      { label: 'Paket & Harga', href: '/upgrade' },
       { label: 'Testimoni', href: '/#testimoni' },
       { label: 'Komunitas', href: '/komunitas' },
     ],
@@ -110,7 +110,7 @@ export default function Footer() {
       </div>
 
       {/* Main footer — bg matches bottom pixel of PNG (#583219), -2px kills seam */}
-      <div style={{ background: '#583219', color: '#fff', marginTop: -2 }}>
+      <div className="dark-section" style={{ background: '#583219', color: '#fff', marginTop: -2 }}>
         <div className="max-w-6xl mx-auto px-6 py-14">
 
           {/* Top row: brand + nav columns */}
@@ -121,7 +121,7 @@ export default function Footer() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/logo.png" alt="otwptn" style={{ height: 40, width: 'auto', display: 'block' }} />
               </div>
-              <p className="text-sm leading-relaxed mb-5" style={{ color: 'rgba(255,255,255,0.85)', fontWeight: 500, maxWidth: 220 }}>
+              <p className="text-sm leading-relaxed mb-5" style={{ color: '#ffffff', fontWeight: 600, maxWidth: 220, textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
                 Platform persiapan masuk PTN jalur non-tes — essay, prestasi, dan strategi personal.
               </p>
               {/* Social icons */}
@@ -183,8 +183,8 @@ export default function Footer() {
             </p>
             <div className="flex gap-5">
               {[
-                { label: 'Kebijakan Privasi', href: '/' },
-                { label: 'Syarat & Ketentuan', href: '/' },
+                { label: 'Kebijakan Privasi', href: '/kebijakan-privasi' },
+                { label: 'Syarat & Ketentuan', href: '/syarat-ketentuan' },
               ].map(l => (
                 <Link key={l.label} href={l.href} className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}
                   onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}

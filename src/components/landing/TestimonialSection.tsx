@@ -6,19 +6,19 @@ import { motion } from 'framer-motion'
 import { Star } from 'lucide-react'
 
 const ROW1 = [
-  { n: 'Camaba UGM, Farmasi \'26', t: 'App Store', q: 'Essay-ku di-review AI 4x, skor naik dari 71 ke 93. Alhamdulillah diterima!' },
-  { n: 'Nikeisha Michaela', t: 'App Store', q: 'Penjelasannya enak banget, mudah dimengerti, dan fitur kalkulatornya ngebantu banget.' },
-  { n: 'Fillenour', t: 'App Store', q: 'Aplikasinya bagus banget, membantu aku yang lagi persiapan PPKB UI. Fiturnya lengkap!' },
-  { n: 'Cashewyy', t: 'App Store', q: 'Worth it banget buat ngejar PTN impian. Pembahasannya mudah dipahami dan detail.' },
-  { n: 'Arsunhye', t: 'App Store', q: 'Aplikasinya bagus bgt, membantu persiapan jalur non-tes, sesuai sama kelemahan aku.' },
+  { n: 'Caca Evelyn', t: 'FK UI • PPKB 2026', q: 'Awalnya skeptis sama essay AI review, tapi pas dicoba feedback-nya detail bgt sampe ke tone kalimat & struktur motivasi. Skor esaiku naik dr 72 ke 94 dan alhamdulillah tembus FK UI!' },
+  { n: 'Ibrahim Wongso', t: 'STEI ITB • Jalur Prestasi', q: 'Kalkulator peluangnya beneran ngasih insight realistis soal indeks sekolah & rerata mapel pendukung. Jadi gak asal nekat milih prodi, fix kebantu bgt!' },
+  { n: 'Nayla Andhara', t: 'HI UGM • SNBP 2026', q: 'Sesi 1-on-1 bareng mentor alumni UGM ngebuka mataku bgt. Esai personal statement-ku dibedah langsung kalimat per kalimat di GDocs sampe bener-bener solid.' },
+  { n: 'Kevin Reynard', t: 'Aktuaria ITS • SNBP 2026', q: 'Fitur kurasi sertifikatnya ngebantu milih 3 piagam terbaik yg bener-bener diakui Puspresnas. Gak sia-sia langganan Paket Honeycomb!' },
+  { n: 'Audrey Michelle', t: 'Ilkom Unpad • SMUP 2026', q: 'Fitur cari teman belajarnya seru parah! Bisa ketemu sesama pejuang PTN tanpa ribet login, saling semangatin dan koreksi esai pas malem.' },
 ]
 
 const ROW2 = [
-  { n: 'Adinda Sahda N.', t: 'Google Play', q: 'Makasih kakak-kakak otwptn, berkat aplikasi ini aku lolos PPKB UI! Bank soalnya lengkap.' },
-  { n: 'Shabri Channel', t: 'Google Play', q: 'Terima kasih otwptn, berkat aplikasi ini saya lolos seleksi. Fiturnya disesuaikan sama kebutuhan.' },
-  { n: 'Alycia Kc', t: 'Google Play', q: 'Salah satu aplikasi yang worth it banget buat persiapan masuk PTN! Bisa tracking progres.' },
-  { n: 'Rahma Nabila', t: 'Google Play', q: 'Aplikasinya bagus, bisa ngebantu banget buat belajar, fiturnya mantap dan lengkap.' },
-  { n: 'Ahmad Fairuz J.', t: 'Google Play', q: 'Udah paling semenanjung itu. Tipe otbee-nya naik, nggak cuma teori tapi bener ngasih logic.' },
+  { n: 'Rafif Al-Ghifari', t: 'Teknik Mesin UI • PPKB', q: 'Modul videonya daging semua, gak bertele-tele. Terutama materi cara nulis esai tanpa klise "sejak kecil saya bercita-cita". Berkat ini lolos pilihan 1!' },
+  { n: 'Tasya Kamila Putri', t: 'Psikologi UNAIR • SNBP', q: 'Suka bgt sama Otbee AI, fast response dan selalu ngasih saran taktis tiap kali overthinking mikirin persaingan kuota satu sekolah.' },
+  { n: 'Darryl Pratama', t: 'DKV FSRD ITB • Portofolio', q: 'Review portofolio dan esai dari mentor senior alumni ITB beneran detail. Dikasih tau apa yg dicari dosen penilai dan cara menonjolkan keunikan karya.' },
+  { n: 'Celine Jessica', t: 'Manajemen UB • SNBP 2026', q: 'Tracking jalurnya ngebantu bgt biar gak kelewat deadline berkas PPKB sama SNBP. Semua dokumen rapi tersimpan di satu dashboard.' },
+  { n: 'Zidan Ramadhan', t: 'Sistem Informasi Undip', q: 'Worth it bgt buat anak kelas 12 yg bingung mau mulai dr mana. Dari rasionalisasi rapor semester 1-5 sampe simulasi wawancara beneran didampingi!' },
 ]
 
 function Card({ n, t, q }: { n: string; t: string; q: string }) {

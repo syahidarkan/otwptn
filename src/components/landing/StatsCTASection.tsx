@@ -76,7 +76,7 @@ export default function StatsCTASection() {
   return (
     <>
       {/* Stats — dark */}
-      <section className="section-pad px-4" style={{ background: 'var(--dark)' }}>
+      <section className="section-pad px-4 dark-section" style={{ background: 'var(--dark)' }}>
         <div className="max-w-3xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -94,23 +94,24 @@ export default function StatsCTASection() {
             viewport={{ once: true }}
             transition={{ duration: 0.45, ease: 'easeOut' }}
             className="text-section-heading mb-14"
-            style={{ color: 'var(--dark-fg)' }}
+            style={{ color: '#ffffff' }}
           >
-            Mereka Udah Mulai. <span style={{ color: 'var(--accent)' }}>Kamu Kapan?</span>
+            <span style={{ color: '#ffffff' }}>Mereka Udah Mulai. </span>
+            <span style={{ color: '#ffd400' }} className="font-extrabold text-[#ffd400]">Kamu Kapan?</span>
           </motion.h2>
 
           <div className="grid grid-cols-2 gap-8 max-w-lg mx-auto">
             <div>
-              <div className="font-bold mb-2" style={{ fontFamily: 'var(--font-heading)', color: 'var(--dark-fg)', letterSpacing: '-0.04em', fontSize: 'clamp(3.5rem, 8vw, 6rem)' }}>
+              <div className="font-bold mb-2 text-white" style={{ fontFamily: 'var(--font-heading)', color: '#ffffff', letterSpacing: '-0.04em', fontSize: 'clamp(3.5rem, 8vw, 6rem)' }}>
                 <CountUpStat value={500} />+
               </div>
-              <div className="text-sm" style={{ color: 'var(--dark-muted)' }}>siswa aktif belajar</div>
+              <div className="text-sm font-semibold text-white" style={{ color: '#ffffff' }}>siswa aktif belajar</div>
             </div>
             <div>
-              <div className="font-bold mb-2" style={{ fontFamily: 'var(--font-heading)', color: 'var(--dark-fg)', letterSpacing: '-0.04em', fontSize: 'clamp(3.5rem, 8vw, 6rem)' }}>
+              <div className="font-bold mb-2 text-white" style={{ fontFamily: 'var(--font-heading)', color: '#ffffff', letterSpacing: '-0.04em', fontSize: 'clamp(3.5rem, 8vw, 6rem)' }}>
                 <CountUpStat value={4.9} decimals={1} />
               </div>
-              <div className="text-sm" style={{ color: 'var(--dark-muted)' }}>rating dari alumni</div>
+              <div className="text-sm font-semibold text-white" style={{ color: '#ffffff' }}>rating dari alumni</div>
             </div>
           </div>
         </div>

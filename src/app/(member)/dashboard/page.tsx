@@ -167,7 +167,7 @@ export default async function DashboardPage() {
           <Rocket size={13} className="text-amber-500" /> Paket {TIER_NAME[tier] ?? tier}
         </div>
         <Link
-          href="/komunitas"
+          href="/panduan"
           className="glass-badge text-xs font-bold text-gray-700 hover:text-black transition-colors"
         >
           <HelpCircle size={13} className="text-gray-500" /> Panduan

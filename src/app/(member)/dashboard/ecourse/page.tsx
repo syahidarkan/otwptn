@@ -567,13 +567,23 @@ export default function EcoursePage() {
             {/* Modal Body / Article */}
             <div className="p-6 sm:p-8 overflow-y-auto flex-1 text-gray-800 text-sm leading-relaxed">
               {activeLesson.type === 'video' && (
-                <div className="mb-6 rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 aspect-video flex flex-col items-center justify-center text-white relative group cursor-pointer shadow-lg">
-                  <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Play size={28} className="text-white fill-white ml-1" />
-                  </div>
-                  <span className="text-xs font-semibold mt-3 text-slate-300">
-                    Putar Video Pembelajaran
-                  </span>
+                <div className="mb-6 rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 aspect-video shadow-lg">
+                  {activeLesson.videoUrl ? (
+                    <iframe
+                      src={activeLesson.videoUrl}
+                      title={activeLesson.title}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-white">
+                      <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+                        <Play size={28} className="text-white fill-white ml-1" />
+                      </div>
+                      <span className="text-xs font-semibold mt-3 text-slate-300">Video segera hadir</span>
+                    </div>
+                  )}
                 </div>
               )}
 

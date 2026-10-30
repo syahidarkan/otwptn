@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { JALUR_LIST, PRICING, ADDON_PRICE, CATEGORY_LABEL, TIER_LABEL, TIER_DESCRIPTION, BANK_INFO } from '@/lib/constants'
+import { JALUR_LIST, PRICING, ADDON_PRICE, CATEGORY_LABEL, TIER_LABEL, TIER_DESCRIPTION, BANK_INFO, REFERRAL_DISCOUNT } from '@/lib/constants'
 import { formatRupiah } from '@/lib/utils'
 import type { JalurCategory, PackageTier } from '@/types'
 import Button from '@/components/ui/Button'
@@ -217,14 +217,21 @@ export default function DaftarPage() {
                         : 'border-brand-gray-2 hover:border-brand-black'
                     }`}
                   >
-                    <div className="flex justify-between items-center">
-                      <div>
+                    <div className="flex justify-between items-center gap-4">
+                      <div className="flex-1 min-w-0">
                         <p className="font-bold text-brand-black">{TIER_LABEL[tier]}</p>
                         <p className="text-xs text-brand-muted mt-0.5">{TIER_DESCRIPTION[tier]}</p>
                       </div>
-                      <p className="font-extrabold text-brand-black">
-                        {form.category && formatRupiah(PRICING[form.category][tier])}
-                      </p>
+                      <div className="text-right shrink-0">
+                        <p className="font-extrabold text-brand-black">
+                          {form.category && formatRupiah(PRICING[form.category][tier])}
+                        </p>
+                        {REFERRAL_DISCOUNT[tier] > 0 && form.category && (
+                          <p className="text-[10px] text-green-600 font-semibold">
+                            Referral: {formatRupiah(Math.round(PRICING[form.category][tier] * (1 - REFERRAL_DISCOUNT[tier])))}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </button>
                 ))}
@@ -255,49 +262,42 @@ export default function DaftarPage() {
           {step === 3 && form.category && (
             <div>
               <h2 className="text-xl font-bold text-brand-black mb-1">Jalur Tambahan (Opsional)</h2>
-              <p className="text-sm text-brand-muted mb-5">
-                Bisa pilih jalur dari <strong>kategori manapun</strong> — semuanya +<strong>Rp 50.000</strong> per jalur.
+              <p className="text-sm text-brand-muted mb-1">
+                Tambah jalur <strong>sesama kategori {CATEGORY_LABEL[form.category]}</strong> — +<strong>Rp 50.000</strong> per jalur.
+              </p>
+              <p className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-lg mb-5">
+                💡 Mau jalur dari kategori berbeda? Beli sebagai paket terpisah setelah ini selesai.
               </p>
 
               <div className="flex flex-col gap-4 max-h-80 overflow-y-auto pr-2">
-                {(['essay_only', 'prestasi_only', 'hybrid'] as JalurCategory[]).map((cat) => {
-                  const jalurInCat = JALUR_LIST.filter((j) => j.category === cat && j.id !== form.jalur_utama_id && !j.closed)
-                  if (jalurInCat.length === 0) return null
-                  return (
-                    <div key={cat}>
-                      <p className="text-xs font-bold text-brand-muted uppercase tracking-widest mb-2">
-                        {CATEGORY_LABEL[cat]}
-                        {cat !== form.category && <span className="ml-2 normal-case font-normal text-brand-yellow">(beda kategori)</span>}
-                      </p>
-                      <div className="flex flex-col gap-1.5">
-                        {jalurInCat.map((j) => {
-                          const checked = form.addon_jalur_ids.includes(j.id)
-                          return (
-                            <label key={j.id} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${checked ? 'border-brand-black bg-brand-gray' : 'border-brand-gray-2 hover:bg-brand-gray'}`}>
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => {
-                                  update({
-                                    addon_jalur_ids: checked
-                                      ? form.addon_jalur_ids.filter((id) => id !== j.id)
-                                      : [...form.addon_jalur_ids, j.id],
-                                  })
-                                }}
-                                className="w-4 h-4 accent-brand-black"
-                              />
-                              <div className="flex-1">
-                                <p className="text-sm font-medium text-brand-black">{j.name}</p>
-                                <p className="text-xs text-brand-muted">{j.ptn}</p>
-                              </div>
-                              <span className="text-xs font-semibold text-brand-muted">+Rp 50.000</span>
-                            </label>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )
-                })}
+                {(() => {
+                  const jalurInCat = JALUR_LIST.filter((j) => j.category === form.category && j.id !== form.jalur_utama_id && !j.closed)
+                  if (jalurInCat.length === 0) return <p className="text-sm text-brand-muted text-center py-6">Tidak ada jalur tambahan tersedia untuk kategori ini.</p>
+                  return jalurInCat.map((j) => {
+                    const checked = form.addon_jalur_ids.includes(j.id)
+                    return (
+                      <label key={j.id} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${checked ? 'border-brand-black bg-brand-gray' : 'border-brand-gray-2 hover:bg-brand-gray'}`}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => {
+                            update({
+                              addon_jalur_ids: checked
+                                ? form.addon_jalur_ids.filter((id) => id !== j.id)
+                                : [...form.addon_jalur_ids, j.id],
+                            })
+                          }}
+                          className="w-4 h-4 accent-brand-black"
+                        />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-brand-black">{j.name}</p>
+                          <p className="text-xs text-brand-muted">{j.ptn}</p>
+                        </div>
+                        <span className="text-xs font-semibold text-brand-muted">+Rp 50.000</span>
+                      </label>
+                    )
+                  })
+                })()}
               </div>
 
               <div className="mt-5 p-4 bg-brand-gray rounded-xl">

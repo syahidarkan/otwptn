@@ -119,41 +119,192 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
         {/* Rich Article Body Content */}
         <div className="prose prose-sm md:prose-base max-w-none text-gray-800 leading-relaxed space-y-6">
-          <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
-            1. Mengapa Jalur Non-Tes Bukan Sekadar Faktor Keberuntungan?
-          </h2>
-          <p>
-            Banyak siswa SMA/SMK/MA berasumsi bahwa lolos di jalur seleksi non-tes (seperti SNBP, PPKB UI, SJP IPB, dan PBUB UGM) sepenuhnya adalah faktor &ldquo;hoki&rdquo;. Faktanya, setiap perguruan tinggi negeri memiliki rubrik penilaian objektif dengan pembobotan spesifik antara nilai rapor mata pelajaran pendukung, rekam jejak alumni di sekolah asal, indeks prestasi sekolah, hingga kualitas esai motivasi dan portofolio.
-          </p>
-          <p>
-            Dengan memahami mekanisme scoring tersebut, kamu bisa menyusun strategi pemilihan program studi yang rasional tanpa harus berspekulasi membabi buta.
-          </p>
+          {slug === 'apa-itu-snbp' ? (
+            <>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                1. Pengertian Resmi SNBP (Seleksi Nasional Berdasarkan Prestasi)
+              </h2>
+              <p>
+                SNBP adalah salah satu jalur seleksi nasional penerimaan mahasiswa baru di Perguruan Tinggi Negeri (PTN) yang dikelola oleh Balai Pengelolaan Pengujian Pendidikan (BPPP) Kemendikbudristek. Berbeda dengan SNBT yang menggunakan ujian tertulis berbasis komputer (UTBK), seleksi SNBP 100% dinilai berdasarkan rekam jejak prestasi akademik dan non-akademik siswa selama menempuh pendidikan di SMA, SMK, atau MA.
+              </p>
 
-          <div className="card p-5 rounded-2xl bg-white shadow-2xs border border-amber-100 my-6">
-            <h4 className="text-sm font-bold text-amber-900 flex items-center gap-2 mb-2">
-              <Sparkles size={16} className="text-amber-600" /> Tips Emas dari Mentor:
-            </h4>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              &ldquo;Jangan pernah memilih 2 jurusan dengan passing grade tinggi dari sekolah yang sama jika peringkat rapormu bukan yang nomor satu. Diskusikan dengan guru BK dan bandingkan nilai dengan teman satu angkatan.&rdquo;
-            </p>
-          </div>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                2. Dua Komponen Utama Penilaian SNBP
+              </h2>
+              <p>Sistem seleksi SNBP menggunakan dua pilar pembobotan utama yang wajib kamu pahami:</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose my-6">
+                <div className="p-5 rounded-2xl bg-amber-50/80 border border-amber-200">
+                  <span className="text-xs font-black text-amber-800 uppercase tracking-wider block mb-1">Komponen 1 (Min. 50%)</span>
+                  <h4 className="text-base font-bold text-gray-900 mb-2">Rata-Rata Seluruh Nilai Rapor</h4>
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    Dihitung dari seluruh mata pelajaran dari semester 1 hingga semester 5. Tujuannya memastikan siswa memiliki integritas belajar yang konsisten secara holistik.
+                  </p>
+                </div>
+                <div className="p-5 rounded-2xl bg-sky-50/80 border border-sky-200">
+                  <span className="text-xs font-black text-sky-800 uppercase tracking-wider block mb-1">Komponen 2 (Maks. 50%)</span>
+                  <h4 className="text-base font-bold text-gray-900 mb-2">Mapel Pendukung & Prestasi</h4>
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    Dihitung dari nilai 2 mata pelajaran pendukung prodi pilihan, kurasi maksimal 3 sertifikat prestasi terverifikasi Puspresnas, dan/atau portofolio.
+                  </p>
+                </div>
+              </div>
 
-          <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
-            2. Tiga Kunci Utama Lolos Penilaian Seleksi Berkas
-          </h2>
-          <p>Berdasarkan evaluasi terhadap ribuan dokumen mentee tahun lalu, ada 3 aspek penentu yang paling sering menjadi pembeda kelolosan:</p>
-          <ul className="space-y-2 list-disc list-inside text-sm text-gray-700">
-            <li><strong>Konsistensi Nilai Rapor Semester 1 s.d. 5:</strong> Tren nilai yang stabil naik atau bertahan di level tinggi, terutama untuk mata pelajaran yang relevan dengan prodi yang dituju.</li>
-            <li><strong>Relevansi Sertifikat & Portofolio Prestasi:</strong> Sertifikat juara yang terverifikasi (Puspresnas, Kemendikbud, atau instansi bereputasi) dengan tingkat minimal kota/provinsi/nasional.</li>
-            <li><strong>Ketajaman Esai Diri (Personal Statement):</strong> Narasi yang jelas mengenai alasan memilih prodi, bukti keterlibatan dalam kegiatan relevan, serta visi kontribusi jangka panjang.</li>
-          </ul>
+              <div className="card p-5 rounded-2xl bg-white shadow-2xs border border-amber-100 my-6">
+                <h4 className="text-sm font-bold text-amber-900 flex items-center gap-2 mb-2">
+                  <Sparkles size={16} className="text-amber-600" /> Aturan Krusial SNBP:
+                </h4>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  &ldquo;Siswa yang dinyatakan LOLOS SNBP tidak dapat mendaftar UTBK-SNBT dan juga diblokir dari seluruh Jalur Mandiri di seluruh PTN se-Indonesia. Pastikan kamu hanya memilih jurusan yang 100% siap kamu ambil!&rdquo;
+                </p>
+              </div>
 
-          <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
-            3. Cara Menghindari Tabrakan Pilihan Satu Sekolah
-          </h2>
-          <p>
-            Salah satu penyebab paling umum siswa berprestasi gugur di jalur non-tes adalah karena mendaftar di jurusan yang sama dengan teman sekelas yang memiliki nilai rapor atau prestasi lebih tinggi. Sebagian besar PTN membatasi kuota penerimaan dari satu sekolah tertentu. Gunakan fitur kalkulator peluang dan konsultasikan pilihanmu dengan mentor alumni untuk mengamankan posisi yang minim persaingan internal sekolah.
-          </p>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                3. Strategi Rasionalisasi Rapor & Indeks Sekolah
+              </h2>
+              <p>
+                SNBP bukan semata-mata lomba nilai rapor tinggi. PTN juga memperhitungkan indeks reputasi sekolah asalmu: akreditasi sekolah, rekam jejak IPK alumni di PTN tersebut, dan persebaran kuota. Gunakan fitur kalkulator peluang otwptn untuk memetakan posisimu dibanding teman seangkatan.
+              </p>
+            </>
+          ) : slug === 'jalur-prestasi-2026' ? (
+            <>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                1. Apa Saja Jalur Prestasi Mandiri PTN yang Dibuka?
+              </h2>
+              <p>
+                Selain SNBP nasional, hampir seluruh PTN klaster 1 dan 2 membuka jalur mandiri tanpa tes berbasis prestasi (non-CBT). Jalur ini menjadi peluang emas bagi siswa pemilik sertifikat kejuaraan tingkat kota, provinsi, nasional, maupun internasional.
+              </p>
+              <ul className="space-y-2 list-disc list-inside text-sm text-gray-700">
+                <li><strong>PPKB & Talent Scouting UI:</strong> Jalur prestasi rapor & esai untuk vokasi dan sarjana di Universitas Indonesia.</li>
+                <li><strong>PBUB UGM:</strong> Penelusuran Bibit Unggul Berprestasi (Sains, Olahraga, Seni, dan Kemitraan) di Universitas Gadjah Mada.</li>
+                <li><strong>SJP IPB:</strong> Seleksi Jalur Prestasi & Seleksi Khusus Ketua OSIS di IPB University.</li>
+                <li><strong>Seleksi Mandiri Prestasi UNAIR & ITS:</strong> Menampung juara OSN, FLS2N, O2SN, hingga penghafal Al-Qur&apos;an.</li>
+              </ul>
+
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                2. Sertifikat yang Mendapat Poin Tertinggi
+              </h2>
+              <p>
+                Sertifikat yang diselenggarakan atau dikurasi oleh Pusat Prestasi Nasional (Puspresnas) dan BPTI Kemendikbudristek mendapatkan bobot scoring tertinggi. Sertifikat non-kedinasan tetap bernilai apabila diterbitkan oleh lembaga bereputasi dan melampirkan surat keterangan keaslian.
+              </p>
+
+              <div className="card p-5 rounded-2xl bg-white shadow-2xs border border-amber-100 my-6">
+                <h4 className="text-sm font-bold text-amber-900 flex items-center gap-2 mb-2">
+                  <Sparkles size={16} className="text-amber-600" /> Trik Kurasi Sertifikat:
+                </h4>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Pilihlah sertifikat yang selaras secara linear dengan jurusan yang dituju. Juara OSN Kimia memiliki nilai konversi jauh lebih tinggi untuk Kedokteran/Farmasi dibanding sertifikat juara umum lomba pidato.
+                </p>
+              </div>
+            </>
+          ) : slug === 'jalur-essay-2026' ? (
+            <>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                1. Mengapa Essay Menjadi Kunci Kelolosan?
+              </h2>
+              <p>
+                Pada jalur seleksi seperti PPKB UI, Talent Scouting, dan program internasional, nilai rapor para pendaftar rata-rata berada pada rentang yang sangat ketat (88-96). Dalam kondisi tersebut, essay motivasi (Personal Statement) adalah satu-satunya instrumen di mana reviewer dapat menilai cara berpikir, kedewasaan, serta orisinalitas motivasimu.
+              </p>
+
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                2. Struktur Esai yang Disukai Reviewer Kampus
+              </h2>
+              <p>Gunakan rumus narasi 4 babak:</p>
+              <ul className="space-y-2 list-disc list-inside text-sm text-gray-700">
+                <li><strong>The Trigger / Hook:</strong> Pengalaman nyata atau rasa penasaran spesifik yang memicu ketertarikanmu pada bidang studi tersebut.</li>
+                <li><strong>The Evidence:</strong> Kegiatan konkret, proyek sains, organisasi, atau bacaan mandiri yang membuktikan kamu sudah mulai mendalami bidang ini.</li>
+                <li><strong>Why This Campus:</strong> Justifikasi mengapa hanya program studi di kampus ini yang dapat membantumu berkembang (sebutkan nama lab, mata kuliah, atau profil dosen).</li>
+                <li><strong>The Vision:</strong> Rencana aksi dan kontribusi nyata yang ingin kamu lakukan selama kuliah dan setelah lulus.</li>
+              </ul>
+            </>
+          ) : slug === 'syarat-snbp' ? (
+            <>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                1. Kriteria Siswa Eligible SNBP 2026
+              </h2>
+              <p>
+                Siswa eligible adalah siswa kelas 12 yang dinyatakan berhak mendaftar SNBP oleh pihak sekolah. Penentuan jumlah siswa eligible diatur ketat berdasarkan akreditasi sekolah:
+              </p>
+              <div className="grid grid-cols-3 gap-3 not-prose my-6 text-center">
+                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200">
+                  <div className="text-2xl font-black text-emerald-700">40%</div>
+                  <div className="text-xs font-bold text-gray-700 mt-1">Akreditasi A</div>
+                  <div className="text-[10px] text-gray-500">Siswa terbaik sekolah</div>
+                </div>
+                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200">
+                  <div className="text-2xl font-black text-amber-700">25%</div>
+                  <div className="text-xs font-bold text-gray-700 mt-1">Akreditasi B</div>
+                  <div className="text-[10px] text-gray-500">Siswa terbaik sekolah</div>
+                </div>
+                <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200">
+                  <div className="text-2xl font-black text-rose-700">5%</div>
+                  <div className="text-xs font-bold text-gray-700 mt-1">Akreditasi C</div>
+                  <div className="text-[10px] text-gray-500">Siswa terbaik sekolah</div>
+                </div>
+              </div>
+
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                2. Berkas Persyaratan Administrasi
+              </h2>
+              <ul className="space-y-2 list-disc list-inside text-sm text-gray-700">
+                <li>Memiliki NISN aktif dan terdaftar di Dapodik / EMIS.</li>
+                <li>Memiliki nilai rapor semester 1 s.d. 5 yang sudah diisikan dan difinalisasi di PDSS oleh pihak sekolah.</li>
+                <li>Memiliki portofolio resmi bagi pemilih program studi bidang Seni dan Olahraga.</li>
+                <li>Memiliki prestasi akademik maupun non-akademik yang dibuktikan dengan sertifikat kejuaraan.</li>
+              </ul>
+            </>
+          ) : slug === 'cara-daftar-snbp' ? (
+            <>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                1. Alur Step-by-Step Pendaftaran SNBP di Portal SNPMB
+              </h2>
+              <p>Ikuti tahapan resmi pendaftaran agar terhindar dari kendala teknis atau gagal simpan permanen:</p>
+              <ol className="space-y-3 list-decimal list-inside text-sm text-gray-700">
+                <li><strong>Registrasi Akun SNPMB Siswa:</strong> Buka portal resmi SNPMB, masukkan kombinasi NISN, NPSN, dan tanggal lahir. Lakukan verifikasi email dan simpan password dengan aman.</li>
+                <li><strong>Verifikasi dan Validasi Data:</strong> Periksa kesesuaian biodata, pasfoto terbaru dengan background polos, serta data nilai rapor yang tertera di PDSS.</li>
+                <li><strong>Pemilihan Program Studi:</strong> Setiap siswa berhak memilih maksimal 2 program studi dari satu PTN atau dua PTN berbeda. Jika memilih dua prodi, salah satu PTN wajib berada di provinsi yang sama dengan sekolah asal.</li>
+                <li><strong>Pengunggahan Portofolio & Sertifikat:</strong> Upload portofolio format template resmi dan maksimal 3 sertifikat prestasi terbaik dengan ukuran file sesuai ketentuan sistem.</li>
+                <li><strong>Finalisasi & Cetak Kartu:</strong> Periksa kembali seluruh data sebelum menekan tombol Simpan Permanen. Unduh dan cetak Kartu Tanda Peserta SNBP sebagai bukti pendaftaran resmi.</li>
+              </ol>
+            </>
+          ) : (
+            <>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                1. Mengapa Jalur Non-Tes Bukan Sekadar Faktor Keberuntungan?
+              </h2>
+              <p>
+                Banyak siswa SMA/SMK/MA berasumsi bahwa lolos di jalur seleksi non-tes (seperti SNBP, PPKB UI, SJP IPB, dan PBUB UGM) sepenuhnya adalah faktor &ldquo;hoki&rdquo;. Faktanya, setiap perguruan tinggi negeri memiliki rubrik penilaian objektif dengan pembobotan spesifik antara nilai rapor mata pelajaran pendukung, rekam jejak alumni di sekolah asal, indeks prestasi sekolah, hingga kualitas esai motivasi dan portofolio.
+              </p>
+              <p>
+                Dengan memahami mekanisme scoring tersebut, kamu bisa menyusun strategi pemilihan program studi yang rasional tanpa harus berspekulasi membabi buta.
+              </p>
+
+              <div className="card p-5 rounded-2xl bg-white shadow-2xs border border-amber-100 my-6">
+                <h4 className="text-sm font-bold text-amber-900 flex items-center gap-2 mb-2">
+                  <Sparkles size={16} className="text-amber-600" /> Tips Emas dari Mentor:
+                </h4>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  &ldquo;Jangan pernah memilih 2 jurusan dengan passing grade tinggi dari sekolah yang sama jika peringkat rapormu bukan yang nomor satu. Diskusikan dengan guru BK dan bandingkan nilai dengan teman satu angkatan.&rdquo;
+                </p>
+              </div>
+
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                2. Tiga Kunci Utama Lolos Penilaian Seleksi Berkas
+              </h2>
+              <p>Berdasarkan evaluasi terhadap ribuan dokumen mentee tahun lalu, ada 3 aspek penentu yang paling sering menjadi pembeda kelolosan:</p>
+              <ul className="space-y-2 list-disc list-inside text-sm text-gray-700">
+                <li><strong>Konsistensi Nilai Rapor Semester 1 s.d. 5:</strong> Tren nilai yang stabil naik atau bertahan di level tinggi, terutama untuk mata pelajaran yang relevan dengan prodi yang dituju.</li>
+                <li><strong>Relevansi Sertifikat & Portofolio Prestasi:</strong> Sertifikat juara yang terverifikasi (Puspresnas, Kemendikbud, atau instansi bereputasi) dengan tingkat minimal kota/provinsi/nasional.</li>
+                <li><strong>Ketajaman Esai Diri (Personal Statement):</strong> Narasi yang jelas mengenai alasan memilih prodi, bukti keterlibatan dalam kegiatan relevan, serta visi kontribusi jangka panjang.</li>
+              </ul>
+
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                3. Cara Menghindari Tabrakan Pilihan Satu Sekolah
+              </h2>
+              <p>
+                Salah satu penyebab paling umum siswa berprestasi gugur di jalur non-tes adalah karena mendaftar di jurusan yang sama dengan teman sekelas yang memiliki nilai rapor atau prestasi lebih tinggi. Sebagian besar PTN membatasi kuota penerimaan dari satu sekolah tertentu. Gunakan fitur kalkulator peluang dan konsultasikan pilihanmu dengan mentor alumni untuk mengamankan posisi yang minim persaingan internal sekolah.
+              </p>
+            </>
+          )}
         </div>
 
         {/* Tags */}

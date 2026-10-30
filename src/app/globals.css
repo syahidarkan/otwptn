@@ -138,11 +138,39 @@ html.dark .public-light-theme .text-gray-600 {
   color: #334155 !important;
 }
 
+/* Dark sections (dark bg) override light-theme text forcing */
+.public-light-theme .dark-section h1,
+.public-light-theme .dark-section h2,
+.public-light-theme .dark-section h3,
+.public-light-theme .dark-section h4,
+.public-light-theme .dark-section h5,
+html.dark .public-light-theme .dark-section h1,
+html.dark .public-light-theme .dark-section h2,
+html.dark .public-light-theme .dark-section h3,
+html.dark .public-light-theme .dark-section h4,
+html.dark .public-light-theme .dark-section h5 {
+  color: #ffffff !important;
+}
+
+.public-light-theme .dark-section p,
+html.dark .public-light-theme .dark-section p {
+  color: rgba(255,255,255,0.82) !important;
+}
+
+.public-light-theme .dark-section div,
+.public-light-theme .dark-section span,
+html.dark .public-light-theme .dark-section div,
+html.dark .public-light-theme .dark-section span {
+  color: inherit !important;
+}
+
 .public-light-theme .glass-nav,
 html.dark .public-light-theme .glass-nav {
-  background-color: rgba(255, 255, 255, 0.85) !important;
-  backdrop-filter: blur(12px) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
+  background-color: rgba(255, 255, 255, 0.52) !important;
+  backdrop-filter: blur(32px) saturate(2.4) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(2.4) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 32px rgba(0,0,0,0.08) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
 }
 
 .public-light-theme .glass-nav a,

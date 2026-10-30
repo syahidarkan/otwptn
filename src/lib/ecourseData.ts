@@ -4,6 +4,7 @@ export interface ELesson {
   type: 'text' | 'video'
   duration: string
   content: string
+  videoUrl?: string
 }
 
 export interface EStage {
@@ -23,7 +24,7 @@ const PPKB_STAGES: EStage[] = [
   {
     id: 1, title: 'Mengenal PPKB UI', duration: '20 menit',
     lessons: [
-      { id: 'ppkb-1-1', title: 'Apa itu PPKB UI?', type: 'text', duration: '7 menit', content: `<h2>Apa itu PPKB UI?</h2><p>PPKB (Penerimaan Peserta Kegiatan Belajar) UI adalah jalur masuk Universitas Indonesia yang diperuntukkan bagi siswa berprestasi. Berbeda dari SNBP yang menggunakan nilai rapor nasional, PPKB memiliki komponen seleksi berupa <strong>essay motivasi</strong> dan portofolio prestasi.</p><p>Jalur ini terbuka untuk siswa SMA/SMK/MA yang memiliki rekam jejak prestasi akademik maupun non-akademik yang kuat.</p><ul><li>Tidak memerlukan UTBK</li><li>Fokus pada prestasi dan essay</li><li>Tersedia untuk hampir semua fakultas UI</li></ul>` },
+      { id: 'ppkb-1-1', title: 'Apa itu PPKB UI?', type: 'video', duration: '7 menit', videoUrl: 'https://www.youtube.com/embed/0qOxEVrHmFQ', content: `<h2>Apa itu PPKB UI?</h2><p>PPKB (Penerimaan Peserta Kegiatan Belajar) UI adalah jalur masuk Universitas Indonesia yang diperuntukkan bagi siswa berprestasi. Berbeda dari SNBP yang menggunakan nilai rapor nasional, PPKB memiliki komponen seleksi berupa <strong>essay motivasi</strong> dan portofolio prestasi.</p><p>Jalur ini terbuka untuk siswa SMA/SMK/MA yang memiliki rekam jejak prestasi akademik maupun non-akademik yang kuat.</p><ul><li>Tidak memerlukan UTBK</li><li>Fokus pada prestasi dan essay</li><li>Tersedia untuk hampir semua fakultas UI</li></ul>` },
       { id: 'ppkb-1-2', title: 'Persyaratan & Ketentuan', type: 'text', duration: '8 menit', content: `<h2>Persyaratan Umum PPKB UI</h2><p>Untuk mendaftar PPKB UI, pastikan kamu memenuhi syarat berikut:</p><ul><li>Siswa kelas 12 SMA/SMK/MA atau lulusan 2 tahun terakhir</li><li>Rekomendasi dari kepala sekolah</li><li>Nilai rapor rata-rata ≥ 75 (tergantung prodi)</li><li>Tidak sedang diterima di PTN melalui jalur lain</li><li>Memiliki prestasi akademik/non-akademik yang dapat dibuktikan</li></ul><p><strong>Catatan:</strong> Syarat spesifik per prodi bisa berbeda. Selalu cek halaman resmi UI sebelum mendaftar.</p>` },
       { id: 'ppkb-1-3', title: 'Timeline Pendaftaran', type: 'text', duration: '5 menit', content: `<h2>Timeline PPKB UI</h2><p>Berikut jadwal umum pendaftaran PPKB UI (dapat berubah tiap tahun):</p><ul><li><strong>Januari–Februari:</strong> Pengumuman pembukaan pendaftaran</li><li><strong>Februari–Maret:</strong> Periode pendaftaran online di penerimaan.ui.ac.id</li><li><strong>Maret–April:</strong> Seleksi berkas dan verifikasi</li><li><strong>April–Mei:</strong> Pengumuman hasil seleksi</li><li><strong>Juni:</strong> Daftar ulang peserta yang diterima</li></ul><p>Pantau selalu website resmi UI karena jadwal bisa berubah setiap tahunnya.</p>` },
     ]
@@ -39,7 +40,7 @@ const PPKB_STAGES: EStage[] = [
   {
     id: 3, title: 'Strategi Essay Bagian 1', duration: '30 menit',
     lessons: [
-      { id: 'ppkb-3-1', title: 'Memahami Prompt Essay PPKB', type: 'text', duration: '10 menit', content: `<h2>Memahami Prompt Essay</h2><p>Essay PPKB UI biasanya terdiri dari beberapa pertanyaan yang menggali:</p><ul><li><strong>Motivasi:</strong> Mengapa memilih prodi ini? Apa yang mendorongmu?</li><li><strong>Rencana masa depan:</strong> Apa kontribusimu setelah lulus?</li><li><strong>Pengalaman relevan:</strong> Apa yang sudah kamu lakukan terkait bidang ini?</li><li><strong>Kesesuaian nilai:</strong> Bagaimana nilai hidupmu selaras dengan visi UI?</li></ul><p>Kunci: <em>jujur, spesifik, dan personal</em>. Hindari klise seperti "saya ingin membanggakan orang tua".</p>` },
+      { id: 'ppkb-3-1', title: 'Memahami Prompt Essay PPKB', type: 'video', duration: '10 menit', videoUrl: 'https://www.youtube.com/embed/videoseries?list=PLPsmh2KN6xtgnHoZhm2kHVwSJzNUGTFNg', content: `<h2>Memahami Prompt Essay</h2><p>Essay PPKB UI biasanya terdiri dari beberapa pertanyaan yang menggali:</p><ul><li><strong>Motivasi:</strong> Mengapa memilih prodi ini? Apa yang mendorongmu?</li><li><strong>Rencana masa depan:</strong> Apa kontribusimu setelah lulus?</li><li><strong>Pengalaman relevan:</strong> Apa yang sudah kamu lakukan terkait bidang ini?</li><li><strong>Kesesuaian nilai:</strong> Bagaimana nilai hidupmu selaras dengan visi UI?</li></ul><p>Kunci: <em>jujur, spesifik, dan personal</em>. Hindari klise seperti "saya ingin membanggakan orang tua".</p>` },
       { id: 'ppkb-3-2', title: 'Teknik Brainstorming Essay', type: 'text', duration: '10 menit', content: `<h2>Brainstorming Ide Essay</h2><p>Sebelum menulis, luangkan 30 menit untuk brainstorming dengan cara ini:</p><ol><li><strong>Mind mapping:</strong> Tuliskan kata kunci dari prompt di tengah, lalu cabangkan dengan pengalaman pribadimu</li><li><strong>Metode STAR:</strong> Situation, Task, Action, Result — cocok untuk cerita pengalaman</li><li><strong>5 Whys:</strong> Tanya "kenapa?" 5 kali berturut-turut untuk menemukan motivasi terdalam</li></ol><p>Pilih 1–2 cerita paling kuat yang autentik dan spesifik.</p>` },
       { id: 'ppkb-3-3', title: 'Struktur Essay yang Kuat', type: 'text', duration: '10 menit', content: `<h2>Struktur Essay PPKB</h2><p>Essay yang baik punya struktur yang jelas:</p><ol><li><strong>Hook (1 paragraf):</strong> Buka dengan cerita spesifik atau fakta menarik yang langsung relevan</li><li><strong>Isi (2–3 paragraf):</strong> Jelaskan pengalamanmu, pelajaran yang didapat, dan kaitannya dengan prodi pilihan</li><li><strong>Closing (1 paragraf):</strong> Visi masa depan yang konkret — bukan sekadar "saya ingin sukses"</li></ol><p>Total: 500–700 kata adalah ideal untuk essay PPKB.</p>` },
     ]
@@ -55,7 +56,7 @@ const PPKB_STAGES: EStage[] = [
   {
     id: 5, title: 'Nilai Rapor & Prestasi', duration: '25 menit',
     lessons: [
-      { id: 'ppkb-5-1', title: 'Cara Hitung Nilai Rapor', type: 'text', duration: '8 menit', content: `<h2>Menghitung Rata-rata Rapor</h2><p>Nilai rapor yang dihitung biasanya adalah semester 1–5. Cara hitungnya:</p><ul><li>Jumlahkan semua nilai akhir per mata pelajaran per semester</li><li>Bagi dengan jumlah mata pelajaran × 5 semester</li><li>Beberapa prodi memberi bobot lebih pada mapel tertentu (cek di SIMAK UI)</li></ul><p>Tips: Pastikan nilai rapor yang kamu input di portal sesuai persis dengan nilai di rapor fisikmu.</p>` },
+      { id: 'ppkb-5-1', title: 'Cara Hitung Nilai Rapor', type: 'video', duration: '8 menit', videoUrl: 'https://www.youtube.com/embed/4UuBdIPKWis', content: `<h2>Menghitung Rata-rata Rapor</h2><p>Nilai rapor yang dihitung biasanya adalah semester 1–5. Cara hitungnya:</p><ul><li>Jumlahkan semua nilai akhir per mata pelajaran per semester</li><li>Bagi dengan jumlah mata pelajaran × 5 semester</li><li>Beberapa prodi memberi bobot lebih pada mapel tertentu (cek di SIMAK UI)</li></ul><p>Tips: Pastikan nilai rapor yang kamu input di portal sesuai persis dengan nilai di rapor fisikmu.</p>` },
       { id: 'ppkb-5-2', title: 'Mata Pelajaran yang Diperhitungkan', type: 'text', duration: '8 menit', content: `<h2>Mapel yang Dihitung PPKB UI</h2><p>Umumnya semua mata pelajaran dihitung, tapi mapel inti mendapat perhatian lebih:</p><ul><li>Matematika, Bahasa Indonesia, Bahasa Inggris (wajib)</li><li>IPA: Fisika, Kimia, Biologi (untuk prodi sains/teknik)</li><li>IPS: Ekonomi, Sejarah, Geografi (untuk prodi sosial/humaniora)</li></ul><p>Cek persyaratan spesifik prodi yang kamu tuju karena bisa berbeda.</p>` },
       { id: 'ppkb-5-3', title: 'Strategi Highlight Prestasi', type: 'text', duration: '9 menit', content: `<h2>Menonjolkan Prestasi dengan Tepat</h2><p>Strategi memilih prestasi yang paling impactful:</p><ul><li>Prioritaskan prestasi yang <strong>relevan dengan prodi</strong> yang dituju</li><li>Tingkat: internasional > nasional > provinsi > kota/kabupaten</li><li>Recency: prestasi 1–3 tahun terakhir lebih kuat</li><li>Kuantifikasi jika bisa: "Juara 1 dari 500 peserta" lebih kuat dari sekadar "Juara 1"</li></ul>` },
     ]
@@ -102,7 +103,15 @@ const PPKB_STAGES: EStage[] = [
   },
 ]
 
-// Simplified version for other jalurs (same structure, different content)
+// Video URLs for common lessons per jalur
+const SNBP_VIDEO_MAP: Record<string, string> = {
+  '1-1': 'https://www.youtube.com/embed/videoseries?list=PLnjBxJj-EPZE2DJOkLzh6mcFlVl-bRNQb',
+  '1-2': 'https://www.youtube.com/embed/xYt5CkuvuFg',
+  '3-1': 'https://www.youtube.com/embed/BIaezGMrNg0',
+  '5-1': 'https://www.youtube.com/embed/4UuBdIPKWis',
+  '7-1': 'https://www.youtube.com/embed/S85eBfVs3_8',
+}
+
 function makeStages(prefix: string, jalurName: string): EStage[] {
   const topics = [
     ['Mengenal ' + jalurName, ['Apa itu ' + jalurName + '?', 'Persyaratan Umum', 'Timeline Pendaftaran']],
@@ -121,13 +130,18 @@ function makeStages(prefix: string, jalurName: string): EStage[] {
     id: si + 1,
     title,
     duration: `${15 + si * 2} menit`,
-    lessons: lessons.map((lt, li) => ({
-      id: `${prefix}-${si + 1}-${li + 1}`,
-      title: lt,
-      type: 'text' as const,
-      duration: `${5 + li * 2} menit`,
-      content: `<h2>${lt}</h2><p>Materi ini membahas ${lt.toLowerCase()} dalam konteks ${jalurName}. Konten lengkap segera hadir — pantau update terbaru di platform ini!</p>`,
-    }))
+    lessons: lessons.map((lt, li) => {
+      const mapKey = `${si + 1}-${li + 1}`
+      const videoUrl = prefix === 'snbp' ? SNBP_VIDEO_MAP[mapKey] : undefined
+      return {
+        id: `${prefix}-${si + 1}-${li + 1}`,
+        title: lt,
+        type: (videoUrl ? 'video' : 'text') as 'text' | 'video',
+        duration: `${5 + li * 2} menit`,
+        content: `<h2>${lt}</h2><p>Materi ini membahas ${lt.toLowerCase()} dalam konteks ${jalurName}. Konten lengkap segera hadir — pantau update terbaru di platform ini!</p>`,
+        ...(videoUrl ? { videoUrl } : {}),
+      }
+    })
   }))
 }
 

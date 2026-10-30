@@ -142,7 +142,7 @@ export default function OmegleSection() {
                     style={{ background: 'var(--accent)', color: '#111' }}>
                     {camDenied ? 'Kamera ditolak' : 'Aktifkan Kamera'}
                   </button>
-                  <p className="text-[11px] text-white/40 max-w-[200px]">Kamu bisa belajar tatap muka virtual tanpa login</p>
+                  <p className="text-xs text-white font-medium max-w-[220px]" style={{ color: '#ffffff' }}>Kamu bisa belajar tatap muka virtual tanpa login</p>
                 </div>
               )}
               {/* Name tag */}

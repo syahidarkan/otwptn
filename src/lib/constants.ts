@@ -35,10 +35,25 @@ export const BANK_INFO = {
   account_name: 'Syahid Arkan Fashihurrohman',
 }
 
+// Harga per tier per kategori jalur (essay_only & prestasi_only sama tracknya)
 export const PRICING: Record<JalurCategory, PricingMap> = {
-  essay_only: { review: 99000, dokumen: 199000, menyeluruh: 399000 },
-  prestasi_only: { review: 99000, dokumen: 199000, menyeluruh: 399000 },
-  hybrid: { review: 99000, dokumen: 199000, menyeluruh: 399000 },
+  essay_only:    { review: 89000,  dokumen: 179000, menyeluruh: 349000 },
+  prestasi_only: { review: 89000,  dokumen: 179000, menyeluruh: 349000 },
+  hybrid:        { review: 109000, dokumen: 219000, menyeluruh: 439000 },
+}
+
+export const WEB_PREMIUM_PRICE: Record<JalurCategory, number> = {
+  essay_only: 30000,
+  prestasi_only: 30000,
+  hybrid: 39000,
+}
+
+// Diskon referral ambassador per tier
+export const REFERRAL_DISCOUNT: Record<string, number> = {
+  review: 0.15,
+  dokumen: 0.10,
+  menyeluruh: 0.05,
+  web_premium: 0,
 }
 
 export const ADDON_PRICE: Record<JalurCategory, number> = {
@@ -60,9 +75,10 @@ export const LEGAL_ENTITY = {
 }
 
 export const TIER_LABEL: Record<string, string> = {
-  review: 'Nectar (Review)',
-  dokumen: 'Honeycomb (Reguler)',
-  menyeluruh: 'Queen Bee / Royal Jelly (Intensif)',
+  web_premium: 'Web Premium (Self-Service)',
+  review: 'Paket Review (Async)',
+  dokumen: 'Paket Reguler',
+  menyeluruh: 'Paket Intensif (VIP)',
   premium: 'Akun Premium (Fitur Only)',
 }
 

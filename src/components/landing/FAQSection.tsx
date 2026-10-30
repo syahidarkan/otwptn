@@ -7,11 +7,34 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Minus } from 'lucide-react'
 
 const FAQS = [
-  { q: 'Apa itu jalur non-tes PTN?', a: 'Jalur non-tes adalah cara masuk PTN tanpa ujian tulis seperti SNBT — contohnya PPKB UI, PBUB UGM, SMUP Unpad. Seleksinya berdasarkan rapor, portofolio, dan essay motivasi.' },
-  { q: 'Apakah otwptn gratis?', a: 'Ada paket gratis yang langsung bisa dipakai. Upgrade ke paket berbayar mulai Rp30.000 — sekali bayar, tanpa subscription.' },
-  { q: 'Seberapa akurat estimasi peluangnya?', a: 'Kalkulator membandingkan profilmu dengan data historis. Bukan jaminan, tapi sangat membantu untuk strategi dan prioritas jalur.' },
-  { q: 'Bagaimana cara kerja Essay AI Review?', a: 'Paste essay-mu, AI analisis dari 4 dimensi: struktur, koherensi, argumen, dan bahasa — lengkap dengan skor dan saran perbaikan.' },
-  { q: 'Apakah data saya aman?', a: 'Data dan essay disimpan terenkripsi dan hanya bisa diakses olehmu. Tidak dibagikan ke pihak ketiga.' },
+  {
+    q: 'Apa itu jalur non-tes PTN dan apa saja contohnya?',
+    a: 'Jalur non-tes adalah mekanisme seleksi masuk Perguruan Tinggi Negeri tanpa ujian tulis/CBT. Seleksi murni dinilai berdasarkan rekam jejak akademik (nilai rapor semester 1-5), kurasi prestasi/sertifikat, essay motivasi, dan portofolio. Contohnya: SNBP Nasional, PPKB & Talent Scouting UI, PBUB UGM, SJP IPB (Ketua OSIS), SMUP Prestasi Unpad, dan Mandiri Prestasi ITS/UNAIR.',
+  },
+  {
+    q: 'Bagaimana AI otwptn menghitung peluang lolos SNBP & Jalur Prestasi?',
+    a: 'AI kami menganalisis nilai rapor mata pelajaran pendukung prodi, konsistensi tren nilai semester 1-5, akreditasi sekolah, rekam jejak alumni di PTN tujuan, hingga validitas sertifikat juara (Puspresnas/BPTI). Hasilnya memberikan kalkulasi objektif agar kamu tidak bertabrakan dengan teman satu sekolah.',
+  },
+  {
+    q: 'Apakah review essay motivasi hanya dari AI atau ada mentor manusia?',
+    a: 'Di otwptn kamu mendapatkan keduanya! AI kami menganalisis struktur esai, grammar, kejelasan argumen, dan logika dalam hitungan detik. Di Paket Nectar, Honeycomb, dan Queen Bee (Royal Jelly), esaimu juga dibedah langsung oleh mentor alumni kampus impian (UI, ITB, UGM) secara tatap muka via Zoom & Google Docs.',
+  },
+  {
+    q: 'Sertifikat apa saja yang diakui dan bisa dikurasi di platform?',
+    a: 'Semua sertifikat juara lomba akademik (OSN/KSN, OPSI, LKTI), non-akademik (O2SN, FLS2N), kepemimpinan (Ketua OSIS/MPK), hingga kejuaraan internasional yang terkurasi Puspresnas/Kemendikbudristek. Platform kami membantu memilih 3 sertifikat terbaik dengan bobot poin tertinggi.',
+  },
+  {
+    q: 'Apa saja paket belajar yang tersedia di otwptn?',
+    a: 'Kami menyediakan Akun Premium (Rp49.000 sekali bayar untuk unlock semua fitur AI & modul), Paket Nectar (Rp99.000 dengan 2x review esai mentor), Paket Honeycomb (Rp199.000 dengan 5x revisi + 2x sesi Zoom privat), dan Paket Queen Bee / Royal Jelly VIP (Rp399.000 bimbingan intensif unlimited sampai hari pengumuman + Campus Tour UI).',
+  },
+  {
+    q: 'Bagaimana cara kerja fitur Cari Teman Belajar (Tatap Muka Virtual)?',
+    a: 'Konsepnya mirip OmeTV edukasi khusus pejuang PTN. Kamu bisa langsung terhubung tatap muka virtual dengan pejuang PTN lain dari seluruh Indonesia tanpa perlu login atau instal aplikasi tambahan. Kamu bisa sharing strategi, bertukar draf essay, atau sekadar belajar bareng biar gak jenuh.',
+  },
+  {
+    q: 'Apakah data nilai rapor, essay motivasi, dan dokumen saya aman?',
+    a: 'Sangat aman. Seluruh data rapor, draft essay, dan file sertifikatmu disimpan dengan enkripsi tingkat bank di Supabase Storage & Database pribadi kamu. Data tidak pernah disebarluaskan, diperjualbelikan, atau dijadikan materi publik tanpa izin tertulismu.',
+  },
 ]
 
 export default function FAQSection() {

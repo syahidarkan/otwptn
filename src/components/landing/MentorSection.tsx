@@ -32,7 +32,7 @@ export default function MentorSection() {
   ]
 
   return (
-    <section ref={ref} className="section-pad px-4 relative overflow-hidden" style={{ background: 'var(--dark)' }}>
+    <section ref={ref} className="section-pad px-4 relative overflow-hidden dark-section" style={{ background: 'var(--dark)' }}>
       {/* Dot-grid texture */}
       <div className="absolute inset-0 pointer-events-none" style={{
         backgroundImage: 'radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px)',
@@ -68,8 +68,8 @@ export default function MentorSection() {
           <ul className="space-y-2.5 mb-7">
             {FEATS.map(f => (
               <li key={f} className="flex items-start gap-2.5 text-sm">
-                <Check size={14} className="flex-shrink-0 mt-0.5" style={{ color: 'var(--accent)' }} />
-                <span style={{ color: 'rgba(255,255,255,0.85)' }}>{f}</span>
+                <Check size={14} className="flex-shrink-0 mt-0.5 text-amber-400" style={{ color: '#ffd400' }} />
+                <span className="text-white font-semibold" style={{ color: '#ffffff' }}>{f}</span>
               </li>
             ))}
           </ul>

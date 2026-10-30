@@ -10,6 +10,7 @@ import {
   ChevronDown, PlayCircle,
   Mic, Video as VideoIcon, PhoneOff, MessageCircle, Send, Heart, Share2, FileText, Shuffle,
 } from 'lucide-react'
+import InteractiveOtbee3D from '@/components/mascot-3d/InteractiveOtbee3D'
 
 function AnimatedPercent({ active, value }: { active: boolean; value: number }) {
   const [n, setN] = useState(0)
@@ -132,29 +133,69 @@ function KalkulatorFormPreview({ active }: { active: boolean }) {
   )
 }
 
-/* ── Otbee AI: full phone chat mockup ──────────────────────────────────── */
+/* ── Otbee AI: full phone chat mockup or 3D Mascot ────────────────────── */
 function OtbeePhonePreview() {
+  const [view3D, setView3D] = useState(false)
+
+  if (view3D) {
+    return (
+      <div className="mx-auto flex flex-col items-center" style={{ maxWidth: 280 }}>
+        <div className="flex items-center gap-1.5 mb-2 bg-gray-100 p-1 rounded-full text-[11px] font-bold">
+          <button
+            onClick={() => setView3D(false)}
+            className="px-3 py-1 rounded-full text-gray-500 hover:text-gray-900 transition-colors"
+          >
+            📱 Chat Mockup
+          </button>
+          <button
+            onClick={() => setView3D(true)}
+            className="px-3 py-1 rounded-full bg-white text-gray-950 shadow-xs"
+          >
+            🐝 3D Mascot
+          </button>
+        </div>
+        <InteractiveOtbee3D mode="embedded" height={220} />
+      </div>
+    )
+  }
+
   return (
-    <div className="mx-auto rounded-[2.2rem] p-2" style={{ background: '#111', maxWidth: 230 }}>
-      <div className="rounded-[1.8rem] overflow-hidden bg-white">
-        <div className="h-6 flex items-center justify-center" style={{ background: '#111' }}>
-          <div className="w-16 h-3 rounded-full" style={{ background: '#111', border: '1px solid #333' }} />
-        </div>
-        <div className="flex items-center gap-2 px-3 py-2.5 border-b" style={{ borderColor: 'var(--border)' }}>
-          <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: 'var(--dark)', color: '#fff' }}>O</div>
-          <div>
-            <div className="text-xs font-bold text-fg">Otbee AI</div>
-            <div className="text-xs" style={{ color: '#22c55e' }}>● Online</div>
+    <div className="mx-auto flex flex-col items-center" style={{ maxWidth: 280 }}>
+      <div className="flex items-center gap-1.5 mb-2 bg-gray-100 p-1 rounded-full text-[11px] font-bold">
+        <button
+          onClick={() => setView3D(false)}
+          className="px-3 py-1 rounded-full bg-white text-gray-950 shadow-xs"
+        >
+          📱 Chat Mockup
+        </button>
+        <button
+          onClick={() => setView3D(true)}
+          className="px-3 py-1 rounded-full text-gray-500 hover:text-gray-900 transition-colors"
+        >
+          🐝 3D Mascot
+        </button>
+      </div>
+      <div className="rounded-[2.2rem] p-2 w-full" style={{ background: '#111', maxWidth: 230 }}>
+        <div className="rounded-[1.8rem] overflow-hidden bg-white">
+          <div className="h-6 flex items-center justify-center" style={{ background: '#111' }}>
+            <div className="w-16 h-3 rounded-full" style={{ background: '#111', border: '1px solid #333' }} />
           </div>
-        </div>
-        <div className="p-3 space-y-2 min-h-[130px]">
-          <div className="rounded-xl rounded-bl-sm px-2.5 py-1.5 text-xs max-w-[80%]" style={{ background: 'var(--bg-alt)' }}>Syarat PPKB UI 2027?</div>
-          <div className="rounded-xl rounded-br-sm px-2.5 py-1.5 text-xs max-w-[85%] ml-auto" style={{ background: 'var(--dark)', color: '#fff' }}>Rapor ≥85, portofolio, essay 500–800 kata.</div>
-        </div>
-        <div className="flex items-center gap-2 px-3 py-2 border-t" style={{ borderColor: 'var(--border)' }}>
-          <div className="flex-1 h-7 rounded-full" style={{ background: 'var(--bg-alt)' }} />
-          <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent)' }}>
-            <Send size={12} style={{ color: '#111' }} />
+          <div className="flex items-center gap-2 px-3 py-2.5 border-b" style={{ borderColor: 'var(--border)' }}>
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: 'var(--dark)', color: '#fff' }}>O</div>
+            <div>
+              <div className="text-xs font-bold text-fg">Otbee AI</div>
+              <div className="text-xs" style={{ color: '#22c55e' }}>● Online</div>
+            </div>
+          </div>
+          <div className="p-3 space-y-2 min-h-[130px]">
+            <div className="rounded-xl rounded-bl-sm px-2.5 py-1.5 text-xs max-w-[80%]" style={{ background: 'var(--bg-alt)' }}>Syarat PPKB UI 2027?</div>
+            <div className="rounded-xl rounded-br-sm px-2.5 py-1.5 text-xs max-w-[85%] ml-auto" style={{ background: 'var(--dark)', color: '#fff' }}>Rapor ≥85, portofolio, essay 500–800 kata.</div>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-2 border-t" style={{ borderColor: 'var(--border)' }}>
+            <div className="flex-1 h-7 rounded-full" style={{ background: 'var(--bg-alt)' }} />
+            <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent)' }}>
+              <Send size={12} style={{ color: '#111' }} />
+            </div>
           </div>
         </div>
       </div>

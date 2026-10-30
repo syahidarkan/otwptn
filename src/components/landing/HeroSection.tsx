@@ -161,7 +161,7 @@ export default function HeroSection() {
           Masuk PTN Impianmu{' '}
           <span className="inline-flex items-center align-middle flex-wrap gap-2.5 justify-center">
             <span className="text-gray-950 font-extrabold">Tanpa</span>
-            <span className="inline-flex items-center justify-center px-4 py-1 rounded-2xl bg-amber-400 text-amber-950 shadow-sm font-black overflow-hidden">
+            <span className="inline-flex items-center justify-center px-5 py-1.5 rounded-2xl font-black overflow-hidden" style={{ background: 'rgba(255,255,255,0.38)', backdropFilter: 'blur(20px) saturate(2.2)', WebkitBackdropFilter: 'blur(20px) saturate(2.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.7), 0 4px 16px rgba(0,0,0,0.08), inset 0 0 0 1.5px rgba(255,255,255,0.5)', color: '#92400e' }}>
               <AnimatePresence mode="wait">
                 <motion.span
                   key={WORDS[idx]}
