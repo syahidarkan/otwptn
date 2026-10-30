@@ -62,7 +62,7 @@ function ResponsiveBee({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={src}
-              alt=""
+              alt="Maskot Otbee - OtwPTN Platform Masuk PTN Non-Tes"
               style={{ width: `${mobileSize}px`, height: 'auto' }}
               className="filter drop-shadow-sm opacity-85"
               draggable={false}
@@ -89,7 +89,7 @@ function ResponsiveBee({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={src}
-                alt=""
+                alt="Maskot Lebah Otbee Pejuang PTN Jalur Prestasi dan SNBP"
                 width={desktopSize}
                 className="filter drop-shadow-md"
                 draggable={false}
@@ -114,25 +114,25 @@ export default function HeroSection() {
   return (
     <section ref={sectionRef} className="relative overflow-hidden min-h-screen flex items-center pt-20 md:pt-0">
 
-      {/* Bee 1 - Kiri (Visible on Mobile/Tablet + Desktop, safe margins) */}
+      {/* Bee 1 - Kiri (Visible on Mobile/Tablet + Desktop, safe margins below navbar) */}
       <ResponsiveBee
         src="/bee1-hd.png"
         desktopSize={220}
         mobileSize={58}
         desktopPos={{ left: 'max(20px, calc(50% - 620px))', top: '32%' }}
-        mobilePos={{ left: '16px', top: '75px' }}
+        mobilePos={{ left: '12px', top: '135px' }}
         rotate={8}
-        floatY={16} floatDur={4.2} floatDelay={0}
+        floatY={14} floatDur={4.2} floatDelay={0}
         parallaxFactor={60} entranceDelay={0.2}
       />
 
-      {/* Bee 2 - Kanan Atas (Visible on Mobile/Tablet + Desktop, safe margins) */}
+      {/* Bee 2 - Kanan Atas (Visible on Mobile/Tablet + Desktop, safe margins below navbar) */}
       <ResponsiveBee
         src="/bee2-hd.png"
         desktopSize={145}
         mobileSize={52}
         desktopPos={{ right: 'max(20px, calc(50% - 600px))', top: '20%' }}
-        mobilePos={{ right: '16px', top: '80px' }}
+        mobilePos={{ right: '12px', top: '145px' }}
         rotate={7}
         floatY={12} floatDur={3.8} floatDelay={0.9}
         parallaxFactor={40} entranceDelay={0.4}

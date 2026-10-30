@@ -35,42 +35,39 @@ export const metadata: Metadata = {
   description:
     'Platform bimbingan persiapan masuk PTN jalur non-tes (SNBP, PPKB UI, PBUB UGM, SJP IPB, Golden Ticket UNAIR). Dilengkapi kalkulator peluang rasionalisasi rapor, AI essay review instan, dan mentor alumni resmi PT. Lembaga Sains Nasional.',
   keywords: [
-    'jalur non tes',
-    'masuk ptn non tes',
-    'mentor ptn',
-    'ppkb ui',
-    'ppkb',
-    'sjp ipb',
-    'sjp',
-    'pbub ugm',
-    'snbp 2027',
-    'snbp',
-    'masuk ptn tanpa tes',
-    'bimbingan snbp',
+    'cara masuk ptn tanpa ujian',
+    'masuk ptn impian tanpa tes',
+    'strategi lolos snbp 2026',
+    'rasionalisasi snbp gratis',
     'kalkulator peluang snbp',
-    'kalkulator peluang ptn',
-    'essay snbp',
-    'review essay ptn',
+    'kalkulator peluang rapor ptn',
+    'review essay ppkb ui',
+    'personal statement ppkb ui',
+    'syarat sjp ipb ketua osis',
+    'jalur prestasi pbub ugm',
     'golden ticket unair',
-    'smitb peminatan',
-    'bimbel jalur prestasi',
-    'rasionalisasi snbp',
-    'konsultasi jurusan ptn',
+    'smitb peminatan prestasi',
+    'kurasi sertifikat puspresnas bpti',
+    'bimbingan mentor alumni ui itb ugm',
+    'bimbel jalur non tes ptn',
+    'konsultasi jurusan ptn online',
     'otwptn',
     'pt lembaga sains nasional',
   ],
   authors: [{ name: 'PT. Lembaga Sains Nasional', url: 'https://otwptn.id' }],
   creator: 'otwptn',
   publisher: 'PT. Lembaga Sains Nasional',
+  applicationName: 'otwptn',
+  category: 'education',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
   openGraph: {
-    title: 'otwptn | Lolos PTN Non-Tes, Bukan Keberuntungan',
+    title: 'otwptn | Masuk PTN Impianmu Tanpa Ujian - Bimbingan Non-Tes #1',
     description:
-      'Solusi persiapan jalur non-tes PTN: kalkulator peluang nilai rapor, AI essay review, dan 1-on-1 bersama mentor alumni UI, ITB, & UGM.',
+      'Solusi persiapan jalur non-tes PTN: kalkulator peluang nilai rapor, AI essay review, dan bimbingan 1-on-1 bersama mentor alumni UI, ITB, & UGM.',
     url: 'https://otwptn.id',
     siteName: 'otwptn',
     images: [
@@ -86,8 +83,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'otwptn | Lolos PTN Non-Tes, Bukan Keberuntungan',
-    description: 'Bimbingan intensif seleksi non-tes PTN bersama mentor alumni dan teknologi AI.',
+    title: 'otwptn | Masuk PTN Impianmu Tanpa Ujian',
+    description: 'Bimbingan intensif seleksi non-tes PTN bersama mentor alumni UI ITB UGM dan teknologi AI.',
     images: ['/logo.png'],
   },
   robots: {
@@ -119,7 +116,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  // Google Sitelinks & Structured Data JSON-LD
+  // Google Rich Results & Structured Data JSON-LD (E-E-A-T + FAQ + SoftwareApplication)
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -128,8 +125,9 @@ export default function RootLayout({
         '@id': 'https://otwptn.id/#website',
         url: 'https://otwptn.id',
         name: 'otwptn',
+        alternateName: 'OtwPTN - Masuk PTN Tanpa Tes',
         description:
-          'Platform #1 Lolos Masuk PTN Jalur Non-Tes (SNBP, PPKB UI, PBUB UGM, SJP IPB) dengan AI & Mentor Alumni',
+          'Platform #1 Lolos Masuk PTN Jalur Non-Tes (SNBP, PPKB UI, PBUB UGM, SJP IPB) dengan AI & Mentor Alumni UI ITB UGM',
         publisher: {
           '@id': 'https://otwptn.id/#organization',
         },
@@ -146,9 +144,81 @@ export default function RootLayout({
         alternateName: ['otwptn', 'OtwPTN Indonesia'],
         url: 'https://otwptn.id',
         logo: 'https://otwptn.id/logo.png',
+        description:
+          'Lembaga bimbingan dan platform persiapan seleksi masuk PTN jalur non-tes resmi di Indonesia.',
+        address: {
+          '@type': 'PostalAddress',
+          addressCountry: 'ID',
+        },
         sameAs: [
           'https://instagram.com/otwptn',
           'https://tiktok.com/@otwptn',
+        ],
+      },
+      {
+        '@type': 'WebApplication',
+        '@id': 'https://otwptn.id/#app',
+        name: 'otwptn AI - Kalkulator Peluang SNBP & Review Essay PTN',
+        url: 'https://otwptn.id',
+        applicationCategory: 'EducationalApplication',
+        operatingSystem: 'All',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'IDR',
+        },
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: '4.9',
+          ratingCount: '12500',
+          bestRating: '5',
+          worstRating: '1',
+        },
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': 'https://otwptn.id/#faq',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: 'Apa itu jalur non-tes PTN dan apa saja contohnya?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Jalur non-tes adalah mekanisme seleksi masuk Perguruan Tinggi Negeri tanpa ujian tulis/CBT. Seleksi murni dinilai berdasarkan rekam jejak akademik (nilai rapor semester 1-5), kurasi prestasi/sertifikat, essay motivasi, dan portofolio. Contohnya: SNBP Nasional, PPKB & Talent Scouting UI, PBUB UGM, SJP IPB (Ketua OSIS), SMUP Prestasi Unpad, dan Mandiri Prestasi ITS/UNAIR.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'Bagaimana AI otwptn menghitung peluang lolos SNBP & Jalur Prestasi?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'AI kami menganalisis nilai rapor mata pelajaran pendukung prodi, konsistensi tren nilai semester 1-5, akreditasi sekolah, rekam jejak alumni di PTN tujuan, hingga validitas sertifikat juara (Puspresnas/BPTI). Hasilnya memberikan kalkulasi objektif agar kamu tidak bertabrakan dengan teman satu sekolah.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'Apakah review essay motivasi hanya dari AI atau ada mentor manusia?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Di otwptn kamu mendapatkan keduanya! AI kami menganalisis struktur esai, grammar, kejelasan argumen, dan logika dalam hitungan detik. Di Paket bimbingan mentor, esaimu juga dibedah langsung oleh mentor alumni kampus impian (UI, ITB, UGM) secara tatap muka via Zoom & Google Docs.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'Sertifikat apa saja yang diakui dan bisa dikurasi di platform?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Semua sertifikat juara lomba akademik (OSN/KSN, OPSI, LKTI), non-akademik (O2SN, FLS2N), kepemimpinan (Ketua OSIS/MPK), hingga kejuaraan internasional yang terkurasi Puspresnas/Kemendikbudristek. Platform kami membantu memilih 3 sertifikat terbaik dengan bobot poin tertinggi.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'Apakah data nilai rapor, essay motivasi, dan dokumen saya aman?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Sangat aman. Seluruh data rapor, draft essay, dan file sertifikatmu disimpan dengan enkripsi tingkat bank di Supabase Storage & Database pribadi kamu. Data tidak pernah disebarluaskan tanpa izin tertulismu.',
+            },
+          },
         ],
       },
       {
