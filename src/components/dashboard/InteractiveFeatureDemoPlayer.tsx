@@ -73,7 +73,7 @@ export default function InteractiveFeatureDemoPlayer({
             </div>
             <div className="px-3 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[11px] font-mono text-gray-300 border border-white/10 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              https://otwptn.id/dashboard
+              https://otwptn.com/dashboard
             </div>
             <span className="text-[10px] font-bold text-amber-400 bg-black/60 px-2 py-0.5 rounded-md">
               REC ● LIVE

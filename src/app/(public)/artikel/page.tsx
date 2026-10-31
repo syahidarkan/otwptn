@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Pusat Artikel & Panduan Masuk PTN Non-Tes | otwptn',
   description: 'Kumpulan artikel, strategi, dan tips lolos seleksi masuk PTN jalur non-tes: SNBP, PPKB UI, SJP IPB, PBUB UGM, dan Seleksi Mandiri Prestasi.',
   alternates: {
-    canonical: 'https://otwptn.id/artikel',
+    canonical: 'https://otwptn.com/artikel',
   },
 }
 
@@ -33,12 +33,12 @@ export default function ArtikelPage() {
             '@type': 'CollectionPage',
             name: 'Pusat Artikel & Panduan Masuk PTN Non-Tes | otwptn',
             description: 'Panduan lengkap masuk PTN tanpa tes SNBP, PPKB UI, SJP IPB, PBUB UGM, dan Seleksi Mandiri Prestasi.',
-            url: 'https://otwptn.id/artikel',
+            url: 'https://otwptn.com/artikel',
             hasPart: ARTICLES.map(a => ({
               '@type': 'Article',
               headline: a.title,
               description: a.excerpt,
-              url: `https://otwptn.id/artikel/${a.slug}`,
+              url: `https://otwptn.com/artikel/${a.slug}`,
               datePublished: '2026-10-28',
               author: {
                 '@type': 'Person',

@@ -27,7 +27,7 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://otwptn.id'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://otwptn.com'),
   title: {
     default: 'otwptn | Platform #1 Lolos Masuk PTN Jalur Non-Tes | Bimbingan Mentor UI ITB UGM',
     template: '%s | otwptn | Masuk PTN Tanpa Tes',
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     'otwptn',
     'pt lembaga sains nasional',
   ],
-  authors: [{ name: 'PT. Lembaga Sains Nasional', url: 'https://otwptn.id' }],
+  authors: [{ name: 'PT. Lembaga Sains Nasional', url: 'https://otwptn.com' }],
   creator: 'otwptn',
   publisher: 'PT. Lembaga Sains Nasional',
   applicationName: 'otwptn',
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     title: 'otwptn | Masuk PTN Impianmu Tanpa Ujian - Bimbingan Non-Tes #1',
     description:
       'Solusi persiapan jalur non-tes PTN: kalkulator peluang nilai rapor, AI essay review, dan bimbingan 1-on-1 bersama mentor alumni UI, ITB, & UGM.',
-    url: 'https://otwptn.id',
+    url: 'https://otwptn.com',
     siteName: 'otwptn',
     images: [
       {
@@ -99,7 +99,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: 'https://otwptn.id',
+    canonical: 'https://otwptn.com',
   },
   icons: {
     icon: [
@@ -122,28 +122,28 @@ export default function RootLayout({
     '@graph': [
       {
         '@type': 'WebSite',
-        '@id': 'https://otwptn.id/#website',
-        url: 'https://otwptn.id',
+        '@id': 'https://otwptn.com/#website',
+        url: 'https://otwptn.com',
         name: 'otwptn',
         alternateName: 'OtwPTN - Masuk PTN Tanpa Tes',
         description:
           'Platform #1 Lolos Masuk PTN Jalur Non-Tes (SNBP, PPKB UI, PBUB UGM, SJP IPB) dengan AI & Mentor Alumni UI ITB UGM',
         publisher: {
-          '@id': 'https://otwptn.id/#organization',
+          '@id': 'https://otwptn.com/#organization',
         },
         potentialAction: {
           '@type': 'SearchAction',
-          target: 'https://otwptn.id/jalur?q={search_term_string}',
+          target: 'https://otwptn.com/jalur?q={search_term_string}',
           'query-input': 'required name=search_term_string',
         },
       },
       {
         '@type': 'EducationalOrganization',
-        '@id': 'https://otwptn.id/#organization',
+        '@id': 'https://otwptn.com/#organization',
         name: LEGAL_ENTITY.name,
         alternateName: ['otwptn', 'OtwPTN Indonesia'],
-        url: 'https://otwptn.id',
-        logo: 'https://otwptn.id/logo.png',
+        url: 'https://otwptn.com',
+        logo: 'https://otwptn.com/logo.png',
         description:
           'Lembaga bimbingan dan platform persiapan seleksi masuk PTN jalur non-tes resmi di Indonesia.',
         address: {
@@ -157,9 +157,9 @@ export default function RootLayout({
       },
       {
         '@type': 'WebApplication',
-        '@id': 'https://otwptn.id/#app',
+        '@id': 'https://otwptn.com/#app',
         name: 'otwptn AI - Kalkulator Peluang SNBP & Review Essay PTN',
-        url: 'https://otwptn.id',
+        url: 'https://otwptn.com',
         applicationCategory: 'EducationalApplication',
         operatingSystem: 'All',
         offers: {
@@ -177,7 +177,7 @@ export default function RootLayout({
       },
       {
         '@type': 'FAQPage',
-        '@id': 'https://otwptn.id/#faq',
+        '@id': 'https://otwptn.com/#faq',
         mainEntity: [
           {
             '@type': 'Question',
@@ -225,25 +225,25 @@ export default function RootLayout({
         '@type': 'SiteNavigationElement',
         name: 'Kalkulator Peluang SNBP & Non-Tes',
         description: 'Simulasi rasionalisasi nilai rapor 5 semester dan sertifikat prestasi untuk hitung peluang lolos PTN.',
-        url: 'https://otwptn.id/dashboard/kalkulator',
+        url: 'https://otwptn.com/dashboard/kalkulator',
       },
       {
         '@type': 'SiteNavigationElement',
         name: 'Essay AI Review & Kurasi Mandiri',
         description: 'Review instan draf esai motivasi seleksi non-tes dengan AI validator dan masukan mentor alumni.',
-        url: 'https://otwptn.id/dashboard/essay',
+        url: 'https://otwptn.com/dashboard/essay',
       },
       {
         '@type': 'SiteNavigationElement',
         name: 'Mentor Alumni UI ITB & UGM',
         description: 'Bimbingan 1-on-1 intensif dan review esai langsung bersama kakak mentor alumni jalur non-tes.',
-        url: 'https://otwptn.id/dashboard/mentor',
+        url: 'https://otwptn.com/dashboard/mentor',
       },
       {
         '@type': 'SiteNavigationElement',
         name: 'Direktori & Tracking Jalur Non-Tes',
         description: 'Jadwal dan syarat lengkap PPKB UI, PBUB UGM, SJP IPB, Golden Ticket UNAIR, SNBP.',
-        url: 'https://otwptn.id/jalur',
+        url: 'https://otwptn.com/jalur',
       },
     ],
   }

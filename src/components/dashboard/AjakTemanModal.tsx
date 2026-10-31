@@ -20,7 +20,7 @@ export default function AjakTemanModal({
 
   if (!isOpen) return null
 
-  const shareUrl = `https://otwptn.id/register?ref=${userRefCode}`
+  const shareUrl = `https://otwptn.com/register?ref=${userRefCode}`
   const shareText = `Halo! Yuk persiapan masuk PTN jalur non-tes (SNBP, PPKB UI, SJP IPB, PBUB UGM) bareng aku di otwptn. Ada Essay AI Review, Kalkulator Peluang, dan bimbingan mentor alumni. Daftar lewat link ini biar kita dapet bonus XP bareng: ${shareUrl}`
 
   const handleCopy = () => {

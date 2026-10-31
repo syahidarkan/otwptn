@@ -16,13 +16,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: `${article.title} | otwptn`,
     description: article.excerpt,
     alternates: {
-      canonical: `https://otwptn.id/artikel/${article.slug}`,
+      canonical: `https://otwptn.com/artikel/${article.slug}`,
     },
     openGraph: {
       title: article.title,
       description: article.excerpt,
       type: 'article',
-      url: `https://otwptn.id/artikel/${article.slug}`,
+      url: `https://otwptn.com/artikel/${article.slug}`,
       publishedTime: '2026-10-28T08:00:00.000Z',
       authors: [article.author.name],
       tags: article.tags,
@@ -48,7 +48,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             '@type': 'BlogPosting',
             headline: article.title,
             description: article.excerpt,
-            url: `https://otwptn.id/artikel/${article.slug}`,
+            url: `https://otwptn.com/artikel/${article.slug}`,
             datePublished: '2026-10-28T08:00:00.000Z',
             dateModified: '2026-10-28T10:00:00.000Z',
             author: {
@@ -61,7 +61,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
               name: 'otwptn | PT. Lembaga Sains Nasional',
               logo: {
                 '@type': 'ImageObject',
-                url: 'https://otwptn.id/logo.png',
+                url: 'https://otwptn.com/logo.png',
               },
             },
             keywords: article.tags.join(', '),
