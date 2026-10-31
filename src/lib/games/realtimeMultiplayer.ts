@@ -6,74 +6,67 @@ export type PowerUpType = 'freeze' | 'blur' | 'steal' | 'shield' | 'fifty_fifty'
 export interface PowerUpCard {
   id: PowerUpType
   name: string
+  category: string
   desc: string
+  tag: string
   icon: string
-  color: string
-  rarity: 'LEGENDARY' | 'EPIC' | 'RARE' | 'SPECIAL'
-  borderGlow: string
-  badgeBg: string
+  mascot: string
 }
 
 export const POWER_UP_CARDS: PowerUpCard[] = [
   {
     id: 'freeze',
-    name: 'Layar Freeze',
-    desc: 'Bekukan layar musuh 3.5 detik, tombol jawaban terkunci!',
+    name: 'Layar Freeze Lawan',
+    category: 'Sabotase Layar',
+    desc: 'Bekukan layar musuh 3.5 detik, tombol terkunci!',
+    tag: 'Kunci 3.5s',
     icon: '❄️',
-    color: 'from-cyan-500 via-sky-600 to-blue-700',
-    rarity: 'EPIC',
-    borderGlow: 'border-cyan-400 shadow-cyan-500/40',
-    badgeBg: 'bg-cyan-950/80 text-cyan-300 border-cyan-500/40',
+    mascot: '/mascot/confused.png',
   },
   {
     id: 'blur',
-    name: 'Kaca Buram',
-    desc: 'Semprotkan kabut tinta pekat ke soal musuh selama 3.5 detik!',
+    name: 'Semprot Kaca Buram',
+    category: 'Gangguan Tinta',
+    desc: 'Kabut tinta pekat menutupi soal di layar lawan!',
+    tag: 'Tinta 3.5s',
     icon: '🌫️',
-    color: 'from-purple-500 via-fuchsia-600 to-indigo-700',
-    rarity: 'RARE',
-    borderGlow: 'border-purple-400 shadow-purple-500/40',
-    badgeBg: 'bg-purple-950/80 text-purple-300 border-purple-500/40',
+    mascot: '/mascot/glasses-writing-desk.png',
   },
   {
     id: 'steal',
-    name: 'Pencuri Poin',
-    desc: 'Rampas 60 poin musuh dan transfer seketika ke skormu!',
+    name: 'Rampas Poin Lawan',
+    category: 'Pencuri Poin',
+    desc: 'Curi 60 poin lawan seketika ke skormu!',
+    tag: '+60 Poin',
     icon: '🥷',
-    color: 'from-amber-500 via-orange-600 to-rose-700',
-    rarity: 'LEGENDARY',
-    borderGlow: 'border-amber-400 shadow-amber-500/50',
-    badgeBg: 'bg-amber-950/80 text-amber-300 border-amber-500/40',
+    mascot: '/mascot/coin-bag.png',
   },
   {
     id: 'shield',
-    name: 'Perisai Kebal',
-    desc: 'Tangkal dan batalkan 1 serangan sabotase musuh berikutnya!',
+    name: 'Perisai Anti-Sabotase',
+    category: 'Proteksi Kebal',
+    desc: 'Tangkal 1 serangan kartu sabotase musuh berikutnya!',
+    tag: 'Kebal 1x',
     icon: '🛡️',
-    color: 'from-emerald-500 via-teal-600 to-green-700',
-    rarity: 'SPECIAL',
-    borderGlow: 'border-emerald-400 shadow-emerald-500/40',
-    badgeBg: 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40',
+    mascot: '/mascot/thumbsup.png',
   },
   {
     id: 'fifty_fifty',
-    name: '50:50 Eliminasi',
-    desc: 'Hapus 2 pilihan opsi salah agar peluangmu makin tinggi!',
+    name: 'Eliminasi 50:50',
+    category: 'Bantuan Kuis',
+    desc: 'Hapus 2 opsi jawaban yang salah dari layarmu!',
+    tag: 'Hapus 2 Opsi',
     icon: '✂️',
-    color: 'from-indigo-500 via-blue-600 to-violet-700',
-    rarity: 'SPECIAL',
-    borderGlow: 'border-indigo-400 shadow-indigo-500/40',
-    badgeBg: 'bg-indigo-950/80 text-indigo-300 border-indigo-500/40',
+    mascot: '/mascot/check-paper-happy.png',
   },
   {
     id: 'double_score',
-    name: 'Booster 2X',
-    desc: 'Poin untuk jawaban nomor ini berlipat ganda 200%!',
+    name: 'Booster 2X Poin',
+    category: 'Pengali Skor',
+    desc: 'Poin untuk soal nomor ini berlipat ganda 200%!',
+    tag: 'Poin 2X Lipat',
     icon: '⚡',
-    color: 'from-yellow-400 via-amber-500 to-orange-600',
-    rarity: 'LEGENDARY',
-    borderGlow: 'border-yellow-300 shadow-yellow-500/50',
-    badgeBg: 'bg-yellow-950/80 text-yellow-300 border-yellow-500/40',
+    mascot: '/mascot/star-sparkle.png',
   },
 ]
 

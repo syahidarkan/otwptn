@@ -947,56 +947,87 @@ export default function PadananKataGame({
               </div>
             </div>
 
-            {/* COLLECTIBLE POWER-UP CARDS HAND (MULTIPLAYER ONLY) */}
+            {/* POWER-UP CARDS HAND (MATCHES OTWPTN NECTAR CARD DESIGN) */}
             {mode !== 'solo' && (
-              <div className="p-4 sm:p-5 rounded-3xl bg-gray-950 text-white border border-gray-800 space-y-3">
+              <div className="space-y-3 pt-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Sparkles size={16} className="text-amber-400" />
-                    <h4 className="text-xs font-black uppercase tracking-wider text-gray-200">
+                    <Sparkles size={16} className="text-amber-500" />
+                    <h4 className="text-xs font-black uppercase tracking-wider text-gray-900">
                       Kartu Kekuatan Sabotase ({myCards.length})
                     </h4>
                   </div>
-                  <span className="text-[10px] text-gray-400 font-medium">
-                    Jawab benar beruntun untuk membuka kartu baru
+                  <span className="text-[10px] text-gray-500 font-medium">
+                    Jawab benar beruntun untuk mendapatkan kartu baru
                   </span>
                 </div>
 
                 {myCards.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     {myCards.map((card, idx) => (
-                      <div
+                      <button
                         key={idx}
-                        className={`relative rounded-2xl p-3 border-2 ${card.borderGlow} bg-gradient-to-b from-gray-900 to-gray-950 flex flex-col justify-between shadow-lg hover:-translate-y-1 transition-all`}
+                        onClick={() => usePowerUp(card)}
+                        disabled={isFrozen || answerStatus !== 'none'}
+                        className={`w-full text-left relative rounded-3xl bg-[#0c2b4e] hover:bg-[#09223e] border border-[#163a66] p-5 sm:p-6 shadow-xl hover:shadow-2xl hover:-translate-y-1 active:scale-98 transition-all overflow-hidden flex flex-col justify-between min-h-[175px] group ${
+                          isFrozen ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                        }`}
                       >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${card.badgeBg}`}>
-                            {card.rarity}
+                        {/* Top Badge Row */}
+                        <div className="flex items-center justify-between gap-2 mb-2 w-full">
+                          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-bold">
+                            <span className="w-5 h-5 rounded-full bg-amber-400/20 text-amber-400 flex items-center justify-center text-xs">
+                              {card.icon}
+                            </span>
+                            <span className="text-[11px] sm:text-xs">{card.category}</span>
+                          </div>
+
+                          <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-gray-950 group-hover:scale-105 shadow-sm transition-transform">
+                            TAP UNTUK PAKAI
                           </span>
-                          <span className="text-xl">{card.icon}</span>
                         </div>
 
-                        <div className="space-y-1 mb-3">
-                          <h5 className="text-xs font-black text-white leading-tight">{card.name}</h5>
-                          <p className="text-[10px] text-gray-400 line-clamp-2 leading-relaxed">
-                            {card.desc}
-                          </p>
+                        {/* Middle Content + Mascot Illustration */}
+                        <div className="flex items-center justify-between gap-3 my-1 w-full">
+                          <div className="space-y-1 flex-1 pr-2">
+                            <h5 className="text-base sm:text-lg font-black text-white leading-tight">
+                              {card.name}
+                            </h5>
+                            <p className="text-xs text-slate-300 font-medium line-clamp-1">
+                              {card.desc}
+                            </p>
+                          </div>
+
+                          <div className="w-20 h-20 sm:w-24 sm:h-24 relative flex-shrink-0 -mr-2 -mb-2">
+                            <Image
+                              src={card.mascot}
+                              alt={card.name}
+                              width={96}
+                              height={96}
+                              className="object-contain filter drop-shadow-md group-hover:scale-110 transition-transform"
+                            />
+                          </div>
                         </div>
 
-                        <button
-                          onClick={() => usePowerUp(card)}
-                          disabled={isFrozen || answerStatus !== 'none'}
-                          className={`w-full py-1.5 px-3 rounded-xl bg-gradient-to-r ${card.color} text-white font-black text-[10px] uppercase tracking-wider shadow-sm hover:opacity-90 active:scale-95 transition-all`}
-                        >
-                          Gunakan Kartu
-                        </button>
-                      </div>
+                        {/* Bottom Row: oleh otwptn + Tag Badge */}
+                        <div className="flex items-center gap-3 pt-2 mt-auto w-full">
+                          <span className="text-xs text-slate-300 font-medium">oleh otwptn</span>
+                          <span className="px-3 py-0.5 rounded-full bg-[#f59e0b] text-gray-950 font-black text-xs shadow-xs">
+                            {card.tag}
+                          </span>
+                        </div>
+                      </button>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-[11px] text-gray-500 italic py-2 text-center">
-                    Belum ada kartu di tangan. Jawab 2 soal benar berurutan untuk mendapatkan kartu!
-                  </p>
+                  <div className="p-6 rounded-3xl bg-gray-50 border border-dashed border-gray-300 text-center space-y-1">
+                    <p className="text-xs font-bold text-gray-600">
+                      Tanganmu Masih Kosong
+                    </p>
+                    <p className="text-[11px] text-gray-400">
+                      Cetak 2 jawaban benar beruntun untuk membuka kartu kekuatan baru!
+                    </p>
+                  </div>
                 )}
               </div>
             )}
