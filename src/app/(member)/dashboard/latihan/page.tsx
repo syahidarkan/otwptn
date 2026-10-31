@@ -18,20 +18,22 @@ import {
   Users,
   Video,
   ChevronRight,
+  Shuffle,
 } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
-type ActiveTab = 'padanan-kata' | 'baku-atau-nggak' | 'benerin-kalimat' | 'leaderboard'
+type ActiveTab = 'padanan-kata' | 'baku-atau-nggak' | 'benerin-kalimat' | 'campuran-battle' | 'leaderboard'
 
 export default function LatihanPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('padanan-kata')
   const [leaderboard] = useState<LeaderboardEntry[]>(INITIAL_LEADERBOARD)
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto pb-16">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-8 pt-6 sm:pt-8 md:pt-10 pb-24 space-y-8">
       <FeatureHeader
         title="Arena Latihan PPU & PBM"
-        subtitle="Latih insting kata baku, PUEBI, dan analogi istilah akademik untuk menyempurnakan tulisan essay SNBP dan persiapan UTBK. Main solo atau tantang teman belajarmu!"
+        subtitle="Latih insting kata baku, PUEBI, dan analogi istilah akademik untuk menyempurnakan tulisan essay SNBP, PPKB UI, dan persiapan UTBK. Main solo atau tantang teman belajarmu!"
         mascot="/fitur/kalkulator-peluang.png"
         badgeText="Minigames & Battle Arena"
       />
@@ -47,13 +49,13 @@ export default function LatihanPage() {
             Nongkrong Sambil Battle Edukasi di Study Cam!
           </h3>
           <p className="text-xs text-gray-800 max-w-xl font-medium leading-relaxed">
-            Sedang video call bareng pejuang PTN lain? Salin kode room atau buka arena ini langsung di samping layar Study Cam-mu.
+            Sedang video call bareng pejuang PTN lain? Klik tombol Tantang Battle langsung di layar kamera Study Cam atau bagikan kode room-mu.
           </p>
         </div>
 
         <Link
           href="/dashboard/teman"
-          className="btn bg-gray-950 hover:bg-black text-white text-xs font-black py-3 px-6 rounded-full flex items-center gap-2 shadow-sm flex-shrink-0"
+          className="btn bg-gray-950 hover:bg-black text-white text-xs font-black py-3 px-6 rounded-full flex items-center gap-2 shadow-sm flex-shrink-0 hover:scale-105 transition-all"
         >
           <Video size={15} /> Buka Study Cam Teman
         </Link>
@@ -69,7 +71,7 @@ export default function LatihanPage() {
               : 'bg-white text-gray-600 hover:text-gray-950 border border-gray-100'
           }`}
         >
-          <Zap size={16} /> 1. Padanan Kata
+          <Zap size={16} /> 1. Padanan Kata (PPU)
         </button>
 
         <button
@@ -80,7 +82,7 @@ export default function LatihanPage() {
               : 'bg-white text-gray-600 hover:text-gray-950 border border-gray-100'
           }`}
         >
-          <Sparkles size={16} /> 2. Baku atau Nggak
+          <Sparkles size={16} /> 2. Wordle Baku (PUEBI)
         </button>
 
         <button
@@ -91,7 +93,18 @@ export default function LatihanPage() {
               : 'bg-white text-gray-600 hover:text-gray-950 border border-gray-100'
           }`}
         >
-          <BookOpen size={16} /> 3. Benerin Kalimatnya
+          <BookOpen size={16} /> 3. Benerin Kalimat (PBM)
+        </button>
+
+        <button
+          onClick={() => setActiveTab('campuran-battle')}
+          className={`px-5 py-2.5 rounded-2xl text-xs md:text-sm font-black transition-all flex items-center gap-2 flex-shrink-0 ${
+            activeTab === 'campuran-battle'
+              ? 'bg-amber-400 text-gray-950 shadow-sm'
+              : 'bg-white text-gray-600 hover:text-gray-950 border border-gray-100'
+          }`}
+        >
+          <Shuffle size={16} /> 🎲 Kuis Acak Campuran
         </button>
 
         <button
@@ -108,9 +121,10 @@ export default function LatihanPage() {
 
       {/* Active Tab View */}
       <div className="pt-2">
-        {activeTab === 'padanan-kata' && <PadananKataGame />}
+        {activeTab === 'padanan-kata' && <PadananKataGame initialCategory="padanan" />}
         {activeTab === 'baku-atau-nggak' && <BakuAtauNggakGame />}
         {activeTab === 'benerin-kalimat' && <BenerinKalimatGame />}
+        {activeTab === 'campuran-battle' && <PadananKataGame initialCategory="mixed" />}
 
         {activeTab === 'leaderboard' && (
           <div className="max-w-2xl mx-auto rounded-3xl bg-white border border-gray-100 shadow-md p-6 md:p-8 space-y-6">
@@ -121,7 +135,7 @@ export default function LatihanPage() {
                   Top Pejuang PPU & PBM Pekan Ini
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Akumulasi skor tertinggi dari ketiga minigame edukatif.
+                  Akumulasi skor tertinggi dari seluruh latihan dan battle arena.
                 </p>
               </div>
               <span className="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">

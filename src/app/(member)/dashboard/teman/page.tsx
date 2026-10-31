@@ -198,7 +198,8 @@ interface ChatMessage {
 }
 
 export default function CariTemanBelajarPage() {
-  const [activeTab, setActiveTab] = useState<'study-cam' | 'friends-list' | 'battle-game'>('study-cam')
+  const [activeTab, setActiveTab] = useState<'study-cam' | 'friends-list'>('study-cam')
+  const [showBattleModal, setShowBattleModal] = useState(false)
   const [phase, setPhase] = useState<'idle' | 'searching' | 'connected'>('idle')
   const [currentPeer, setCurrentPeer] = useState<PeerProfile | null>(null)
   const [selectedPTNs, setSelectedPTNs] = useState<string[]>([])
@@ -419,17 +420,6 @@ export default function CariTemanBelajarPage() {
           }`}
         >
           <Users size={16} /> Teman Saya & Chat ({friends.length})
-        </button>
-
-        <button
-          onClick={() => setActiveTab('battle-game')}
-          className={`px-5 py-2.5 rounded-full text-xs font-extrabold flex items-center gap-2 transition-all ${
-            activeTab === 'battle-game'
-              ? 'btn-brand-primary'
-              : 'bg-white text-gray-700 shadow-xs hover:bg-gray-50'
-          }`}
-        >
-          <Swords size={16} /> Battle Arena PPU & PBM
         </button>
       </div>
 
@@ -704,10 +694,10 @@ export default function CariTemanBelajarPage() {
 
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => setActiveTab('battle-game')}
-                        className="px-3 py-1.5 rounded-full text-xs font-black flex items-center gap-1.5 shadow-md bg-amber-400 hover:bg-amber-300 text-gray-950 transition-all"
+                        onClick={() => setShowBattleModal(true)}
+                        className="px-3.5 py-1.5 rounded-full text-xs font-black flex items-center gap-1.5 shadow-lg bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-gray-950 transition-all hover:scale-105 active:scale-95"
                       >
-                        <Swords size={13} /> Battle PPU
+                        <Swords size={13} /> Tantang Battle PPU
                       </button>
 
                       <button
@@ -730,6 +720,16 @@ export default function CariTemanBelajarPage() {
                         )}
                       </button>
                     </div>
+                  </div>
+
+                  {/* Centered Floating Battle Button in Video Screen */}
+                  <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20">
+                    <button
+                      onClick={() => setShowBattleModal(true)}
+                      className="px-4 py-2 rounded-full text-xs font-black flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-gray-950 shadow-2xl border-2 border-white/80 hover:scale-105 active:scale-95 transition-all"
+                    >
+                      <Swords size={15} /> Ajak Duel Kuis Cepat!
+                    </button>
                   </div>
 
                   {/* Bottom Peer Goal & Study Topic */}
@@ -982,20 +982,19 @@ export default function CariTemanBelajarPage() {
         </div>
       )}
 
-      {activeTab === 'battle-game' && (
-        <div className="space-y-6 max-w-3xl mx-auto pt-2">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => setActiveTab('study-cam')}
-              className="text-xs font-bold text-gray-500 hover:text-gray-900 flex items-center gap-1"
-            >
-              ← Kembali ke Study Cam
-            </button>
-            <span className="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-              {currentPeer ? `Mode Battle Lawan ${currentPeer.name}` : 'Arena Battle Teman'}
-            </span>
+      {/* FLOATING IN-CAMERA BATTLE MODAL */}
+      {showBattleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-md overflow-y-auto">
+          <div className="relative w-full max-w-4xl my-auto animate-in fade-in zoom-in-95 duration-200">
+            <PadananKataGame
+              initialMode="matching"
+              opponentPreset={{
+                name: currentPeer ? currentPeer.name : 'Partner Belajar',
+                avatar: currentPeer ? currentPeer.avatar : undefined,
+              }}
+              onExit={() => setShowBattleModal(false)}
+            />
           </div>
-          <PadananKataGame initialMode="room" onExit={() => setActiveTab('study-cam')} />
         </div>
       )}
     </div>
