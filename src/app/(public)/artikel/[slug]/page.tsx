@@ -266,6 +266,126 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                 <li><strong>Finalisasi & Cetak Kartu:</strong> Periksa kembali seluruh data sebelum menekan tombol Simpan Permanen. Unduh dan cetak Kartu Tanda Peserta SNBP sebagai bukti pendaftaran resmi.</li>
               </ol>
             </>
+          ) : slug === 'jalur-tahfidz-quran-ptn' ? (
+            <>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                1. Apa Itu Jalur Tahfidz Quran PTN?
+              </h2>
+              <p>
+                Jalur Tahfidz Quran adalah salah satu skema seleksi mandiri prestasi keagamaan di Perguruan Tinggi Negeri (PTN) yang memberikan tiket masuk tanpa ujian tulis/CBT bagi siswa SMA/SMK/MA yang memiliki hafalan Al-Quran mutqin (lancar). Seleksi ini dinilai berdasarkan uji hafalan (tasmi&apos; / sima&apos;an), sertifikat syahadah dari lembaga/kemenag resmi, serta rekam jejak nilai rapor.
+              </p>
+
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                2. Daftar Kampus Negeri yang Membuka Jalur Tahfidz 2026
+              </h2>
+              <div className="space-y-4 not-prose my-6">
+                <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200">
+                  <h4 className="font-bold text-gray-900 text-sm">Universitas Airlangga (UNAIR) - Golden Ticket & Prestasi</h4>
+                  <p className="text-xs text-gray-700 mt-1">Minimal hafalan: 30 Juz (Golden Ticket) atau min. 10 Juz untuk jalur mandiri prestasi. Terbuka untuk banyak program studi favorit.</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200">
+                  <h4 className="font-bold text-gray-900 text-sm">Universitas Diponegoro (Undip) - SBUB Keagamaan</h4>
+                  <p className="text-xs text-gray-700 mt-1">Minimal hafalan: 20 s.d. 30 Juz untuk poin maksimal. Diuji langsung oleh tim penguji hafalan Quran Undip.</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200">
+                  <h4 className="font-bold text-gray-900 text-sm">Universitas Gadjah Mada (UGM) - PBUB Keagamaan</h4>
+                  <p className="text-xs text-gray-700 mt-1">Minimal hafalan: 10 Juz ke atas yang dibuktikan dengan sertifikat lembaga terakreditasi dan uji petik tasmi&apos;.</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200">
+                  <h4 className="font-bold text-gray-900 text-sm">Institut Teknologi Sepuluh Nopember (ITS) & UNHAS</h4>
+                  <p className="text-xs text-gray-700 mt-1">Membuka kuota jalur mandiri prestasi hafidz Quran dengan pembuktian sertifikat Kemenag/LPTQ.</p>
+                </div>
+              </div>
+
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                3. Syarat Berkas yang Wajib Disiapkan
+              </h2>
+              <ul className="space-y-2 list-disc list-inside text-sm text-gray-700">
+                <li>Sertifikat atau Ijazah Tahfidz resmi dari Pondok Pesantren, LPTQ, atau Kementerian Agama.</li>
+                <li>Rekaman video tasmi&apos; hafalan 1 juz pilihan (jika disyaratkan oleh PTN terkait).</li>
+                <li>Transkrip nilai rapor semester 1 s.d. 5 yang telah dilegalisir pihak sekolah.</li>
+                <li>Surat rekomendasi kepala sekolah atau pimpinan pondok pesantren.</li>
+              </ul>
+            </>
+          ) : slug === 'jalur-pramuka-garuda-ptn' ? (
+            <>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                1. Peluang Emas Anggota Pramuka Garuda Masuk PTN Tanpa Tes
+              </h2>
+              <p>
+                Pramuka Garuda adalah tingkatan tertinggi dalam setiap golongan kepanduan. Beberapa kampus terkemuka di Indonesia, terutama <strong>IPB University</strong>, memiliki komitmen tinggi mengapresiasi dedikasi dan kepemimpinan Pramuka Garuda melalui jalur Seleksi Mandiri Prestasi tanpa tes tulis.
+              </p>
+
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                2. Kriteria dan Syarat Khusus Jalur Pramuka
+              </h2>
+              <ul className="space-y-2 list-disc list-inside text-sm text-gray-700">
+                <li>Berstatus sebagai <strong>Pramuka Penegak Garuda</strong> aktif di gugus depan sekolah.</li>
+                <li>Memiliki Surat Keputusan (SK) dan Piagam Penghargaan Pramuka Garuda resmi dari Kwartir Cabang (Kwarcab) atau Kwartir Daerah (Kwarda).</li>
+                <li>Portofolio kegiatan kepramukaan: keikutsertaan Raimuna, Perkemahan Wirakarya, Lomba Tingkat, atau kepengurusan Dewan Ambalan.</li>
+                <li>Nilai rapor semester 1-5 yang stabil pada mata pelajaran sains/sosial pendukung jurusan tujuan.</li>
+              </ul>
+
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                3. Tips Menyusun Portofolio Kepramukaan
+              </h2>
+              <p>
+                Jangan hanya mencantumkan piagam sertifikat saja. Buatlah lampiran dokumentasi foto aksi pengabdian masyarakat atau proyek kepemimpinan yang pernah kamu pimpin di ambalan. Reviewer kampus mencari bukti integritas, kemandirian, dan kepedulian sosial yang nyata.
+              </p>
+            </>
+          ) : slug === 'jalur-ketua-osis-kepemimpinan' ? (
+            <>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                1. Kenapa Kampus Top Mencari Mantan Ketua OSIS?
+              </h2>
+              <p>
+                Ketua OSIS dinilai memiliki kecerdasan intrapersonal, kepemimpinan (leadership), ketahanan menghadapi tekanan, dan kemampuan komunikasi publik yang matang. Oleh sebab itu, jalur khusus Ketua OSIS dibuka oleh kampus favorit seperti <strong>SJP IPB University</strong>, <strong>SMUP Minat Bakat Unpad</strong>, dan Seleksi Prestasi Kepemimpinan di UNAIR dan UNS.
+              </p>
+
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                2. Syarat Dokumen Jalur Ketua OSIS
+              </h2>
+              <ul className="space-y-2 list-disc list-inside text-sm text-gray-700">
+                <li>Surat Keputusan (SK) Kepala Sekolah tentang pengangkatan pengurus OSIS dengan posisi definitif Ketua OSIS (bukan sekadar anggota seksi).</li>
+                <li>Surat Keterangan Berkelakuan Baik dan Rekomendasi Khusus dari Kepala Sekolah.</li>
+                <li>Portofolio Program Kerja Unggulan: ringkasan kegiatan, inovasi program, dan dampak positif yang dihasilkan selama masa bakti kepengurusan.</li>
+                <li>Esai Kontribusi dan Motivasi: mengapa kepemimpinan di sekolah membuatmu siap berkontribusi untuk almamater kampus impian.</li>
+              </ul>
+            </>
+          ) : slug === 'panduan-masuk-ptn-tanpa-tes-lengkap' ? (
+            <>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                1. Klasifikasi Seluruh Jalur Masuk PTN Tanpa Ujian Tulis
+              </h2>
+              <p>
+                Jika kamu tidak ingin bertaruh pada ujian UTBK/CBT yang sangat melelahkan, ada puluhan pintu masuk PTN yang 100% dinilai berdasarkan rekam jejak prestasimu. Di otwptn.com, kami membaginya ke dalam 5 pilar utama:
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose my-6">
+                <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200">
+                  <h4 className="font-bold text-gray-900 text-sm">1. Jalur Prestasi Nilai Rapor (SNBP & Mandiri Rapor)</h4>
+                  <p className="text-xs text-gray-700 mt-1">Menggunakan rekap nilai rapor semester 1-5 dan indeks akreditasi sekolah. Contoh: SNBP, PPKB UI, SMUP Unpad Rapor.</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200">
+                  <h4 className="font-bold text-gray-900 text-sm">2. Jalur Prestasi Lomba & Kejuaraan (Puspresnas)</h4>
+                  <p className="text-xs text-gray-700 mt-1">Sertifikat juara sains (OSN), riset (OPSI), olahraga (O2SN/PON), dan seni (FLS2N). Contoh: PBUB UGM, SBUB Undip.</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200">
+                  <h4 className="font-bold text-gray-900 text-sm">3. Jalur Kepemimpinan & Organisasi</h4>
+                  <p className="text-xs text-gray-700 mt-1">Khusus bagi Ketua OSIS, MPK, dan Pramuka Garuda. Contoh: SJP IPB, SMUP Minat Bakat Unpad.</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200">
+                  <h4 className="font-bold text-gray-900 text-sm">4. Jalur Keagamaan & Tahfidz Quran</h4>
+                  <p className="text-xs text-gray-700 mt-1">Bagi penghafal Al-Quran min. 5-30 juz atau prestasi keagamaan lain. Contoh: Golden Ticket UNAIR, PBUB UGM.</p>
+                </div>
+              </div>
+
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+                2. Strategi Memaksimalkan Peluang di otwptn.com
+              </h2>
+              <p>
+                Setiap jalur memiliki timeline pembukaan yang berbeda-beda mulai dari Januari hingga Juli. Pastikan kamu menggunakan fitur <strong>Tracking Jadwal Jalur Non-Tes</strong> di otwptn.com dan menguji draf berkasmu dengan <strong>Essay AI Review</strong> agar tidak ada poin penilaian yang terlewat.
+              </p>
+            </>
           ) : (
             <>
               <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">

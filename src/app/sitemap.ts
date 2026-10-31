@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next'
+import { ARTICLES } from '@/lib/articlesData'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://otwptn.com'
@@ -106,16 +107,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.85,
   }))
 
-  // Artikel Hub & Articles for SEO Dominance
-  const articleSlugs = [
-    'panduan-lolos-snbp-2026-strategi-rapor-dan-prodi',
-    'tips-menulis-personal-statement-ppkb-ui',
-    'jalur-ketua-osis-sjp-ipb-kriteria-portofolio',
-    'pbub-ugm-kategori-prestasi-dan-sertifikat',
-    '5-kesalahan-fatal-essay-seleksi-non-tes',
-    'cara-hitung-peluang-masuk-ptn-tanpa-tes',
-  ]
-
+  // Artikel Hub & All Articles from articlesData for SEO Dominance
   const articleRoutes: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}/artikel`,
@@ -123,8 +115,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'daily',
       priority: 0.95,
     },
-    ...articleSlugs.map(slug => ({
-      url: `${baseUrl}/artikel/${slug}`,
+    ...ARTICLES.map(a => ({
+      url: `${baseUrl}/artikel/${a.slug}`,
       lastModified: currentDate,
       changeFrequency: 'weekly' as const,
       priority: 0.9,

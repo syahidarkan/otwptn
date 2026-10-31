@@ -2,7 +2,7 @@ export interface Article {
   slug: string
   title: string
   excerpt: string
-  category: 'SNBP' | 'PPKB UI' | 'SJP IPB' | 'PBUB UGM' | 'Essay & Portofolio' | 'Strategi Rapor'
+  category: 'SNBP' | 'PPKB UI' | 'SJP IPB' | 'PBUB UGM' | 'Essay & Portofolio' | 'Strategi Rapor' | 'Jalur Khusus & Prestasi'
   readTime: string
   date: string
   author: {
@@ -171,5 +171,93 @@ export const ARTICLES: Article[] = [
       avatar: '/mascot-hd/kalkulator-peluang.png',
     },
     tags: ['Kalkulator Peluang', 'Indeks Sekolah', 'Daya Tampung PTN', 'Rapor Ideal'],
+  },
+  {
+    slug: 'jalur-tahfidz-quran-ptn',
+    title: 'Daftar PTN Jalur Tahfidz Quran 2026: Syarat Minimal Hafalan Juz & Kampus Favorit',
+    excerpt: 'Ketahui perguruan tinggi negeri yang membuka jalur khusus penghafal Al-Quran (5, 10, 20, hingga 30 juz) seperti UNAIR, Undip, ITS, UGM, dan Unhas tanpa ujian tulis.',
+    category: 'Jalur Khusus & Prestasi',
+    readTime: '7 menit baca',
+    date: '30 Oktober 2026',
+    author: {
+      name: 'Tim Riset Akademik otwptn',
+      role: 'Spesialis Jalur Keagamaan & Prestasi',
+      avatar: '/mascot-hd/kalkulator-peluang.png',
+    },
+    featured: true,
+    tags: ['Jalur Tahfidz', 'Tahfidz Quran PTN', 'Penghafal Quran', 'Masuk PTN Tanpa Tes', 'UNAIR Golden Ticket'],
+  },
+  {
+    slug: 'jalur-pramuka-garuda-ptn',
+    title: 'Jalur Masuk PTN Pramuka Garuda 2026: Syarat Sertifikat, Portofolio & Kuota Kampus',
+    excerpt: 'Panduan menembus PTN melalui rekam jejak kepanduan Pramuka Garuda. Informasi syarat portofolio tingkatan penegak garuda, surat rekomendasi Kwartir, dan seleksi IPB University.',
+    category: 'Jalur Khusus & Prestasi',
+    readTime: '6 menit baca',
+    date: '30 Oktober 2026',
+    author: {
+      name: 'Kak Farhan Alumni IPB',
+      role: 'Mentor Seleksi Jalur Prestasi IPB',
+      avatar: '/ptn-logos/ipb.png',
+    },
+    tags: ['Jalur Pramuka', 'Pramuka Garuda', 'Jalur Non-Tes IPB', 'Sertifikat Kepanduan'],
+  },
+  {
+    slug: 'jalur-ketua-osis-kepemimpinan',
+    title: 'Daftar Kampus yang Membuka Jalur Ketua OSIS 2026: Syarat & Tips Portofolio',
+    excerpt: 'Daftar lengkap perguruan tinggi negeri yang mengapresiasi jiwa kepemimpinan pelajar: SJP IPB, SMUP Unpad, hingga Seleksi Mandiri Prestasi UNAIR dan UNS.',
+    category: 'Jalur Khusus & Prestasi',
+    readTime: '6 menit baca',
+    date: '30 Oktober 2026',
+    author: {
+      name: 'Kak Farhan Alumni IPB',
+      role: 'Mentor Lulusan SJP IPB',
+      avatar: '/ptn-logos/ipb.png',
+    },
+    featured: true,
+    tags: ['Jalur Ketua OSIS', 'Kepemimpinan Siswa', 'SJP IPB', 'SMUP Unpad', 'Portofolio OSIS'],
+  },
+  {
+    slug: 'jalur-prestasi-olahraga-seni-fls2n-o2sn',
+    title: 'Panduan Lolos Jalur Prestasi Olahraga & Seni PTN 2026: Validasi Sertifikat Puspresnas',
+    excerpt: 'Cara memanfaatkan sertifikat juara O2SN, FLS2N, PON, POPNAS, dan kejuaraan nasional untuk menembus prodi impian di UI, UGM, Undip, dan Unair tanpa ujian tulis.',
+    category: 'Jalur Khusus & Prestasi',
+    readTime: '7 menit baca',
+    date: '29 Oktober 2026',
+    author: {
+      name: 'Kak Dimas Teknik UGM',
+      role: 'Mentor PBUB UGM Medali Sains',
+      avatar: '/ptn-logos/ugm.png',
+    },
+    tags: ['Jalur Prestasi Olahraga', 'FLS2N', 'O2SN', 'Seni Budaya', 'PBUB UGM', 'Puspresnas'],
+  },
+  {
+    slug: 'jalur-nilai-rapor-tanpa-tes-ptn',
+    title: 'Daftar Seleksi Mandiri PTN Menggunakan Nilai Rapor Tanpa Tes Tulis 2026',
+    excerpt: 'Kumpulan seleksi mandiri PTN yang 100% menggunakan nilai rapor semester 1-5 tanpa ujian tulis: PPKB UI, Talent Scouting, SMUP Unpad Rapor, Seleksi Prestasi Undip, dan Nilai Rapor ITB.',
+    category: 'Strategi Rapor',
+    readTime: '8 menit baca',
+    date: '29 Oktober 2026',
+    author: {
+      name: 'Kak Rifqi Alumni UI',
+      role: 'Mentor Senior Jalur Prestasi UI',
+      avatar: '/ptn-logos/ui.png',
+    },
+    featured: true,
+    tags: ['Jalur Nilai Rapor', 'Seleksi Mandiri Rapor', 'PPKB UI', 'SMUP Unpad', 'Nilai Rapor ITB'],
+  },
+  {
+    slug: 'panduan-masuk-ptn-tanpa-tes-lengkap',
+    title: 'Panduan Terlengkap Masuk PTN Impian Tanpa Ujian: Semua Jalur Non-Tes dari A sampai Z',
+    excerpt: 'Masterlist jalur masuk PTN non-tes 2026: SNBP nasional, seleksi prestasi daerah, jalur ketua OSIS, tahfidz quran, pramuka, olimpiade sains, hingga seleksi essay motivasi.',
+    category: 'Jalur Khusus & Prestasi',
+    readTime: '10 menit baca',
+    date: '31 Oktober 2026',
+    author: {
+      name: 'Tim Riset Akademik otwptn',
+      role: 'Spesialis Seleksi Masuk PTN Non-Tes',
+      avatar: '/mascot-hd/kalkulator-peluang.png',
+    },
+    featured: true,
+    tags: ['Masuk PTN Tanpa Tes', 'Jalur Non-Tes PTN', 'SNBP 2026', 'Jalur Prestasi', 'Panduan Lengkap PTN'],
   },
 ]
