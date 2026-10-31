@@ -1,0 +1,92 @@
+[
+  {
+    "id": "bk-1",
+    "sentence": "Sertifikat prestasi lomba ini di simpan rapi dalam portofolio SNBP.",
+    "tokens": ["Sertifikat", "prestasi", "lomba", "ini", "di simpan", "rapi", "dalam", "portofolio", "SNBP."],
+    "errorIndex": 4,
+    "errorWord": "di simpan",
+    "options": [
+      "disimpan",
+      "di-simpan",
+      "di simpan"
+    ],
+    "correctOption": "disimpan",
+    "category": "Kata Depan vs Awalan",
+    "explanation": "Kata 'di' yang berfungsi sebagai imbuhan kata kerja pasif (seperti disimpan, ditulis, dibaca) harus ditulis SERANGKAI tanpa spasi. Spasi hanya digunakan untuk kata depan penunjuk tempat (di sekolah, di rumah)."
+  },
+  {
+    "id": "bk-2",
+    "sentence": "Saya berencana mendaftar di universitas indonesia melalui jalur PPKB.",
+    "tokens": ["Saya", "berencana", "mendaftar", "di", "universitas indonesia", "melalui", "jalur", "PPKB."],
+    "errorIndex": 4,
+    "errorWord": "universitas indonesia",
+    "options": [
+      "Universitas Indonesia",
+      "universitas Indonesia",
+      "Universitas indonesia"
+    ],
+    "correctOption": "Universitas Indonesia",
+    "category": "Huruf Kapital",
+    "explanation": "Nama resmi instansi, lembaga pendidikan, atau badan hukum wajib diawali huruf kapital di setiap kata (Universitas Indonesia)."
+  },
+  {
+    "id": "bk-3",
+    "sentence": "Meskipun nilai matematika saya pas-pasan tetapi saya unggul dalam riset biologi.",
+    "tokens": ["Meskipun", "nilai", "matematika", "saya", "pas-pasan", "tetapi", "saya", "unggul", "dalam", "riset", "biologi."],
+    "errorIndex": 5,
+    "errorWord": "tetapi",
+    "options": [
+      ", namun",
+      ",",
+      "tetapi"
+    ],
+    "correctOption": ",",
+    "category": "Konjungsi Majemuk",
+    "explanation": "Kata 'Meskipun' adalah konjungsi subordinatif pertentangan, sehingga tidak boleh dipasangkan lagi dengan kata 'tetapi' dalam satu kalimat majemuk bertingkat (pleonasme konjungsi). Cukup gunakan tanda koma untuk memisahkan anak kalimat di awal."
+  },
+  {
+    "id": "bk-4",
+    "sentence": "Kegiatan organisasi dilakukan di-sekolah setiap hari Sabtu sore.",
+    "tokens": ["Kegiatan", "organisasi", "dilakukan", "di-sekolah", "setiap", "hari", "Sabtu", "sore."],
+    "errorIndex": 3,
+    "errorWord": "di-sekolah",
+    "options": [
+      "di sekolah",
+      "disekolah",
+      "di-sekolah"
+    ],
+    "correctOption": "di sekolah",
+    "category": "Kata Depan Tempat",
+    "explanation": "Kata 'di' sebagai kata depan penunjuk arah atau tempat (sekolah) wajib ditulis TERPISAH dengan spasi ('di sekolah'), bukan disambung atau menggunakan tanda hubung."
+  },
+  {
+    "id": "bk-5",
+    "sentence": "Dokumen motivation letter tersebut harus di tandatangani oleh kepala sekolah.",
+    "tokens": ["Dokumen", "motivation", "letter", "tersebut", "harus", "di tandatangani", "oleh", "kepala", "sekolah."],
+    "errorIndex": 5,
+    "errorWord": "di tandatangani",
+    "options": [
+      "ditandatangani",
+      "di tanda tangani",
+      "ditanda-tangani"
+    ],
+    "correctOption": "ditandatangani",
+    "category": "Kata Berimbuhan Gabung",
+    "explanation": "Jika kata majemuk 'tanda tangan' mendapat awalan dan akhiran sekaligus (konfiks di-...-kan / di-...-i), penulisannya wajib serangkai penuh: 'ditandatangani'."
+  },
+  {
+    "id": "bk-6",
+    "sentence": "Selain itu saya juga aktif menjadi panitia seminar sains tingkat nasional.",
+    "tokens": ["Selain itu", "saya", "juga", "aktif", "menjadi", "panitia", "seminar", "sains", "tingkat", "nasional."],
+    "errorIndex": 0,
+    "errorWord": "Selain itu",
+    "options": [
+      "Selain itu,",
+      "Selain daripada itu",
+      "Selain itu"
+    ],
+    "correctOption": "Selain itu,",
+    "category": "Tanda Baca Antarkalimat",
+    "explanation": "Konjungsi antarkalimat seperti 'Selain itu', 'Oleh karena itu', 'Namun', dan 'Bahkan' WAJIB diikuti tanda baca koma (,)."
+  }
+]

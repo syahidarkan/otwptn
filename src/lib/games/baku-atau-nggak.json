@@ -1,0 +1,114 @@
+[
+  {
+    "id": "bn-1",
+    "targetWord": "APOTEK",
+    "commonMistake": "APOTIK",
+    "definition": "Tempat meramu dan menjual obat berdasarkan resep dokter.",
+    "exampleSentence": "Ibu membeli vitamin dan obat flu di ___ dekat rumah.",
+    "letterCount": 6,
+    "firstLetter": "A",
+    "hints": [
+      "Kata ini berasal dari serapan bahasa Belanda 'apotheek'.",
+      "Huruf vokalnya menggunakan 'E', bukan 'I'.",
+      "Petugas ahlinya disebut apoteker (bukan apotikir)."
+    ]
+  },
+  {
+    "id": "bn-2",
+    "targetWord": "KARIER",
+    "commonMistake": "KARIR",
+    "definition": "Perkembangan dan kemajuan dalam pekerjaan, jabatan, atau profesi seseorang.",
+    "exampleSentence": "Menempuh pendidikan di UI akan membuka peluang ___ yang cemerlang.",
+    "letterCount": 6,
+    "firstLetter": "K",
+    "hints": [
+      "Diserap dari bahasa Belanda 'carrière'.",
+      "Terdapat vokal 'I' dan 'E' yang beriringan di tengah kata.",
+      "Sering salah ditulis menjadi hanya 5 huruf."
+    ]
+  },
+  {
+    "id": "bn-3",
+    "targetWord": "RISIKO",
+    "commonMistake": "RESIKO",
+    "definition": "Akibat yang kurang menyenangkan (merugikan, membahayakan) dari suatu tindakan.",
+    "exampleSentence": "Setiap pilihan program studi memiliki peluang dan ___ yang harus diperhitungkan.",
+    "letterCount": 6,
+    "firstLetter": "R",
+    "hints": [
+      "Diserap dari bahasa Inggris 'risk' atau Belanda 'risico'.",
+      "Huruf vokal pertama adalah 'I', bukan 'E'.",
+      "Bentuk turunannya adalah berisiko, bukan beresiko."
+    ]
+  },
+  {
+    "id": "bn-4",
+    "targetWord": "PRAKTIK",
+    "commonMistake": "PRAKTEK",
+    "definition": "Pelaksanaan secara nyata apa yang disebut dalam teori.",
+    "exampleSentence": "Jurusan kedokteran memerlukan banyak jam ___ klinis di rumah sakit.",
+    "letterCount": 7,
+    "firstLetter": "P",
+    "hints": [
+      "Mengikuti kaidah serapan akhiran -ic/-iek menjadi -ik.",
+      "Bentuk sifatnya adalah praktis (bukan prakteis).",
+      "Huruf vokal kedua adalah 'I', bukan 'E'."
+    ]
+  },
+  {
+    "id": "bn-5",
+    "targetWord": "ANALISIS",
+    "commonMistake": "ANALISA",
+    "definition": "Penyelidikan terhadap suatu peristiwa untuk mengetahui keadaan yang sebenarnya.",
+    "exampleSentence": "AI kami melakukan ___ mendalam terhadap struktur esai dan nilai rapor.",
+    "letterCount": 8,
+    "firstLetter": "A",
+    "hints": [
+      "Akhiran serapan bahasa Inggris -ysis diserap menjadi -isis.",
+      "Bentuk akhirnya berakhiran huruf 'S', bukan huruf 'A'.",
+      "Kata kerjanya adalah menganalisis, bukan menganalisa."
+    ]
+  },
+  {
+    "id": "bn-6",
+    "targetWord": "KUALITAS",
+    "commonMistake": "KWALITAS",
+    "definition": "Tingkat baik buruknya sesuatu; kadar atau mutu.",
+    "exampleSentence": "Mentor kami memastikan ___ esai motivasimu berstandar kampus unggulan.",
+    "letterCount": 8,
+    "firstLetter": "K",
+    "hints": [
+      "Huruf 'QU' diserap menjadi 'KU' dalam bahasa Indonesia.",
+      "Tidak menggunakan huruf 'W'.",
+      "Berkaitan dengan mutu keunggulan."
+    ]
+  },
+  {
+    "id": "bn-7",
+    "targetWord": "AKTIVITAS",
+    "commonMistake": "AKTIFITAS",
+    "definition": "Keaktifan atau kegiatan yang dilakukan seseorang atau kelompok.",
+    "exampleSentence": "Portofolio kepemimpinan memuat rekam jejak ___ organisasi sekolah.",
+    "letterCount": 9,
+    "firstLetter": "A",
+    "hints": [
+      "Kata dasarnya adalah 'aktif', namun saat mendapat serapan imbuhan -itas huruf 'F' berubah menjadi 'V'.",
+      "Menggunakan huruf 'V' di tengah kata.",
+      "Contoh serupa: produktif -> produktivitas."
+    ]
+  },
+  {
+    "id": "bn-8",
+    "targetWord": "CENDERUNG",
+    "commonMistake": "CENDRUNG",
+    "definition": "Condong atau berpihak pada suatu arah atau kebiasaan.",
+    "exampleSentence": "Siswa dengan rekam jejak konsisten ___ lebih disukai panitia seleksi.",
+    "letterCount": 9,
+    "firstLetter": "C",
+    "hints": [
+      "Memiliki vokal 'E' di antara huruf 'C' dan 'N', serta setelah 'D'.",
+      "Bukan disingkat tanpa huruf 'e' kedua.",
+      "Bermakna condong atau berkecenderungan."
+    ]
+  }
+]

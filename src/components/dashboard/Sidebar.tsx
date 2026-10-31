@@ -8,7 +8,7 @@ import {
   Home, FileCheck2, Calculator, Sparkles, PlayCircle, GraduationCap,
   Compass, FolderLock, Users, MessageCircle, Settings, Menu, X, Target,
   Star, ArrowRight, UserCircle2, BarChart3, Clock, Bookmark, Moon,
-  MessageSquare, Download, LogOut, Crown, Bell, HelpCircle,
+  MessageSquare, Download, LogOut, Crown, Bell, HelpCircle, Swords,
 } from 'lucide-react'
 import SidebarPromoCard from './SidebarPromoCard'
 import NotificationPopover from './NotificationPopover'
@@ -26,6 +26,7 @@ const NAV = [
   { id: 'nav-tracking', label: 'Tracking Jalur', href: '/dashboard/tracking-jalur', icon: Compass },
   { id: 'nav-dokumen', label: 'Penyimpanan Dokumen', href: '/dashboard/dokumen', icon: FolderLock },
   { id: 'nav-teman', label: 'Cari Teman Belajar', href: '/dashboard/teman', icon: Users },
+  { id: 'nav-latihan', label: 'Arena Latihan PPU/PBM', href: '/dashboard/latihan', icon: Swords },
   { id: 'nav-komunitas', label: 'Komunitas', href: '/dashboard/komunitas', icon: MessageCircle },
 ]
 

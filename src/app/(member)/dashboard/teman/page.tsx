@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
+import PadananKataGame from '@/components/games/PadananKataGame'
 import {
   Video,
   Mic,
@@ -24,6 +25,7 @@ import {
   X,
   Volume2,
   VolumeX,
+  Swords,
 } from 'lucide-react'
 
 interface PeerProfile {
@@ -196,7 +198,7 @@ interface ChatMessage {
 }
 
 export default function CariTemanBelajarPage() {
-  const [activeTab, setActiveTab] = useState<'study-cam' | 'friends-list'>('study-cam')
+  const [activeTab, setActiveTab] = useState<'study-cam' | 'friends-list' | 'battle-game'>('study-cam')
   const [phase, setPhase] = useState<'idle' | 'searching' | 'connected'>('idle')
   const [currentPeer, setCurrentPeer] = useState<PeerProfile | null>(null)
   const [selectedPTNs, setSelectedPTNs] = useState<string[]>([])
@@ -417,6 +419,17 @@ export default function CariTemanBelajarPage() {
           }`}
         >
           <Users size={16} /> Teman Saya & Chat ({friends.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('battle-game')}
+          className={`px-5 py-2.5 rounded-full text-xs font-extrabold flex items-center gap-2 transition-all ${
+            activeTab === 'battle-game'
+              ? 'btn-brand-primary'
+              : 'bg-white text-gray-700 shadow-xs hover:bg-gray-50'
+          }`}
+        >
+          <Swords size={16} /> Battle Arena PPU & PBM
         </button>
       </div>
 
@@ -689,25 +702,34 @@ export default function CariTemanBelajarPage() {
                       </p>
                     </div>
 
-                    <button
-                      onClick={handleAddFriend}
-                      disabled={addedCurrent}
-                      className={`px-3 py-1.5 rounded-full text-xs font-extrabold flex items-center gap-1.5 shadow-md transition-all ${
-                        addedCurrent
-                          ? 'bg-emerald-500 text-white'
-                          : 'btn-brand-primary'
-                      }`}
-                    >
-                      {addedCurrent ? (
-                        <>
-                          <Check size={14} /> Berteman
-                        </>
-                      ) : (
-                        <>
-                          <UserPlus size={14} /> + Tambah Teman
-                        </>
-                      )}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setActiveTab('battle-game')}
+                        className="px-3 py-1.5 rounded-full text-xs font-black flex items-center gap-1.5 shadow-md bg-amber-400 hover:bg-amber-300 text-gray-950 transition-all"
+                      >
+                        <Swords size={13} /> Battle PPU
+                      </button>
+
+                      <button
+                        onClick={handleAddFriend}
+                        disabled={addedCurrent}
+                        className={`px-3 py-1.5 rounded-full text-xs font-extrabold flex items-center gap-1.5 shadow-md transition-all ${
+                          addedCurrent
+                            ? 'bg-emerald-500 text-white'
+                            : 'btn-brand-primary'
+                        }`}
+                      >
+                        {addedCurrent ? (
+                          <>
+                            <Check size={14} /> Berteman
+                          </>
+                        ) : (
+                          <>
+                            <UserPlus size={14} /> + Tambah Teman
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
 
                   {/* Bottom Peer Goal & Study Topic */}
@@ -957,6 +979,23 @@ export default function CariTemanBelajarPage() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {activeTab === 'battle-game' && (
+        <div className="space-y-6 max-w-3xl mx-auto pt-2">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setActiveTab('study-cam')}
+              className="text-xs font-bold text-gray-500 hover:text-gray-900 flex items-center gap-1"
+            >
+              ← Kembali ke Study Cam
+            </button>
+            <span className="text-xs font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+              {currentPeer ? `Mode Battle Lawan ${currentPeer.name}` : 'Arena Battle Teman'}
+            </span>
+          </div>
+          <PadananKataGame initialMode="room" onExit={() => setActiveTab('study-cam')} />
         </div>
       )}
     </div>

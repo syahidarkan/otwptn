@@ -151,6 +151,15 @@ export default function HeroSection() {
       />
 
       <div className="relative z-10 px-4 flex flex-col items-center text-center max-w-3xl mx-auto w-full py-12 md:py-16">
+        {/* Authority Branding Badge: SNBP, PPKB, SJP, PBUB = OtwPTN */}
+        <motion.div
+          {...fadeUp(0.01)}
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 border border-amber-300/80 shadow-xs mb-5 text-xs font-black text-amber-950 backdrop-blur-sm"
+        >
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>Pusat Otoritas #1 SNBP, PPKB UI, SJP IPB & Mandiri Prestasi PTN</span>
+        </motion.div>
+
         <motion.h1 {...fadeUp(0.04)} className="text-hero text-gray-950 mb-6 md:mb-7 leading-[1.14] tracking-tight">
           Masuk PTN Impianmu{' '}
           <span className="inline-flex items-center align-middle flex-wrap gap-2.5 justify-center">
@@ -172,10 +181,19 @@ export default function HeroSection() {
           </span>
         </motion.h1>
 
-        <motion.p {...fadeUp(0.16)} className="mb-8 max-w-xl mx-auto text-sm sm:text-base leading-relaxed px-2 text-gray-700 font-medium">
+        <motion.p {...fadeUp(0.16)} className="mb-6 max-w-xl mx-auto text-sm sm:text-base leading-relaxed px-2 text-gray-700 font-medium">
           Upload essay-mu, isi profil akademikmu, dan otwptn langsung beri analisis AI canggih -
           skor essay, estimasi peluang rasionalisasi SNBP, dan bimbingan 1-on-1 mentor alumni UI, ITB, & UGM.
         </motion.p>
+
+        {/* Track Pills: SNBP, PPKB, SJP, PBUB */}
+        <motion.div {...fadeUp(0.20)} className="flex items-center justify-center flex-wrap gap-2 mb-8 text-[11px] font-extrabold text-gray-700">
+          <span className="bg-amber-100/90 text-amber-950 px-3 py-1 rounded-full border border-amber-300/80 shadow-2xs">#1 SNBP 2026</span>
+          <span className="bg-white/80 text-gray-900 px-3 py-1 rounded-full border border-gray-200">PPKB UI</span>
+          <span className="bg-white/80 text-gray-900 px-3 py-1 rounded-full border border-gray-200">SJP IPB (Ketua OSIS)</span>
+          <span className="bg-white/80 text-gray-900 px-3 py-1 rounded-full border border-gray-200">PBUB UGM</span>
+          <span className="bg-white/80 text-gray-900 px-3 py-1 rounded-full border border-gray-200">Mandiri Prestasi UNAIR & Undip</span>
+        </motion.div>
 
         <motion.div {...fadeUp(0.24)} className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mb-8">
           <Link href="/register" className="btn btn-primary px-7 py-3.5 text-sm font-extrabold w-full sm:w-auto shadow-md">

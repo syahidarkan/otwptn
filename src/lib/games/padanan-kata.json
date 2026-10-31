@@ -1,0 +1,152 @@
+[
+  {
+    "id": "pk-1",
+    "question": "Pilihlah pasangan kata yang memiliki hubungan analogi paling setara:",
+    "prompt": "GURU : SEKOLAH",
+    "type": "analogi",
+    "options": [
+      "Dokter : Pasien",
+      "Petani : Sawah",
+      "Penyanyi : Lagu",
+      "Pelukis : Kuas"
+    ],
+    "correctIndex": 1,
+    "explanation": "Hubungan profesi dan tempat kerja utamanya: Guru bekerja di sekolah, Petani bekerja di sawah.",
+    "timeLimit": 12
+  },
+  {
+    "id": "pk-2",
+    "question": "Manakah istilah yang tepat untuk kemampuan memahami perasaan dan perspektif orang lain secara mendalam?",
+    "prompt": "EMPATI vs SIMPATI",
+    "type": "istilah",
+    "options": [
+      "Empati",
+      "Simpati",
+      "Apatis",
+      "Telepati"
+    ],
+    "correctIndex": 0,
+    "explanation": "Empati adalah kemampuan menempatkan diri pada posisi orang lain dan merasakan apa yang dirasakan, sedangkan simpati sebatas rasa iba atau kepedulian dari luar.",
+    "timeLimit": 12
+  },
+  {
+    "id": "pk-3",
+    "question": "Pilihlah antonim (lawan kata) yang paling tepat untuk kata:",
+    "prompt": "AUTENTIK",
+    "type": "antonim",
+    "options": [
+      "Orisinal",
+      "Palsu",
+      "Kredibel",
+      "Valid"
+    ],
+    "correctIndex": 1,
+    "explanation": "Autentik berarti asli atau sah. Lawan katanya adalah tiruan atau palsu.",
+    "timeLimit": 10
+  },
+  {
+    "id": "pk-4",
+    "question": "Manakah penggunaan istilah yang menunjukkan pencapaian hasil maksimal dengan penggunaan sumber daya seminimal mungkin?",
+    "prompt": "EFEKTIF vs EFISIEN",
+    "type": "istilah",
+    "options": [
+      "Efektif",
+      "Efisien",
+      "Relevan",
+      "Fleksibel"
+    ],
+    "correctIndex": 1,
+    "explanation": "Efisien berorientasi pada ketepatan cara dan penghematan daya/biaya/waktu, sedangkan Efektif berorientasi pada tercapainya tujuan akhir.",
+    "timeLimit": 12
+  },
+  {
+    "id": "pk-5",
+    "question": "Pilihlah sinonim (padanan arti) yang paling dekat untuk kata:",
+    "prompt": "PERSUASIF",
+    "type": "sinonim",
+    "options": [
+      "Mengajak / Membujuk",
+      "Memerintah / Memaksa",
+      "Mencegah / Menolak",
+      "Meragukan / Menyanggah"
+    ],
+    "correctIndex": 0,
+    "explanation": "Persuasif bersifat membujuk secara halus agar pihak lain menjadi yakin atau terdorong melakukan sesuatu.",
+    "timeLimit": 10
+  },
+  {
+    "id": "pk-6",
+    "question": "Pilihlah pasangan kata yang memiliki hubungan analogi paling setara:",
+    "prompt": "HAUS : AIR",
+    "type": "analogi",
+    "options": [
+      "Lapar : Makanan",
+      "Lelah : Tidur",
+      "Gelap : Lampu",
+      "Panas : Es"
+    ],
+    "correctIndex": 0,
+    "explanation": "Haus diatasi dengan minum air, lapar diatasi dengan memakan makanan.",
+    "timeLimit": 10
+  },
+  {
+    "id": "pk-7",
+    "question": "Pilihlah sinonim yang tepat untuk istilah akademik:",
+    "prompt": "SIGNIFIKAN",
+    "type": "sinonim",
+    "options": [
+      "Kurang berpengaruh",
+      "Amat berarti / Berdampak besar",
+      "Bersifat sementara",
+      "Biasa-biasa saja"
+    ],
+    "correctIndex": 1,
+    "explanation": "Signifikan berarti bermakna penting, berarti, atau memberikan dampak nyata yang besar.",
+    "timeLimit": 10
+  },
+  {
+    "id": "pk-8",
+    "question": "Pilihlah antonim (lawan kata) yang paling tepat untuk istilah:",
+    "prompt": "KONKRET",
+    "type": "antonim",
+    "options": [
+      "Nyata",
+      "Abstrak",
+      "Praktis",
+      "Pasti"
+    ],
+    "correctIndex": 1,
+    "explanation": "Konkret berwujud nyata dan dapat diamati panca indera, lawan katanya adalah abstrak (hanya dalam angan-angan/konsep).",
+    "timeLimit": 10
+  },
+  {
+    "id": "pk-9",
+    "question": "Pilihlah pasangan kata yang memiliki hubungan analogi paling setara:",
+    "prompt": "MOBIL : BENSIN",
+    "type": "analogi",
+    "options": [
+      "Kamera : Foto",
+      "Pesawat : Pilot",
+      "Manusia : Makanan",
+      "Rumah : Pondasi"
+    ],
+    "correctIndex": 2,
+    "explanation": "Mobil membutuhkan bensin sebagai energi penggerak, manusia membutuhkan makanan sebagai energi sumber tenaga.",
+    "timeLimit": 12
+  },
+  {
+    "id": "pk-10",
+    "question": "Pilihlah makna yang paling tepat dari istilah:",
+    "prompt": "KOMPREHENSIF",
+    "type": "istilah",
+    "options": [
+      "Menyeluruh dan luas mencakup banyak aspek",
+      "Ringkas dan padat tanpa penjelasan",
+      "Bersifat rahasia dan terbatas",
+      "Sulit dimengerti dan berbelit-belit"
+    ],
+    "correctIndex": 0,
+    "explanation": "Komprehensif berarti bersifat mampu menangkap banyak hal dengan baik, luas dan lengkap, menyeluruh.",
+    "timeLimit": 10
+  }
+]
