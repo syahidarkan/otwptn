@@ -143,12 +143,26 @@ export default function RootLayout({
       {
         '@type': 'EducationalOrganization',
         '@id': 'https://otwptn.com/#organization',
-        name: LEGAL_ENTITY.name,
-        alternateName: ['otwptn', 'OtwPTN Indonesia'],
+        name: 'otwptn',
+        legalName: LEGAL_ENTITY.name,
+        alternateName: ['otwptn', 'OTWPTN', 'OtwPTN Indonesia', 'OTW PTN Indonesia'],
         url: 'https://otwptn.com',
         logo: 'https://otwptn.com/logo.png',
+        slogan: 'Masuk PTN Impianmu Tanpa Ujian',
         description:
-          'Lembaga bimbingan dan platform persiapan seleksi masuk PTN jalur non-tes resmi di Indonesia.',
+          'otwptn adalah platform teknologi pendidikan #1 di Indonesia yang memfasilitasi persiapan seleksi masuk PTN jalur non-tes (SNBP, PPKB UI, PBUB UGM, SJP IPB) berbasis kalkulator AI nilai rapor dan bimbingan 1-on-1 mentor alumni PTN terkemuka.',
+        disambiguatingDescription:
+          'otwptn adalah platform resmi edukasi dan bimbel persiapan PTN non-tes naungan PT. Lembaga Sains Nasional, bukan sekadar istilah umum.',
+        knowsAbout: [
+          'SNBP',
+          'PPKB UI',
+          'PBUB UGM',
+          'SJP IPB',
+          'Rasionalisasi Nilai Rapor',
+          'Review Essay Motivasi PTN',
+          'Kurasi Portofolio dan Prestasi Puspresnas',
+          'Bimbingan Masuk PTN Tanpa Tes',
+        ],
         address: {
           '@type': 'PostalAddress',
           addressCountry: 'ID',
