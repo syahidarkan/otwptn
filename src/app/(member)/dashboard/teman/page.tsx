@@ -214,6 +214,7 @@ export default function CariTemanBelajarPage() {
   const [camDenied, setCamDenied] = useState(false)
   const localVideoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
+  const remoteAudioRef = useRef<HTMLAudioElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const remoteStreamRef = useRef<MediaStream | null>(null)
   const webrtcRef = useRef<StudyCamWebRTC | null>(null)
@@ -368,25 +369,23 @@ export default function CariTemanBelajarPage() {
       onRemoteStream: (remoteStream) => {
         remoteStreamRef.current = remoteStream
         if (remoteVideoRef.current) {
-          const vid = remoteVideoRef.current
-          if (vid.srcObject !== remoteStream) {
-            vid.srcObject = remoteStream
-          }
-          vid.muted = false
-          const playPromise = vid.play()
-          if (playPromise !== undefined) {
-            playPromise.catch(() => {
-              vid.muted = true
-              setIsAudioBlocked(true)
-              vid.play().catch(() => {})
-            })
-          }
+          remoteVideoRef.current.srcObject = remoteStream
+          remoteVideoRef.current.play().catch(() => {})
+        }
+        if (remoteAudioRef.current) {
+          remoteAudioRef.current.srcObject = remoteStream
+          remoteAudioRef.current.play().catch(() => {
+            setIsAudioBlocked(true)
+          })
         }
         setPhase('connected')
       },
       onPeerLeft: () => {
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = null
+        }
+        if (remoteAudioRef.current) {
+          remoteAudioRef.current.srcObject = null
         }
         remoteStreamRef.current = null
         setCurrentPeer(null)
@@ -404,18 +403,15 @@ export default function CariTemanBelajarPage() {
 
   // Ensure remote stream is mounted and playing once phase switches to connected
   useEffect(() => {
-    if (phase === 'connected' && remoteVideoRef.current && remoteStreamRef.current) {
-      const vid = remoteVideoRef.current
-      if (vid.srcObject !== remoteStreamRef.current) {
-        vid.srcObject = remoteStreamRef.current
+    if (phase === 'connected' && remoteStreamRef.current) {
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = remoteStreamRef.current
+        remoteVideoRef.current.play().catch(() => {})
       }
-      vid.muted = false
-      const playPromise = vid.play()
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          vid.muted = true
+      if (remoteAudioRef.current) {
+        remoteAudioRef.current.srcObject = remoteStreamRef.current
+        remoteAudioRef.current.play().catch(() => {
           setIsAudioBlocked(true)
-          vid.play().catch(() => {})
         })
       }
     }
@@ -441,6 +437,9 @@ export default function CariTemanBelajarPage() {
     }
     if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = null
+    }
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.srcObject = null
     }
     remoteStreamRef.current = null
     setIsAudioBlocked(false)
@@ -736,19 +735,21 @@ export default function CariTemanBelajarPage() {
             {/* Right Screen: Stranger / Partner Belajar */}
             <div
               onClick={() => {
-                if (remoteVideoRef.current && isAudioBlocked) {
-                  remoteVideoRef.current.muted = false
-                  remoteVideoRef.current.play().catch(() => {})
-                  setIsAudioBlocked(false)
+                if (remoteAudioRef.current && isAudioBlocked) {
+                  remoteAudioRef.current.play().then(() => setIsAudioBlocked(false)).catch(() => {})
                 }
               }}
               className="relative rounded-3xl overflow-hidden aspect-[4/3] bg-gray-950 shadow-xl flex items-center justify-center text-white cursor-pointer"
             >
-              {/* Remote live video feed - permanently mounted so ref is never null */}
+              {/* Separate dedicated audio element */}
+              <audio ref={remoteAudioRef} autoPlay playsInline />
+
+              {/* Remote live video feed - muted so browser NEVER blocks rendering */}
               <video
                 ref={remoteVideoRef}
                 autoPlay
                 playsInline
+                muted
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
                   phase === 'connected' ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none'
                 }`}
@@ -760,10 +761,8 @@ export default function CariTemanBelajarPage() {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation()
-                    if (remoteVideoRef.current) {
-                      remoteVideoRef.current.muted = false
-                      remoteVideoRef.current.play().catch(() => {})
-                      setIsAudioBlocked(false)
+                    if (remoteAudioRef.current) {
+                      remoteAudioRef.current.play().then(() => setIsAudioBlocked(false)).catch(() => {})
                     }
                   }}
                   className="absolute top-20 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full text-xs font-black bg-amber-400 text-gray-950 shadow-2xl flex items-center gap-2 animate-bounce"

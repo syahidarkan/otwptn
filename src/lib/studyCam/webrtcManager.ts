@@ -29,23 +29,6 @@ const ICE_SERVERS: RTCIceServer[] = [
   { urls: 'stun:global.stun.twilio.com:3478' },
   // Mozilla Global STUN
   { urls: 'stun:stun.services.mozilla.com:3478' },
-  // OpenRelay Public TURN & STUN (Metered.ca) for cross-country and symmetric NAT traversal
-  { urls: 'stun:stun.relay.metered.ca:80' },
-  {
-    urls: 'turn:openrelay.metered.ca:80',
-    username: 'openrelay',
-    credential: 'openrelay',
-  },
-  {
-    urls: 'turn:openrelay.metered.ca:443',
-    username: 'openrelay',
-    credential: 'openrelay',
-  },
-  {
-    urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-    username: 'openrelay',
-    credential: 'openrelay',
-  },
 ]
 
 export class StudyCamWebRTC {
@@ -54,7 +37,6 @@ export class StudyCamWebRTC {
   private roomChannel: RealtimeChannel | null = null
   private pc: RTCPeerConnection | null = null
   private localStream: MediaStream | null = null
-  private remoteMediaStream = new MediaStream()
   private myProfile: PeerInfo
   private currentPeer: PeerInfo | null = null
   private callbacks: WebRTCCallbacks
@@ -177,7 +159,6 @@ export class StudyCamWebRTC {
       .on('broadcast', { event: 'match_accept' }, ({ payload }) => {
         if (this.isCleanedUp) return
         if (payload.toId !== this.myProfile.id) return
-        // Initiator confirms receiver acknowledged invitation
         if (!this.matchedRoomId) {
           this.matchedRoomId = payload.roomId
           this.currentPeer = payload.from
@@ -238,21 +219,19 @@ export class StudyCamWebRTC {
     this.callbacks.onMatchFound(peer, isInitiator)
     this.candidateQueue = []
     this.isRemoteDescriptionSet = false
-    this.remoteMediaStream = new MediaStream()
 
     if (this.disconnectGraceTimer) {
       clearTimeout(this.disconnectGraceTimer)
       this.disconnectGraceTimer = null
     }
 
-    // Setup RTCPeerConnection with global STUN/TURN servers
+    // Setup RTCPeerConnection with global STUN servers
     const pc = new RTCPeerConnection({
       iceServers: ICE_SERVERS,
-      iceCandidatePoolSize: 4,
     })
     this.pc = pc
 
-    // Add local tracks
+    // Add local tracks to peer connection
     if (this.localStream) {
       this.localStream.getTracks().forEach(track => {
         try {
@@ -263,39 +242,10 @@ export class StudyCamWebRTC {
       })
     }
 
-    // Apply bitrate and bandwidth management to eliminate lag and network choking
-    const applyBandwidthConstraint = () => {
-      pc.getSenders().forEach(sender => {
-        if (sender.track && sender.track.kind === 'video') {
-          try {
-            const params = sender.getParameters()
-            if (!params.encodings || params.encodings.length === 0) {
-              params.encodings = [{}]
-            }
-            params.encodings[0].maxBitrate = 400000 // 400 kbps: smooth 30fps without bufferbloat
-            params.encodings[0].maxFramerate = 25
-            sender.setParameters(params).catch(() => {})
-          } catch {
-            // Ignore if browser restricts setParameters
-          }
-        }
-      })
-    }
-
-    // Handle incoming remote tracks
+    // Handle incoming remote stream and tracks
     pc.ontrack = event => {
-      if (event.streams && event.streams[0]) {
-        event.streams[0].getTracks().forEach(track => {
-          if (!this.remoteMediaStream.getTracks().some(t => t.id === track.id)) {
-            this.remoteMediaStream.addTrack(track)
-          }
-        })
-      } else if (event.track) {
-        if (!this.remoteMediaStream.getTracks().some(t => t.id === event.track.id)) {
-          this.remoteMediaStream.addTrack(event.track)
-        }
-      }
-      this.callbacks.onRemoteStream(this.remoteMediaStream)
+      const stream = (event.streams && event.streams[0]) ? event.streams[0] : new MediaStream([event.track])
+      this.callbacks.onRemoteStream(stream)
     }
 
     // Robust connection state listener: 10s grace period for temporary network jitter
@@ -306,7 +256,6 @@ export class StudyCamWebRTC {
           clearTimeout(this.disconnectGraceTimer)
           this.disconnectGraceTimer = null
         }
-        applyBandwidthConstraint()
       } else if (state === 'disconnected') {
         // Temporary packet loss or mobile cell switch. Do not disconnect immediately!
         if (!this.disconnectGraceTimer) {
@@ -364,13 +313,18 @@ export class StudyCamWebRTC {
             offerToReceiveVideo: true,
           })
           await pc.setLocalDescription(offer)
-          applyBandwidthConstraint()
         }
         if (pc.localDescription) {
           roomChannel.send({
             type: 'broadcast',
             event: 'sdp_offer',
-            payload: { offer: pc.localDescription, fromId: this.myProfile.id },
+            payload: {
+              offer: {
+                type: pc.localDescription.type,
+                sdp: pc.localDescription.sdp,
+              },
+              fromId: this.myProfile.id,
+            },
           })
         }
       } catch (err) {
@@ -394,12 +348,17 @@ export class StudyCamWebRTC {
 
           const answer = await pc.createAnswer()
           await pc.setLocalDescription(answer)
-          applyBandwidthConstraint()
 
           roomChannel.send({
             type: 'broadcast',
             event: 'sdp_answer',
-            payload: { answer, fromId: this.myProfile.id },
+            payload: {
+              answer: {
+                type: answer.type,
+                sdp: answer.sdp,
+              },
+              fromId: this.myProfile.id,
+            },
           })
         } catch (err) {
           console.warn('Error handling sdp_offer:', err)

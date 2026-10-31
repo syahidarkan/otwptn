@@ -47,6 +47,7 @@ export default function OmegleSection() {
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
+  const remoteAudioRef = useRef<HTMLAudioElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const webrtcRef = useRef<StudyCamWebRTC | null>(null)
 
@@ -101,6 +102,9 @@ export default function OmegleSection() {
     if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = null
     }
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.srcObject = null
+    }
 
     if (webrtcRef.current) {
       webrtcRef.current.cleanup()
@@ -113,26 +117,23 @@ export default function OmegleSection() {
       },
       onRemoteStream: (remoteStream) => {
         if (remoteVideoRef.current) {
-          const vid = remoteVideoRef.current
-          if (vid.srcObject !== remoteStream) {
-            vid.srcObject = remoteStream
-          }
-          vid.muted = false
-          const playPromise = vid.play()
-          if (playPromise !== undefined) {
-            playPromise.catch(() => {
-              // Autoplay with audio was restricted by browser, fallback to muted so video renders
-              vid.muted = true
-              setIsAudioBlocked(true)
-              vid.play().catch(() => {})
-            })
-          }
+          remoteVideoRef.current.srcObject = remoteStream
+          remoteVideoRef.current.play().catch(() => {})
+        }
+        if (remoteAudioRef.current) {
+          remoteAudioRef.current.srcObject = remoteStream
+          remoteAudioRef.current.play().catch(() => {
+            setIsAudioBlocked(true)
+          })
         }
         setPhase('connected')
       },
       onPeerLeft: () => {
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = null
+        }
+        if (remoteAudioRef.current) {
+          remoteAudioRef.current.srcObject = null
         }
         setPeer(null)
         setPhase('idle')
@@ -155,8 +156,12 @@ export default function OmegleSection() {
     if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = null
     }
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.srcObject = null
+    }
     setPhase('idle')
     setPeer(null)
+    setIsAudioBlocked(false)
   }
 
   function handleNext() {
@@ -245,20 +250,22 @@ export default function OmegleSection() {
             {/* RIGHT - stranger / remote live WebRTC video */}
             <div
               onClick={() => {
-                if (remoteVideoRef.current && isAudioBlocked) {
-                  remoteVideoRef.current.muted = false
-                  remoteVideoRef.current.play().catch(() => {})
-                  setIsAudioBlocked(false)
+                if (remoteAudioRef.current && isAudioBlocked) {
+                  remoteAudioRef.current.play().then(() => setIsAudioBlocked(false)).catch(() => {})
                 }
               }}
               className="rounded-xl relative flex items-center justify-center overflow-hidden min-h-[220px] sm:min-h-0 cursor-pointer"
               style={{ background: '#111' }}
             >
-              {/* Remote live video feed */}
+              {/* Separate dedicated audio element */}
+              <audio ref={remoteAudioRef} autoPlay playsInline />
+
+              {/* Remote live video feed - muted so browser NEVER blocks video rendering */}
               <video
                 ref={remoteVideoRef}
                 autoPlay
                 playsInline
+                muted
                 className={`absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-300 ${
                   phase === 'connected' ? 'opacity-100' : 'opacity-0 pointer-events-none'
                 }`}
@@ -270,10 +277,8 @@ export default function OmegleSection() {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation()
-                    if (remoteVideoRef.current) {
-                      remoteVideoRef.current.muted = false
-                      remoteVideoRef.current.play().catch(() => {})
-                      setIsAudioBlocked(false)
+                    if (remoteAudioRef.current) {
+                      remoteAudioRef.current.play().then(() => setIsAudioBlocked(false)).catch(() => {})
                     }
                   }}
                   className="absolute top-16 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-400 text-gray-950 shadow-xl flex items-center gap-1.5 animate-bounce"
