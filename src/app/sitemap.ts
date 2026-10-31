@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://otwptn.com'
+  const baseUrl = 'https://otwptn.com'
   const currentDate = new Date().toISOString()
 
   // Primary High-Priority Landing Routes

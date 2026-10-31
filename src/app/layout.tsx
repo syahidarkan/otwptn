@@ -27,7 +27,7 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://otwptn.com'),
+  metadataBase: new URL('https://otwptn.com'),
   title: {
     default: 'otwptn | Platform #1 Lolos Masuk PTN Jalur Non-Tes | Bimbingan Mentor UI ITB UGM',
     template: '%s | otwptn | Masuk PTN Tanpa Tes',
