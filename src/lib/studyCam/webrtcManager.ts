@@ -17,11 +17,29 @@ export interface WebRTCCallbacks {
 }
 
 const ICE_SERVERS: RTCIceServer[] = [
+  // Google Public STUN
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'stun:stun1.l.google.com:19302' },
   { urls: 'stun:stun2.l.google.com:19302' },
   { urls: 'stun:stun3.l.google.com:19302' },
   { urls: 'stun:stun4.l.google.com:19302' },
+  // OpenRelay Public TURN & STUN (Metered.ca) for Symmetric NAT & Cellular traversal
+  { urls: 'stun:stun.relay.metered.ca:80' },
+  {
+    urls: 'turn:openrelay.metered.ca:80',
+    username: 'openrelay',
+    credential: 'openrelay',
+  },
+  {
+    urls: 'turn:openrelay.metered.ca:443',
+    username: 'openrelay',
+    credential: 'openrelay',
+  },
+  {
+    urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+    username: 'openrelay',
+    credential: 'openrelay',
+  },
 ]
 
 export class StudyCamWebRTC {
@@ -30,11 +48,15 @@ export class StudyCamWebRTC {
   private roomChannel: RealtimeChannel | null = null
   private pc: RTCPeerConnection | null = null
   private localStream: MediaStream | null = null
+  private remoteMediaStream = new MediaStream()
   private myProfile: PeerInfo
   private currentPeer: PeerInfo | null = null
   private callbacks: WebRTCCallbacks
   private searchTimeoutTimer: NodeJS.Timeout | null = null
   private searchBeaconInterval: NodeJS.Timeout | null = null
+  private offerRetryInterval: NodeJS.Timeout | null = null
+  private candidateQueue: RTCIceCandidateInit[] = []
+  private isRemoteDescriptionSet = false
   private matchedRoomId: string | null = null
   private isCleanedUp = false
 
@@ -48,7 +70,11 @@ export class StudyCamWebRTC {
     this.localStream = stream
     if (this.pc) {
       stream.getTracks().forEach(track => {
-        this.pc?.addTrack(track, stream)
+        try {
+          this.pc?.addTrack(track, stream)
+        } catch {
+          // Track already added or connection updating
+        }
       })
     }
   }
@@ -154,6 +180,9 @@ export class StudyCamWebRTC {
   // Setup private WebRTC signaling channel for the paired room
   private async initiateWebRTCSession(roomId: string, peer: PeerInfo, isInitiator: boolean) {
     this.callbacks.onMatchFound(peer, isInitiator)
+    this.candidateQueue = []
+    this.isRemoteDescriptionSet = false
+    this.remoteMediaStream = new MediaStream()
 
     // Setup RTCPeerConnection
     const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS })
@@ -162,15 +191,28 @@ export class StudyCamWebRTC {
     // Add local tracks
     if (this.localStream) {
       this.localStream.getTracks().forEach(track => {
-        pc.addTrack(track, this.localStream!)
+        try {
+          pc.addTrack(track, this.localStream!)
+        } catch (err) {
+          console.warn('Could not add track:', err)
+        }
       })
     }
 
-    // Handle remote tracks
+    // Handle remote tracks and aggregate into remoteMediaStream
     pc.ontrack = event => {
       if (event.streams && event.streams[0]) {
-        this.callbacks.onRemoteStream(event.streams[0])
+        event.streams[0].getTracks().forEach(track => {
+          if (!this.remoteMediaStream.getTracks().some(t => t.id === track.id)) {
+            this.remoteMediaStream.addTrack(track)
+          }
+        })
+      } else if (event.track) {
+        if (!this.remoteMediaStream.getTracks().some(t => t.id === event.track.id)) {
+          this.remoteMediaStream.addTrack(event.track)
+        }
       }
+      this.callbacks.onRemoteStream(this.remoteMediaStream)
     }
 
     pc.onconnectionstatechange = () => {
@@ -191,17 +233,60 @@ export class StudyCamWebRTC {
         roomChannel.send({
           type: 'broadcast',
           event: 'ice_candidate',
-          payload: { candidate: event.candidate, fromId: this.myProfile.id },
+          payload: { candidate: event.candidate.toJSON(), fromId: this.myProfile.id },
         })
+      }
+    }
+
+    const drainCandidateQueue = async () => {
+      while (this.candidateQueue.length > 0) {
+        const candidate = this.candidateQueue.shift()
+        if (candidate) {
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(candidate))
+          } catch (err) {
+            console.warn('Error adding queued candidate:', err)
+          }
+        }
+      }
+    }
+
+    const sendOffer = async () => {
+      if (!this.pc || pc.signalingState === 'closed') return
+      try {
+        if (!pc.localDescription) {
+          const offer = await pc.createOffer({
+            offerToReceiveAudio: true,
+            offerToReceiveVideo: true,
+          })
+          await pc.setLocalDescription(offer)
+        }
+        if (pc.localDescription) {
+          roomChannel.send({
+            type: 'broadcast',
+            event: 'sdp_offer',
+            payload: { offer: pc.localDescription, fromId: this.myProfile.id },
+          })
+        }
+      } catch (err) {
+        console.warn('Error creating/sending offer:', err)
       }
     }
 
     // Handle signaling messages
     roomChannel
+      .on('broadcast', { event: 'ready_for_offer' }, () => {
+        if (isInitiator && !this.isRemoteDescriptionSet) {
+          sendOffer()
+        }
+      })
       .on('broadcast', { event: 'sdp_offer' }, async ({ payload }) => {
         if (payload.fromId === this.myProfile.id) return
         try {
           await pc.setRemoteDescription(new RTCSessionDescription(payload.offer))
+          this.isRemoteDescriptionSet = true
+          await drainCandidateQueue()
+
           const answer = await pc.createAnswer()
           await pc.setLocalDescription(answer)
           roomChannel.send({
@@ -209,48 +294,64 @@ export class StudyCamWebRTC {
             event: 'sdp_answer',
             payload: { answer, fromId: this.myProfile.id },
           })
-        } catch {
-          // Fallback ignore error
+        } catch (err) {
+          console.warn('Error handling sdp_offer:', err)
         }
       })
       .on('broadcast', { event: 'sdp_answer' }, async ({ payload }) => {
         if (payload.fromId === this.myProfile.id) return
         try {
+          if (this.offerRetryInterval) {
+            clearInterval(this.offerRetryInterval)
+            this.offerRetryInterval = null
+          }
           await pc.setRemoteDescription(new RTCSessionDescription(payload.answer))
-        } catch {
-          // Fallback ignore error
+          this.isRemoteDescriptionSet = true
+          await drainCandidateQueue()
+        } catch (err) {
+          console.warn('Error handling sdp_answer:', err)
         }
       })
       .on('broadcast', { event: 'ice_candidate' }, async ({ payload }) => {
         if (payload.fromId === this.myProfile.id) return
-        try {
-          if (payload.candidate) {
+        if (!payload.candidate) return
+        if (!this.isRemoteDescriptionSet) {
+          this.candidateQueue.push(payload.candidate)
+        } else {
+          try {
             await pc.addIceCandidate(new RTCIceCandidate(payload.candidate))
+          } catch (err) {
+            console.warn('Error adding live candidate:', err)
           }
-        } catch {
-          // Fallback ignore error
         }
       })
       .on('broadcast', { event: 'peer_disconnect' }, () => {
         this.callbacks.onPeerLeft()
       })
-      .subscribe(async status => {
-        if (status === 'SUBSCRIBED' && isInitiator) {
-          try {
-            // Small delay to ensure receiver has subscribed
-            setTimeout(async () => {
-              if (this.pc && pc.signalingState !== 'closed') {
-                const offer = await pc.createOffer()
-                await pc.setLocalDescription(offer)
-                roomChannel.send({
-                  type: 'broadcast',
-                  event: 'sdp_offer',
-                  payload: { offer, fromId: this.myProfile.id },
-                })
+      .subscribe(status => {
+        if (status === 'SUBSCRIBED') {
+          if (isInitiator) {
+            // First attempt with 400ms delay to let responder connect
+            setTimeout(() => sendOffer(), 400)
+            let retries = 0
+            this.offerRetryInterval = setInterval(() => {
+              retries++
+              if (retries > 5 || this.isRemoteDescriptionSet) {
+                if (this.offerRetryInterval) {
+                  clearInterval(this.offerRetryInterval)
+                  this.offerRetryInterval = null
+                }
+                return
               }
-            }, 500)
-          } catch {
-            // Fallback ignore error
+              sendOffer()
+            }, 1200)
+          } else {
+            // Responder announces readiness for offer
+            roomChannel.send({
+              type: 'broadcast',
+              event: 'ready_for_offer',
+              payload: { fromId: this.myProfile.id },
+            })
           }
         }
       })
@@ -272,6 +373,14 @@ export class StudyCamWebRTC {
     this.matchedRoomId = null
     this.currentPeer = null
     this.stopMatchmaking()
+
+    if (this.offerRetryInterval) {
+      clearInterval(this.offerRetryInterval)
+      this.offerRetryInterval = null
+    }
+
+    this.candidateQueue = []
+    this.isRemoteDescriptionSet = false
 
     if (this.pc) {
       this.pc.ontrack = null

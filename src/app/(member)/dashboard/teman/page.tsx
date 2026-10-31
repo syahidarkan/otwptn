@@ -215,8 +215,10 @@ export default function CariTemanBelajarPage() {
   const localVideoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  const remoteStreamRef = useRef<MediaStream | null>(null)
   const webrtcRef = useRef<StudyCamWebRTC | null>(null)
   const myId = useRef('user_' + Math.random().toString(36).substring(2, 9))
+  const [isAudioBlocked, setIsAudioBlocked] = useState(false)
 
   // In-session Chat
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
@@ -355,9 +357,21 @@ export default function CariTemanBelajarPage() {
         ])
       },
       onRemoteStream: (remoteStream) => {
+        remoteStreamRef.current = remoteStream
         if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = remoteStream
-          remoteVideoRef.current.play().catch(() => {})
+          const vid = remoteVideoRef.current
+          if (vid.srcObject !== remoteStream) {
+            vid.srcObject = remoteStream
+          }
+          vid.muted = false
+          const playPromise = vid.play()
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              vid.muted = true
+              setIsAudioBlocked(true)
+              vid.play().catch(() => {})
+            })
+          }
         }
         setPhase('connected')
       },
@@ -365,8 +379,10 @@ export default function CariTemanBelajarPage() {
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = null
         }
+        remoteStreamRef.current = null
         setCurrentPeer(null)
         setPhase('idle')
+        setIsAudioBlocked(false)
       },
       onTimeout: () => {
         setPhase('timeout')
@@ -376,6 +392,25 @@ export default function CariTemanBelajarPage() {
     webrtcRef.current = rtc
     rtc.startMatchmaking()
   }
+
+  // Ensure remote stream is mounted and playing once phase switches to connected
+  useEffect(() => {
+    if (phase === 'connected' && remoteVideoRef.current && remoteStreamRef.current) {
+      const vid = remoteVideoRef.current
+      if (vid.srcObject !== remoteStreamRef.current) {
+        vid.srcObject = remoteStreamRef.current
+      }
+      vid.muted = false
+      const playPromise = vid.play()
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          vid.muted = true
+          setIsAudioBlocked(true)
+          vid.play().catch(() => {})
+        })
+      }
+    }
+  }, [phase])
 
   function togglePTN(id: string) {
     setSelectedPTNs(prev =>
@@ -398,6 +433,8 @@ export default function CariTemanBelajarPage() {
     if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = null
     }
+    remoteStreamRef.current = null
+    setIsAudioBlocked(false)
     setPhase('idle')
     setCurrentPeer(null)
     setAddedCurrent(false)
@@ -688,7 +725,44 @@ export default function CariTemanBelajarPage() {
             </div>
 
             {/* Right Screen: Stranger / Partner Belajar */}
-            <div className="relative rounded-3xl overflow-hidden aspect-[4/3] bg-gray-950 shadow-xl flex items-center justify-center text-white">
+            <div
+              onClick={() => {
+                if (remoteVideoRef.current && isAudioBlocked) {
+                  remoteVideoRef.current.muted = false
+                  remoteVideoRef.current.play().catch(() => {})
+                  setIsAudioBlocked(false)
+                }
+              }}
+              className="relative rounded-3xl overflow-hidden aspect-[4/3] bg-gray-950 shadow-xl flex items-center justify-center text-white cursor-pointer"
+            >
+              {/* Remote live video feed - permanently mounted so ref is never null */}
+              <video
+                ref={remoteVideoRef}
+                autoPlay
+                playsInline
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+                  phase === 'connected' ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none'
+                }`}
+              />
+
+              {/* Unmute notification if browser blocked unmuted autoplay */}
+              {isAudioBlocked && phase === 'connected' && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (remoteVideoRef.current) {
+                      remoteVideoRef.current.muted = false
+                      remoteVideoRef.current.play().catch(() => {})
+                      setIsAudioBlocked(false)
+                    }
+                  }}
+                  className="absolute top-20 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full text-xs font-black bg-amber-400 text-gray-950 shadow-2xl flex items-center gap-2 animate-bounce"
+                >
+                  <Volume2 size={14} /> Ketuk untuk Aktifkan Suara Teman
+                </button>
+              )}
+
               {phase === 'idle' && (
                 <div className="flex flex-col items-center justify-center p-6 text-center z-10">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -767,15 +841,8 @@ export default function CariTemanBelajarPage() {
 
               {phase === 'connected' && currentPeer && (
                 <>
-                  <video
-                    ref={remoteVideoRef}
-                    autoPlay
-                    playsInline
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-
                   {/* Gradient shadow overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60 pointer-events-none z-10" />
 
                   {/* Top Peer Info & Add Friend Button */}
                   <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between gap-2">

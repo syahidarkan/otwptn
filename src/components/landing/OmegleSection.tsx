@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { MicOff, VideoOff, Swords, RefreshCw } from 'lucide-react'
+import { MicOff, VideoOff, Swords, RefreshCw, Volume2 } from 'lucide-react'
 import { StudyCamWebRTC, PeerInfo } from '@/lib/studyCam/webrtcManager'
 
 // TV static noise - used on the RIGHT (stranger) side while searching
@@ -43,6 +43,7 @@ export default function OmegleSection() {
   const [micOn, setMicOn] = useState(false)
   const [camOn, setCamOn] = useState(false)
   const [camDenied, setCamDenied] = useState(false)
+  const [isAudioBlocked, setIsAudioBlocked] = useState(false)
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
@@ -86,6 +87,7 @@ export default function OmegleSection() {
 
     setPhase('searching')
     setPeer(null)
+    setIsAudioBlocked(false)
 
     if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = null
@@ -102,8 +104,20 @@ export default function OmegleSection() {
       },
       onRemoteStream: (remoteStream) => {
         if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = remoteStream
-          remoteVideoRef.current.play().catch(() => {})
+          const vid = remoteVideoRef.current
+          if (vid.srcObject !== remoteStream) {
+            vid.srcObject = remoteStream
+          }
+          vid.muted = false
+          const playPromise = vid.play()
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              // Autoplay with audio was restricted by browser, fallback to muted so video renders
+              vid.muted = true
+              setIsAudioBlocked(true)
+              vid.play().catch(() => {})
+            })
+          }
         }
         setPhase('connected')
       },
@@ -113,6 +127,7 @@ export default function OmegleSection() {
         }
         setPeer(null)
         setPhase('idle')
+        setIsAudioBlocked(false)
       },
       onTimeout: () => {
         setPhase('timeout')
@@ -219,7 +234,17 @@ export default function OmegleSection() {
             </div>
 
             {/* RIGHT - stranger / remote live WebRTC video */}
-            <div className="rounded-xl relative flex items-center justify-center overflow-hidden min-h-[220px] sm:min-h-0" style={{ background: '#111' }}>
+            <div
+              onClick={() => {
+                if (remoteVideoRef.current && isAudioBlocked) {
+                  remoteVideoRef.current.muted = false
+                  remoteVideoRef.current.play().catch(() => {})
+                  setIsAudioBlocked(false)
+                }
+              }}
+              className="rounded-xl relative flex items-center justify-center overflow-hidden min-h-[220px] sm:min-h-0 cursor-pointer"
+              style={{ background: '#111' }}
+            >
               {/* Remote live video feed */}
               <video
                 ref={remoteVideoRef}
@@ -229,6 +254,24 @@ export default function OmegleSection() {
                   phase === 'connected' ? 'opacity-100' : 'opacity-0 pointer-events-none'
                 }`}
               />
+
+              {/* Unmute prompt if browser blocked audio */}
+              {isAudioBlocked && phase === 'connected' && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (remoteVideoRef.current) {
+                      remoteVideoRef.current.muted = false
+                      remoteVideoRef.current.play().catch(() => {})
+                      setIsAudioBlocked(false)
+                    }
+                  }}
+                  className="absolute top-16 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-400 text-gray-950 shadow-xl flex items-center gap-1.5 animate-bounce"
+                >
+                  <Volume2 size={13} /> Ketuk untuk Aktifkan Suara
+                </button>
+              )}
 
               {/* Static noise always present underneath when searching/idle */}
               {(phase === 'searching' || phase === 'connecting' || phase === 'idle') && <StaticNoise />}
