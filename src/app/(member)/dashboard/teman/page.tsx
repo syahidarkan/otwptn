@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
 import PadananKataGame from '@/components/games/PadananKataGame'
+import { StudyCamWebRTC, PeerInfo } from '@/lib/studyCam/webrtcManager'
 import {
   Video,
   Mic,
@@ -212,7 +213,10 @@ export default function CariTemanBelajarPage() {
   const [micOn, setMicOn] = useState(true)
   const [camDenied, setCamDenied] = useState(false)
   const localVideoRef = useRef<HTMLVideoElement>(null)
+  const remoteVideoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  const webrtcRef = useRef<StudyCamWebRTC | null>(null)
+  const myId = useRef('user_' + Math.random().toString(36).substring(2, 9))
 
   // In-session Chat
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
@@ -258,9 +262,12 @@ export default function CariTemanBelajarPage() {
   }
 
   // Camera initialization
-  async function initCamera() {
+  async function initCamera(): Promise<MediaStream | null> {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+        audio: true,
+      })
       streamRef.current = stream
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream
@@ -269,9 +276,12 @@ export default function CariTemanBelajarPage() {
       setCamOn(true)
       setMicOn(true)
       setCamDenied(false)
+      webrtcRef.current?.setLocalStream(stream)
+      return stream
     } catch {
       setCamDenied(true)
       setCamOn(false)
+      return null
     }
   }
 
@@ -296,19 +306,75 @@ export default function CariTemanBelajarPage() {
     setMicOn(next)
   }
 
-  function handleStartSearch() {
-    if (!streamRef.current && !camDenied) initCamera()
+  async function handleStartSearch() {
+    let stream = streamRef.current
+    if (!stream && !camDenied) {
+      stream = await initCamera()
+    }
     setPhase('searching')
     setCurrentPeer(null)
     setAddedCurrent(false)
     setChatMessages([])
 
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = null
+    }
 
-    // Timeout setelah 5.5 detik jika tidak ada user lain yang sedang online
-    searchTimeoutRef.current = setTimeout(() => {
-      setPhase('timeout')
-    }, 5500)
+    if (webrtcRef.current) {
+      webrtcRef.current.cleanup()
+    }
+
+    const myProfile: PeerInfo = {
+      id: myId.current,
+      name: typeof window !== 'undefined' ? (localStorage.getItem('otwptn_user_name') || 'Pejuang PTN') : 'Pejuang PTN',
+      school: 'SMA Indonesia',
+      city: 'Online',
+      targetPTN: selectedPTNs.length > 0 ? selectedPTNs.join(', ') : 'Semua PTN',
+    }
+
+    const rtc = new StudyCamWebRTC(myProfile, stream, {
+      onMatchFound: (foundPeer) => {
+        setCurrentPeer({
+          id: foundPeer.id,
+          name: foundPeer.name,
+          school: foundPeer.school,
+          city: foundPeer.city,
+          targetPTN: foundPeer.targetPTN,
+          targetMajor: 'Siswa Pejuang PTN',
+          streak: 9,
+          topic: 'Fokus Belajar & Latsol',
+          avatar: '',
+        })
+        setChatMessages([
+          {
+            id: 'm1',
+            sender: 'peer',
+            text: `Halo! Salam kenal, aku ${foundPeer.name.split(' ')[0]} dari ${foundPeer.school}. Lagi fokus belajar bareng ya! Targetku di ${foundPeer.targetPTN}.`,
+            time: 'Baru saja',
+          },
+        ])
+      },
+      onRemoteStream: (remoteStream) => {
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = remoteStream
+          remoteVideoRef.current.play().catch(() => {})
+        }
+        setPhase('connected')
+      },
+      onPeerLeft: () => {
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = null
+        }
+        setCurrentPeer(null)
+        setPhase('idle')
+      },
+      onTimeout: () => {
+        setPhase('timeout')
+      },
+    })
+
+    webrtcRef.current = rtc
+    rtc.startMatchmaking()
   }
 
   function togglePTN(id: string) {
@@ -318,11 +384,20 @@ export default function CariTemanBelajarPage() {
   }
 
   function handleNext() {
-    handleStartSearch()
+    handleStop()
+    setTimeout(() => {
+      handleStartSearch()
+    }, 400)
   }
 
   function handleStop() {
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    if (webrtcRef.current) {
+      webrtcRef.current.disconnect()
+      webrtcRef.current = null
+    }
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = null
+    }
     setPhase('idle')
     setCurrentPeer(null)
     setAddedCurrent(false)
@@ -692,10 +767,10 @@ export default function CariTemanBelajarPage() {
 
               {phase === 'connected' && currentPeer && (
                 <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={currentPeer.avatar}
-                    alt={currentPeer.name}
+                  <video
+                    ref={remoteVideoRef}
+                    autoPlay
+                    playsInline
                     className="absolute inset-0 w-full h-full object-cover"
                   />
 
