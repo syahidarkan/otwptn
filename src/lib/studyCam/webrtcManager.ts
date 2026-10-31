@@ -17,13 +17,19 @@ export interface WebRTCCallbacks {
 }
 
 const ICE_SERVERS: RTCIceServer[] = [
-  // Google Public STUN
+  // Google Global STUN servers (IPv4 + IPv6 worldwide coverage)
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'stun:stun1.l.google.com:19302' },
   { urls: 'stun:stun2.l.google.com:19302' },
   { urls: 'stun:stun3.l.google.com:19302' },
   { urls: 'stun:stun4.l.google.com:19302' },
-  // OpenRelay Public TURN & STUN (Metered.ca) for Symmetric NAT & Cellular traversal
+  // Cloudflare Edge STUN
+  { urls: 'stun:stun.cloudflare.com:3478' },
+  // Global Twilio STUN
+  { urls: 'stun:global.stun.twilio.com:3478' },
+  // Mozilla Global STUN
+  { urls: 'stun:stun.services.mozilla.com:3478' },
+  // OpenRelay Public TURN & STUN (Metered.ca) for cross-country and symmetric NAT traversal
   { urls: 'stun:stun.relay.metered.ca:80' },
   {
     urls: 'turn:openrelay.metered.ca:80',
@@ -55,6 +61,7 @@ export class StudyCamWebRTC {
   private searchTimeoutTimer: NodeJS.Timeout | null = null
   private searchBeaconInterval: NodeJS.Timeout | null = null
   private offerRetryInterval: NodeJS.Timeout | null = null
+  private disconnectGraceTimer: NodeJS.Timeout | null = null
   private candidateQueue: RTCIceCandidateInit[] = []
   private isRemoteDescriptionSet = false
   private matchedRoomId: string | null = null
@@ -73,13 +80,13 @@ export class StudyCamWebRTC {
         try {
           this.pc?.addTrack(track, stream)
         } catch {
-          // Track already added or connection updating
+          // Track already registered
         }
       })
     }
   }
 
-  // Start Matchmaking: Broadcast searching beacon and check for other real devices
+  // Start Matchmaking: Uses Supabase Presence + Broadcast for guaranteed cross-device pairing
   public startMatchmaking() {
     this.cleanup()
     this.isCleanedUp = false
@@ -92,31 +99,54 @@ export class StudyCamWebRTC {
     })
     this.lobbyChannel = lobby
 
+    const handlePotentialMatch = (remotePeer: PeerInfo) => {
+      if (this.isCleanedUp || this.matchedRoomId) return
+      if (!remotePeer || remotePeer.id === this.myProfile.id) return
+
+      // Deterministic tie-breaker: Lexicographically smaller ID acts as initiator
+      if (this.myProfile.id < remotePeer.id) {
+        const roomId = `room_${this.myProfile.id}_${remotePeer.id}`
+        this.matchedRoomId = roomId
+        this.currentPeer = remotePeer
+
+        // Notify remote peer with match invitation
+        lobby.send({
+          type: 'broadcast',
+          event: 'match_invitation',
+          payload: {
+            from: this.myProfile,
+            toId: remotePeer.id,
+            roomId,
+          },
+        })
+
+        lobby.untrack().catch(() => {})
+        this.stopSearchingTimers()
+        this.initiateWebRTCSession(roomId, remotePeer, true)
+      }
+    }
+
     lobby
-      .on('broadcast', { event: 'peer_searching' }, ({ payload }) => {
+      .on('presence', { event: 'sync' }, () => {
         if (this.isCleanedUp || this.matchedRoomId) return
-        const remotePeer = payload.peer as PeerInfo
-        if (!remotePeer || remotePeer.id === this.myProfile.id) return
-
-        // Tie-breaker: Lexicographically smaller ID acts as initiator
-        if (this.myProfile.id < remotePeer.id) {
-          const roomId = `room_${this.myProfile.id}_${remotePeer.id}`
-          this.matchedRoomId = roomId
-          this.currentPeer = remotePeer
-
-          // Notify remote peer of match
-          lobby.send({
-            type: 'broadcast',
-            event: 'match_invitation',
-            payload: {
-              from: this.myProfile,
-              toId: remotePeer.id,
-              roomId,
-            },
-          })
-
-          this.stopMatchmaking()
-          this.initiateWebRTCSession(roomId, remotePeer, true)
+        const state = lobby.presenceState()
+        const peers: PeerInfo[] = []
+        Object.values(state).forEach((presences: any) => {
+          if (Array.isArray(presences)) {
+            presences.forEach((p: any) => {
+              if (p?.peer && p.peer.id !== this.myProfile.id) {
+                peers.push(p.peer)
+              }
+            })
+          }
+        })
+        if (peers.length > 0) {
+          handlePotentialMatch(peers[0])
+        }
+      })
+      .on('broadcast', { event: 'peer_searching' }, ({ payload }) => {
+        if (payload?.peer) {
+          handlePotentialMatch(payload.peer as PeerInfo)
         }
       })
       .on('broadcast', { event: 'match_invitation' }, ({ payload }) => {
@@ -129,19 +159,49 @@ export class StudyCamWebRTC {
         this.matchedRoomId = roomId
         this.currentPeer = initiator
 
-        this.stopMatchmaking()
+        // Send confirmation back to initiator
+        lobby.send({
+          type: 'broadcast',
+          event: 'match_accept',
+          payload: {
+            from: this.myProfile,
+            toId: initiator.id,
+            roomId,
+          },
+        })
+
+        lobby.untrack().catch(() => {})
+        this.stopSearchingTimers()
         this.initiateWebRTCSession(roomId, initiator, false)
       })
-      .subscribe(status => {
+      .on('broadcast', { event: 'match_accept' }, ({ payload }) => {
+        if (this.isCleanedUp) return
+        if (payload.toId !== this.myProfile.id) return
+        // Initiator confirms receiver acknowledged invitation
+        if (!this.matchedRoomId) {
+          this.matchedRoomId = payload.roomId
+          this.currentPeer = payload.from
+          lobby.untrack().catch(() => {})
+          this.stopSearchingTimers()
+          this.initiateWebRTCSession(payload.roomId, payload.from, true)
+        }
+      })
+      .subscribe(async status => {
         if (status === 'SUBSCRIBED') {
-          // Immediately announce presence to anyone waiting
+          // Register presence
+          await lobby.track({
+            peer: this.myProfile,
+            joinedAt: Date.now(),
+          })
+
+          // Broadcast search beacon
           lobby.send({
             type: 'broadcast',
             event: 'peer_searching',
             payload: { peer: this.myProfile },
           })
 
-          // Heartbeat broadcast every 1.5s while searching
+          // Periodic broadcast heartbeat every 1.5s
           this.searchBeaconInterval = setInterval(() => {
             if (this.matchedRoomId || this.isCleanedUp) return
             lobby.send({
@@ -153,16 +213,16 @@ export class StudyCamWebRTC {
         }
       })
 
-    // Timeout: If after 12s no other real device is online, trigger onTimeout
+    // Timeout: 35s to allow cross-country or mobile handshakes
     this.searchTimeoutTimer = setTimeout(() => {
       if (!this.matchedRoomId && !this.isCleanedUp) {
-        this.stopMatchmaking()
+        this.stopSearchingTimers()
         this.callbacks.onTimeout()
       }
-    }, 12000)
+    }, 35000)
   }
 
-  private stopMatchmaking() {
+  private stopSearchingTimers() {
     if (this.searchTimeoutTimer) {
       clearTimeout(this.searchTimeoutTimer)
       this.searchTimeoutTimer = null
@@ -171,21 +231,25 @@ export class StudyCamWebRTC {
       clearInterval(this.searchBeaconInterval)
       this.searchBeaconInterval = null
     }
-    if (this.lobbyChannel) {
-      this.supabase.removeChannel(this.lobbyChannel)
-      this.lobbyChannel = null
-    }
   }
 
-  // Setup private WebRTC signaling channel for the paired room
+  // Setup private WebRTC signaling session
   private async initiateWebRTCSession(roomId: string, peer: PeerInfo, isInitiator: boolean) {
     this.callbacks.onMatchFound(peer, isInitiator)
     this.candidateQueue = []
     this.isRemoteDescriptionSet = false
     this.remoteMediaStream = new MediaStream()
 
-    // Setup RTCPeerConnection
-    const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS })
+    if (this.disconnectGraceTimer) {
+      clearTimeout(this.disconnectGraceTimer)
+      this.disconnectGraceTimer = null
+    }
+
+    // Setup RTCPeerConnection with global STUN/TURN servers
+    const pc = new RTCPeerConnection({
+      iceServers: ICE_SERVERS,
+      iceCandidatePoolSize: 4,
+    })
     this.pc = pc
 
     // Add local tracks
@@ -199,7 +263,26 @@ export class StudyCamWebRTC {
       })
     }
 
-    // Handle remote tracks and aggregate into remoteMediaStream
+    // Apply bitrate and bandwidth management to eliminate lag and network choking
+    const applyBandwidthConstraint = () => {
+      pc.getSenders().forEach(sender => {
+        if (sender.track && sender.track.kind === 'video') {
+          try {
+            const params = sender.getParameters()
+            if (!params.encodings || params.encodings.length === 0) {
+              params.encodings = [{}]
+            }
+            params.encodings[0].maxBitrate = 400000 // 400 kbps: smooth 30fps without bufferbloat
+            params.encodings[0].maxFramerate = 25
+            sender.setParameters(params).catch(() => {})
+          } catch {
+            // Ignore if browser restricts setParameters
+          }
+        }
+      })
+    }
+
+    // Handle incoming remote tracks
     pc.ontrack = event => {
       if (event.streams && event.streams[0]) {
         event.streams[0].getTracks().forEach(track => {
@@ -215,19 +298,40 @@ export class StudyCamWebRTC {
       this.callbacks.onRemoteStream(this.remoteMediaStream)
     }
 
+    // Robust connection state listener: 10s grace period for temporary network jitter
     pc.onconnectionstatechange = () => {
-      if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
-        this.callbacks.onPeerLeft()
+      const state = pc.connectionState
+      if (state === 'connected') {
+        if (this.disconnectGraceTimer) {
+          clearTimeout(this.disconnectGraceTimer)
+          this.disconnectGraceTimer = null
+        }
+        applyBandwidthConstraint()
+      } else if (state === 'disconnected') {
+        // Temporary packet loss or mobile cell switch. Do not disconnect immediately!
+        if (!this.disconnectGraceTimer) {
+          this.disconnectGraceTimer = setTimeout(() => {
+            if (this.pc && (this.pc.connectionState === 'disconnected' || this.pc.connectionState === 'failed')) {
+              this.callbacks.onPeerLeft()
+            }
+          }, 10000)
+        }
+      } else if (state === 'failed') {
+        try {
+          pc.restartIce()
+        } catch {
+          this.callbacks.onPeerLeft()
+        }
       }
     }
 
-    // Create private signaling channel for this specific pair
+    // Private signaling room channel
     const roomChannel = this.supabase.channel(`webrtc_signaling_${roomId}`, {
       config: { broadcast: { self: false } },
     })
     this.roomChannel = roomChannel
 
-    // Forward ICE candidates to peer
+    // Forward ICE candidates
     pc.onicecandidate = event => {
       if (event.candidate) {
         roomChannel.send({
@@ -260,6 +364,7 @@ export class StudyCamWebRTC {
             offerToReceiveVideo: true,
           })
           await pc.setLocalDescription(offer)
+          applyBandwidthConstraint()
         }
         if (pc.localDescription) {
           roomChannel.send({
@@ -273,7 +378,7 @@ export class StudyCamWebRTC {
       }
     }
 
-    // Handle signaling messages
+    // Signaling events
     roomChannel
       .on('broadcast', { event: 'ready_for_offer' }, () => {
         if (isInitiator && !this.isRemoteDescriptionSet) {
@@ -289,6 +394,8 @@ export class StudyCamWebRTC {
 
           const answer = await pc.createAnswer()
           await pc.setLocalDescription(answer)
+          applyBandwidthConstraint()
+
           roomChannel.send({
             type: 'broadcast',
             event: 'sdp_answer',
@@ -331,12 +438,11 @@ export class StudyCamWebRTC {
       .subscribe(status => {
         if (status === 'SUBSCRIBED') {
           if (isInitiator) {
-            // First attempt with 400ms delay to let responder connect
             setTimeout(() => sendOffer(), 400)
             let retries = 0
             this.offerRetryInterval = setInterval(() => {
               retries++
-              if (retries > 5 || this.isRemoteDescriptionSet) {
+              if (retries > 6 || this.isRemoteDescriptionSet) {
                 if (this.offerRetryInterval) {
                   clearInterval(this.offerRetryInterval)
                   this.offerRetryInterval = null
@@ -346,7 +452,6 @@ export class StudyCamWebRTC {
               sendOffer()
             }, 1200)
           } else {
-            // Responder announces readiness for offer
             roomChannel.send({
               type: 'broadcast',
               event: 'ready_for_offer',
@@ -372,7 +477,12 @@ export class StudyCamWebRTC {
     this.isCleanedUp = true
     this.matchedRoomId = null
     this.currentPeer = null
-    this.stopMatchmaking()
+    this.stopSearchingTimers()
+
+    if (this.disconnectGraceTimer) {
+      clearTimeout(this.disconnectGraceTimer)
+      this.disconnectGraceTimer = null
+    }
 
     if (this.offerRetryInterval) {
       clearInterval(this.offerRetryInterval)
@@ -393,6 +503,11 @@ export class StudyCamWebRTC {
     if (this.roomChannel) {
       this.supabase.removeChannel(this.roomChannel)
       this.roomChannel = null
+    }
+
+    if (this.lobbyChannel) {
+      this.supabase.removeChannel(this.lobbyChannel)
+      this.lobbyChannel = null
     }
   }
 }
