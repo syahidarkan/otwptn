@@ -722,15 +722,6 @@ export default function CariTemanBelajarPage() {
                     </div>
                   </div>
 
-                  {/* Centered Floating Battle Button in Video Screen */}
-                  <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20">
-                    <button
-                      onClick={() => setShowBattleModal(true)}
-                      className="px-4 py-2 rounded-full text-xs font-black flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-gray-950 shadow-2xl border-2 border-white/80 hover:scale-105 active:scale-95 transition-all"
-                    >
-                      <Swords size={15} /> Ajak Duel Kuis Cepat!
-                    </button>
-                  </div>
 
                   {/* Bottom Peer Goal & Study Topic */}
                   <div className="absolute bottom-4 left-4 right-4 z-20">

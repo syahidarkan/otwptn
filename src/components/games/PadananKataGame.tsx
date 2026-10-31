@@ -56,8 +56,8 @@ export default function PadananKataGame({
   onExit,
 }: Props) {
   // Mode & Room States
-  const [mode, setMode] = useState<ModeType>(initialMode)
-  const [category, setCategory] = useState<CategoryType>(initialCategory)
+  const [mode, setMode] = useState<ModeType>(opponentPreset ? 'matching' : initialMode)
+  const [category, setCategory] = useState<CategoryType>(opponentPreset ? 'mixed' : initialCategory)
   const [roomCode, setRoomCode] = useState(initialRoomCode || '')
   const [inputRoomCode, setInputRoomCode] = useState('')
   const [gameState, setGameState] = useState<'lobby' | 'countdown' | 'playing' | 'finished'>('lobby')
@@ -424,11 +424,13 @@ export default function PadananKataGame({
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-black text-white tracking-tight">Arena Kuis PPU & PBM</h3>
                 <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-400 text-gray-950">
-                  {mode === 'solo' ? 'Latihan Solo' : mode === 'matching' ? 'Live Match' : 'Battle Room'}
+                  {opponentPreset ? 'Duel Study Cam' : mode === 'solo' ? 'Latihan Solo' : mode === 'matching' ? 'Live Match' : 'Battle Room'}
                 </span>
               </div>
               <p className="text-[11px] text-gray-400">
-                {mode === 'solo'
+                {opponentPreset
+                  ? `Bertarung melawan ${opponentPreset.name}`
+                  : mode === 'solo'
                   ? 'Fokus mengasah insting dan kecepatan jawab mandiri'
                   : `Bertarung melawan ${opponentName}`}
               </p>
@@ -455,201 +457,266 @@ export default function PadananKataGame({
           </div>
         </div>
 
-        {/* 1. LOBBY VIEW (PRE-GAME SETUP & START BUTTON) */}
+        {/* 1. LOBBY VIEW */}
         {gameState === 'lobby' && (
-          <div className="p-6 sm:p-10 text-center space-y-8">
-            <div className="max-w-md mx-auto space-y-3">
-              <div className="w-24 h-24 mx-auto relative animate-bounce">
-                <Image
-                  src="/mascot/thinking-idea.png"
-                  alt="Mascot Thinking"
-                  width={96}
-                  height={96}
-                  className="object-contain"
-                />
+          opponentPreset ? (
+            /* DEDICATED DIRECT DUEL LOBBY (STUDY CAM / OMETV) */
+            <div className="p-6 sm:p-10 text-center space-y-6">
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-black">
+                <Swords size={14} className="text-amber-600" />
+                <span>Duel Langsung di Layar Kamera</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-gray-950 tracking-tight">
-                Pilih Mode Permainan
-              </h2>
-              <p className="text-xs sm:text-sm text-gray-600 font-medium leading-relaxed">
-                Uji kemampuan analogi, kosakata baku PUEBI, dan pembetulan kalimat PBM. Kumpulkan skor dan buka kartu kekuatan!
-              </p>
-            </div>
 
-            {/* Mode Selection Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
-              {/* Option 1: Solo */}
-              <button
-                onClick={() => {
-                  setMode('solo')
-                  prepareGame('solo', category)
-                }}
-                className={`p-5 rounded-2xl border-2 text-left transition-all ${
-                  mode === 'solo'
-                    ? 'border-amber-400 bg-amber-50/60 shadow-md scale-102'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                <div className="w-10 h-10 rounded-xl bg-amber-400 text-gray-950 flex items-center justify-center font-black mb-3">
-                  <User size={20} />
-                </div>
-                <h4 className="text-sm font-black text-gray-950">Latihan Sendiri (Solo)</h4>
-                <p className="text-[11px] text-gray-500 mt-1">
-                  Murni latihan mandiri tanpa lawan. Pilih topik bebas dan uji kecepatanmu.
+              <div className="space-y-1">
+                <h2 className="text-2xl sm:text-3xl font-black text-gray-950 tracking-tight">
+                  Tantang {opponentPreset.name}!
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-600 font-medium max-w-md mx-auto">
+                  Duel 8 soal kuis acak PPU & PBM, 12 detik per soal, lengkap dengan kartu kekuatan sabotase!
                 </p>
-              </button>
+              </div>
 
-              {/* Option 2: Matching */}
-              <button
-                onClick={() => {
-                  setMode('matching')
-                  prepareGame('matching', 'mixed')
-                }}
-                className={`p-5 rounded-2xl border-2 text-left transition-all ${
-                  mode === 'matching'
-                    ? 'border-amber-400 bg-amber-50/60 shadow-md scale-102'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                <div className="w-10 h-10 rounded-xl bg-purple-500 text-white flex items-center justify-center font-black mb-3">
-                  <Sparkles size={20} />
+              {/* VS Face-Off Cards */}
+              <div className="flex items-center justify-center gap-3 sm:gap-6 py-2">
+                {/* You */}
+                <div className="p-4 rounded-3xl bg-amber-50 border-2 border-amber-300 text-center w-36 sm:w-44 shadow-sm">
+                  <div className="w-14 h-14 rounded-full bg-amber-400 text-gray-950 font-black mx-auto flex items-center justify-center mb-2 text-base shadow-inner">
+                    {myName.slice(0, 2).toUpperCase()}
+                  </div>
+                  <span className="text-xs sm:text-sm font-black text-gray-950 block truncate">{myName}</span>
+                  <span className="text-[10px] text-amber-800 font-bold uppercase tracking-wider">Kamu</span>
                 </div>
-                <h4 className="text-sm font-black text-gray-950">Cari Lawan (Matching)</h4>
-                <p className="text-[11px] text-gray-500 mt-1">
-                  Bertarung live dengan pejuang PTN lain secara acak dengan kartu power-up.
-                </p>
-              </button>
 
-              {/* Option 3: Room Code */}
-              <button
-                onClick={() => {
-                  setMode('room')
-                  prepareGame('room', 'mixed')
-                }}
-                className={`p-5 rounded-2xl border-2 text-left transition-all ${
-                  mode === 'room'
-                    ? 'border-amber-400 bg-amber-50/60 shadow-md scale-102'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                <div className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center font-black mb-3">
-                  <Share2 size={20} />
+                <div className="w-12 h-12 rounded-full bg-gray-950 text-amber-400 font-black flex items-center justify-center text-sm shadow-lg border-2 border-amber-400/40 animate-pulse">
+                  VS
                 </div>
-                <h4 className="text-sm font-black text-gray-950">Ajak Teman (Kode Room)</h4>
-                <p className="text-[11px] text-gray-500 mt-1">
-                  Bikin room private atau masukkan kode teman belajarmu untuk duel langsung.
-                </p>
-              </button>
-            </div>
 
-            {/* If Solo Mode: Category Picker */}
-            {mode === 'solo' && (
-              <div className="max-w-xl mx-auto p-5 rounded-2xl bg-gray-50 border border-gray-200 text-left space-y-3">
-                <span className="text-xs font-black text-gray-900 block uppercase tracking-wider">
-                  Pilih Materi Kuis Solo:
-                </span>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <button
-                    onClick={() => {
-                      setCategory('padanan')
-                      prepareGame('solo', 'padanan')
-                    }}
-                    className={`p-2.5 rounded-xl text-xs font-black transition-all border ${
-                      category === 'padanan'
-                        ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
-                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
-                    }`}
-                  >
-                    1. Padanan Kata
-                  </button>
-                  <button
-                    onClick={() => {
-                      setCategory('baku')
-                      prepareGame('solo', 'baku')
-                    }}
-                    className={`p-2.5 rounded-xl text-xs font-black transition-all border ${
-                      category === 'baku'
-                        ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
-                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
-                    }`}
-                  >
-                    2. Kata Baku
-                  </button>
-                  <button
-                    onClick={() => {
-                      setCategory('kalimat')
-                      prepareGame('solo', 'kalimat')
-                    }}
-                    className={`p-2.5 rounded-xl text-xs font-black transition-all border ${
-                      category === 'kalimat'
-                        ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
-                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
-                    }`}
-                  >
-                    3. Benerin Kalimat
-                  </button>
-                  <button
-                    onClick={() => {
-                      setCategory('mixed')
-                      prepareGame('solo', 'mixed')
-                    }}
-                    className={`p-2.5 rounded-xl text-xs font-black transition-all border ${
-                      category === 'mixed'
-                        ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
-                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
-                    }`}
-                  >
-                    🎲 Acak Campuran
-                  </button>
+                {/* Opponent */}
+                <div className="p-4 rounded-3xl bg-gray-50 border-2 border-gray-200 text-center w-36 sm:w-44 shadow-sm">
+                  <div className="w-14 h-14 rounded-full overflow-hidden mx-auto mb-2 border-2 border-gray-300 shadow-inner flex items-center justify-center bg-gray-200">
+                    {opponentPreset.avatar ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={opponentPreset.avatar} alt={opponentPreset.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-base font-black text-gray-700">
+                        {opponentPreset.name.slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs sm:text-sm font-black text-gray-950 block truncate">{opponentPreset.name}</span>
+                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Partner Belajar</span>
                 </div>
               </div>
-            )}
 
-            {/* If Room Mode: Room Code Box */}
-            {mode === 'room' && (
-              <div className="max-w-md mx-auto p-5 rounded-2xl bg-gray-50 border border-gray-200 space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-gray-600">Kode Room Kamu:</span>
-                  <span className="px-3 py-1 rounded-lg bg-amber-400 text-gray-950 font-mono font-black text-sm tracking-widest">
-                    {roomCode || 'MEMBUAT...'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={inputRoomCode}
-                    onChange={e => setInputRoomCode(e.target.value.toUpperCase())}
-                    placeholder="Masukkan kode room teman..."
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-mono font-bold uppercase focus:outline-hidden focus:border-amber-400"
+              {/* Ready / Start Battle Button */}
+              <div className="pt-2">
+                <button
+                  onClick={handleStartGame}
+                  className="btn-brand-primary text-sm sm:text-base font-black py-4 px-10 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-3 mx-auto"
+                >
+                  <Swords size={20} /> Mulai Duel Sekarang!
+                </button>
+                <p className="text-[11px] text-gray-400 mt-2">
+                  Format: 8 soal campuran PPU & PBM · Buka kartu sabotase saat streak benar
+                </p>
+              </div>
+            </div>
+          ) : (
+            /* GENERAL LOBBY: Solo, Matching, Room Code */
+            <div className="p-6 sm:p-10 text-center space-y-8">
+              <div className="max-w-md mx-auto space-y-3">
+                <div className="w-24 h-24 mx-auto relative animate-bounce">
+                  <Image
+                    src="/mascot/thinking-idea.png"
+                    alt="Mascot Thinking"
+                    width={96}
+                    height={96}
+                    className="object-contain"
                   />
-                  <button
-                    onClick={() => {
-                      if (inputRoomCode.trim()) {
-                        setRoomCode(inputRoomCode.trim())
-                        setupRealtime(inputRoomCode.trim())
-                      }
-                    }}
-                    className="btn btn-primary text-xs font-bold py-2.5 px-4"
-                  >
-                    Gabung
-                  </button>
                 </div>
+                <h2 className="text-2xl sm:text-3xl font-black text-gray-950 tracking-tight">
+                  Pilih Mode Permainan
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-600 font-medium leading-relaxed">
+                  Uji kemampuan analogi, kosakata baku PUEBI, dan pembetulan kalimat PBM. Kumpulkan skor dan buka kartu kekuatan!
+                </p>
               </div>
-            )}
 
-            {/* Big Launch Start Button */}
-            <div className="pt-2">
-              <button
-                onClick={handleStartGame}
-                className="btn-brand-primary text-sm sm:text-base font-black py-4 px-10 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-3 mx-auto"
-              >
-                <Swords size={20} /> Mulai Game Sekarang!
-              </button>
-              <p className="text-[11px] text-gray-400 mt-2">
-                Durasi 8 soal · 12 detik per soal · Kunci jawaban & pembahasan tampil di akhir
-              </p>
+              {/* Mode Selection Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
+                {/* Option 1: Solo */}
+                <button
+                  onClick={() => {
+                    setMode('solo')
+                    prepareGame('solo', category)
+                  }}
+                  className={`p-5 rounded-2xl border-2 text-left transition-all ${
+                    mode === 'solo'
+                      ? 'border-amber-400 bg-amber-50/60 shadow-md scale-102'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-amber-400 text-gray-950 flex items-center justify-center font-black mb-3">
+                    <User size={20} />
+                  </div>
+                  <h4 className="text-sm font-black text-gray-950">Latihan Sendiri (Solo)</h4>
+                  <p className="text-[11px] text-gray-500 mt-1">
+                    Murni latihan mandiri tanpa lawan. Pilih topik bebas dan uji kecepatanmu.
+                  </p>
+                </button>
+
+                {/* Option 2: Matching */}
+                <button
+                  onClick={() => {
+                    setMode('matching')
+                    prepareGame('matching', 'mixed')
+                  }}
+                  className={`p-5 rounded-2xl border-2 text-left transition-all ${
+                    mode === 'matching'
+                      ? 'border-amber-400 bg-amber-50/60 shadow-md scale-102'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-purple-500 text-white flex items-center justify-center font-black mb-3">
+                    <Sparkles size={20} />
+                  </div>
+                  <h4 className="text-sm font-black text-gray-950">Cari Lawan (Matching)</h4>
+                  <p className="text-[11px] text-gray-500 mt-1">
+                    Bertarung live dengan pejuang PTN lain secara acak dengan kartu power-up.
+                  </p>
+                </button>
+
+                {/* Option 3: Room Code */}
+                <button
+                  onClick={() => {
+                    setMode('room')
+                    prepareGame('room', 'mixed')
+                  }}
+                  className={`p-5 rounded-2xl border-2 text-left transition-all ${
+                    mode === 'room'
+                      ? 'border-amber-400 bg-amber-50/60 shadow-md scale-102'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center font-black mb-3">
+                    <Share2 size={20} />
+                  </div>
+                  <h4 className="text-sm font-black text-gray-950">Ajak Teman (Kode Room)</h4>
+                  <p className="text-[11px] text-gray-500 mt-1">
+                    Bikin room private atau masukkan kode teman belajarmu untuk duel langsung.
+                  </p>
+                </button>
+              </div>
+
+              {/* If Solo Mode: Category Picker */}
+              {mode === 'solo' && (
+                <div className="max-w-xl mx-auto p-5 rounded-2xl bg-gray-50 border border-gray-200 text-left space-y-3">
+                  <span className="text-xs font-black text-gray-900 block uppercase tracking-wider">
+                    Pilih Materi Kuis Solo:
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <button
+                      onClick={() => {
+                        setCategory('padanan')
+                        prepareGame('solo', 'padanan')
+                      }}
+                      className={`p-2.5 rounded-xl text-xs font-black transition-all border ${
+                        category === 'padanan'
+                          ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
+                          : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      1. Padanan Kata
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCategory('baku')
+                        prepareGame('solo', 'baku')
+                      }}
+                      className={`p-2.5 rounded-xl text-xs font-black transition-all border ${
+                        category === 'baku'
+                          ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
+                          : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      2. Kata Baku
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCategory('kalimat')
+                        prepareGame('solo', 'kalimat')
+                      }}
+                      className={`p-2.5 rounded-xl text-xs font-black transition-all border ${
+                        category === 'kalimat'
+                          ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
+                          : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      3. Benerin Kalimat
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCategory('mixed')
+                        prepareGame('solo', 'mixed')
+                      }}
+                      className={`p-2.5 rounded-xl text-xs font-black transition-all border ${
+                        category === 'mixed'
+                          ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
+                          : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      🎲 Acak Campuran
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* If Room Mode: Room Code Box */}
+              {mode === 'room' && (
+                <div className="max-w-md mx-auto p-5 rounded-2xl bg-gray-50 border border-gray-200 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-gray-600">Kode Room Kamu:</span>
+                    <span className="px-3 py-1 rounded-lg bg-amber-400 text-gray-950 font-mono font-black text-sm tracking-widest">
+                      {roomCode || 'MEMBUAT...'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={inputRoomCode}
+                      onChange={e => setInputRoomCode(e.target.value.toUpperCase())}
+                      placeholder="Masukkan kode room teman..."
+                      className="flex-1 px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-mono font-bold uppercase focus:outline-hidden focus:border-amber-400"
+                    />
+                    <button
+                      onClick={() => {
+                        if (inputRoomCode.trim()) {
+                          setRoomCode(inputRoomCode.trim())
+                          setupRealtime(inputRoomCode.trim())
+                        }
+                      }}
+                      className="btn btn-primary text-xs font-bold py-2.5 px-4"
+                    >
+                      Gabung
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Big Launch Start Button */}
+              <div className="pt-2">
+                <button
+                  onClick={handleStartGame}
+                  className="btn-brand-primary text-sm sm:text-base font-black py-4 px-10 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-3 mx-auto"
+                >
+                  <Swords size={20} /> Mulai Game Sekarang!
+                </button>
+                <p className="text-[11px] text-gray-400 mt-2">
+                  Durasi 8 soal · 12 detik per soal · Kunci jawaban & pembahasan tampil di akhir
+                </p>
+              </div>
             </div>
-          </div>
+          )
         )}
 
         {/* 2. COUNTDOWN OVERLAY (3... 2... 1... GO!) */}
