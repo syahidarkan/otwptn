@@ -16,7 +16,7 @@ export interface WebRTCCallbacks {
   onTimeout: () => void
 }
 
-const ICE_SERVERS: RTCIceServer[] = [
+export const ICE_SERVERS: RTCIceServer[] = [
   // Google Global STUN servers (IPv4 + IPv6 worldwide coverage)
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'stun:stun1.l.google.com:19302' },
@@ -29,6 +29,29 @@ const ICE_SERVERS: RTCIceServer[] = [
   { urls: 'stun:global.stun.twilio.com:3478' },
   // Mozilla Global STUN
   { urls: 'stun:stun.services.mozilla.com:3478' },
+  // OpenRelay Public STUN
+  { urls: 'stun:openrelay.metered.ca:80' },
+  // OpenRelay Free Global TURN (UDP + TCP on 80 & 443 for bypassing strict firewalls, Windows Defender, & Symmetric NAT)
+  {
+    urls: 'turn:openrelay.metered.ca:80',
+    username: 'openrelayproject',
+    credential: 'openrelayproject',
+  },
+  {
+    urls: 'turn:openrelay.metered.ca:443',
+    username: 'openrelayproject',
+    credential: 'openrelayproject',
+  },
+  {
+    urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+    username: 'openrelayproject',
+    credential: 'openrelayproject',
+  },
+  {
+    urls: 'turn:openrelay.metered.ca:80?transport=tcp',
+    username: 'openrelayproject',
+    credential: 'openrelayproject',
+  },
 ]
 
 export class StudyCamWebRTC {
@@ -37,6 +60,7 @@ export class StudyCamWebRTC {
   private roomChannel: RealtimeChannel | null = null
   private pc: RTCPeerConnection | null = null
   private localStream: MediaStream | null = null
+  private remoteStream: MediaStream | null = null
   private myProfile: PeerInfo
   private currentPeer: PeerInfo | null = null
   private callbacks: WebRTCCallbacks
@@ -58,14 +82,27 @@ export class StudyCamWebRTC {
   public setLocalStream(stream: MediaStream) {
     this.localStream = stream
     if (this.pc) {
-      stream.getTracks().forEach(track => {
+      this.attachLocalTracksToPc(stream)
+    }
+  }
+
+  private attachLocalTracksToPc(stream: MediaStream) {
+    if (!this.pc) return
+    const senders = this.pc.getSenders()
+    stream.getTracks().forEach(track => {
+      const sender = senders.find(s => s.track?.kind === track.kind || (s as any).kind === track.kind)
+      if (sender) {
+        sender.replaceTrack(track).catch(err => {
+          console.warn('[StudyCam WebRTC] replaceTrack warning:', err)
+        })
+      } else {
         try {
           this.pc?.addTrack(track, stream)
-        } catch {
-          // Track already registered
+        } catch (err) {
+          console.warn('[StudyCam WebRTC] addTrack warning:', err)
         }
-      })
-    }
+      }
+    })
   }
 
   // Start Matchmaking: Uses Supabase Presence + Broadcast for guaranteed cross-device pairing
@@ -219,33 +256,53 @@ export class StudyCamWebRTC {
     this.callbacks.onMatchFound(peer, isInitiator)
     this.candidateQueue = []
     this.isRemoteDescriptionSet = false
+    this.remoteStream = new MediaStream()
 
     if (this.disconnectGraceTimer) {
       clearTimeout(this.disconnectGraceTimer)
       this.disconnectGraceTimer = null
     }
 
-    // Setup RTCPeerConnection with global STUN servers
+    // Setup RTCPeerConnection with global STUN + TURN servers
     const pc = new RTCPeerConnection({
       iceServers: ICE_SERVERS,
+      bundlePolicy: 'max-bundle',
+      iceCandidatePoolSize: 10,
+      rtcpMuxPolicy: 'require',
     })
     this.pc = pc
 
-    // Add local tracks to peer connection
+    // Ensure transceivers exist for both video and audio in sendrecv direction
+    try {
+      pc.addTransceiver('video', { direction: 'sendrecv' })
+      pc.addTransceiver('audio', { direction: 'sendrecv' })
+    } catch (err) {
+      console.warn('[StudyCam WebRTC] addTransceiver warning:', err)
+    }
+
+    // Attach local tracks if already available
     if (this.localStream) {
-      this.localStream.getTracks().forEach(track => {
-        try {
-          pc.addTrack(track, this.localStream!)
-        } catch (err) {
-          console.warn('Could not add track:', err)
-        }
-      })
+      this.attachLocalTracksToPc(this.localStream)
     }
 
     // Handle incoming remote stream and tracks
     pc.ontrack = event => {
-      const stream = (event.streams && event.streams[0]) ? event.streams[0] : new MediaStream([event.track])
-      this.callbacks.onRemoteStream(stream)
+      if (!this.remoteStream) {
+        this.remoteStream = new MediaStream()
+      }
+      if (event.track) {
+        if (!this.remoteStream.getTracks().some(t => t.id === event.track.id)) {
+          this.remoteStream.addTrack(event.track)
+        }
+      }
+      if (event.streams && event.streams[0]) {
+        event.streams[0].getTracks().forEach(t => {
+          if (!this.remoteStream!.getTracks().some(existing => existing.id === t.id)) {
+            this.remoteStream!.addTrack(t)
+          }
+        })
+      }
+      this.callbacks.onRemoteStream(this.remoteStream)
     }
 
     // Robust connection state listener: 10s grace period for temporary network jitter
@@ -298,7 +355,7 @@ export class StudyCamWebRTC {
           try {
             await pc.addIceCandidate(new RTCIceCandidate(candidate))
           } catch (err) {
-            console.warn('Error adding queued candidate:', err)
+            console.warn('[StudyCam WebRTC] Error adding queued candidate:', err)
           }
         }
       }
@@ -328,7 +385,7 @@ export class StudyCamWebRTC {
           })
         }
       } catch (err) {
-        console.warn('Error creating/sending offer:', err)
+        console.warn('[StudyCam WebRTC] Error creating/sending offer:', err)
       }
     }
 
@@ -342,6 +399,22 @@ export class StudyCamWebRTC {
       .on('broadcast', { event: 'sdp_offer' }, async ({ payload }) => {
         if (payload.fromId === this.myProfile.id) return
         try {
+          if (this.isRemoteDescriptionSet && pc.localDescription) {
+            // Already answered - re-send in case initiator dropped packet
+            roomChannel.send({
+              type: 'broadcast',
+              event: 'sdp_answer',
+              payload: {
+                answer: {
+                  type: pc.localDescription.type,
+                  sdp: pc.localDescription.sdp,
+                },
+                fromId: this.myProfile.id,
+              },
+            })
+            return
+          }
+
           await pc.setRemoteDescription(new RTCSessionDescription(payload.offer))
           this.isRemoteDescriptionSet = true
           await drainCandidateQueue()
@@ -361,7 +434,7 @@ export class StudyCamWebRTC {
             },
           })
         } catch (err) {
-          console.warn('Error handling sdp_offer:', err)
+          console.warn('[StudyCam WebRTC] Error handling sdp_offer:', err)
         }
       })
       .on('broadcast', { event: 'sdp_answer' }, async ({ payload }) => {
@@ -371,11 +444,12 @@ export class StudyCamWebRTC {
             clearInterval(this.offerRetryInterval)
             this.offerRetryInterval = null
           }
+          if (pc.signalingState === 'stable') return
           await pc.setRemoteDescription(new RTCSessionDescription(payload.answer))
           this.isRemoteDescriptionSet = true
           await drainCandidateQueue()
         } catch (err) {
-          console.warn('Error handling sdp_answer:', err)
+          console.warn('[StudyCam WebRTC] Error handling sdp_answer:', err)
         }
       })
       .on('broadcast', { event: 'ice_candidate' }, async ({ payload }) => {
@@ -387,7 +461,7 @@ export class StudyCamWebRTC {
           try {
             await pc.addIceCandidate(new RTCIceCandidate(payload.candidate))
           } catch (err) {
-            console.warn('Error adding live candidate:', err)
+            console.warn('[StudyCam WebRTC] Error adding live candidate:', err)
           }
         }
       })
@@ -450,6 +524,7 @@ export class StudyCamWebRTC {
 
     this.candidateQueue = []
     this.isRemoteDescriptionSet = false
+    this.remoteStream = null
 
     if (this.pc) {
       this.pc.ontrack = null

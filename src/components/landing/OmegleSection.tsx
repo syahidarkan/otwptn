@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { MicOff, VideoOff, Swords, RefreshCw, Volume2 } from 'lucide-react'
 import { StudyCamWebRTC, PeerInfo } from '@/lib/studyCam/webrtcManager'
+import { getSafeMediaStream } from '@/lib/studyCam/mediaUtils'
 
 // TV static noise - used on the RIGHT (stranger) side while searching
 function StaticNoise() {
@@ -43,12 +44,14 @@ export default function OmegleSection() {
   const [micOn, setMicOn] = useState(false)
   const [camOn, setCamOn] = useState(false)
   const [camDenied, setCamDenied] = useState(false)
+  const [mediaError, setMediaError] = useState<string | null>(null)
   const [isAudioBlocked, setIsAudioBlocked] = useState(false)
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
   const remoteAudioRef = useRef<HTMLAudioElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  const remoteStreamRef = useRef<MediaStream | null>(null)
   const webrtcRef = useRef<StudyCamWebRTC | null>(null)
 
   const myProfile = useRef<PeerInfo>({
@@ -60,34 +63,43 @@ export default function OmegleSection() {
   })
 
   async function startCam(): Promise<MediaStream | null> {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'user',
-          width: { ideal: 480, max: 640 },
-          height: { ideal: 360, max: 480 },
-          frameRate: { ideal: 24, max: 30 },
-        },
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        },
-      })
-      streamRef.current = stream
+    const res = await getSafeMediaStream()
+    if (res.stream) {
+      streamRef.current = res.stream
       if (videoRef.current) {
-        videoRef.current.srcObject = stream
+        videoRef.current.srcObject = res.stream
         videoRef.current.play().catch(() => {})
       }
-      setCamOn(true)
-      setMicOn(true)
+      setCamOn(res.hasVideo)
+      setMicOn(res.hasAudio)
       setCamDenied(false)
-      return stream
-    } catch {
+      setMediaError(null)
+      if (webrtcRef.current) {
+        webrtcRef.current.setLocalStream(res.stream)
+      }
+      return res.stream
+    } else {
       setCamDenied(true)
+      setMediaError(res.errorMessage || 'Izin kamera/mikrofon ditolak')
       return null
     }
   }
+
+  // Ensure remote stream is properly mounted when connected
+  useEffect(() => {
+    if (phase === 'connected' && remoteStreamRef.current) {
+      if (remoteVideoRef.current && remoteVideoRef.current.srcObject !== remoteStreamRef.current) {
+        remoteVideoRef.current.srcObject = remoteStreamRef.current
+        remoteVideoRef.current.play().catch(() => {})
+      }
+      if (remoteAudioRef.current && remoteAudioRef.current.srcObject !== remoteStreamRef.current) {
+        remoteAudioRef.current.srcObject = remoteStreamRef.current
+        remoteAudioRef.current.play().catch(() => {
+          setIsAudioBlocked(true)
+        })
+      }
+    }
+  }, [phase])
 
   async function handleStart() {
     let localStream = streamRef.current
@@ -105,6 +117,7 @@ export default function OmegleSection() {
     if (remoteAudioRef.current) {
       remoteAudioRef.current.srcObject = null
     }
+    remoteStreamRef.current = null
 
     if (webrtcRef.current) {
       webrtcRef.current.cleanup()
@@ -116,6 +129,7 @@ export default function OmegleSection() {
         setPhase('connecting')
       },
       onRemoteStream: (remoteStream) => {
+        remoteStreamRef.current = remoteStream
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = remoteStream
           remoteVideoRef.current.play().catch(() => {})
@@ -135,6 +149,7 @@ export default function OmegleSection() {
         if (remoteAudioRef.current) {
           remoteAudioRef.current.srcObject = null
         }
+        remoteStreamRef.current = null
         setPeer(null)
         setPhase('idle')
         setIsAudioBlocked(false)

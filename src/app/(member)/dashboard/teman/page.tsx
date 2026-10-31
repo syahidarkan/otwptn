@@ -5,6 +5,7 @@ import Image from 'next/image'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
 import PadananKataGame from '@/components/games/PadananKataGame'
 import { StudyCamWebRTC, PeerInfo } from '@/lib/studyCam/webrtcManager'
+import { getSafeMediaStream } from '@/lib/studyCam/mediaUtils'
 import {
   Video,
   Mic,
@@ -264,33 +265,21 @@ export default function CariTemanBelajarPage() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
-  // Camera initialization
+  // Camera initialization with multi-tier fallback for Windows, Mac, iOS, Android
   async function initCamera(): Promise<MediaStream | null> {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'user',
-          width: { ideal: 480, max: 640 },
-          height: { ideal: 360, max: 480 },
-          frameRate: { ideal: 24, max: 30 },
-        },
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        },
-      })
-      streamRef.current = stream
+    const res = await getSafeMediaStream()
+    if (res.stream) {
+      streamRef.current = res.stream
       if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream
+        localVideoRef.current.srcObject = res.stream
         localVideoRef.current.play().catch(() => {})
       }
-      setCamOn(true)
-      setMicOn(true)
+      setCamOn(res.hasVideo)
+      setMicOn(res.hasAudio)
       setCamDenied(false)
-      webrtcRef.current?.setLocalStream(stream)
-      return stream
-    } catch {
+      webrtcRef.current?.setLocalStream(res.stream)
+      return res.stream
+    } else {
       setCamDenied(true)
       setCamOn(false)
       return null
