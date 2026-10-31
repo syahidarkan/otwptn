@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Outfit, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google'
+import { Outfit, Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 import { LEGAL_ENTITY } from '@/lib/constants'
 import ThemeHydrator from '@/components/ThemeHydrator'
@@ -16,13 +16,6 @@ const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-sans',
-  display: 'swap',
-})
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500'],
-  variable: '--font-mono',
   display: 'swap',
 })
 
@@ -270,7 +263,7 @@ export default function RootLayout({
       lang="id"
       data-theme="light"
       suppressHydrationWarning
-      className={`${outfit.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
+      className={`${outfit.variable} ${plusJakarta.variable}`}
     >
       <head>
         <link rel="icon" href="/favicon.png?v=3" type="image/png" />
