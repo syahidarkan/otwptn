@@ -163,7 +163,7 @@ export default function PadananKataGame({
       {
         id: myId,
         name: myName,
-        avatar: '/mascot/studying.png',
+        avatar: '/mascot/thinking-idea.png',
         score: 0,
         streak: 0,
         hasShield: false,
@@ -203,8 +203,8 @@ export default function PadananKataGame({
             setTimeout(() => setIsBlurred(false), 3500)
             setTimeout(() => setAttackNotice(null), 3500)
           } else if (powerUp === 'steal') {
-            setScore(prev => Math.max(0, prev - 60))
-            setAttackNotice(`🥷 ${attackerName} mencuri 60 poin dari skormu!`)
+            setScore(prev => Math.max(0, prev - 1))
+            setAttackNotice(`🥷 ${attackerName} mencuri 1 poin dari skormu!`)
             setTimeout(() => setAttackNotice(null), 3000)
           }
         },
@@ -300,11 +300,7 @@ export default function PadananKataGame({
       setAnswerStatus('correct')
       if (soundEnabled) playAnswerSound(true)
 
-      const timeBonus = Math.round(timeLeft * 8)
-      const basePoints = 100
-      let pointsWon = basePoints + timeBonus
-      if (isDoubleScore) pointsWon *= 2
-
+      const pointsWon = isDoubleScore ? 2 : 1
       const newScore = score + pointsWon
       const newStreak = streak + 1
       setScore(newScore)
@@ -358,10 +354,10 @@ export default function PadananKataGame({
     }
   }
 
-  // Finish Game & Award XP
+  // Finish Game & Award XP (Satuan, min 5 max 25)
   const finishGame = () => {
     setGameState('finished')
-    const calculatedXP = Math.round(score / 5) + 30
+    const calculatedXP = Math.min(25, Math.max(5, Math.round(5 + score * 2.5)))
     setEarnedXP(calculatedXP)
     awardXP(calculatedXP, 'Arena Kuis PPU & PBM')
   }
@@ -390,7 +386,7 @@ export default function PadananKataGame({
         realtimeRef.current.sendAttack(card.id)
       }
       if (card.id === 'steal') {
-        setScore(prev => prev + 60)
+        setScore(prev => prev + 1)
       }
     }
   }
@@ -413,7 +409,7 @@ export default function PadananKataGame({
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-amber-400/20 border border-amber-400/40 p-1 flex items-center justify-center flex-shrink-0">
               <Image
-                src="/mascot/studying.png"
+                src="/mascot/thinking-idea.png"
                 alt="otwPTN Mascot"
                 width={36}
                 height={36}

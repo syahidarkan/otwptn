@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import Image from 'next/image'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
 import PadananKataGame from '@/components/games/PadananKataGame'
 import {
@@ -200,10 +201,11 @@ interface ChatMessage {
 export default function CariTemanBelajarPage() {
   const [activeTab, setActiveTab] = useState<'study-cam' | 'friends-list'>('study-cam')
   const [showBattleModal, setShowBattleModal] = useState(false)
-  const [phase, setPhase] = useState<'idle' | 'searching' | 'connected'>('idle')
+  const [phase, setPhase] = useState<'idle' | 'searching' | 'connected' | 'timeout'>('idle')
   const [currentPeer, setCurrentPeer] = useState<PeerProfile | null>(null)
   const [selectedPTNs, setSelectedPTNs] = useState<string[]>([])
   const [showFocusModal, setShowFocusModal] = useState(false)
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Cam & Mic states
   const [camOn, setCamOn] = useState(true)
@@ -301,30 +303,12 @@ export default function CariTemanBelajarPage() {
     setAddedCurrent(false)
     setChatMessages([])
 
-    setTimeout(() => {
-      const candidates =
-        selectedPTNs.length === 0
-          ? PEER_POOL
-          : PEER_POOL.filter(p =>
-              selectedPTNs.some(ptnId =>
-                p.targetPTN.toUpperCase().includes(ptnId) ||
-                p.targetMajor.toUpperCase().includes(ptnId)
-              )
-            )
-      const pool = candidates.length > 0 ? candidates : PEER_POOL
-      const chosen = pool[Math.floor(Math.random() * pool.length)]
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
 
-      setCurrentPeer(chosen)
-      setPhase('connected')
-      setChatMessages([
-        {
-          id: 'm1',
-          sender: 'peer',
-          text: `Halo! Salam kenal, aku ${chosen.name.split(' ')[0]} dari ${chosen.school}. Lagi fokus belajar bareng ya! Targetku di ${chosen.targetPTN}.`,
-          time: 'Baru saja',
-        },
-      ])
-    }, 1800)
+    // Timeout setelah 5.5 detik jika tidak ada user lain yang sedang online
+    searchTimeoutRef.current = setTimeout(() => {
+      setPhase('timeout')
+    }, 5500)
   }
 
   function togglePTN(id: string) {
@@ -338,6 +322,7 @@ export default function CariTemanBelajarPage() {
   }
 
   function handleStop() {
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
     setPhase('idle')
     setCurrentPeer(null)
     setAddedCurrent(false)
@@ -669,6 +654,42 @@ export default function CariTemanBelajarPage() {
                 </>
               )}
 
+              {phase === 'timeout' && (
+                <div className="relative z-10 flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in-95 duration-200">
+                  <div className="w-16 h-16 relative mb-3">
+                    <Image
+                      src="/mascot/reading-clock.png"
+                      alt="Timeout mascot"
+                      width={64}
+                      height={64}
+                      className="object-contain animate-bounce"
+                    />
+                  </div>
+                  <h3 className="text-base font-black text-white mb-1.5">
+                    Belum Ada Partner Online
+                  </h3>
+                  <div className="bg-black/60 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 max-w-xs mb-5">
+                    <p className="text-xs text-amber-300 font-semibold leading-relaxed">
+                      User lain sedang fokus belajar, jadi gaada yang main fitur ini, coba beberapa saat lagi!
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleStartSearch}
+                      className="btn-brand-primary text-xs !py-2.5 !px-5"
+                    >
+                      Coba Cari Lagi 🔄
+                    </button>
+                    <button
+                      onClick={handleStop}
+                      className="px-4 py-2.5 rounded-full text-xs font-bold bg-white/10 hover:bg-white/20 text-white transition-colors"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {phase === 'connected' && currentPeer && (
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -761,7 +782,13 @@ export default function CariTemanBelajarPage() {
                     onClick={phase === 'connected' ? handleNext : handleStartSearch}
                     className="w-full py-3.5 rounded-full text-sm font-extrabold btn-brand-primary"
                   >
-                    {phase === 'connected' ? 'Lewati / Cari yang Lain (Next)' : 'Mulai Cari Partner'}
+                    {phase === 'connected'
+                      ? 'Lewati / Cari yang Lain (Next)'
+                      : phase === 'searching'
+                      ? 'Sedang Mencari Partner...'
+                      : phase === 'timeout'
+                      ? 'Coba Cari Lagi'
+                      : 'Mulai Cari Partner'}
                   </button>
 
                   {phase === 'connected' && (
