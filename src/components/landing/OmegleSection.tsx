@@ -3,7 +3,8 @@
 import { useRef, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import { MicOff, VideoOff } from 'lucide-react'
+import Link from 'next/link'
+import { MicOff, VideoOff, Swords } from 'lucide-react'
 
 const PEERS = [
   { name: 'Dinda', school: 'SMAN 3 Bandung', mascot: '/mascot/thinking-idea.png' },
@@ -213,6 +214,14 @@ export default function OmegleSection() {
               style={{ background: '#c97b6a', color: '#fff', boxShadow: '0 4px 16px rgba(201,123,106,0.4)' }}>
               Stop
             </button>
+            {phase === 'connected' && (
+              <Link
+                href="/dashboard/latihan"
+                className="flex items-center gap-1.5 px-4 py-2 sm:py-2.5 rounded-full text-xs font-black transition-all hover:scale-105 bg-amber-400 text-gray-950 shadow-md"
+              >
+                <Swords size={14} /> Tantang Battle PPU
+              </Link>
+            )}
             <div className="hidden sm:block w-px h-6 mx-1" style={{ background: 'rgba(255,255,255,0.1)' }} />
             <button onClick={toggleMic}
               className="flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs font-semibold transition-all hover:scale-105"
