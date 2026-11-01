@@ -54,6 +54,8 @@ export const ICE_SERVERS: RTCIceServer[] = [
   },
 ]
 
+type MatchmakingState = 'idle' | 'searching' | 'proposing' | 'matched'
+
 export class StudyCamWebRTC {
   private supabase = createClient()
   private lobbyChannel: RealtimeChannel | null = null
@@ -64,9 +66,16 @@ export class StudyCamWebRTC {
   private myProfile: PeerInfo
   private currentPeer: PeerInfo | null = null
   private callbacks: WebRTCCallbacks
+
+  private matchmakingState: MatchmakingState = 'idle'
+  private sessionId = 'sess_' + Math.random().toString(36).substring(2, 9)
+  private activeInviteId: string | null = null
+  private inviteTimeoutTimer: NodeJS.Timeout | null = null
+
   private searchTimeoutTimer: NodeJS.Timeout | null = null
   private searchBeaconInterval: NodeJS.Timeout | null = null
   private offerRetryInterval: NodeJS.Timeout | null = null
+  private roomPingInterval: NodeJS.Timeout | null = null
   private disconnectGraceTimer: NodeJS.Timeout | null = null
   private candidateQueue: RTCIceCandidateInit[] = []
   private isRemoteDescriptionSet = false
@@ -114,76 +123,123 @@ export class StudyCamWebRTC {
     })
   }
 
-  // Start Matchmaking: Uses Supabase Presence + Broadcast for guaranteed cross-device pairing
+  // High-concurrency matchmaking with Two-Way Handshake, collision prevention & auto-retry
   public startMatchmaking() {
     this.cleanup()
     this.isCleanedUp = false
+    this.sessionId = 'sess_' + Math.random().toString(36).substring(2, 9)
+    this.matchmakingState = 'searching'
+    this.activeInviteId = null
 
+    // Channel name unique per matchmaking pool
     const lobby = this.supabase.channel('study_cam_matchmaking_pool', {
       config: {
         broadcast: { self: false },
-        presence: { key: this.myProfile.id },
+        presence: { key: this.sessionId },
       },
     })
     this.lobbyChannel = lobby
 
-    const handlePotentialMatch = (remotePeer: PeerInfo) => {
-      if (this.isCleanedUp || this.matchedRoomId) return
-      if (!remotePeer || remotePeer.id === this.myProfile.id) return
+    const proposeMatch = (targetPeer: PeerInfo) => {
+      if (this.isCleanedUp || this.matchmakingState !== 'searching') return
+      if (!targetPeer || targetPeer.id === this.myProfile.id) return
 
-      // Deterministic tie-breaker: Lexicographically smaller ID acts as initiator
-      if (this.myProfile.id < remotePeer.id) {
-        const roomId = `room_${this.myProfile.id}_${remotePeer.id}`
+      // Deterministic tie-breaker: Lexicographically smaller ID initiates proposal
+      if (this.myProfile.id < targetPeer.id) {
+        const inviteId = 'inv_' + Math.random().toString(36).substring(2, 9)
+        const roomId = `room_${this.myProfile.id}_${targetPeer.id}`
+
+        this.matchmakingState = 'proposing'
+        this.activeInviteId = inviteId
         this.matchedRoomId = roomId
-        this.currentPeer = remotePeer
 
-        // Notify remote peer with match invitation
+        // Send match invitation
         lobby.send({
           type: 'broadcast',
           event: 'match_invitation',
           payload: {
+            inviteId,
             from: this.myProfile,
-            toId: remotePeer.id,
+            fromSession: this.sessionId,
+            toId: targetPeer.id,
             roomId,
           },
         })
 
-        lobby.untrack().catch(() => {})
-        this.stopSearchingTimers()
-        this.initiateWebRTCSession(roomId, remotePeer, true)
+        // 3.0 second invitation timeout: If target does not accept within 3s, rollback & keep searching
+        if (this.inviteTimeoutTimer) {
+          clearTimeout(this.inviteTimeoutTimer)
+        }
+        this.inviteTimeoutTimer = setTimeout(() => {
+          if (this.matchmakingState === 'proposing' && this.activeInviteId === inviteId) {
+            console.warn('[StudyCam Matchmaker] Invitation timeout, resuming search...')
+            this.matchmakingState = 'searching'
+            this.activeInviteId = null
+            this.matchedRoomId = null
+          }
+        }, 3000)
+      }
+    }
+
+    const evaluateAvailablePeers = () => {
+      if (this.isCleanedUp || this.matchmakingState !== 'searching') return
+      const state = lobby.presenceState()
+      const candidatePeers: PeerInfo[] = []
+      const now = Date.now()
+
+      Object.values(state).forEach((presences: any) => {
+        if (Array.isArray(presences)) {
+          presences.forEach((p: any) => {
+            // Must have peer, must not be self, must not be expired (> 12s)
+            if (p?.peer && p.peer.id !== this.myProfile.id) {
+              const age = now - (p.timestamp || now)
+              if (age < 12000 && p.status !== 'matched') {
+                candidatePeers.push(p.peer)
+              }
+            }
+          })
+        }
+      })
+
+      if (candidatePeers.length > 0) {
+        // Anti-thundering herd: Randomly select from candidates instead of always peers[0]
+        const randomIndex = Math.floor(Math.random() * candidatePeers.length)
+        proposeMatch(candidatePeers[randomIndex])
       }
     }
 
     lobby
       .on('presence', { event: 'sync' }, () => {
-        if (this.isCleanedUp || this.matchedRoomId) return
-        const state = lobby.presenceState()
-        const peers: PeerInfo[] = []
-        Object.values(state).forEach((presences: any) => {
-          if (Array.isArray(presences)) {
-            presences.forEach((p: any) => {
-              if (p?.peer && p.peer.id !== this.myProfile.id) {
-                peers.push(p.peer)
-              }
-            })
-          }
-        })
-        if (peers.length > 0) {
-          handlePotentialMatch(peers[0])
-        }
+        evaluateAvailablePeers()
       })
       .on('broadcast', { event: 'peer_searching' }, ({ payload }) => {
-        if (payload?.peer) {
-          handlePotentialMatch(payload.peer as PeerInfo)
+        if (payload?.peer && payload.peer.id !== this.myProfile.id) {
+          proposeMatch(payload.peer as PeerInfo)
         }
       })
       .on('broadcast', { event: 'match_invitation' }, ({ payload }) => {
-        if (this.isCleanedUp || this.matchedRoomId) return
+        if (this.isCleanedUp) return
         if (payload.toId !== this.myProfile.id) return
 
+        // If we are already proposing or matched with someone else, reject gracefully
+        if (this.matchmakingState !== 'searching') {
+          lobby.send({
+            type: 'broadcast',
+            event: 'match_reject',
+            payload: {
+              inviteId: payload.inviteId,
+              toId: payload.from.id,
+              reason: 'busy',
+            },
+          })
+          return
+        }
+
+        // We accept the invitation!
         const initiator = payload.from as PeerInfo
         const roomId = payload.roomId as string
 
+        this.matchmakingState = 'matched'
         this.matchedRoomId = roomId
         this.currentPeer = initiator
 
@@ -192,7 +248,9 @@ export class StudyCamWebRTC {
           type: 'broadcast',
           event: 'match_accept',
           payload: {
+            inviteId: payload.inviteId,
             from: this.myProfile,
+            fromSession: this.sessionId,
             toId: initiator.id,
             roomId,
           },
@@ -205,44 +263,77 @@ export class StudyCamWebRTC {
       .on('broadcast', { event: 'match_accept' }, ({ payload }) => {
         if (this.isCleanedUp) return
         if (payload.toId !== this.myProfile.id) return
-        if (!this.matchedRoomId) {
-          this.matchedRoomId = payload.roomId
-          this.currentPeer = payload.from
-          lobby.untrack().catch(() => {})
-          this.stopSearchingTimers()
-          this.initiateWebRTCSession(payload.roomId, payload.from, true)
+        if (this.matchmakingState !== 'proposing') return
+        if (this.activeInviteId && payload.inviteId !== this.activeInviteId) return
+
+        if (this.inviteTimeoutTimer) {
+          clearTimeout(this.inviteTimeoutTimer)
+          this.inviteTimeoutTimer = null
+        }
+
+        this.matchmakingState = 'matched'
+        this.matchedRoomId = payload.roomId
+        this.currentPeer = payload.from
+
+        lobby.untrack().catch(() => {})
+        this.stopSearchingTimers()
+        this.initiateWebRTCSession(payload.roomId, payload.from, true)
+      })
+      .on('broadcast', { event: 'match_reject' }, ({ payload }) => {
+        if (this.isCleanedUp) return
+        if (payload.toId !== this.myProfile.id) return
+        if (this.activeInviteId && payload.inviteId === this.activeInviteId) {
+          if (this.inviteTimeoutTimer) {
+            clearTimeout(this.inviteTimeoutTimer)
+            this.inviteTimeoutTimer = null
+          }
+          this.matchmakingState = 'searching'
+          this.activeInviteId = null
+          this.matchedRoomId = null
+          // Immediately try evaluating remaining peers
+          setTimeout(() => evaluateAvailablePeers(), 300)
         }
       })
       .subscribe(async status => {
         if (status === 'SUBSCRIBED') {
           // Register presence
           await lobby.track({
+            id: this.myProfile.id,
+            sessionId: this.sessionId,
             peer: this.myProfile,
-            joinedAt: Date.now(),
+            status: 'searching',
+            timestamp: Date.now(),
           })
 
-          // Broadcast search beacon
+          // Broadcast search beacon immediately
           lobby.send({
             type: 'broadcast',
             event: 'peer_searching',
-            payload: { peer: this.myProfile },
+            payload: {
+              peer: this.myProfile,
+              sessionId: this.sessionId,
+            },
           })
 
-          // Periodic broadcast heartbeat every 1.5s
+          // Periodic heartbeat every 1.5s to refresh presence and seek peers
           this.searchBeaconInterval = setInterval(() => {
-            if (this.matchedRoomId || this.isCleanedUp) return
+            if (this.matchmakingState !== 'searching' || this.isCleanedUp) return
             lobby.send({
               type: 'broadcast',
               event: 'peer_searching',
-              payload: { peer: this.myProfile },
+              payload: {
+                peer: this.myProfile,
+                sessionId: this.sessionId,
+              },
             })
+            evaluateAvailablePeers()
           }, 1500)
         }
       })
 
-    // Timeout: 35s to allow cross-country or mobile handshakes
+    // Timeout: 35s to allow matchmaking
     this.searchTimeoutTimer = setTimeout(() => {
-      if (!this.matchedRoomId && !this.isCleanedUp) {
+      if (this.matchmakingState !== 'matched' && !this.isCleanedUp) {
         this.stopSearchingTimers()
         this.callbacks.onTimeout()
       }
@@ -257,6 +348,10 @@ export class StudyCamWebRTC {
     if (this.searchBeaconInterval) {
       clearInterval(this.searchBeaconInterval)
       this.searchBeaconInterval = null
+    }
+    if (this.inviteTimeoutTimer) {
+      clearTimeout(this.inviteTimeoutTimer)
+      this.inviteTimeoutTimer = null
     }
   }
 
@@ -496,11 +591,11 @@ export class StudyCamWebRTC {
       .subscribe(status => {
         if (status === 'SUBSCRIBED') {
           if (isInitiator) {
-            setTimeout(() => sendOffer(), 400)
+            setTimeout(() => sendOffer(), 300)
             let retries = 0
             this.offerRetryInterval = setInterval(() => {
               retries++
-              if (retries > 6 || this.isRemoteDescriptionSet) {
+              if (retries > 12 || this.isRemoteDescriptionSet) {
                 if (this.offerRetryInterval) {
                   clearInterval(this.offerRetryInterval)
                   this.offerRetryInterval = null
@@ -510,11 +605,28 @@ export class StudyCamWebRTC {
               sendOffer()
             }, 1200)
           } else {
+            // Receiver notifies readiness immediately and retries ping every 1.5s
             roomChannel.send({
               type: 'broadcast',
               event: 'ready_for_offer',
               payload: { fromId: this.myProfile.id },
             })
+            let pingCount = 0
+            this.roomPingInterval = setInterval(() => {
+              pingCount++
+              if (pingCount > 10 || this.isRemoteDescriptionSet) {
+                if (this.roomPingInterval) {
+                  clearInterval(this.roomPingInterval)
+                  this.roomPingInterval = null
+                }
+                return
+              }
+              roomChannel.send({
+                type: 'broadcast',
+                event: 'ready_for_offer',
+                payload: { fromId: this.myProfile.id },
+              })
+            }, 1500)
           }
         }
       })
@@ -533,8 +645,10 @@ export class StudyCamWebRTC {
 
   public cleanup() {
     this.isCleanedUp = true
+    this.matchmakingState = 'idle'
     this.matchedRoomId = null
     this.currentPeer = null
+    this.activeInviteId = null
     this.stopSearchingTimers()
 
     if (this.disconnectGraceTimer) {
@@ -545,6 +659,11 @@ export class StudyCamWebRTC {
     if (this.offerRetryInterval) {
       clearInterval(this.offerRetryInterval)
       this.offerRetryInterval = null
+    }
+
+    if (this.roomPingInterval) {
+      clearInterval(this.roomPingInterval)
+      this.roomPingInterval = null
     }
 
     this.candidateQueue = []

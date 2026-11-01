@@ -102,6 +102,7 @@ export default function OmegleSection() {
   }, [phase])
 
   async function handleStart() {
+    myProfile.current.id = 'user_' + Math.random().toString(36).substring(2, 9)
     let localStream = streamRef.current
     if (!localStream) {
       localStream = await startCam()

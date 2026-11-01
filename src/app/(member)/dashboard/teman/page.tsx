@@ -308,6 +308,7 @@ export default function CariTemanBelajarPage() {
   }
 
   async function handleStartSearch() {
+    myId.current = 'user_' + Math.random().toString(36).substring(2, 9)
     let stream = streamRef.current
     if (!stream && !camDenied) {
       stream = await initCamera()
