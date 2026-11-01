@@ -668,9 +668,16 @@ export default function CariTemanBelajarPage() {
                 autoPlay
                 playsInline
                 muted
+                onLoadedMetadata={(e) => {
+                  (e.target as HTMLVideoElement).play().catch(() => {})
+                }}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity ${
                   camOn && !camDenied ? 'opacity-100' : 'opacity-0'
                 }`}
+                style={{
+                  transform: 'scaleX(-1)',
+                  WebkitTransform: 'scaleX(-1)',
+                }}
               />
 
               {(!camOn || camDenied) && (
@@ -724,6 +731,9 @@ export default function CariTemanBelajarPage() {
             {/* Right Screen: Stranger / Partner Belajar */}
             <div
               onClick={() => {
+                if (remoteVideoRef.current) {
+                  remoteVideoRef.current.play().catch(() => {})
+                }
                 if (remoteAudioRef.current && isAudioBlocked) {
                   remoteAudioRef.current.play().then(() => setIsAudioBlocked(false)).catch(() => {})
                 }
@@ -739,6 +749,9 @@ export default function CariTemanBelajarPage() {
                 autoPlay
                 playsInline
                 muted
+                onLoadedMetadata={(e) => {
+                  (e.target as HTMLVideoElement).play().catch(() => {})
+                }}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
                   phase === 'connected' ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none'
                 }`}

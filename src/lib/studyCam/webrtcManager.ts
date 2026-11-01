@@ -81,26 +81,35 @@ export class StudyCamWebRTC {
 
   public setLocalStream(stream: MediaStream) {
     this.localStream = stream
-    if (this.pc) {
-      this.attachLocalTracksToPc(stream)
-    }
-  }
-
-  private attachLocalTracksToPc(stream: MediaStream) {
     if (!this.pc) return
-    const senders = this.pc.getSenders()
+
     stream.getTracks().forEach(track => {
-      const sender = senders.find(s => s.track?.kind === track.kind || (s as any).kind === track.kind)
-      if (sender) {
-        sender.replaceTrack(track).catch(err => {
+      const senders = this.pc?.getSenders() || []
+      const existingSender = senders.find(s => s.track?.kind === track.kind)
+      if (existingSender) {
+        existingSender.replaceTrack(track).catch(err => {
           console.warn('[StudyCam WebRTC] replaceTrack warning:', err)
         })
-      } else {
-        try {
-          this.pc?.addTrack(track, stream)
-        } catch (err) {
-          console.warn('[StudyCam WebRTC] addTrack warning:', err)
-        }
+        return
+      }
+
+      // Check if there is an inactive/recvonly transceiver we can upgrade to sendrecv
+      const transceivers = this.pc?.getTransceivers() || []
+      const recvTransceiver = transceivers.find(
+        t => t.receiver.track.kind === track.kind
+      )
+      if (recvTransceiver && recvTransceiver.sender) {
+        recvTransceiver.direction = 'sendrecv'
+        recvTransceiver.sender.replaceTrack(track).catch(err => {
+          console.warn('[StudyCam WebRTC] replaceTrack on transceiver warning:', err)
+        })
+        return
+      }
+
+      try {
+        this.pc?.addTrack(track, stream)
+      } catch (err) {
+        console.warn('[StudyCam WebRTC] addTrack warning:', err)
       }
     })
   }
@@ -272,37 +281,53 @@ export class StudyCamWebRTC {
     })
     this.pc = pc
 
-    // Ensure transceivers exist for both video and audio in sendrecv direction
-    try {
-      pc.addTransceiver('video', { direction: 'sendrecv' })
-      pc.addTransceiver('audio', { direction: 'sendrecv' })
-    } catch (err) {
-      console.warn('[StudyCam WebRTC] addTransceiver warning:', err)
+    // Add local tracks directly to peer connection
+    if (this.localStream) {
+      this.localStream.getTracks().forEach(track => {
+        try {
+          pc.addTrack(track, this.localStream!)
+        } catch (err) {
+          console.warn('[StudyCam WebRTC] addTrack warning:', err)
+        }
+      })
     }
 
-    // Attach local tracks if already available
-    if (this.localStream) {
-      this.attachLocalTracksToPc(this.localStream)
+    // Ensure we can receive both video and audio even if local device lacks one of them
+    const senders = pc.getSenders()
+    const hasVideo = senders.some(s => s.track?.kind === 'video')
+    const hasAudio = senders.some(s => s.track?.kind === 'audio')
+
+    if (!hasVideo) {
+      try {
+        pc.addTransceiver('video', { direction: 'recvonly' })
+      } catch (err) {
+        console.warn('[StudyCam WebRTC] addTransceiver video warning:', err)
+      }
+    }
+    if (!hasAudio) {
+      try {
+        pc.addTransceiver('audio', { direction: 'recvonly' })
+      } catch (err) {
+        console.warn('[StudyCam WebRTC] addTransceiver audio warning:', err)
+      }
     }
 
     // Handle incoming remote stream and tracks
     pc.ontrack = event => {
-      if (!this.remoteStream) {
-        this.remoteStream = new MediaStream()
-      }
-      if (event.track) {
-        if (!this.remoteStream.getTracks().some(t => t.id === event.track.id)) {
+      let streamToDeliver: MediaStream
+      if (event.streams && event.streams[0]) {
+        streamToDeliver = event.streams[0]
+        this.remoteStream = streamToDeliver
+      } else {
+        if (!this.remoteStream) {
+          this.remoteStream = new MediaStream()
+        }
+        if (event.track && !this.remoteStream.getTracks().some(t => t.id === event.track.id)) {
           this.remoteStream.addTrack(event.track)
         }
+        streamToDeliver = this.remoteStream
       }
-      if (event.streams && event.streams[0]) {
-        event.streams[0].getTracks().forEach(t => {
-          if (!this.remoteStream!.getTracks().some(existing => existing.id === t.id)) {
-            this.remoteStream!.addTrack(t)
-          }
-        })
-      }
-      this.callbacks.onRemoteStream(this.remoteStream)
+      this.callbacks.onRemoteStream(streamToDeliver)
     }
 
     // Robust connection state listener: 10s grace period for temporary network jitter

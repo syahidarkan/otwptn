@@ -237,8 +237,15 @@ export default function OmegleSection() {
             {/* LEFT - user's camera */}
             <div className="rounded-xl relative flex items-center justify-center overflow-hidden min-h-[220px] sm:min-h-0" style={{ background: '#1a1a1a' }}>
               <video ref={videoRef} autoPlay muted playsInline
+                onLoadedMetadata={(e) => {
+                  (e.target as HTMLVideoElement).play().catch(() => {})
+                }}
                 className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
-                style={{ opacity: camOn ? 1 : 0 }} />
+                style={{
+                  opacity: camOn ? 1 : 0,
+                  transform: 'scaleX(-1)',
+                  WebkitTransform: 'scaleX(-1)',
+                }} />
 
               {/* Placeholder when cam off */}
               {!camOn && (
@@ -265,6 +272,9 @@ export default function OmegleSection() {
             {/* RIGHT - stranger / remote live WebRTC video */}
             <div
               onClick={() => {
+                if (remoteVideoRef.current) {
+                  remoteVideoRef.current.play().catch(() => {})
+                }
                 if (remoteAudioRef.current && isAudioBlocked) {
                   remoteAudioRef.current.play().then(() => setIsAudioBlocked(false)).catch(() => {})
                 }
@@ -281,6 +291,9 @@ export default function OmegleSection() {
                 autoPlay
                 playsInline
                 muted
+                onLoadedMetadata={(e) => {
+                  (e.target as HTMLVideoElement).play().catch(() => {})
+                }}
                 className={`absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-300 ${
                   phase === 'connected' ? 'opacity-100' : 'opacity-0 pointer-events-none'
                 }`}
