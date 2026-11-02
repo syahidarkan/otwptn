@@ -12,6 +12,10 @@ os.makedirs(ANNOTATED_DIR, exist_ok=True)
 
 # Define red box callouts for relevant steps [x1, y1, x2, y2]
 CALLOUTS = {
+    # Step 1: Homepage CTA button
+    "step_01_homepage.png": [
+        [(630, 725, 970, 785), 25, 6],
+    ],
     # Step 2: Login form card
     "step_02_login.png": [
         [(640, 320, 1280, 860), 30, 6],
@@ -30,7 +34,7 @@ CALLOUTS = {
     ],
     # Step 6: Shopping cart modal - "Proceed To Checkout" button
     "step_06_cart.png": [
-        [(680, 890, 1240, 980), 30, 6],
+        [(650, 893, 1270, 984), 30, 6],
     ],
     # Step 7: Checkout billing information card
     "step_07_checkout_billing.png": [
@@ -69,16 +73,15 @@ def annotate_images():
         print(f"Annotated: {out_path}")
 
 def build_html():
-    # Convert image paths to relative for HTML
     html_content = """<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Customer Journey - OtwPTN (PT OTBE INDONESIA PRESTASI)</title>
+  <title>Customer Journey - OtwPTN (PT. Lembaga Sains Nasional)</title>
   <style>
     @page {
       size: A4 portrait;
-      margin: 12mm 15mm 15mm 15mm;
+      margin: 10mm 14mm 10mm 14mm;
     }
     * {
       box-sizing: border-box;
@@ -90,7 +93,7 @@ def build_html():
       color: #111827;
       background: #ffffff;
       line-height: 1.4;
-      font-size: 11pt;
+      font-size: 10.5pt;
     }
     .page {
       page-break-after: always;
@@ -98,25 +101,26 @@ def build_html():
       flex-direction: column;
       justify-content: flex-start;
       height: 100%;
-      min-height: 260mm;
-      padding-bottom: 5mm;
+      min-height: 270mm;
+      padding-bottom: 2mm;
     }
     .page:last-child {
       page-break-after: avoid;
     }
     .main-title {
-      text-align: center;
       font-size: 13pt;
       font-weight: 800;
-      letter-spacing: 0.5px;
-      margin-bottom: 6mm;
+      color: #0f172a;
+      letter-spacing: -0.01em;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 2.5mm;
+      margin-bottom: 3.5mm;
       text-transform: uppercase;
-      color: #111827;
-      border-bottom: 1.5px solid #e5e7eb;
-      padding-bottom: 3mm;
     }
     .step-block {
-      margin-bottom: 5mm;
+      margin-bottom: 4mm;
+      display: flex;
+      flex-direction: column;
     }
     .step-desc {
       font-size: 9.5pt;
@@ -159,7 +163,7 @@ def build_html():
 
   <!-- PAGE 1: Steps 1 & 2 -->
   <div class="page">
-    <div class="main-title">CUSTOMER JOURNEY – OTWPTN (PT OTBE INDONESIA PRESTASI)</div>
+    <div class="main-title">CUSTOMER JOURNEY - OTWPTN (PT. LEMBAGA SAINS NASIONAL)</div>
 
     <div class="step-block">
       <div class="step-desc">
@@ -179,12 +183,12 @@ def build_html():
       </div>
     </div>
 
-    <div class="footer-note">Halaman 1 dari 5 &bull; Alur Pendaftaran & Pembayaran Midtrans &bull; PT OTBE INDONESIA PRESTASI</div>
+    <div class="footer-note">Halaman 1 dari 5 &bull; Alur Pendaftaran & Pembayaran Midtrans &bull; PT. Lembaga Sains Nasional</div>
   </div>
 
   <!-- PAGE 2: Steps 3 & 4 -->
   <div class="page">
-    <div class="main-title">CUSTOMER JOURNEY – OTWPTN (PT OTBE INDONESIA PRESTASI)</div>
+    <div class="main-title">CUSTOMER JOURNEY - OTWPTN (PT. LEMBAGA SAINS NASIONAL)</div>
 
     <div class="step-block">
       <div class="step-desc">
@@ -204,12 +208,12 @@ def build_html():
       </div>
     </div>
 
-    <div class="footer-note">Halaman 2 dari 5 &bull; Alur Pendaftaran & Pembayaran Midtrans &bull; PT OTBE INDONESIA PRESTASI</div>
+    <div class="footer-note">Halaman 2 dari 5 &bull; Alur Pendaftaran & Pembayaran Midtrans &bull; PT. Lembaga Sains Nasional</div>
   </div>
 
   <!-- PAGE 3: Steps 5 & 6 -->
   <div class="page">
-    <div class="main-title">CUSTOMER JOURNEY – OTWPTN (PT OTBE INDONESIA PRESTASI)</div>
+    <div class="main-title">CUSTOMER JOURNEY - OTWPTN (PT. LEMBAGA SAINS NASIONAL)</div>
 
     <div class="step-block">
       <div class="step-desc">
@@ -229,12 +233,12 @@ def build_html():
       </div>
     </div>
 
-    <div class="footer-note">Halaman 3 dari 5 &bull; Alur Pendaftaran & Pembayaran Midtrans &bull; PT OTBE INDONESIA PRESTASI</div>
+    <div class="footer-note">Halaman 3 dari 5 &bull; Alur Pendaftaran & Pembayaran Midtrans &bull; PT. Lembaga Sains Nasional</div>
   </div>
 
   <!-- PAGE 4: Steps 7 & 8 -->
   <div class="page">
-    <div class="main-title">CUSTOMER JOURNEY – OTWPTN (PT OTBE INDONESIA PRESTASI)</div>
+    <div class="main-title">CUSTOMER JOURNEY - OTWPTN (PT. LEMBAGA SAINS NASIONAL)</div>
 
     <div class="step-block">
       <div class="step-desc">
@@ -254,12 +258,12 @@ def build_html():
       </div>
     </div>
 
-    <div class="footer-note">Halaman 4 dari 5 &bull; Alur Pendaftaran & Pembayaran Midtrans &bull; PT OTBE INDONESIA PRESTASI</div>
+    <div class="footer-note">Halaman 4 dari 5 &bull; Alur Pendaftaran & Pembayaran Midtrans &bull; PT. Lembaga Sains Nasional</div>
   </div>
 
   <!-- PAGE 5: Steps 9 & 10 -->
   <div class="page">
-    <div class="main-title">CUSTOMER JOURNEY – OTWPTN (PT OTBE INDONESIA PRESTASI)</div>
+    <div class="main-title">CUSTOMER JOURNEY - OTWPTN (PT. LEMBAGA SAINS NASIONAL)</div>
 
     <div class="step-block">
       <div class="step-desc">
@@ -279,7 +283,7 @@ def build_html():
       </div>
     </div>
 
-    <div class="footer-note">Halaman 5 dari 5 &bull; Alur Pendaftaran & Pembayaran Midtrans &bull; PT OTBE INDONESIA PRESTASI</div>
+    <div class="footer-note">Halaman 5 dari 5 &bull; Alur Pendaftaran & Pembayaran Midtrans &bull; PT. Lembaga Sains Nasional</div>
   </div>
 
 </body>

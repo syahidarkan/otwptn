@@ -34,7 +34,7 @@ STEPS = [
     {
         "id": "step_06_cart",
         "url": "http://localhost:3000/paket/nectar?cart=1",
-        "window_size": "1280,850",
+        "window_size": "1280,900",
     },
     {
         "id": "step_07_checkout_billing",
@@ -65,12 +65,12 @@ def capture_all():
         print(f"Capturing {s['id']} from {s['url']}...")
         cmd = [
             CHROME_BIN,
-            "--headless",
+            "--headless=new",
             f"--screenshot={out_file}",
             f"--window-size={s['window_size']}",
             "--hide-scrollbars",
-            "--virtual-time-budget=3500",
-            "--force-device-scale-factor=1.5", # High resolution
+            "--force-device-scale-factor=1.5",
+            "--run-all-compositor-stages-before-draw",
             s['url'],
         ]
         res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

@@ -9,7 +9,7 @@ const WORDS = ['Tes', 'Ujian', 'CBT', 'Pusing!']
 
 function fadeUp(delay = 0) {
   return {
-    initial: { opacity: 0, y: 16 },
+    initial: false,
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.45, delay, ease: 'easeOut' as const },
   }
@@ -51,7 +51,7 @@ function ResponsiveBee({
         style={{ ...mobilePos, ...(rotate ? { transform: `rotate(${rotate}deg)` } : {}) }}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.5, y: 20 }}
+          initial={false}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.7, delay: entranceDelay, ease: [0.34, 1.56, 0.64, 1] }}
         >
@@ -77,7 +77,7 @@ function ResponsiveBee({
         style={{ ...desktopPos, ...(rotate ? { transform: `rotate(${rotate}deg)` } : {}) }}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.6, y: 30 }}
+          initial={false}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.75, delay: entranceDelay, ease: [0.34, 1.56, 0.64, 1] }}
         >
