@@ -1,26 +1,18 @@
 'use client'
 
-import { Suspense, useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 
-function LoginForm() {
+function LoginForm({ initialError = null }: { initialError?: string | null }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(initialError)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
-
-  useEffect(() => {
-    const errParam = searchParams.get('error')
-    if (errParam === 'auth_callback_failed') {
-      setError('Login Google gagal atau dibatalkan. Pastikan URL domain sudah terdaftar di Redirect URLs Supabase.')
-    }
-  }, [searchParams])
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -58,7 +50,7 @@ function LoginForm() {
       style={{ background: 'var(--hero-grad)' }}
     >
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={false}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
         className="w-full max-w-sm card p-8 text-center"
@@ -180,18 +172,5 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
-  return (
-    <Suspense
-      fallback={
-        <div
-          className="min-h-screen flex items-center justify-center"
-          style={{ background: 'var(--hero-grad)' }}
-        >
-          <div className="text-xs text-gray-500">Memuat...</div>
-        </div>
-      }
-    >
-      <LoginForm />
-    </Suspense>
-  )
+  return <LoginForm />
 }

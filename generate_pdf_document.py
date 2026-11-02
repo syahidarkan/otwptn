@@ -18,7 +18,7 @@ CALLOUTS = {
     ],
     # Step 2: Login form card
     "step_02_login.png": [
-        [(640, 320, 1280, 860), 30, 6],
+        [(650, 130, 1270, 1100), 32, 6],
     ],
     # Step 3: Category filter buttons
     "step_03_kategori.png": [
@@ -47,7 +47,7 @@ CALLOUTS = {
     ],
     # Step 9: Midtrans Snap popup with Virtual Account number
     "step_09_midtrans_snap.png": [
-        [(580, 480, 1340, 660), 25, 6],
+        [(565, 215, 1355, 1105), 32, 6],
     ],
     # Step 10: Order summary confirmation and status Lunas
     "step_10_order_summary.png": [

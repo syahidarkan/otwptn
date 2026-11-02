@@ -377,7 +377,7 @@ export default function CheckoutClient({ initialTier = "nectar", initialSnapOpen
 
         {/* MIDTRANS SNAP POPUP INTERFACE MODAL */}
         {showSnapModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-up">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
             <div className="w-full max-w-lg rounded-3xl bg-white overflow-hidden shadow-2xl relative border border-gray-200">
               {/* Midtrans Snap Header */}
               <div className="bg-[#002855] text-white p-5 flex items-center justify-between">
@@ -468,7 +468,7 @@ export default function CheckoutClient({ initialTier = "nectar", initialSnapOpen
                         <li>Buka aplikasi Mobile Banking / ATM bank kamu.</li>
                         <li>Pilih menu <strong>Transfer &gt; Virtual Account</strong>.</li>
                         <li>Masukkan nomor Virtual Account: <strong>{getVaNumber()}</strong>.</li>
-                        <li>Periksa rincian: nama penerima <strong>PT OTBE INDONESIA PRESTASI</strong>.</li>
+                        <li>Periksa rincian: nama penerima <strong>PT. Lembaga Sains Nasional</strong>.</li>
                         <li>Konfirmasi transaksi dan simpan bukti transfer.</li>
                       </ol>
                     </div>
