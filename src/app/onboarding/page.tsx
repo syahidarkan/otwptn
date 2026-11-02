@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import gsap from 'gsap'
-import { ArrowLeft, Check, Flame, Sparkles, Plus, Minus, Lock, Star, X, ChevronDown, Trash2, Upload } from 'lucide-react'
+import { ArrowLeft, Check, Flame, Sparkles, Plus, Minus, Lock, Star, X, ChevronDown, Trash2, Upload, Loader2 } from 'lucide-react'
 import ParticleField from './_components/ParticleField'
 import HoldButton from './_components/HoldButton'
 import GrowthCurve from './_components/GrowthCurve'
@@ -815,6 +815,7 @@ export default function OnboardingPage() {
   const [loadingStage, setLoadingStage] = useState(0)
   const [showBees, setShowBees] = useState(false)
   const [showMapel, setShowMapel] = useState(false)
+  const [isNavigating, setIsNavigating] = useState(false)
   const router = useRouter()
   const progressBarRef = useRef<HTMLDivElement>(null)
 
@@ -924,10 +925,17 @@ export default function OnboardingPage() {
   // Trigger fanfare + bees when landing on final step
   useEffect(() => {
     if (step !== 21) return
+    router.prefetch('/dashboard')
     playFanfare()
     setShowBees(true)
     setTimeout(() => setShowBees(false), 3500)
-  }, [step])
+  }, [step, router])
+
+  function handleGoToDashboard() {
+    setIsNavigating(true)
+    playSfx('select')
+    router.replace('/dashboard')
+  }
 
   async function handleFinish() {
     const supabase = createClient()
@@ -1530,9 +1538,37 @@ export default function OnboardingPage() {
                 <p className="text-base font-bold mb-1" style={{ color: 'var(--fg)' }}>Yeay, rencanamu siap!</p>
                 <p className="text-sm mb-2" style={{ color: 'var(--muted)' }}>Selamat berjuang meraih <b>{jalurInfo?.label || 'jalur non-tes'}</b> impianmu!</p>
                 <p className="text-xs mb-6" style={{ color: 'var(--muted)' }}>OtBee siap menemanimu dari sekarang sampai diterima. 💛🐝</p>
-                <button onClick={() => router.push('/dashboard')} className="btn btn-primary w-full py-4 text-base" style={{ fontWeight: 700, boxShadow: '0 8px 24px rgba(255,212,0,0.4)' }}>
-                  Mulai Persiapan Sekarang!
+                <button
+                  type="button"
+                  onClick={handleGoToDashboard}
+                  disabled={isNavigating}
+                  className="btn btn-primary w-full py-4 text-base flex items-center justify-center gap-2 transition-all"
+                  style={{
+                    fontWeight: 700,
+                    boxShadow: '0 8px 24px rgba(255,212,0,0.4)',
+                    opacity: isNavigating ? 0.85 : 1,
+                    cursor: isNavigating ? 'wait' : 'pointer'
+                  }}
+                >
+                  {isNavigating ? (
+                    <>
+                      <Loader2 size={20} className="animate-spin text-black" />
+                      <span>Menyiapkan Ruang Belajar...</span>
+                    </>
+                  ) : (
+                    'Mulai Persiapan Sekarang!'
+                  )}
                 </button>
+                {isNavigating && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-xs text-center mt-3 font-medium animate-pulse"
+                    style={{ color: 'var(--muted)' }}
+                  >
+                    Sedang menghubungkan ke akunmu, tunggu sebentar ya... 🚀
+                  </motion.p>
+                )}
               </div>
             )}
 
