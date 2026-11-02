@@ -67,12 +67,12 @@ export default function ProfilPage() {
     phone: '',
     school: '',
     email: '',
-    eligible_rank: '3',
-    province: 'DKI Jakarta',
-    target_ptn_1: 'Universitas Indonesia',
-    target_prodi_1: 'Kecerdasan Artifisial',
-    target_ptn_2: 'Institut Teknologi Bandung',
-    target_prodi_2: 'STEI-R Komputasi',
+    eligible_rank: '',
+    province: '',
+    target_ptn_1: '',
+    target_prodi_1: '',
+    target_ptn_2: '',
+    target_prodi_2: '',
     avatar: '/avatars/avatar-1.png',
   })
 
@@ -99,9 +99,11 @@ export default function ProfilPage() {
         .from('profiles')
         .select('*')
         .eq('id', data.user.id)
-        .single()
+        .maybeSingle()
         .then(({ data: profile }) => {
           if (profile) {
+            const targetPtns = (profile.target_ptns as string[]) || []
+            const targetMajors = (profile.target_majors as string[]) || []
             setForm(prev => {
               const finalAvatar = profile.avatar_url || prev.avatar
               if (profile.avatar_url) {
@@ -111,10 +113,16 @@ export default function ProfilPage() {
               }
               return {
                 ...prev,
-                full_name: profile.full_name ?? '',
-                phone: profile.phone ?? '',
-                school: profile.school ?? profile.school_name ?? '',
-                email: data.user.email ?? profile.email ?? '',
+                full_name: profile.full_name || data.user.user_metadata?.full_name || '',
+                phone: profile.phone || '',
+                school: profile.school || profile.school_name || '',
+                email: data.user.email || profile.email || '',
+                eligible_rank: profile.school_rank_tier || '',
+                province: profile.province || '',
+                target_ptn_1: targetPtns[0] || '',
+                target_prodi_1: targetMajors[0] || '',
+                target_ptn_2: targetPtns[1] || '',
+                target_prodi_2: targetMajors[1] || '',
                 avatar: finalAvatar,
               }
             })

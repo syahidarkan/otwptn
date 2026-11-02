@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 import {
   ShieldCheck,
   UploadCloud,
@@ -11,6 +12,7 @@ import {
   School,
   Sparkles,
   Award,
+  Loader2,
 } from 'lucide-react'
 import { LEGAL_ENTITY } from '@/lib/constants'
 
@@ -19,20 +21,86 @@ export default function MentorApplyPage() {
   const [essayFile, setEssayFile] = useState<File | null>(null)
   const [certFile, setCertFile] = useState<File | null>(null)
   const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
 
   const [form, setForm] = useState({
-    fullName: 'Rayhan Fakhri Pratama',
-    email: 'rayhan.f@alumni.ui.ac.id',
-    phone: '081234567890',
-    university: 'Universitas Indonesia',
-    major: 'Ilmu Komunikasi (Reguler)',
-    track: 'PPKB UI (Prestasi & Pemerataan)',
-    gradYear: '2025',
+    fullName: '',
+    email: '',
+    phone: '',
+    university: '',
+    major: '',
+    track: '',
+    gradYear: '',
     sopAgreed: true,
   })
 
-  function handleSubmit(e: React.FormEvent) {
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return
+      setUserId(data.user.id)
+      const existing = localStorage.getItem(`otwptn_mentor_app_${data.user.id}`)
+      if (existing) {
+        try {
+          const parsed = JSON.parse(existing)
+          setForm(prev => ({
+            ...prev,
+            ...parsed,
+          }))
+          setSubmitted(true)
+        } catch {
+          // ignore
+        }
+      }
+
+      supabase
+        .from('profiles')
+        .select('full_name, school_name, email')
+        .eq('id', data.user.id)
+        .maybeSingle()
+        .then(({ data: profile }) => {
+          setForm(prev => ({
+            ...prev,
+            fullName: prev.fullName || profile?.full_name || data.user.user_metadata?.full_name || '',
+            email: prev.email || profile?.email || data.user.email || '',
+            university: prev.university || profile?.school_name || data.user.user_metadata?.university || '',
+          }))
+        })
+    })
+  }, [])
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setLoading(true)
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (user) {
+      try {
+        await supabase.from('profiles').update({
+          full_name: form.fullName,
+          school_name: form.university,
+        }).eq('id', user.id)
+
+        localStorage.setItem(`otwptn_mentor_app_${user.id}`, JSON.stringify({
+          fullName: form.fullName,
+          email: form.email,
+          phone: form.phone,
+          university: form.university,
+          major: form.major,
+          track: form.track,
+          gradYear: form.gradYear,
+          loaFileName: loaFile?.name || 'Dokumen_LOA.pdf',
+          status: 'pending',
+          submittedAt: new Date().toISOString(),
+        }))
+      } catch (err) {
+        console.warn('Update profile error:', err)
+      }
+    }
+
+    setLoading(false)
     setSubmitted(true)
   }
 

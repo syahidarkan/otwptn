@@ -33,6 +33,7 @@ const NAV = [
 export default function Sidebar() {
   const pathname = usePathname()
   const [name, setName] = useState('')
+  const [school, setSchool] = useState('')
   const [tier, setTier] = useState('free')
   const [avatar, setAvatar] = useState('/avatars/avatar-1.png')
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -122,14 +123,16 @@ export default function Sidebar() {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) return
-      supabase.from('profiles').select('full_name, tier, avatar_url').eq('id', data.user.id).single().then(({ data: profile }) => {
-        if (profile) {
-          setName(profile.full_name || '')
-          setTier(profile.tier || 'free')
-          if (profile.avatar_url) {
-            setAvatar(profile.avatar_url)
-            try { localStorage.setItem('otwptn_user_avatar', profile.avatar_url) } catch {}
-          }
+      const userMetaName = data.user.user_metadata?.full_name || data.user.user_metadata?.name
+      const userEmailFallback = data.user.email?.split('@')[0]
+      supabase.from('profiles').select('full_name, tier, avatar_url, school_name, school').eq('id', data.user.id).maybeSingle().then(({ data: profile }) => {
+        const finalName = profile?.full_name || userMetaName || userEmailFallback || 'Pejuang PTN'
+        setName(finalName)
+        setSchool(profile?.school_name || profile?.school || '')
+        setTier(profile?.tier || 'free')
+        if (profile?.avatar_url) {
+          setAvatar(profile.avatar_url)
+          try { localStorage.setItem('otwptn_user_avatar', profile.avatar_url) } catch {}
         }
       })
     })
@@ -227,10 +230,10 @@ export default function Sidebar() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-black truncate text-gray-900 group-hover:text-amber-900 leading-tight">
-                {name || 'syahid arkan'}
+                {name || 'Pejuang PTN'}
               </p>
               <p className="text-[10px] font-semibold text-gray-400 truncate">
-                + Tambahkan sekolah...
+                {school || '+ Tambahkan sekolah...'}
               </p>
             </div>
           </button>
@@ -286,7 +289,7 @@ export default function Sidebar() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h4 className="text-sm font-black text-gray-900 group-hover:text-amber-950 truncate">
-                    {name || 'syahid arkan'}
+                    {name || 'Pejuang PTN'}
                   </h4>
                   <div className="flex items-center justify-between text-[11px] text-gray-500 mt-0.5">
                     <span className="flex items-center gap-1 font-bold text-amber-600">
@@ -420,6 +423,12 @@ export default function Sidebar() {
                 onClick={async () => {
                   const supabase = createClient()
                   await supabase.auth.signOut()
+                  try {
+                    localStorage.removeItem('otwptn_user_avatar')
+                    localStorage.removeItem('otwptn_xp')
+                    localStorage.removeItem('otwptn_level')
+                    localStorage.removeItem('otwptn_coins')
+                  } catch {}
                   window.location.href = '/login'
                 }}
                 className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-black text-rose-600 hover:bg-rose-50 transition-colors text-left"

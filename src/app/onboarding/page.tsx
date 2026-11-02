@@ -816,6 +816,9 @@ export default function OnboardingPage() {
   const [showBees, setShowBees] = useState(false)
   const [showMapel, setShowMapel] = useState(false)
   const [isNavigating, setIsNavigating] = useState(false)
+  const [isRedirecting, setIsRedirecting] = useState(false)
+  const [redirectText, setRedirectText] = useState('Menyiapkan Ruang Belajar...')
+  const finishPromiseRef = useRef<Promise<void> | null>(null)
   const router = useRouter()
   const progressBarRef = useRef<HTMLDivElement>(null)
 
@@ -911,13 +914,25 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (step !== 20) return
     setLoadingStage(0)
-    const tl = gsap.timeline({ onComplete: () => { void handleFinish() } })
+    // Start saving to Supabase in parallel right as loading animation starts
+    finishPromiseRef.current = handleFinish()
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        setDir(1)
+        setStep(21)
+        fireConfetti(0.4, 0.3)
+        setTimeout(() => {
+          fireConfetti(0.6, 0.5)
+          fireConfetti(0.3, 0.7)
+        }, 400)
+      }
+    })
     LOADING_STAGES.forEach((_, i) => {
       tl.call(() => setLoadingStage(i))
       tl.to(progressBarRef.current, { width: `${((i + 1) / LOADING_STAGES.length) * 100}%`, duration: 0.7, ease: 'power2.inOut' })
       tl.to({}, { duration: 0.25 })
     })
-    tl.call(() => { setDir(1); setStep(21); fireConfetti(0.4, 0.3); setTimeout(() => { fireConfetti(0.6, 0.5); fireConfetti(0.3, 0.7) }, 400) })
     return () => { tl.kill() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step])
@@ -931,56 +946,102 @@ export default function OnboardingPage() {
     setTimeout(() => setShowBees(false), 3500)
   }, [step, router])
 
-  function handleGoToDashboard() {
+  async function handleGoToDashboard() {
     setIsNavigating(true)
+    setIsRedirecting(true)
     playSfx('select')
-    router.replace('/dashboard')
+    setRedirectText('Menyiapkan Ruang Belajar...')
+
+    // Wait for the background save if it is still running (with 2.5s safeguard timeout)
+    if (finishPromiseRef.current) {
+      try {
+        await Promise.race([
+          finishPromiseRef.current,
+          new Promise(res => setTimeout(res, 2500))
+        ])
+      } catch {
+        // proceed
+      }
+    } else {
+      try {
+        await Promise.race([
+          handleFinish(),
+          new Promise(res => setTimeout(res, 2500))
+        ])
+      } catch {
+        // proceed
+      }
+    }
+
+    setRedirectText('Mengarahkan ke Dashboard...')
+    setTimeout(() => {
+      window.location.href = '/dashboard'
+    }, 400)
   }
 
   async function handleFinish() {
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/login'); return }
-    const semFilled = form.rapor_per_semester.filter(v => v !== '' && !isNaN(parseFloat(v))).map(parseFloat)
-    const computedAvg = semFilled.length > 0 ? semFilled.reduce((a, b) => a + b, 0) / semFilled.length : parseFloat(form.avg_rapor)
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push('/login'); return }
+      const semFilled = form.rapor_per_semester.filter(v => v !== '' && !isNaN(parseFloat(v))).map(parseFloat)
+      const computedAvg = semFilled.length > 0 ? semFilled.reduce((a, b) => a + b, 0) / semFilled.length : parseFloat(form.avg_rapor)
 
-    // Upload sertifikat files and build prestasi_items payload
-    const prestasiPayload = await Promise.all(form.prestasi_list.map(async item => {
-      const uploadedUrls: string[] = []
-      for (const file of item.files) {
-        const ext = file.name.split('.').pop()
-        const path = `prestasi/${user.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-        const { data } = await supabase.storage.from('uploads').upload(path, file, { upsert: false })
-        if (data?.path) {
-          const { data: urlData } = supabase.storage.from('uploads').getPublicUrl(data.path)
-          uploadedUrls.push(urlData.publicUrl)
-        }
+      // Upload sertifikat files and build prestasi_items payload safely
+      let prestasiPayload: any[] = []
+      try {
+        prestasiPayload = await Promise.all(form.prestasi_list.map(async item => {
+          const uploadedUrls: string[] = []
+          for (const file of item.files) {
+            try {
+              const ext = file.name.split('.').pop()
+              const path = `prestasi/${user.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+              const { data } = await supabase.storage.from('uploads').upload(path, file, { upsert: false })
+              if (data?.path) {
+                const { data: urlData } = supabase.storage.from('uploads').getPublicUrl(data.path)
+                uploadedUrls.push(urlData.publicUrl)
+              }
+            } catch (upErr) {
+              console.warn('Storage upload error for item:', upErr)
+            }
+          }
+          return { judul: item.judul, tingkat: item.tingkat, penyelenggara: item.penyelenggara, tahun: item.tahun, sertifikat_urls: uploadedUrls }
+        }))
+      } catch (payloadErr) {
+        console.warn('Prestasi payload generation error:', payloadErr)
       }
-      return { judul: item.judul, tingkat: item.tingkat, penyelenggara: item.penyelenggara, tahun: item.tahun, sertifikat_urls: uploadedUrls }
-    }))
 
-    await supabase.from('profiles').update({
-      full_name: form.full_name, school_name: form.school_name,
-      school_rank_tier: form.school_rank_tier || null,
-      target_ptns: form.target_ptns,
-      target_majors: form.target_majors ? [form.target_majors] : [],
-      target_jalurs: [form.jalur_tujuan], jalur_tujuan: form.jalur_tujuan,
-      avg_rapor: computedAvg || null,
-      rapor_per_semester: semFilled.length > 0 ? form.rapor_per_semester : null,
-      cert_count: form.cert_count ? parseInt(form.cert_count) : (form.prestasi_list.length || 0),
-      cert_highest_level: form.cert_highest_level || null,
-      prestasi_items: prestasiPayload,
-      essay_draft: form.essay_draft || null,
-      learning_styles: form.learning_styles,
-      biggest_challenge: form.biggest_challenge,
-      daily_question_target: form.daily_study_hours,
-      study_days_per_week: studyDaysCount,
-      commitment_text: commitmentSentence,
-      motivation_text: form.motivation_text || null,
-      ambassador_code: form.ambassador_code || null,
-      target_score: form.confidence,
-      onboarding_completed: true,
-    }).eq('id', user.id)
+      await supabase.from('profiles').update({
+        full_name: form.full_name,
+        school_name: form.school_name,
+        school_rank_tier: form.school_rank_tier || null,
+        target_ptns: form.target_ptns,
+        target_majors: form.target_majors ? [form.target_majors] : [],
+        target_jalurs: [form.jalur_tujuan],
+        jalur_tujuan: form.jalur_tujuan,
+        avg_rapor: computedAvg || null,
+        rapor_per_semester: semFilled.length > 0 ? form.rapor_per_semester : null,
+        cert_count: form.cert_count ? parseInt(form.cert_count) : (form.prestasi_list.length || 0),
+        cert_highest_level: form.cert_highest_level || null,
+        prestasi_items: prestasiPayload,
+        essay_draft: form.essay_draft || null,
+        learning_styles: form.learning_styles,
+        biggest_challenge: form.biggest_challenge,
+        daily_question_target: form.daily_study_hours,
+        study_days_per_week: studyDaysCount,
+        commitment_text: commitmentSentence,
+        motivation_text: form.motivation_text || null,
+        ambassador_code: form.ambassador_code || null,
+        target_score: form.confidence,
+        onboarding_completed: true,
+      }).eq('id', user.id)
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`otwptn_onboarding_done_${user.id}`, 'true')
+      }
+    } catch (err) {
+      console.error('Error completing onboarding save:', err)
+    }
   }
 
   function handleHoldComplete() {
@@ -1587,6 +1648,53 @@ export default function OnboardingPage() {
         )}
       </div>
       </div>
+
+      {/* Fullscreen Load Page Transition */}
+      {isRedirecting && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 bg-[#fffbeb]/95 backdrop-blur-md">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-sm text-center"
+          >
+            <motion.div
+              animate={{ y: [0, -10, 0], scale: [1, 1.04, 1] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+              className="mb-6 flex justify-center"
+            >
+              <Image
+                src="/mascot-hd/graduation-trophy.png"
+                alt="OtBee Berhasil"
+                width={170}
+                height={170}
+                className="drop-shadow-xl"
+              />
+            </motion.div>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-950 text-xs font-black mb-4 shadow-xs">
+              <Loader2 size={15} className="animate-spin text-amber-600" />
+              <span>{redirectText}</span>
+            </div>
+            <h3 className="text-xl font-black text-gray-950 mb-2">
+              Rencanamu Siap Diluncurkan!
+            </h3>
+            <p className="text-xs text-gray-600 mb-6 font-medium leading-relaxed">
+              Sedang menghubungkan ke akunmu dan menyusun materi personal. Sebentar lagi kamu akan masuk ke Dashboard. 🚀
+            </p>
+            {/* Animated Loading Bar */}
+            <div className="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden shadow-inner mb-3">
+              <motion.div
+                className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full"
+                initial={{ width: '15%' }}
+                animate={{ width: '100%' }}
+                transition={{ duration: 1.5, ease: 'easeInOut' }}
+              />
+            </div>
+            <p className="text-[11px] text-gray-400 font-medium">
+              Mohon tunggu sebentar, jangan tutup halaman ini ya...
+            </p>
+          </motion.div>
+        </div>
+      )}
     </div>
   )
 }

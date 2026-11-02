@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 import {
   Users,
   Search,
@@ -30,7 +31,9 @@ import {
   Underline,
   List,
   Heading1,
+  ShieldAlert,
 } from 'lucide-react'
+import { LEGAL_ENTITY } from '@/lib/constants'
 
 interface MenteeItem {
   id: string
@@ -160,6 +163,38 @@ export default function MentorDashboardPage() {
   const [mentees, setMentees] = useState<MenteeItem[]>(INITIAL_MENTEES)
   const [search, setSearch] = useState('')
   const [filterPackage, setFilterPackage] = useState<'Semua' | 'Nectar' | 'Honeycomb' | 'Queen Bee (Royal Jelly)'>('Semua')
+  const [mentorName, setMentorName] = useState('Mentor Alumni')
+  const [mentorUni, setMentorUni] = useState('')
+  const [isPendingLoa, setIsPendingLoa] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return
+      const appData = localStorage.getItem(`otwptn_mentor_app_${data.user.id}`)
+      if (appData) {
+        try {
+          const parsed = JSON.parse(appData)
+          if (parsed.status === 'pending') {
+            setIsPendingLoa(true)
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      supabase
+        .from('profiles')
+        .select('full_name, school_name')
+        .eq('id', data.user.id)
+        .maybeSingle()
+        .then(({ data: profile }) => {
+          const name = profile?.full_name || data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Mentor Alumni'
+          setMentorName(name)
+          if (profile?.school_name) setMentorUni(profile.school_name)
+        })
+    })
+  }, [])
 
   // Selected Mentee Modal States
   const [activeMentee, setActiveMentee] = useState<MenteeItem | null>(null)
@@ -271,13 +306,13 @@ export default function MentorDashboardPage() {
       <div className="p-8 rounded-3xl bg-white shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-900 text-xs font-black mb-2">
-            <Sparkles size={14} className="text-amber-600" /> Workspace Mentor Resmi PT. Lembaga Sains Nasional
+            <Sparkles size={14} className="text-amber-600" /> Workspace Mentor Resmi {LEGAL_ENTITY.name}
           </div>
           <h1 className="text-2xl md:text-3xl font-black text-gray-950 tracking-tight">
-            Dashboard Mentee Ter-assign
+            Selamat Datang, {mentorName}!
           </h1>
           <p className="text-xs text-gray-500 font-medium mt-1">
-            Pantau progres bimbingan esai, jadwal sesi Meet, kurasi berkas, dan rekomendasi pilihan jurusan menteemu.
+            {mentorUni ? `${mentorUni} · ` : ''}Pantau progres bimbingan esai, jadwal sesi Meet, kurasi berkas, dan rekomendasi pilihan jurusan menteemu.
           </p>
         </div>
 
@@ -292,6 +327,31 @@ export default function MentorDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* LOA Verification Status Notice */}
+      {isPendingLoa && (
+        <div className="p-5 rounded-3xl bg-amber-50 border border-amber-200/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-xl bg-amber-100 text-amber-800 flex-shrink-0 mt-0.5 sm:mt-0">
+              <ShieldAlert size={20} />
+            </div>
+            <div>
+              <p className="text-xs font-black text-amber-950">
+                Status Akun: Menunggu Verifikasi Dokumen LOA
+              </p>
+              <p className="text-[11px] text-amber-800 font-medium mt-0.5">
+                Dokumen LOA kamu sedang diverifikasi oleh Tim Akademik {LEGAL_ENTITY.name}. Siswa di bawah ini merupakan data simulasi mentee untuk demonstrasi workspace.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/mentor/apply"
+            className="px-4 py-2 rounded-full bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs font-black transition-all flex-shrink-0"
+          >
+            Lihat Status Pengajuan
+          </Link>
+        </div>
+      )}
 
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
