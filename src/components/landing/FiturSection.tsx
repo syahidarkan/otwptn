@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import {
-  ChevronDown, PlayCircle,
+  ChevronDown, PlayCircle, ChevronLeft, ChevronRight,
   Mic, Video as VideoIcon, PhoneOff, MessageCircle, Send, Heart, Share2, FileText, Shuffle,
 } from 'lucide-react'
 
@@ -263,9 +263,12 @@ export default function FiturSection() {
   const [paused, setPaused] = useState(false)
   const timer = useRef<ReturnType<typeof setInterval> | null>(null)
 
+  const nextFeature = () => setIdx(i => (i + 1) % FEATURES.length)
+  const prevFeature = () => setIdx(i => (i - 1 + FEATURES.length) % FEATURES.length)
+
   useEffect(() => {
     if (paused) return
-    timer.current = setInterval(() => setIdx(i => (i + 1) % FEATURES.length), 4500)
+    timer.current = setInterval(nextFeature, 5000)
     return () => { if (timer.current) clearInterval(timer.current) }
   }, [paused])
 
@@ -320,15 +323,26 @@ export default function FiturSection() {
             </div>
           </div>
 
-          {/* Main content */}
-          <div className="flex-1 min-w-0" style={{ perspective: 1200 }}>
+          {/* Main content with Horizontal Swipe Gesture */}
+          <div className="flex-1 min-w-0 relative" style={{ perspective: 1200 }}>
             <AnimatePresence mode="wait">
-              <motion.div key={f.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
+              <motion.div
+                key={f.id}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.2}
+                onDragEnd={(_, info) => {
+                  if (info.offset.x < -40 || info.velocity.x < -300) {
+                    nextFeature()
+                  } else if (info.offset.x > 40 || info.velocity.x > 300) {
+                    prevFeature()
+                  }
+                }}
+                initial={{ opacity: 0, x: 24 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -24 }}
                 transition={{ duration: 0.3, ease: 'easeOut' }}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center cursor-grab active:cursor-grabbing select-none"
               >
                 {/* Text + mascot */}
                 <div className="flex flex-col gap-4">
@@ -350,15 +364,40 @@ export default function FiturSection() {
                 </motion.div>
               </motion.div>
             </AnimatePresence>
+
+            {/* Subtle swipe arrows on desktop */}
+            <div className="hidden sm:flex items-center gap-2 absolute bottom-2 right-2 z-10">
+              <button
+                type="button"
+                onClick={prevFeature}
+                className="w-8 h-8 rounded-full bg-white/80 hover:bg-white text-gray-700 shadow-xs flex items-center justify-center transition-all cursor-pointer border border-gray-100"
+                aria-label="Fitur Sebelumnya"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={nextFeature}
+                className="w-8 h-8 rounded-full bg-white/80 hover:bg-white text-gray-700 shadow-xs flex items-center justify-center transition-all cursor-pointer border border-gray-100"
+                aria-label="Fitur Berikutnya"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Progress dots */}
-        <div className="flex justify-center gap-1.5 mt-10">
-          {FEATURES.map((_, i) => (
-            <button key={i} onClick={() => setIdx(i)} className="h-1.5 rounded-full transition-all"
-              style={{ width: idx === i ? 20 : 6, background: idx === i ? 'var(--dark)' : 'var(--border)' }} />
-          ))}
+        {/* Progress dots & swipe hint */}
+        <div className="flex flex-col items-center gap-2 mt-8">
+          <div className="flex justify-center gap-1.5">
+            {FEATURES.map((_, i) => (
+              <button key={i} onClick={() => setIdx(i)} className="h-1.5 rounded-full transition-all"
+                style={{ width: idx === i ? 20 : 6, background: idx === i ? 'var(--dark)' : 'var(--border)' }} />
+            ))}
+          </div>
+          <span className="text-[11px] text-gray-400 font-medium sm:hidden">
+            ← Geser kanan / kiri untuk melihat fitur lainnya →
+          </span>
         </div>
       </div>
     </section>

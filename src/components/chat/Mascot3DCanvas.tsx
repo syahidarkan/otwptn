@@ -106,19 +106,27 @@ export default function Mascot3DCanvas({
       console.warn('Three.js mascot model failed to initialize:', err)
     }
 
-    // Mouse tracking for subtle responsive glance
-    let targetRotY = 0.15
+    // Mouse tracking for natural responsive head glance (HEAD ONLY)
+    let targetRotY = 0
     let targetRotX = 0
-    let currentRotY = 0.15
+    let currentRotY = 0
     let currentRotX = 0
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!interactive) return
       const rect = container.getBoundingClientRect()
-      const x = ((e.clientX - rect.left) / rect.width) * 2 - 1
-      const y = -(((e.clientY - rect.top) / rect.height) * 2 - 1)
-      targetRotY = 0.15 + x * 0.35
-      targetRotX = -y * 0.18
+      const cx = rect.left + rect.width / 2
+      const cy = rect.top + rect.height / 2
+      const dx = (e.clientX - cx) / (window.innerWidth / 2)
+      const dy = (e.clientY - cy) / (window.innerHeight / 2)
+
+      // Strict clamp so the 3D model never over-rotates, flips, or disappears
+      const clampedX = Math.max(-1, Math.min(1, dx))
+      const clampedY = Math.max(-1, Math.min(1, dy))
+
+      // Subtle natural head turn only
+      targetRotY = clampedX * 0.36
+      targetRotX = clampedY * 0.18
     }
 
     if (interactive) {
@@ -149,13 +157,17 @@ export default function Mascot3DCanvas({
         bee.update(elapsed)
       }
 
-      // Smooth lerp to mouse look
+      // Smooth lerp for head glance
       currentRotY += (targetRotY - currentRotY) * 0.08
       currentRotX += (targetRotX - currentRotX) * 0.08
 
-      if (bee && bee.group) {
-        bee.group.rotation.y = currentRotY
-        bee.group.rotation.x = currentRotX
+      // ONLY rotate the head, keeping character body grounded & visible
+      if (bee && bee.headGroup) {
+        bee.headGroup.rotation.y = currentRotY
+        bee.headGroup.rotation.x = currentRotX
+      } else if (bee && bee.group) {
+        bee.group.rotation.y = 0.15 + currentRotY * 0.2
+        bee.group.rotation.x = currentRotX * 0.1
       }
 
       renderer.render(scene, camera)

@@ -106,18 +106,18 @@ export default function NotificationPopover({
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Invisible Click-Outside Dismiss (No intrusive screen-blocking backdrop) */}
       <div
-        className="fixed inset-0 z-50 bg-black/30 backdrop-blur-2xs"
+        className="fixed inset-0 z-40 bg-transparent"
         onClick={onClose}
       />
 
-      {/* Popover Card - ZERO OUTLINES */}
+      {/* Elegant Non-intrusive Flyout Popover Anchored to Sidebar */}
       <div
-        className="fixed z-50 bottom-20 left-4 md:left-64 w-[340px] md:w-[420px] bg-white rounded-3xl p-4 md:p-5 animate-in fade-in slide-in-from-bottom-3 duration-200 border-0"
+        className="fixed z-50 bottom-16 left-3 md:left-64 w-[330px] md:w-[380px] bg-white rounded-3xl p-4 md:p-4.5 animate-in fade-in slide-in-from-bottom-2 duration-150 border border-gray-100 shadow-2xl"
         style={{
-          boxShadow: '0 25px 60px -12px rgba(0, 0, 0, 0.25)',
-          maxHeight: '84vh',
+          boxShadow: '0 20px 50px -10px rgba(0, 0, 0, 0.22)',
+          maxHeight: '75vh',
           display: 'flex',
           flexDirection: 'column',
         }}

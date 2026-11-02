@@ -15,19 +15,51 @@ import NotificationPopover from './NotificationPopover'
 import XPQuestModal from './XPQuestModal'
 import { getAllNotifications, EVENT_NOTIF_UPDATE } from '@/lib/notifications'
 
-const NAV = [
-  { id: 'nav-beranda', label: 'Beranda', href: '/dashboard', icon: Home },
-  { id: 'nav-essay', label: 'Essay AI Review', href: '/dashboard/essay', icon: FileCheck2 },
-  { id: 'nav-kalkulator', label: 'Kalkulator Peluang', href: '/dashboard/kalkulator', icon: Calculator },
-  { id: 'nav-strategi', label: 'Atur Strategi', href: '/dashboard/strategi', icon: Target },
-  { id: 'nav-otbee', label: 'Otbee AI', href: '/dashboard/otbee', icon: Sparkles },
-  { id: 'nav-modul', label: 'Modul & Video', href: '/dashboard/ecourse', icon: PlayCircle },
-  { id: 'nav-mentor', label: 'Mentor Alumni', href: '/dashboard/mentor', icon: GraduationCap },
-  { id: 'nav-tracking', label: 'Tracking Jalur', href: '/dashboard/tracking-jalur', icon: Compass },
-  { id: 'nav-dokumen', label: 'Penyimpanan Dokumen', href: '/dashboard/dokumen', icon: FolderLock },
-  { id: 'nav-teman', label: 'Cari Teman Belajar', href: '/dashboard/teman', icon: Users },
-  { id: 'nav-latihan', label: 'Arena Latihan PPU/PBM', href: '/dashboard/latihan', icon: Swords },
-  { id: 'nav-komunitas', label: 'Komunitas', href: '/dashboard/komunitas', icon: MessageCircle },
+interface NavItem {
+  id: string
+  label: string
+  href: string
+  icon: any
+  badge?: string
+}
+
+interface NavGroup {
+  category?: string
+  items: NavItem[]
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    items: [
+      { id: 'nav-beranda', label: 'Beranda', href: '/dashboard', icon: Home },
+    ],
+  },
+  {
+    category: 'Belajar & Latihan',
+    items: [
+      { id: 'nav-essay', label: 'Essay AI Review', href: '/dashboard/essay', icon: FileCheck2 },
+      { id: 'nav-kalkulator', label: 'Kalkulator Peluang', href: '/dashboard/kalkulator', icon: Calculator },
+      { id: 'nav-strategi', label: 'Atur Strategi', href: '/dashboard/strategi', icon: Target },
+      { id: 'nav-modul', label: 'Modul & Video', href: '/dashboard/ecourse', icon: PlayCircle },
+      { id: 'nav-latihan', label: 'Arena Latihan PPU/PBM', href: '/dashboard/latihan', icon: Swords },
+    ],
+  },
+  {
+    category: 'Bimbingan & Seleksi',
+    items: [
+      { id: 'nav-mentor', label: 'Mentor Alumni', href: '/dashboard/mentor', icon: GraduationCap },
+      { id: 'nav-tracking', label: 'Tracking Jalur', href: '/dashboard/tracking-jalur', icon: Compass },
+      { id: 'nav-dokumen', label: 'Penyimpanan Dokumen', href: '/dashboard/dokumen', icon: FolderLock },
+    ],
+  },
+  {
+    category: 'Komunitas & Bantuan',
+    items: [
+      { id: 'nav-teman', label: 'Cari Teman Belajar', href: '/dashboard/teman', icon: Users },
+      { id: 'nav-komunitas', label: 'Komunitas', href: '/dashboard/komunitas', icon: MessageCircle },
+      { id: 'nav-otbee', label: 'Otbee AI Asisten', href: '/dashboard/otbee', icon: Sparkles },
+    ],
+  },
 ]
 
 export default function Sidebar() {
@@ -167,26 +199,35 @@ export default function Sidebar() {
         <img src="/logo.png" alt="otwptn" style={{ height: 45, width: 'auto' }} className="transition-transform hover:scale-105" />
       </Link>
 
-      <nav className="flex-1 overflow-y-auto px-3 flex flex-col gap-0.5">
-        {NAV.map(({ id, label, href, icon: Icon }) => {
-          const active = pathname === href || (href !== '/dashboard' && pathname?.startsWith(href))
-          return (
-            <Link
-              id={id}
-              key={href}
-              href={href}
-              onClick={() => setMobileOpen(false)}
-              className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-colors"
-              style={{
-                color: active ? 'var(--accent-ink)' : 'var(--muted)',
-                background: active ? 'var(--accent)' : 'transparent',
-              }}
-            >
-              <Icon size={17} strokeWidth={2.2} />
-              <span className="truncate">{label}</span>
-            </Link>
-          )
-        })}
+      <nav className="flex-1 overflow-y-auto px-3 flex flex-col gap-2 pb-2" style={{ scrollbarWidth: 'none' }}>
+        {NAV_GROUPS.map((group, gIdx) => (
+          <div key={gIdx} className="space-y-0.5">
+            {group.category && (
+              <p className="px-3 pt-2.5 pb-1 text-[10px] font-black uppercase tracking-wider text-gray-400 select-none">
+                {group.category}
+              </p>
+            )}
+            {group.items.map(({ id, label, href, icon: Icon }) => {
+              const active = pathname === href || (href !== '/dashboard' && pathname?.startsWith(href))
+              return (
+                <Link
+                  id={id}
+                  key={href}
+                  href={href}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-colors"
+                  style={{
+                    color: active ? 'var(--accent-ink)' : 'var(--muted)',
+                    background: active ? 'var(--accent)' : 'transparent',
+                  }}
+                >
+                  <Icon size={17} strokeWidth={2.2} />
+                  <span className="truncate">{label}</span>
+                </Link>
+              )
+            })}
+          </div>
+        ))}
       </nav>
 
       {/* Auto-Sliding 4 Promo Cards (Gambar 1) */}
@@ -338,7 +379,7 @@ export default function Sidebar() {
                   className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                 >
                   <UserCircle2 size={17} className="text-gray-600" />
-                  Profil Saya
+                  Profil & Target PTN
                 </Link>
 
                 <Link
@@ -348,15 +389,6 @@ export default function Sidebar() {
                 >
                   <BarChart3 size={17} className="text-gray-600" />
                   Papan peringkat
-                </Link>
-
-                <Link
-                  href="/profil"
-                  onClick={() => setProfileMenuOpen(false)}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-                >
-                  <Settings size={17} className="text-gray-600" />
-                  Pengaturan
                 </Link>
 
                 <Link

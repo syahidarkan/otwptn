@@ -42,6 +42,31 @@ const QUICK_QUESTIONS = [
   'Email resmi OtwPTN',
 ]
 
+function formatChatText(content: string) {
+  const paragraphs = content.split('\n\n')
+  return (
+    <div className="space-y-1.5">
+      {paragraphs.map((p, pIdx) => {
+        const parts = p.split(/(\*\*[^*]+\*\*)/g)
+        return (
+          <p key={pIdx} className="leading-relaxed">
+            {parts.map((part, partIdx) => {
+              if (part.startsWith('**') && part.endsWith('**')) {
+                return (
+                  <strong key={partIdx} className="font-extrabold text-inherit">
+                    {part.slice(2, -2)}
+                  </strong>
+                )
+              }
+              return part
+            })}
+          </p>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function CustomerServiceWidget() {
   const [isOpen, setIsOpen] = useState(false)
   const [showTeaser, setShowTeaser] = useState(true)
@@ -120,10 +145,10 @@ export default function CustomerServiceWidget() {
   }
 
   return (
-    <div className="fixed z-50 bottom-5 right-5 sm:bottom-6 sm:right-6 font-sans">
-      {/* Floating Teaser Callout (Only visible when closed) */}
+    <div className="fixed z-30 bottom-5 right-5 sm:bottom-6 sm:right-6 font-sans">
+      {/* Floating Teaser Callout (Only visible on tablet/desktop when closed to not block mobile menus) */}
       {!isOpen && showTeaser && (
-        <div className="absolute bottom-[calc(100%+12px)] right-0 bg-white rounded-2xl p-3 shadow-xl border border-amber-200/80 w-64 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="hidden sm:block absolute bottom-[calc(100%+12px)] right-0 bg-white rounded-2xl p-3 shadow-xl border border-amber-200/80 w-64 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <button
             onClick={() => setShowTeaser(false)}
             className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 cursor-pointer"
@@ -261,13 +286,13 @@ export default function CustomerServiceWidget() {
                 )}
 
                 <div
-                  className={`max-w-[82%] rounded-2xl p-3 text-xs leading-relaxed whitespace-pre-wrap ${
+                  className={`max-w-[82%] rounded-2xl p-3 text-xs leading-relaxed ${
                     msg.role === 'user'
                       ? 'bg-amber-400 text-amber-950 font-semibold rounded-tr-none shadow-xs'
                       : 'bg-white text-gray-800 font-medium rounded-tl-none border border-gray-100 shadow-xs'
                   }`}
                 >
-                  {msg.content}
+                  {formatChatText(msg.content)}
                   <div
                     className={`mt-1.5 text-[9px] font-bold text-right ${
                       msg.role === 'user' ? 'text-amber-900/60' : 'text-gray-400'

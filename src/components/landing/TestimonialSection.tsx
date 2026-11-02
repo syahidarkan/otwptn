@@ -53,7 +53,7 @@ export default function TestimonialSection() {
           transition={{ duration: 0.45, ease: 'easeOut' }}
           className="text-section-heading text-fg"
         >
-          500+ camaba <span className="pill-highlight">udah buktiin</span>
+          Denger Langsung dari 500+ camaba yang <span className="pill-highlight">Udah Ngerasain Sendiri!</span>
         </motion.h2>
       </div>
 
