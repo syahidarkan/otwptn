@@ -9,11 +9,18 @@ import {
   Compass, FolderLock, Users, MessageCircle, Settings, Menu, X, Target,
   Star, ArrowRight, UserCircle2, BarChart3, Clock, Bookmark, Moon,
   MessageSquare, Download, LogOut, Crown, Bell, HelpCircle, Swords,
+  ChevronDown,
 } from 'lucide-react'
 import SidebarPromoCard from './SidebarPromoCard'
 import NotificationPopover from './NotificationPopover'
 import XPQuestModal from './XPQuestModal'
 import { getAllNotifications, EVENT_NOTIF_UPDATE } from '@/lib/notifications'
+
+interface SubNavItem {
+  id: string
+  label: string
+  href: string
+}
 
 interface NavItem {
   id: string
@@ -21,6 +28,7 @@ interface NavItem {
   href: string
   icon: any
   badge?: string
+  children?: SubNavItem[]
 }
 
 interface NavGroup {
@@ -37,16 +45,39 @@ const NAV_GROUPS: NavGroup[] = [
   {
     category: 'Belajar & Latihan',
     items: [
+      {
+        id: 'nav-latihan',
+        label: 'Arena Latihan PPU & PBM',
+        href: '/dashboard/latihan',
+        icon: Swords,
+        children: [
+          { id: 'sub-latihan-all', label: 'Kuis & Arena Latihan', href: '/dashboard/latihan' },
+          { id: 'sub-latihan-pbm', label: 'Benerin Kalimat (PBM)', href: '/dashboard/latihan?tab=benerin-kalimat' },
+          { id: 'sub-latihan-ppu', label: 'Padanan Kata (PPU)', href: '/dashboard/latihan?tab=padanan-kata' },
+          { id: 'sub-latihan-puebi', label: 'Wordle Baku (PUEBI)', href: '/dashboard/latihan?tab=baku-atau-nggak' },
+        ],
+      },
       { id: 'nav-essay', label: 'Essay AI Review', href: '/dashboard/essay', icon: FileCheck2 },
-      { id: 'nav-kalkulator', label: 'Kalkulator Peluang', href: '/dashboard/kalkulator', icon: Calculator },
-      { id: 'nav-strategi', label: 'Atur Strategi', href: '/dashboard/strategi', icon: Target },
-      { id: 'nav-modul', label: 'Modul & Video', href: '/dashboard/ecourse', icon: PlayCircle },
-      { id: 'nav-latihan', label: 'Arena Latihan PPU/PBM', href: '/dashboard/latihan', icon: Swords },
+      {
+        id: 'nav-modul',
+        label: 'Modul & Video',
+        href: '/dashboard/ecourse',
+        icon: PlayCircle,
+        children: [
+          { id: 'sub-modul-all', label: 'Semua Modul & Video', href: '/dashboard/ecourse' },
+          { id: 'sub-modul-pbm', label: 'Materi PBM & PPU', href: '/dashboard/ecourse?cat=pbm' },
+          { id: 'sub-modul-snbp', label: 'Strategi Non-Tes & SNBP', href: '/dashboard/ecourse?cat=snbp' },
+          { id: 'sub-modul-esai', label: 'Bedah Esai & Portofolio', href: '/dashboard/ecourse?cat=esai' },
+        ],
+      },
+      { id: 'nav-otbee', label: 'Otbee AI Asisten', href: '/dashboard/otbee', icon: Sparkles },
     ],
   },
   {
     category: 'Bimbingan & Seleksi',
     items: [
+      { id: 'nav-kalkulator', label: 'Kalkulator Peluang', href: '/dashboard/kalkulator', icon: Calculator },
+      { id: 'nav-strategi', label: 'Atur Strategi', href: '/dashboard/strategi', icon: Target },
       { id: 'nav-mentor', label: 'Mentor Alumni', href: '/dashboard/mentor', icon: GraduationCap },
       { id: 'nav-tracking', label: 'Tracking Jalur', href: '/dashboard/tracking-jalur', icon: Compass },
       { id: 'nav-dokumen', label: 'Penyimpanan Dokumen', href: '/dashboard/dokumen', icon: FolderLock },
@@ -57,7 +88,6 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: 'nav-teman', label: 'Cari Teman Belajar', href: '/dashboard/teman', icon: Users },
       { id: 'nav-komunitas', label: 'Komunitas', href: '/dashboard/komunitas', icon: MessageCircle },
-      { id: 'nav-otbee', label: 'Otbee AI Asisten', href: '/dashboard/otbee', icon: Sparkles },
     ],
   },
 ]
@@ -81,6 +111,37 @@ export default function Sidebar() {
   const [xp, setXp] = useState(75)
   const [level, setLevel] = useState(1)
   const [coins, setCoins] = useState(250)
+
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({
+    'nav-latihan': true,
+    'nav-modul': true,
+  })
+
+  // Auto-expand menu if current pathname matches any item or child
+  useEffect(() => {
+    if (!pathname) return
+    NAV_GROUPS.forEach(group => {
+      group.items.forEach(item => {
+        if (item.children) {
+          const isChildActive = item.children.some(child => {
+            const childPath = child.href.split('?')[0]
+            return pathname === childPath
+          })
+          if (pathname.startsWith(item.href) || isChildActive) {
+            setExpandedMenus(prev => ({ ...prev, [item.id]: true }))
+          }
+        }
+      })
+    })
+  }, [pathname])
+
+  const toggleExpand = (id: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    setExpandedMenus(prev => ({ ...prev, [id]: !prev[id] }))
+  }
 
   useEffect(() => {
     // Initial sync for unread notification count
@@ -207,23 +268,86 @@ export default function Sidebar() {
                 {group.category}
               </p>
             )}
-            {group.items.map(({ id, label, href, icon: Icon }) => {
-              const active = pathname === href || (href !== '/dashboard' && pathname?.startsWith(href))
+            {group.items.map(item => {
+              const { id, label, href, icon: Icon, children } = item
+              const isDirectActive = pathname === href
+              const isParentActive = isDirectActive || (href !== '/dashboard' && pathname?.startsWith(href))
+              const isExpanded = !!expandedMenus[id]
+
               return (
-                <Link
-                  id={id}
-                  key={href}
-                  href={href}
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-colors"
-                  style={{
-                    color: active ? 'var(--accent-ink)' : 'var(--muted)',
-                    background: active ? 'var(--accent)' : 'transparent',
-                  }}
-                >
-                  <Icon size={17} strokeWidth={2.2} />
-                  <span className="truncate">{label}</span>
-                </Link>
+                <div key={id} className="space-y-1">
+                  {children && children.length > 0 ? (
+                    <div className="flex items-center">
+                      <Link
+                        id={id}
+                        href={href}
+                        onClick={() => setMobileOpen(false)}
+                        className="flex-1 flex items-center justify-between gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-colors group"
+                        style={{
+                          color: isParentActive ? 'var(--accent-ink)' : 'var(--muted)',
+                          background: isParentActive ? 'var(--accent)' : 'transparent',
+                        }}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <Icon size={17} strokeWidth={2.2} className="flex-shrink-0" />
+                          <span className="truncate">{label}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => toggleExpand(id, e)}
+                          aria-label={`Toggle sub-menu ${label}`}
+                          className="p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                        >
+                          <ChevronDown
+                            size={14}
+                            className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                          />
+                        </button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <Link
+                      id={id}
+                      href={href}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-colors"
+                      style={{
+                        color: isParentActive ? 'var(--accent-ink)' : 'var(--muted)',
+                        background: isParentActive ? 'var(--accent)' : 'transparent',
+                      }}
+                    >
+                      <Icon size={17} strokeWidth={2.2} />
+                      <span className="truncate">{label}</span>
+                    </Link>
+                  )}
+
+                  {/* Sub-menu with vertical tree line (Gambar 2 reference) */}
+                  {children && isExpanded && (
+                    <div className="ml-5 pl-3 py-1 space-y-1 border-l-2 border-gray-200 dark:border-gray-800 animate-in fade-in slide-in-from-top-1 duration-150">
+                      {children.map(sub => {
+                        const isSubActive =
+                          pathname === sub.href ||
+                          (typeof window !== 'undefined' &&
+                            sub.href.includes('?') &&
+                            `${pathname}${window.location.search}` === sub.href)
+                        return (
+                          <Link
+                            key={sub.id}
+                            href={sub.href}
+                            onClick={() => setMobileOpen(false)}
+                            className={`block px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors truncate ${
+                              isSubActive
+                                ? 'text-amber-950 bg-amber-100/80 font-bold dark:bg-amber-900/30 dark:text-amber-300'
+                                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100/70 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/60'
+                            }`}
+                          >
+                            {sub.label}
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
               )
             })}
           </div>

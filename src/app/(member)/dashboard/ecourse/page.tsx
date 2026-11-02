@@ -15,8 +15,10 @@ import {
   Sparkles,
   Crown,
   Trophy,
+  ArrowRight,
 } from 'lucide-react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 import { EJALUR_LIST, type ELesson, type EStage, type EJalur } from '@/lib/ecourseData'
 import CardPattern from '@/components/ui/CardPattern'
 
@@ -62,10 +64,35 @@ export default function EcoursePage() {
   const [activeLesson, setActiveLesson] = useState<ELesson | null>(null)
   const [activeStage, setActiveStage] = useState<EStage | null>(null)
   const [lockedNotice, setLockedNotice] = useState<string | null>(null)
+  const [userTier, setUserTier] = useState<string>('free')
+  const [premiumModalData, setPremiumModalData] = useState<{ title: string; unit: number } | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setCompletedState(getCompleted())
+
+    // Check category query param
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const cat = params.get('cat')
+      if (cat === 'pbm') setJalurId('pbm')
+      else if (cat === 'snbp') setJalurId('snbp')
+      else if (cat === 'esai' || cat === 'ppkb') setJalurId('ppkb')
+    }
+
+    // Check profile tier
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return
+      supabase
+        .from('profiles')
+        .select('tier')
+        .eq('id', data.user.id)
+        .maybeSingle()
+        .then(({ data: profile }) => {
+          if (profile?.tier) setUserTier(profile.tier)
+        })
+    })
   }, [])
 
   useEffect(() => {
@@ -108,6 +135,14 @@ export default function EcoursePage() {
   }
 
   function handleNodeClick(lesson: ELesson, stage: EStage) {
+    if (lesson.isPremium && userTier === 'free') {
+      setPremiumModalData({
+        title: lesson.title,
+        unit: stage.id,
+      })
+      return
+    }
+
     if (!isLessonUnlocked(lesson.id)) {
       setLockedNotice(`Materi "${lesson.title}" masih terkunci. Selesaikan materi sebelumnya terlebih dahulu!`)
       return
@@ -328,7 +363,7 @@ export default function EcoursePage() {
                             {/* Node Button */}
                             <button
                               onClick={() => handleNodeClick(lesson, stage)}
-                              className={`rounded-full flex items-center justify-center transition-all duration-200 ${
+                              className={`rounded-full relative flex items-center justify-center transition-all duration-200 ${
                                 isCurrent
                                   ? 'w-[72px] h-[72px] shadow-xl hover:scale-105 active:scale-95'
                                   : isDone
@@ -352,6 +387,14 @@ export default function EcoursePage() {
                               }}
                               aria-label={lesson.title}
                             >
+                              {lesson.isPremium && (
+                                <span
+                                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400 border border-white text-amber-950 flex items-center justify-center shadow-xs z-10"
+                                  title="Materi Eksklusif Premium"
+                                >
+                                  <Crown size={11} strokeWidth={2.6} className="fill-amber-950" />
+                                </span>
+                              )}
                               {isCurrent ? (
                                 lesson.type === 'video' ? (
                                   <Play size={28} className="text-slate-900 fill-slate-900" />
@@ -543,13 +586,18 @@ export default function EcoursePage() {
             {/* Modal Header */}
             <div className="p-5 sm:p-6 border-b border-gray-100 flex items-start justify-between gap-4 bg-gray-50/70">
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 mb-1.5">
+                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800">
                     Unit {activeStage.id}
                   </span>
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-200 text-gray-700">
                     {activeLesson.type === 'video' ? 'Video' : 'Bacaan'} · {activeLesson.duration}
                   </span>
+                  {activeLesson.isPremium && (
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-amber-950 flex items-center gap-1 shadow-2xs">
+                      <Crown size={11} className="fill-amber-950" /> Premium Eksklusif
+                    </span>
+                  )}
                 </div>
                 <h2 className="text-lg sm:text-xl font-extrabold text-gray-900 leading-snug">
                   {activeLesson.title}
@@ -628,6 +676,47 @@ export default function EcoursePage() {
                   Berikutnya <ChevronRight size={14} />
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Premium Exclusive Modal */}
+      {premiumModalData && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-up"
+          role="dialog"
+        >
+          <div className="w-full max-w-sm rounded-3xl p-6 bg-white border border-amber-200 shadow-2xl text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-300 to-amber-500 text-amber-950 flex items-center justify-center mx-auto shadow-md">
+              <Crown size={28} className="fill-amber-950" />
+            </div>
+            <div>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900">
+                Unit {premiumModalData.unit} · Premium Eksklusif
+              </span>
+              <h3 className="text-base font-black text-gray-950 mt-1.5 leading-snug">
+                {premiumModalData.title}
+              </h3>
+              <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                Materi mendalam ini, template esai lolos, dan cheatsheet rahasia dikhususkan untuk member Premium & Intensif.
+              </p>
+            </div>
+
+            <div className="pt-2 space-y-2">
+              <Link
+                href="/upgrade"
+                className="w-full py-3 rounded-full text-xs font-black btn-brand-primary flex items-center justify-center gap-2 shadow-sm"
+              >
+                <span>Buka Akses Premium Sekarang</span>
+                <ArrowRight size={14} />
+              </Link>
+              <button
+                onClick={() => setPremiumModalData(null)}
+                className="w-full py-2.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors cursor-pointer"
+              >
+                Nanti Saja
+              </button>
             </div>
           </div>
         </div>

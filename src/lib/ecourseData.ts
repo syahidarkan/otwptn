@@ -5,6 +5,7 @@ export interface ELesson {
   duration: string
   content: string
   videoUrl?: string
+  isPremium?: boolean
 }
 
 export interface EStage {
@@ -20,134 +21,355 @@ export interface EJalur {
   stages: EStage[]
 }
 
+// ─────────────────────────────────────────────────────────────
+// 1. PPKB UI TRACK (10 Units with Free & Premium Lessons)
+// ─────────────────────────────────────────────────────────────
 const PPKB_STAGES: EStage[] = [
   {
-    id: 1, title: 'Mengenal PPKB UI', duration: '20 menit',
+    id: 1,
+    title: 'Mengenal PPKB UI',
+    duration: '20 menit',
     lessons: [
-      { id: 'ppkb-1-1', title: 'Apa itu PPKB UI?', type: 'video', duration: '7 menit', videoUrl: 'https://www.youtube.com/embed/0qOxEVrHmFQ', content: `<h2>Apa itu PPKB UI?</h2><p>PPKB (Penerimaan Peserta Kegiatan Belajar) UI adalah jalur masuk Universitas Indonesia yang diperuntukkan bagi siswa berprestasi. Berbeda dari SNBP yang menggunakan nilai rapor nasional, PPKB memiliki komponen seleksi berupa <strong>essay motivasi</strong> dan portofolio prestasi.</p><p>Jalur ini terbuka untuk siswa SMA/SMK/MA yang memiliki rekam jejak prestasi akademik maupun non-akademik yang kuat.</p><ul><li>Tidak memerlukan UTBK</li><li>Fokus pada prestasi dan essay</li><li>Tersedia untuk hampir semua fakultas UI</li></ul>` },
-      { id: 'ppkb-1-2', title: 'Persyaratan & Ketentuan', type: 'text', duration: '8 menit', content: `<h2>Persyaratan Umum PPKB UI</h2><p>Untuk mendaftar PPKB UI, pastikan kamu memenuhi syarat berikut:</p><ul><li>Siswa kelas 12 SMA/SMK/MA atau lulusan 2 tahun terakhir</li><li>Rekomendasi dari kepala sekolah</li><li>Nilai rapor rata-rata ≥ 75 (tergantung prodi)</li><li>Tidak sedang diterima di PTN melalui jalur lain</li><li>Memiliki prestasi akademik/non-akademik yang dapat dibuktikan</li></ul><p><strong>Catatan:</strong> Syarat spesifik per prodi bisa berbeda. Selalu cek halaman resmi UI sebelum mendaftar.</p>` },
-      { id: 'ppkb-1-3', title: 'Timeline Pendaftaran', type: 'text', duration: '5 menit', content: `<h2>Timeline PPKB UI</h2><p>Berikut jadwal umum pendaftaran PPKB UI (dapat berubah tiap tahun):</p><ul><li><strong>Januari–Februari:</strong> Pengumuman pembukaan pendaftaran</li><li><strong>Februari–Maret:</strong> Periode pendaftaran online di penerimaan.ui.ac.id</li><li><strong>Maret–April:</strong> Seleksi berkas dan verifikasi</li><li><strong>April–Mei:</strong> Pengumuman hasil seleksi</li><li><strong>Juni:</strong> Daftar ulang peserta yang diterima</li></ul><p>Pantau selalu website resmi UI karena jadwal bisa berubah setiap tahunnya.</p>` },
-    ]
+      {
+        id: 'ppkb-1-1',
+        title: 'Apa itu PPKB UI & Peluang Lolosnya?',
+        type: 'video',
+        duration: '8 menit',
+        videoUrl: 'https://www.youtube.com/embed/fG8Oye9oHz4',
+        content: `<h2>Apa itu PPKB UI?</h2><p>PPKB (Program Pemerataan Kesempatan Belajar) UI adalah jalur seleksi rapor dan prestasi non-tes khusus untuk Universitas Indonesia. Berbeda dari SNBP yang menggunakan kuota nasional, PPKB menilai <strong>essay motivasi personal</strong>, prestasi, dan rekam jejak sekolah secara komprehensif.</p><p>Keunggulan utama jalur PPKB:</p><ul><li>Seleksi murni berbasis portofolio dan rapor tanpa tes tertulis.</li><li>Tersedia untuk program Sarjana (S1) dan Vokasi (D3/D4) di hampir semua fakultas UI.</li><li>Peluang besar bagi siswa yang memiliki essay kuat dan prestasi linear.</li></ul>`,
+      },
+      {
+        id: 'ppkb-1-2',
+        title: 'Persyaratan & Ketentuan Pendaftaran',
+        type: 'text',
+        duration: '7 menit',
+        content: `<h2>Persyaratan Umum PPKB UI</h2><p>Pastikan kamu memenuhi kriteria berikut sebelum mendaftar:</p><ul><li>Siswa kelas 12 SMA/SMK/MA yang diajukan oleh sekolah dan memiliki NISN valid.</li><li>Mendapat rekomendasi resmi dari Kepala Sekolah.</li><li>Memiliki nilai rapor semester 1 sampai 5 yang konsisten dan memenuhi batas aman prodi tujuan.</li><li>Memiliki sertifikat prestasi akademik atau non-akademik (minimal tingkat kota/kabupaten).</li></ul>`,
+      },
+      {
+        id: 'ppkb-1-3',
+        title: 'Bedah Kuota & Daya Tampung Tiap Fakultas UI',
+        type: 'text',
+        duration: '10 menit',
+        isPremium: true,
+        content: `<h2>[EKSKLUSIF PREMIUM] Analisis Daya Tampung & Ketetatan PPKB UI</h2><p>Materi premium ini membedah data ketetatan riil per fakultas di Universitas Indonesia (FK, FEB, FT, FH, Fasilkom, FIA, FISIP, FIB, FPsi, FMIPA):</p><ul><li><strong>Top 5 Prodi Paling Ketat:</strong> Kedokteran (1:35), Ilmu Komunikasi (1:28), Manajemen (1:25), Akuntansi (1:22), dan Psikologi (1:20).</li><li><strong>Prodi Peluang Tinggi:</strong> Teknik Perkapalan, Geofisika, Sastra Daerah/Jawa, dan Program Terapan Vokasi UI (rasio 1:4 sampai 1:8).</li><li><strong>Strategi Pemilihan:</strong> Gunakan Kalkulator Peluang OTWPTN untuk membandingkan rata-rata rapormu dengan nilai rata-rata alumni yang lolos tahun lalu.</li></ul>`,
+      },
+    ],
   },
   {
-    id: 2, title: 'Persiapan Dokumen', duration: '25 menit',
+    id: 2,
+    title: 'Persiapan Berkas & Dokumen',
+    duration: '25 menit',
     lessons: [
-      { id: 'ppkb-2-1', title: 'Dokumen Wajib yang Dibutuhkan', type: 'text', duration: '8 menit', content: `<h2>Dokumen Wajib PPKB UI</h2><p>Siapkan dokumen berikut jauh-jauh hari agar pendaftaranmu lancar:</p><ul><li>Scan rapor semester 1–5 (legalisir)</li><li>Surat rekomendasi kepala sekolah (bermaterai)</li><li>Kartu keluarga & KTP/KIA</li><li>Ijazah/SKL (untuk lulusan)</li><li>Sertifikat prestasi (jika ada)</li><li>Pas foto 3×4 background merah</li><li>Essay motivasi (diunggah dalam PDF)</li></ul>` },
-      { id: 'ppkb-2-2', title: 'Cara Scan Dokumen yang Benar', type: 'text', duration: '7 menit', content: `<h2>Tips Scan Dokumen</h2><p>Dokumen yang buruk kualitasnya bisa menyebabkan berkas ditolak. Ikuti panduan ini:</p><ul><li>Resolusi minimal 300 DPI</li><li>Format file: PDF atau JPG (cek ketentuan portal)</li><li>Ukuran file: maksimal 1 MB per file</li><li>Pastikan semua teks terbaca jelas, tidak blur</li><li>Tidak ada bayangan atau lipatan yang menutupi teks</li></ul><p>Gunakan aplikasi CamScanner atau Adobe Scan jika tidak punya scanner fisik.</p>` },
-      { id: 'ppkb-2-3', title: 'Checklist Kesiapan Berkas', type: 'text', duration: '10 menit', content: `<h2>Checklist Final Dokumen</h2><p>Sebelum submit, pastikan semua item ini sudah ✓:</p><ul><li>☐ Rapor semester 1–5 (lengkap, legalisir)</li><li>☐ Surat rekomendasi (ditandatangani, bermaterai)</li><li>☐ KK dan KTP/KIA (jelas, tidak kedaluwarsa)</li><li>☐ Sertifikat prestasi (relevan, tidak lebih dari 3 tahun)</li><li>☐ Foto formal terbaru</li><li>☐ Essay sudah di-review dan difinalisasi</li><li>☐ Semua file sesuai format dan ukuran yang diminta</li></ul><p>Simpan semua dokumen dalam satu folder terorganisir sebelum upload.</p>` },
-    ]
+      {
+        id: 'ppkb-2-1',
+        title: 'Daftar Dokumen Wajib PPKB UI',
+        type: 'text',
+        duration: '8 menit',
+        content: `<h2>Dokumen Wajib yang Harus Disiapkan</h2><p>Siapkan berkas ini dalam format PDF siap unggah:</p><ul><li>Scan rapor semester 1 sampai 5 lengkap berlegalisir.</li><li>Surat rekomendasi Kepala Sekolah dengan cap basah atau barcode resmi.</li><li>Kartu Keluarga (KK) dan KTP / Kartu Pelajar.</li><li>Salinan sertifikat prestasi 3 tahun terakhir (maksimal 3 sertifikat terbaik).</li><li>Pasfoto formal terbaru dengan latar belakang merah/putih.</li></ul>`,
+      },
+      {
+        id: 'ppkb-2-2',
+        title: 'Standar Format Scan & Anti-Gagal Verifikasi',
+        type: 'text',
+        duration: '7 menit',
+        content: `<h2>Tips Scan Berkas Bebas Diskualifikasi</h2><p>Banyak peserta gugur administrasi karena dokumen buram:</p><ul><li>Resolusi scan minimal 200 hingga 300 DPI dengan orientasi tegak (portrait).</li><li>Hindari foto dokumen menggunakan kamera HP tanpa aplikasi scanner.</li><li>Periksa bahwa tanda tangan dan stempel sekolah terlihat kontras dan terbaca.</li><li>Gunakan fitur Brankas Dokumen di platform ini untuk backup berkas aman di perangkatmu.</li></ul>`,
+      },
+      {
+        id: 'ppkb-2-3',
+        title: 'Template Surat Rekomendasi & Checklist Kurasi Prestasi',
+        type: 'text',
+        duration: '10 menit',
+        isPremium: true,
+        content: `<h2>[EKSKLUSIF PREMIUM] Template & Bobot Sertifikat PPKB UI</h2><p>Panduan kurasi sertifikat berbobot maksimal di mata verifikator UI:</p><ul><li><strong>Tingkat Internasional / Nasional Puspresnas:</strong> Bobot nilai tertinggi (skor 90-100).</li><li><strong>Sertifikat Kejuaraan vs Peserta:</strong> Sertifikat juara kompetisi berjenjang bernilai 3x lipat dibanding sertifikat seminar atau peserta biasa.</li><li><strong>Linearitas Jurusan:</strong> Sertifikat OSN Astronomi untuk Fisika/Teknik, KTI untuk Kedokteran/FEB, atau Lomba Debat untuk Hukum/FISIP.</li></ul>`,
+      },
+    ],
   },
   {
-    id: 3, title: 'Strategi Essay Bagian 1', duration: '30 menit',
+    id: 3,
+    title: 'Strategi & Konsep Esai PPKB',
+    duration: '30 menit',
     lessons: [
-      { id: 'ppkb-3-1', title: 'Memahami Prompt Essay PPKB', type: 'video', duration: '10 menit', videoUrl: 'https://www.youtube.com/embed/videoseries?list=PLPsmh2KN6xtgnHoZhm2kHVwSJzNUGTFNg', content: `<h2>Memahami Prompt Essay</h2><p>Essay PPKB UI biasanya terdiri dari beberapa pertanyaan yang menggali:</p><ul><li><strong>Motivasi:</strong> Mengapa memilih prodi ini? Apa yang mendorongmu?</li><li><strong>Rencana masa depan:</strong> Apa kontribusimu setelah lulus?</li><li><strong>Pengalaman relevan:</strong> Apa yang sudah kamu lakukan terkait bidang ini?</li><li><strong>Kesesuaian nilai:</strong> Bagaimana nilai hidupmu selaras dengan visi UI?</li></ul><p>Kunci: <em>jujur, spesifik, dan personal</em>. Hindari klise seperti "saya ingin membanggakan orang tua".</p>` },
-      { id: 'ppkb-3-2', title: 'Teknik Brainstorming Essay', type: 'text', duration: '10 menit', content: `<h2>Brainstorming Ide Essay</h2><p>Sebelum menulis, luangkan 30 menit untuk brainstorming dengan cara ini:</p><ol><li><strong>Mind mapping:</strong> Tuliskan kata kunci dari prompt di tengah, lalu cabangkan dengan pengalaman pribadimu</li><li><strong>Metode STAR:</strong> Situation, Task, Action, Result - cocok untuk cerita pengalaman</li><li><strong>5 Whys:</strong> Tanya "kenapa?" 5 kali berturut-turut untuk menemukan motivasi terdalam</li></ol><p>Pilih 1–2 cerita paling kuat yang autentik dan spesifik.</p>` },
-      { id: 'ppkb-3-3', title: 'Struktur Essay yang Kuat', type: 'text', duration: '10 menit', content: `<h2>Struktur Essay PPKB</h2><p>Essay yang baik punya struktur yang jelas:</p><ol><li><strong>Hook (1 paragraf):</strong> Buka dengan cerita spesifik atau fakta menarik yang langsung relevan</li><li><strong>Isi (2–3 paragraf):</strong> Jelaskan pengalamanmu, pelajaran yang didapat, dan kaitannya dengan prodi pilihan</li><li><strong>Closing (1 paragraf):</strong> Visi masa depan yang konkret - bukan sekadar "saya ingin sukses"</li></ol><p>Total: 500–700 kata adalah ideal untuk essay PPKB.</p>` },
-    ]
+      {
+        id: 'ppkb-3-1',
+        title: 'Tutorial Menulis Essay Personal Statement Menarik',
+        type: 'video',
+        duration: '12 menit',
+        videoUrl: 'https://www.youtube.com/embed/aRHrCCbzxes',
+        content: `<h2>Bedah Esai Lolos Seleksi PTN & Beasiswa</h2><p>Video ini mengupas rahasia merangkai narasi personal statement yang autentik, menarik perhatian penyeleksi, dan membuktikan kelayakanmu sebagai calon mahasiswa unggulan.</p><p>Poin penting yang dipelajari:</p><ul><li>Cara menemukan hook pembuka yang kuat di kalimat pertama.</li><li>Menghindari klise "Sejak kecil saya bercita-cita...".</li><li>Menyambungkan masa lalu, minat akademik saat ini, dan impian karir masa depan.</li></ul>`,
+      },
+      {
+        id: 'ppkb-3-2',
+        title: 'Metode STAR dalam Mengangkat Pengalaman',
+        type: 'text',
+        duration: '8 menit',
+        content: `<h2>Menulis Cerita dengan Metode STAR</h2><p>Gunakan formula STAR agar setiap pengalamanmu terdengar profesional:</p><ul><li><strong>Situation:</strong> Jelaskan situasi atau tantangan awal yang kamu hadapi.</li><li><strong>Task:</strong> Apa tanggung jawab atau target yang harus dicapai?</li><li><strong>Action:</strong> Langkah konkret apa yang kamu ambil secara mandiri?</li><li><strong>Result:</strong> Dampak positif apa yang tercipta dan apa pelajaran hidup yang kamu petik?</li></ul>`,
+      },
+      {
+        id: 'ppkb-3-3',
+        title: '10 Contoh Esai Lolos Mahasiswa Aktif UI (FK, FEB, Fasilkom)',
+        type: 'text',
+        duration: '15 menit',
+        isPremium: true,
+        content: `<h2>[EKSKLUSIF PREMIUM] Arsip 10 Esai Asli yang Diterima di PPKB UI</h2><p>Pelajari langsung struktur dan gaya bahasa esai alumni OTWPTN yang berhasil lolos ke prodi bergengsi UI:</p><ul><li><strong>Esai 1 (Kedokteran UI):</strong> Fokus pada observasi fasilitas puskesmas lokal dan inisiatif edukasi stunting remaja.</li><li><strong>Esai 2 (Ilmu Komputer UI):</strong> Membahas proyek aplikasi mobile sederhana untuk UMKM keluarga dan ketertarikan AI etis.</li><li><strong>Esai 3 (Manajemen FEB UI):</strong> Narasi kepemimpinan osis mengelola dana pensiun sekolah dengan transparansi digital.</li></ul>`,
+      },
+    ],
   },
   {
-    id: 4, title: 'Menulis Essay Bagian 2', duration: '35 menit',
+    id: 4,
+    title: 'Penulisan & Finalisasi Esai',
+    duration: '30 menit',
     lessons: [
-      { id: 'ppkb-4-1', title: 'Menulis Draft Pertama', type: 'text', duration: '12 menit', content: `<h2>Cara Menulis Draft Pertama</h2><p>Draft pertama bukan soal kesempurnaan - soal menuangkan semua ide ke dalam tulisan.</p><ul><li>Set timer 20 menit, tulis tanpa berhenti</li><li>Jangan edit dulu saat menulis draft</li><li>Tulis lebih dari batas kata - kamu bisa potong nanti</li><li>Gunakan bahasa yang natural, seperti kamu berbicara</li></ul><p>Setelah draft selesai, istirahat 1–2 jam sebelum mulai revisi. Jarak waktu membuatmu lebih objektif.</p>` },
-      { id: 'ppkb-4-2', title: 'Proses Revisi Essay', type: 'text', duration: '12 menit', content: `<h2>Cara Merevisi Essay dengan Efektif</h2><p>Revisi adalah proses multi-tahap:</p><ol><li><strong>Revisi konten:</strong> Apakah setiap paragraf punya tujuan yang jelas? Ada yang perlu dihapus?</li><li><strong>Revisi alur:</strong> Apakah satu paragraf mengalir ke yang berikutnya dengan mulus?</li><li><strong>Revisi bahasa:</strong> Ganti kata klise dengan yang lebih spesifik dan powerful</li><li><strong>Revisi teknis:</strong> EYD, tanda baca, konsistensi format</li></ol>` },
-      { id: 'ppkb-4-3', title: 'Proofreading & Finalisasi', type: 'text', duration: '11 menit', content: `<h2>Proofreading Final Essay</h2><p>Sebelum submit, lakukan proofreading dengan cara ini:</p><ul><li>Baca keras-keras - telinga lebih peka menangkap kalimat janggal</li><li>Minta orang lain membaca - teman, guru, atau anggota keluarga</li><li>Gunakan grammarly atau LanguageTool untuk cek otomatis</li><li>Cek kesesuaian dengan ketentuan: jumlah kata, format, topik</li></ul><p>Finalisasi: simpan sebagai PDF, cek tampilan PDF-nya sebelum upload.</p>` },
-    ]
+      {
+        id: 'ppkb-4-1',
+        title: 'Cara Menulis Draft Esai Mengalir',
+        type: 'video',
+        duration: '10 menit',
+        videoUrl: 'https://www.youtube.com/embed/DVBGDmcPzxI',
+        content: `<h2>Menulis Esai untuk Pemula Tanpa Stuck</h2><p>Panduan langkah demi langkah memecah proses menulis esai dari draft kasar menjadi karya utuh yang siap direview AI dan mentor.</p>`,
+      },
+      {
+        id: 'ppkb-4-2',
+        title: 'Checklist Self-Proofreading & EYD',
+        type: 'text',
+        duration: '8 menit',
+        content: `<h2>Koreksi Mandiri Sebelum Submit</h2><ul><li>Cek batas jumlah kata sesuai ketentuan fakultas (biasanya 500-800 kata).</li><li>Hindari kata tidak baku seperti 'dimana' sebagai kata hubung, 'antar sesama', atau 'merubah'.</li><li>Pastikan transisi antarparagraf terasa padu dan kohesif.</li><li>Manfaatkan fitur Essay AI Review OTWPTN untuk skor instan instrumen seleksi UI.</li></ul>`,
+      },
+      {
+        id: 'ppkb-4-3',
+        title: 'Rubrik Penilaian Esai Verifikator UI & Kriteria Diskualifikasi',
+        type: 'text',
+        duration: '12 menit',
+        isPremium: true,
+        content: `<h2>[EKSKLUSIF PREMIUM] Rubrik 4 Aspek Penilaian Dosen UI</h2><p>Dosen penilai UI menggunakan matriks berikut dalam memberi nilai esai:</p><ol><li><strong>Autentisitas & Refleksi Diri (30%):</strong> Bukan esai hasil plagiat atau generik buatan prompt standar.</li><li><strong>Kecocokan Visi Prodi (25%):</strong> Pemahaman mendalam mengenai kurikulum prodi di UI.</li><li><strong>Komitmen Kontribusi (25%):</strong> Rencana realistis yang memberi dampak bagi masyarakat setelah lulus.</li><li><strong>Kualitas Bahasa & Ejaan (20%):</strong> Tata bahasa terstruktur dan enak dibaca.</li></ol>`,
+      },
+    ],
   },
   {
-    id: 5, title: 'Nilai Rapor & Prestasi', duration: '25 menit',
+    id: 5,
+    title: 'Analisis Nilai Rapor & Peluang',
+    duration: '25 menit',
     lessons: [
-      { id: 'ppkb-5-1', title: 'Cara Hitung Nilai Rapor', type: 'video', duration: '8 menit', videoUrl: 'https://www.youtube.com/embed/4UuBdIPKWis', content: `<h2>Menghitung Rata-rata Rapor</h2><p>Nilai rapor yang dihitung biasanya adalah semester 1–5. Cara hitungnya:</p><ul><li>Jumlahkan semua nilai akhir per mata pelajaran per semester</li><li>Bagi dengan jumlah mata pelajaran × 5 semester</li><li>Beberapa prodi memberi bobot lebih pada mapel tertentu (cek di SIMAK UI)</li></ul><p>Tips: Pastikan nilai rapor yang kamu input di portal sesuai persis dengan nilai di rapor fisikmu.</p>` },
-      { id: 'ppkb-5-2', title: 'Mata Pelajaran yang Diperhitungkan', type: 'text', duration: '8 menit', content: `<h2>Mapel yang Dihitung PPKB UI</h2><p>Umumnya semua mata pelajaran dihitung, tapi mapel inti mendapat perhatian lebih:</p><ul><li>Matematika, Bahasa Indonesia, Bahasa Inggris (wajib)</li><li>IPA: Fisika, Kimia, Biologi (untuk prodi sains/teknik)</li><li>IPS: Ekonomi, Sejarah, Geografi (untuk prodi sosial/humaniora)</li></ul><p>Cek persyaratan spesifik prodi yang kamu tuju karena bisa berbeda.</p>` },
-      { id: 'ppkb-5-3', title: 'Strategi Highlight Prestasi', type: 'text', duration: '9 menit', content: `<h2>Menonjolkan Prestasi dengan Tepat</h2><p>Strategi memilih prestasi yang paling impactful:</p><ul><li>Prioritaskan prestasi yang <strong>relevan dengan prodi</strong> yang dituju</li><li>Tingkat: internasional > nasional > provinsi > kota/kabupaten</li><li>Recency: prestasi 1–3 tahun terakhir lebih kuat</li><li>Kuantifikasi jika bisa: "Juara 1 dari 500 peserta" lebih kuat dari sekadar "Juara 1"</li></ul>` },
-    ]
-  },
-  {
-    id: 6, title: 'Memilih Program Studi', duration: '30 menit',
-    lessons: [
-      { id: 'ppkb-6-1', title: 'Riset Prodi Impianmu', type: 'text', duration: '10 menit', content: `<h2>Cara Riset Program Studi</h2><p>Sebelum mendaftar, pastikan kamu benar-benar paham prodinya:</p><ul><li>Baca kurikulum di website resmi UI</li><li>Cek prospek karir lulusan (LinkedIn, Jobstreet)</li><li>Cari tahu dosen dan penelitian yang sedang berjalan</li><li>Ikut webinar prodi atau open house UI</li><li>Hubungi mahasiswa aktif prodi tersebut</li></ul>` },
-      { id: 'ppkb-6-2', title: 'Memahami Daya Tampung & Peminat', type: 'text', duration: '10 menit', content: `<h2>Daya Tampung & Tingkat Persaingan</h2><p>Cara baca statistik daya tampung PPKB:</p><ul><li>Cek LTMPT/SNPMB untuk data resmi tiap tahun</li><li>Perhatikan rasio pendaftar vs diterima</li><li>Prodi populer (FKUI, FH, FE) biasanya rasio 1:20 ke atas</li><li>Prodi sains murni biasanya lebih rendah persaingannya</li></ul><p>Gunakan data ini untuk membuat strategi realistis.</p>` },
-      { id: 'ppkb-6-3', title: 'Strategi Pilihan Prodi', type: 'text', duration: '10 menit', content: `<h2>Strategi Memilih Prodi PPKB</h2><p>PPKB biasanya hanya 1 pilihan prodi per pendaftaran. Tips:</p><ul><li>Pilih prodi yang benar-benar kamu inginkan - bukan yang dianggap "aman"</li><li>Selaraskan dengan pengalamanmu di essay</li><li>Pastikan profilmu (rapor + prestasi + essay) sesuai dengan standar prodi itu</li><li>Jika berambisi ke prodi sangat kompetitif, persiapkan jalur cadangan</li></ul>` },
-    ]
-  },
-  {
-    id: 7, title: 'Simulasi Pendaftaran', duration: '20 menit',
-    lessons: [
-      { id: 'ppkb-7-1', title: 'Langkah Daftar Online', type: 'text', duration: '7 menit', content: `<h2>Cara Daftar PPKB Online</h2><p>Pendaftaran dilakukan di <strong>penerimaan.ui.ac.id</strong>. Langkah-langkahnya:</p><ol><li>Buat akun dengan email aktif</li><li>Isi data diri dan data sekolah</li><li>Pilih jalur: PPKB</li><li>Pilih program studi</li><li>Isi data nilai rapor</li><li>Upload dokumen yang diminta</li><li>Tulis/upload essay</li><li>Bayar biaya pendaftaran</li><li>Submit dan cetak bukti pendaftaran</li></ol>` },
-      { id: 'ppkb-7-2', title: 'Tips Mengisi Formulir', type: 'text', duration: '6 menit', content: `<h2>Tips Mengisi Formulir dengan Benar</h2><ul><li>Gunakan browser Chrome/Firefox terbaru</li><li>Jangan refresh halaman saat sedang upload</li><li>Isi data sesuai dokumen resmi (nama, NIK, NISN)</li><li>Screenshot setiap langkah sebagai bukti</li><li>Simpan draft sebelum berpindah halaman</li><li>Jangan menunggu deadline - server bisa lambat di hari terakhir</li></ul>` },
-      { id: 'ppkb-7-3', title: 'Review Sebelum Submit', type: 'text', duration: '7 menit', content: `<h2>Checklist Sebelum Submit Akhir</h2><ul><li>☐ Semua kolom terisi, tidak ada yang kosong</li><li>☐ Nilai rapor sesuai dengan rapor fisik</li><li>☐ Semua dokumen terupload dengan benar dan terbaca</li><li>☐ Essay sudah final (tidak bisa diubah setelah submit)</li><li>☐ Email konfirmasi sudah diterima</li><li>☐ Nomor pendaftaran sudah dicatat</li></ul><p>Setelah submit, simpan semua bukti dan nomor pendaftaran.</p>` },
-    ]
-  },
-  {
-    id: 8, title: 'Strategi Mental & Waktu', duration: '20 menit',
-    lessons: [
-      { id: 'ppkb-8-1', title: 'Manajemen Waktu Persiapan', type: 'text', duration: '7 menit', content: `<h2>Timeline Persiapan Ideal</h2><p>Idealnya persiapan PPKB dimulai 3–4 bulan sebelum deadline:</p><ul><li><strong>Bulan 1:</strong> Riset prodi, kumpulkan dokumen, brainstorming essay</li><li><strong>Bulan 2:</strong> Tulis dan revisi essay, legalisir dokumen</li><li><strong>Bulan 3:</strong> Review final, minta feedback, scan dokumen</li><li><strong>2 minggu sebelum:</strong> Siapkan akun, coba simulasi upload</li><li><strong>1 minggu sebelum:</strong> Submit pendaftaran</li></ul>` },
-      { id: 'ppkb-8-2', title: 'Mengelola Anxiety & Ekspektasi', type: 'text', duration: '7 menit', content: `<h2>Mengelola Kecemasan</h2><p>Wajar merasa cemas sebelum seleksi. Tips mengelolanya:</p><ul><li>Fokus pada proses yang bisa kamu kontrol, bukan hasil</li><li>Cerita ke orang yang supportif - jangan pendam sendiri</li><li>Buat rencana B dari awal agar gak terlalu bergantung satu jalur</li><li>Ingat: ditolak bukan berarti gagal. Ada banyak jalur lain.</li></ul>` },
-      { id: 'ppkb-8-3', title: 'Rencana Cadangan yang Solid', type: 'text', duration: '6 menit', content: `<h2>Menyiapkan Jalur Cadangan</h2><p>Jangan taruh semua harapan di satu jalur. Strategi:</p><ul><li>Daftar SNBP dan PPKB bersamaan (jika jadwal memungkinkan)</li><li>Persiapkan untuk UTBK-SNBT sejak awal</li><li>Pertimbangkan jalur mandiri PTN lain sebagai opsi</li><li>Tidak ada salahnya mempertimbangkan PTN lain yang sesuai bidang minatmu</li></ul>` },
-    ]
-  },
-  {
-    id: 9, title: 'Review & Latihan', duration: '25 menit',
-    lessons: [
-      { id: 'ppkb-9-1', title: 'Evaluasi Kesiapan Diri', type: 'text', duration: '8 menit', content: `<h2>Self-Assessment Sebelum Daftar</h2><p>Jujur jawab pertanyaan ini:</p><ul><li>Apakah nilai raporku kompetitif untuk prodi ini?</li><li>Apakah essayku sudah benar-benar kuat dan autentik?</li><li>Apakah prestasimu relevan dan terverifikasi?</li><li>Apakah semua dokumenku sudah lengkap?</li></ul><p>Jika ada yang belum siap, masih ada waktu untuk diperbaiki sebelum deadline.</p>` },
-      { id: 'ppkb-9-2', title: 'Review Essay dengan Mentor', type: 'text', duration: '10 menit', content: `<h2>Cara Review Essay dengan Efektif</h2><p>Feedback dari orang lain sangat penting. Tips:</p><ul><li>Minta guru bahasa Indonesia untuk review EYD dan gaya bahasa</li><li>Minta guru BK untuk review konten dan relevansi</li><li>Minta teman yang sudah diterima di jalur serupa</li><li>Gunakan fitur Essay AI Review di platform ini untuk feedback cepat</li></ul>` },
-      { id: 'ppkb-9-3', title: 'Perbaikan Terakhir', type: 'text', duration: '7 menit', content: `<h2>Final Touch Sebelum Submit</h2><p>Iterasi terakhir yang sering dilupakan:</p><ul><li>Cek konsistensi nama prodi dan universitas (jangan salah ketik!)</li><li>Pastikan essay tidak mengandung nama orang tua/kerabat secara berlebihan</li><li>Baca ulang sekali lagi dengan fresh eyes</li><li>Konfirmasi dengan guru BK bahwa surat rekomendasi sudah ditandatangani</li></ul>` },
-    ]
-  },
-  {
-    id: 10, title: 'Hari H & Pengumuman', duration: '15 menit',
-    lessons: [
-      { id: 'ppkb-10-1', title: 'Persiapan Hari Pengumuman', type: 'text', duration: '5 menit', content: `<h2>Checklist Hari Pengumuman</h2><ul><li>Catat tanggal dan jam pengumuman resmi</li><li>Pantau website resmi UI (bukan sumber tidak resmi)</li><li>Siapkan nomor pendaftaran untuk cek hasil</li><li>Informasikan ke orang tua agar mereka tahu jadwalnya</li></ul>` },
-      { id: 'ppkb-10-2', title: 'Jika Diterima: Langkah Selanjutnya', type: 'text', duration: '5 menit', content: `<h2>Diterima di PPKB UI - Apa Selanjutnya?</h2><p>Selamat! Segera lakukan:</p><ol><li>Cek jadwal dan prosedur daftar ulang</li><li>Siapkan dokumen untuk registrasi</li><li>Bayar UKT/biaya kuliah sesuai ketentuan</li><li>Jangan lupa undur diri dari jalur lain yang masih aktif</li><li>Bergabung dengan grup angkatan dan orientasi mahasiswa baru</li></ol>` },
-      { id: 'ppkb-10-3', title: 'Jika Belum Diterima: Move Forward', type: 'text', duration: '5 menit', content: `<h2>Belum Diterima - Bukan Akhir Segalanya</h2><p>Penolakan bukan kegagalan permanen. Yang perlu dilakukan:</p><ul><li>Tenangkan diri dulu - wajar kecewa</li><li>Segera fokus ke jalur berikutnya (SNBT, mandiri)</li><li>Evaluasi: apa yang bisa ditingkatkan?</li><li>Jika tahun depan mencoba lagi, kamu punya pengalaman lebih</li></ul><p>Banyak orang sukses yang tidak diterima di pilihan pertamanya.</p>` },
-    ]
+      {
+        id: 'ppkb-5-1',
+        title: 'Trik Membaca Tren Nilai Rapor & Indeks Sekolah',
+        type: 'video',
+        duration: '11 menit',
+        videoUrl: 'https://www.youtube.com/embed/isgqGjGOZYE',
+        content: `<h2>Kupas Tuntas Indeks Sekolah & Nilai Rapor</h2><p>Pahami bagaimana universitas top menghitung bobot nilai rapormu berdasarkan rekam jejak alumni sekolahmu di PTN terkait.</p>`,
+      },
+      {
+        id: 'ppkb-5-2',
+        title: 'Mapel Pendukung Linear per Fakultas',
+        type: 'text',
+        duration: '8 menit',
+        content: `<h2>Mata Pelajaran yang Paling Menentukan</h2><p>Masing-masing fakultas memiliki pembobotan khusus:</p><ul><li><strong>Sains & Teknologi:</strong> Matematika Peminatan/Lanjut, Fisika, Kimia, Biologi.</li><li><strong>Sosial Humaniora:</strong> Matematika, Bahasa Indonesia, Ekonomi, Sosiologi, Sejarah.</li><li><strong>Kedokteran & Kesehatan:</strong> Biologi, Kimia, dan Bahasa Inggris akademik.</li></ul>`,
+      },
+      {
+        id: 'ppkb-5-3',
+        title: 'Kalkulasi Skor Peluang & Simulasi Rasio Lolos',
+        type: 'text',
+        duration: '10 menit',
+        isPremium: true,
+        content: `<h2>[EKSKLUSIF PREMIUM] Database Nilai Rapor Diterima PPKB UI</h2><p>Rekapitulasi nilai rata-rata rapor siswa lolos tahun lalu:</p><ul><li>FK UI: Rata-rata 91.8 (terendah 89.2 dengan prestasi nasional).</li><li>Fasilkom UI: Rata-rata 89.5 (terendah 87.8).</li><li>FEB UI: Rata-rata 89.0 (terendah 87.2).</li><li>Hukum UI: Rata-rata 88.6 (terendah 86.5).</li></ul>`,
+      },
+    ],
   },
 ]
 
-// Video URLs for common lessons per jalur
-const SNBP_VIDEO_MAP: Record<string, string> = {
-  '1-1': 'https://www.youtube.com/embed/videoseries?list=PLnjBxJj-EPZE2DJOkLzh6mcFlVl-bRNQb',
-  '1-2': 'https://www.youtube.com/embed/xYt5CkuvuFg',
-  '3-1': 'https://www.youtube.com/embed/BIaezGMrNg0',
-  '5-1': 'https://www.youtube.com/embed/4UuBdIPKWis',
-  '7-1': 'https://www.youtube.com/embed/S85eBfVs3_8',
-}
+// ─────────────────────────────────────────────────────────────
+// 2. SNBP TRACK (Strategi Non-Tes & Rapor Nasional)
+// ─────────────────────────────────────────────────────────────
+const SNBP_STAGES: EStage[] = [
+  {
+    id: 1,
+    title: 'Mengenal SNBP & Sistem Seleksi',
+    duration: '20 menit',
+    lessons: [
+      {
+        id: 'snbp-1-1',
+        title: 'Aturan Resmi SNBP & Komponen Penilaian Rapor',
+        type: 'video',
+        duration: '9 menit',
+        videoUrl: 'https://www.youtube.com/embed/fG8Oye9oHz4',
+        content: `<h2>Aturan Seleksi SNBP Nasional</h2><p>SNBP menilai seluruh mata pelajaran dengan bobot minimal 50% untuk rata-rata seluruh mapel, dan maksimal 50% untuk mapel pendukung program studi yang dituju ditambah portofolio/prestasi.</p>`,
+      },
+      {
+        id: 'snbp-1-2',
+        title: 'Cara Menentukan Kuota Siswa Eligible',
+        type: 'text',
+        duration: '7 menit',
+        content: `<h2>Penentuan Siswa Eligible di Sekolah</h2><p>Akreditasi sekolah menentukan persentase siswa terbaik yang berhak mendaftar:</p><ul><li>Akreditasi A: 40% siswa terbaik.</li><li>Akreditasi B: 25% siswa terbaik.</li><li>Akreditasi C dan lainnya: 5% siswa terbaik.</li></ul>`,
+      },
+      {
+        id: 'snbp-1-3',
+        title: 'Strategi Lolos Siswa Eligible Peringkat Bawah',
+        type: 'text',
+        duration: '10 menit',
+        isPremium: true,
+        content: `<h2>[EKSKLUSIF PREMIUM] Trik Masuk PTN dari Peringkat 30% ke Bawah</h2><p>Jika peringkat eligible-mu tidak berada di 10 besar, jangan berkecil hati. Gunakan strategi ini:</p><ul><li>Hindari mendaftar di prodi yang sudah dipilih oleh teman satu sekolah yang memiliki peringkat di atasmu.</li><li>Pilih PTN di luar domisili yang memiliki kuota besar namun peminat moderat.</li><li>Maksimalkan nilai sertifikat pendukung dan portofolio kejuruan.</li></ul>`,
+      },
+    ],
+  },
+  {
+    id: 2,
+    title: 'Strategi Pemilihan Jurusan & PTN',
+    duration: '25 menit',
+    lessons: [
+      {
+        id: 'snbp-2-1',
+        title: 'Strategi Memilih Jurusan & Menghindari Saling Bunuh Teman',
+        type: 'video',
+        duration: '12 menit',
+        videoUrl: 'https://www.youtube.com/embed/7Yox72bv9CY',
+        content: `<h2>Trik Mengatur Pilihan 1 & 2 di SNBP</h2><p>Video ini mengupas cara menghindari bentrokan pilihan dengan teman satu sekolah yang nilainya lebih tinggi, serta aturan pilihan PTN lintas provinsi.</p>`,
+      },
+      {
+        id: 'snbp-2-2',
+        title: 'Aturan Pemilihan 2 Prodi & Lokasi PTN',
+        type: 'text',
+        duration: '6 menit',
+        content: `<h2>Ketentuan Pilihan Program Studi</h2><ul><li>Jika memilih 2 program studi, salah satu harus berada di PTN pada provinsi yang sama dengan sekolah asalmu.</li><li>Jika hanya memilih 1 program studi, kamu bebas memilih PTN di provinsi manapun di seluruh Indonesia.</li><li>Pastikan pilihan ke-1 adalah impian terbesarmu, dan pilihan ke-2 adalah opsi realistis yang memiliki rasio penerimaan lebih tinggi.</li></ul>`,
+      },
+      {
+        id: 'snbp-2-3',
+        title: 'Matriks Pemetaan Kompetisi Sekolah & Indeks Alumni PTN',
+        type: 'text',
+        duration: '12 menit',
+        isPremium: true,
+        content: `<h2>[EKSKLUSIF PREMIUM] Rumus Indeks Sekolah Versi Dosen Seleksi</h2><p>Indeks sekolah dihitung berdasarkan:</p><ol><li>Jumlah alumni yang aktif berkuliah di PTN tersebut (skor bobot 40%).</li><li>Rata-rata IPK alumni di PTN tersebut (skor bobot 30%).</li><li>Prestasi sekolah di ajang nasional (skor bobot 15%).</li><li>Akreditasi dan nilai UTBK rata-rata sekolah tahun sebelumnya (skor bobot 15%).</li></ol>`,
+      },
+    ],
+  },
+]
 
-function makeStages(prefix: string, jalurName: string): EStage[] {
-  const topics = [
-    ['Mengenal ' + jalurName, ['Apa itu ' + jalurName + '?', 'Persyaratan Umum', 'Timeline Pendaftaran']],
-    ['Persiapan Berkas', ['Dokumen Wajib', 'Cara Scan Dokumen', 'Checklist Kesiapan']],
-    ['Strategi Essay', ['Memahami Prompt', 'Teknik Brainstorming', 'Struktur Essay']],
-    ['Menulis Essay', ['Draft Pertama', 'Proses Revisi', 'Proofreading Final']],
-    ['Nilai & Prestasi', ['Cara Hitung Nilai', 'Mapel yang Diperhitungkan', 'Highlight Prestasi']],
-    ['Pilihan Prodi', ['Riset Prodi', 'Daya Tampung & Peminat', 'Strategi Memilih']],
-    ['Simulasi Daftar', ['Langkah Daftar Online', 'Tips Mengisi Formulir', 'Review Sebelum Submit']],
-    ['Strategi Mental', ['Manajemen Waktu', 'Kelola Kecemasan', 'Rencana Cadangan']],
-    ['Review & Latihan', ['Evaluasi Diri', 'Review dengan Mentor', 'Perbaikan Terakhir']],
-    ['Hari H', ['Persiapan Pengumuman', 'Jika Diterima', 'Jika Belum Diterima']],
-  ] as [string, string[]][]
-
-  return topics.map(([title, lessons], si) => ({
-    id: si + 1,
-    title,
-    duration: `${15 + si * 2} menit`,
-    lessons: lessons.map((lt, li) => {
-      const mapKey = `${si + 1}-${li + 1}`
-      const videoUrl = prefix === 'snbp' ? SNBP_VIDEO_MAP[mapKey] : undefined
-      return {
-        id: `${prefix}-${si + 1}-${li + 1}`,
-        title: lt,
-        type: (videoUrl ? 'video' : 'text') as 'text' | 'video',
-        duration: `${5 + li * 2} menit`,
-        content: `<h2>${lt}</h2><p>Materi ini membahas ${lt.toLowerCase()} dalam konteks ${jalurName}. Konten lengkap segera hadir - pantau update terbaru di platform ini!</p>`,
-        ...(videoUrl ? { videoUrl } : {}),
-      }
-    })
-  }))
-}
+// ─────────────────────────────────────────────────────────────
+// 3. PBM & PPU TRACK (Literasi Bahasa & Pemahaman Teks UTBK)
+// ─────────────────────────────────────────────────────────────
+const PBM_STAGES: EStage[] = [
+  {
+    id: 1,
+    title: 'Pondasi Kalimat Efektif & S-P-O-K',
+    duration: '25 menit',
+    lessons: [
+      {
+        id: 'pbm-1-1',
+        title: 'Konsep Dasar Kalimat Efektif & Ciri Kalimat Rancu',
+        type: 'video',
+        duration: '14 menit',
+        videoUrl: 'https://www.youtube.com/embed/H7V70J12mZI',
+        content: `<h2>Materi Inti Pemahaman Bacaan & Menulis</h2><p>Materi ini membahas syarat utama kalimat efektif dalam bahasa Indonesia akademik:</p><ul><li><strong>Kejelasan Subjek & Predikat:</strong> Kalimat tidak boleh kehilangan subjek karena diawali kata depan yang salah (misal: "Bagi yang belum bayar harus melapor" $\rightarrow$ salah).</li><li><strong>Ketepatan Diksi:</strong> Menggunakan kata yang memiliki arti presisi sesuai konteks kalimat.</li><li><strong>Kesejajaran Bentuk (Paralelisme):</strong> Imbuhan dalam kalimat majemuk setara harus seragam (misal: "membersihkan, mencuci, dan menyapu").</li></ul>`,
+      },
+      {
+        id: 'pbm-1-2',
+        title: 'Analisis Kalimat Tidak Lengkap (Subjek / Predikat Hilang)',
+        type: 'text',
+        duration: '8 menit',
+        content: `<h2>Mendeteksi Kalimat yang Buntung / Cacat</h2><p>Contoh kesalahan yang paling sering muncul di UTBK dan penulisan esai:</p><ul><li><em>Salah:</em> "Menurut para ahli menyatakan bahwa iklim berubah." (Subjek hilang karena didahului kata keterangan 'menurut').</li><li><em>Benar:</em> "Menurut para ahli, iklim berubah." ATAU "Para ahli menyatakan bahwa iklim berubah."</li><li><em>Salah:</em> "Di dalam rapat itu memutuskan lima poin penting."</li><li><em>Benar:</em> "Rapat itu memutuskan lima poin penting."</li></ul>`,
+      },
+      {
+        id: 'pbm-1-3',
+        title: 'Cheatsheet Pola Kalimat & 50 Soal Analisis SPOK',
+        type: 'text',
+        duration: '12 menit',
+        isPremium: true,
+        content: `<h2>[EKSKLUSIF PREMIUM] Bedah Soal Asli SPOK & Inti Kalimat</h2><p>Trik cepat menemukan inti kalimat panjang dan bertingkat dalam waktu kurang dari 15 detik:</p><ul><li>Abaikan klausa anak yang diawali konjungsi 'yang', 'karena', 'walaupun', atau tanda kurung/koma penjelas.</li><li>Fokus cari Kata Benda pertama tanpa preposisi (itulah Subjek).</li><li>Cari Kata Kerja inti yang dikenai langsung oleh Subjek (itulah Predikat).</li></ul>`,
+      },
+    ],
+  },
+  {
+    id: 2,
+    title: 'PUEBI & Ejaan Bahasa Indonesia Resmi',
+    duration: '25 menit',
+    lessons: [
+      {
+        id: 'pbm-2-1',
+        title: 'Kupas Tuntas EYD: Kata Depan Tempat vs Imbuhan',
+        type: 'video',
+        duration: '12 menit',
+        videoUrl: 'https://www.youtube.com/embed/mzbbG_EuBpM',
+        content: `<h2>Penulisan Kata Depan 'di/ke' vs Imbuhan 'di-/ke-'</h2><p>Panduan praktis agar tidak tertukar dalam ujian:</p><ul><li><strong>Kata Depan:</strong> Menunjukkan arah atau tempat, ditulis terpisah dengan spasi (contoh: <em>di kampus</em>, <em>ke sekolah</em>, <em>di rumah</em>).</li><li><strong>Imbuhan Pasif:</strong> Melekat pada kata kerja, ditulis serangkai tanpa spasi (contoh: <em>ditulis</em>, <em>dikembangkan</em>, <em>dilakukan</em>).</li><li><strong>Uji Coba Cepat:</strong> Jika bisa diubah ke bentuk aktif 'me-', maka wajib serangkai (contoh: ditulis $\rightarrow$ menulis). Jika tidak bisa (dikampus $\rightarrow$ mengampus?), berarti harus dipisah!</li></ul>`,
+      },
+      {
+        id: 'pbm-2-2',
+        title: 'Penulisan Huruf Kapital & Huruf Miring Resmi',
+        type: 'text',
+        duration: '7 menit',
+        content: `<h2>Aturan Huruf Kapital & Miring</h2><ul><li><strong>Kapital:</strong> Huruf pertama nama geografi jika diikuti nama diri (<em>Pulau Jawa</em>, <em>Selat Sunda</em>, <em>Sungai Kapuas</em>). Namun nama geografi yang jadi jenis buah/makanan huruf kecil (<em>jeruk bali</em>, <em>kunci inggris</em>).</li><li><strong>Miring:</strong> Untuk istilah bahasa asing atau daerah yang belum diserap ke dalam KBBI (contoh: <em>online</em> ditulis <em>daring</em>, jika tetap online maka dimiringkan: <em>online</em>).</li></ul>`,
+      },
+      {
+        id: 'pbm-2-3',
+        title: 'Bank 150 Kata Baku KBBI yang Paling Sering Menjebak',
+        type: 'text',
+        duration: '15 menit',
+        isPremium: true,
+        content: `<h2>[EKSKLUSIF PREMIUM] Daftar Kata Baku vs Tidak Baku Terlengkap</h2><table border="1" cellpadding="6" style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #fef3c7;"><th>Baku (Resmi KBBI)</th><th>Tidak Baku (Salah)</th></tr></thead><tbody><tr><td>analisis</td><td>analisa</td></tr><tr><td>praktik</td><td>praktek</td></tr><tr><td>kualitas</td><td>kualitet / kwalitas</td></tr><tr><td>sistem</td><td>sistim</td></tr><tr><td>napas</td><td>nafas</td></tr><tr><td>aktivitas</td><td>aktifitas</td></tr><tr><td>objek</td><td>obyek</td></tr><tr><td>konkret</td><td>kongkret / konkrit</td></tr><tr><td>isap</td><td>hisap</td></tr><tr><td>izin</td><td>ijin</td></tr></tbody></table>`,
+      },
+    ],
+  },
+  {
+    id: 3,
+    title: 'Konjungsi & Redundansi (Kalimat Efektif)',
+    duration: '25 menit',
+    lessons: [
+      {
+        id: 'pbm-3-1',
+        title: 'Strategi Mengatasi Kalimat Boros & Kata Berlebihan',
+        type: 'video',
+        duration: '11 menit',
+        videoUrl: 'https://www.youtube.com/embed/gmcDyBd0zsE',
+        content: `<h2>Bedah Soal Menghapus Kata yang Mubazir</h2><p>Video ini membahas pola soal kalimat tidak efektif di mana terdapat kata berlebihan yang wajib dihilangkan (seperti 'sangat setuju sekali', 'agar supaya', 'sejak dari dulu').</p>`,
+      },
+      {
+        id: 'pbm-3-2',
+        title: 'Konjungsi Antarkalimat vs Intrakalimat',
+        type: 'text',
+        duration: '8 menit',
+        content: `<h2>Tata Cara Penggunaan Kata Sambung</h2><ul><li><strong>Intrakalimat (di dalam 1 kalimat):</strong> sehingga, karena, walaupun, sedangkan, tetapi. Jangan ditaruh di awal kalimat!</li><li><strong>Antarkalimat (di awal kalimat baru, diikuti koma):</strong> Oleh karena itu, Namun, Selain itu, Meskipun demikian.</li><li><em>Salah:</em> "Saya belajar giat. Sehingga saya lulus."</li><li><em>Benar:</em> "Saya belajar giat sehingga saya lulus." ATAU "Saya belajar giat. Oleh karena itu, saya lulus."</li></ul>`,
+      },
+      {
+        id: 'pbm-3-3',
+        title: 'Trik Pola Soal Kalimat Hapus di Arena Latihan',
+        type: 'text',
+        duration: '10 menit',
+        isPremium: true,
+        content: `<h2>[EKSKLUSIF PREMIUM] Strategi Menjawab Soal Tipe 'Hapus Kata Ini'</h2><p>Gunakan logika berikut saat bermain di Arena Kuis PBM:</p><ul><li>Cek apakah ada dua kata bersinonim yang berdekatan: misal 'amat' dengan 'sangat', 'hanya' dengan 'saja', 'daftar' dengan 'list'.</li><li>Cek apakah ada pengulangan jamak: 'banyak siswa-siswa' (cukup 'banyak siswa' atau 'siswa-siswa').</li><li>Cek kata hubung ganda yang bertentangan: 'Meskipun lelah, tetapi ia terus berjalan' (pilih salah satu: buang 'tetapi').</li></ul>`,
+      },
+    ],
+  },
+  {
+    id: 4,
+    title: 'PPU: Analogi & Padanan Hubungan Kata',
+    duration: '25 menit',
+    lessons: [
+      {
+        id: 'pbm-4-1',
+        title: 'Trik Menguasai Soal Padanan Kata & Analogi PPU',
+        type: 'video',
+        duration: '13 menit',
+        videoUrl: 'https://www.youtube.com/embed/mtQSGQFFV3E',
+        content: `<h2>Logika Hubungan Kata Penalaran Umum</h2><p>Membahas formula menyusun jembatan kalimat antara kata pertama dan kedua agar hubungan analogisnya presisi dan tidak terkecoh jawaban distraktor.</p>`,
+      },
+      {
+        id: 'pbm-4-2',
+        title: 'Pola Hubungan Analogi yang Sering Keluar',
+        type: 'text',
+        duration: '8 menit',
+        content: `<h2>Kategori Hubungan Analogi</h2><ul><li><strong>Profesi dan Tempat Kerja:</strong> Guru : Sekolah = Dokter : Rumah Sakit.</li><li><strong>Alat dan Fungsi:</strong> Sendok : Makan = Pisau : Memotong.</li><li><strong>Bagian dan Keseluruhan:</strong> Sayap : Burung = Sirip : Ikan.</li><li><strong>Sebab dan Akibat:</strong> Gempa : Tsunami = Hujan : Banjir.</li></ul>`,
+      },
+      {
+        id: 'pbm-4-3',
+        title: '124 Bank Soal Arena Kuis PPU & PBM Lengkap dengan Kunci',
+        type: 'text',
+        duration: '15 menit',
+        isPremium: true,
+        content: `<h2>[EKSKLUSIF PREMIUM] Akses Seluruh Bank Soal Pembahasan Mendalam</h2><p>Seluruh soal dalam bank soal arena telah diverifikasi tim akademik OTWPTN untuk mencerminkan pola soal seleksi PTN terbaru.</p><p>Kamu bisa langsung mempraktikkan materi ini di menu <strong>Arena Latihan PPU/PBM</strong>.</p>`,
+      },
+    ],
+  },
+]
 
 export const EJALUR_LIST: EJalur[] = [
-  { id: 'ppkb', label: 'PPKB UI', stages: PPKB_STAGES },
-  { id: 'snbp', label: 'SNBP', stages: makeStages('snbp', 'SNBP') },
-  { id: 'sjp', label: 'SJP UI', stages: makeStages('sjp', 'SJP UI') },
-  { id: 'ssu-rapor-itb', label: 'SSU Rapor ITB', stages: makeStages('ssu', 'SSU Rapor ITB') },
+  { id: 'ppkb', label: 'PPKB UI (Esai & Rapor)', stages: PPKB_STAGES },
+  { id: 'snbp', label: 'SNBP (Jalur Prestasi Nasional)', stages: SNBP_STAGES },
+  { id: 'pbm', label: 'PBM & PPU (Literasi & Bahasa)', stages: PBM_STAGES },
 ]

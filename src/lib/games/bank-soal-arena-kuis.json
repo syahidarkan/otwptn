@@ -1,0 +1,3208 @@
+{
+  "meta": {
+    "judul": "Bank Soal Arena Kuis PPU & PBM (v3 - per tab)",
+    "total_soal": 124,
+    "kategori": {
+      "PPU": "Padanan Kata (PPU)  -  analogi, sinonim, antonim, makna",
+      "PUEBI": "Kata Baku & Wordle (PUEBI)  -  pilihan ganda kata baku + wordle",
+      "PBM": "Benerin Kalimat (PBM)  -  perbaikan kalimat (ganti & hapus)"
+    },
+    "tingkat": {
+      "M": "Mudah",
+      "S": "Sedang",
+      "SU": "Sulit"
+    },
+    "catatan": "Soal dari 'Bagian E' versi dokumen asli sudah digabung ke kategori PPU/PUEBI/PBM yang sesuai berdasarkan subjenisnya, supaya tiap tab game (termasuk mode Kuis Acak Campuran) punya soal level Sulit yang cukup tanpa perlu tab/pool terpisah untuk Bagian E."
+  },
+  "soal": [
+    {
+      "id": "A01",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Guru : Sekolah = Petani : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Cangkul"
+        },
+        {
+          "id": "B",
+          "text": "Sawah"
+        },
+        {
+          "id": "C",
+          "text": "Padi"
+        },
+        {
+          "id": "D",
+          "text": "Pupuk"
+        },
+        {
+          "id": "E",
+          "text": "Musim"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Hubungan profesi dengan tempat kerjanya."
+    },
+    {
+      "id": "A02",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Lapar : Makanan = Haus : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Gelas"
+        },
+        {
+          "id": "B",
+          "text": "Dahaga"
+        },
+        {
+          "id": "C",
+          "text": "Sumur"
+        },
+        {
+          "id": "D",
+          "text": "Minuman"
+        },
+        {
+          "id": "E",
+          "text": "Dapur"
+        }
+      ],
+      "kunci": "D",
+      "pembahasan": "Kebutuhan dengan benda yang memenuhinya."
+    },
+    {
+      "id": "A03",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Penulis : Buku = Pelukis : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Kuas"
+        },
+        {
+          "id": "B",
+          "text": "Kanvas"
+        },
+        {
+          "id": "C",
+          "text": "Lukisan"
+        },
+        {
+          "id": "D",
+          "text": "Galeri"
+        },
+        {
+          "id": "E",
+          "text": "Warna"
+        }
+      ],
+      "kunci": "C",
+      "pembahasan": "Pelaku dengan karya yang dihasilkannya."
+    },
+    {
+      "id": "A04",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Ikan : Sirip = Burung : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Paruh"
+        },
+        {
+          "id": "B",
+          "text": "Bulu"
+        },
+        {
+          "id": "C",
+          "text": "Sayap"
+        },
+        {
+          "id": "D",
+          "text": "Insang"
+        },
+        {
+          "id": "E",
+          "text": "Sarang"
+        }
+      ],
+      "kunci": "C",
+      "pembahasan": "Alat gerak setiap hewan."
+    },
+    {
+      "id": "A05",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Kucing : Mengeong = Anjing : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Mengaum"
+        },
+        {
+          "id": "B",
+          "text": "Berlari"
+        },
+        {
+          "id": "C",
+          "text": "Menggonggong"
+        },
+        {
+          "id": "D",
+          "text": "Melompat"
+        },
+        {
+          "id": "E",
+          "text": "Menggigit"
+        }
+      ],
+      "kunci": "C",
+      "pembahasan": "Hewan dengan bunyi atau suara khasnya."
+    },
+    {
+      "id": "A06",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Mata : Melihat = Telinga : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Mencium"
+        },
+        {
+          "id": "B",
+          "text": "Merasa"
+        },
+        {
+          "id": "C",
+          "text": "Mengecap"
+        },
+        {
+          "id": "D",
+          "text": "Mendengar"
+        },
+        {
+          "id": "E",
+          "text": "Berbicara"
+        }
+      ],
+      "kunci": "D",
+      "pembahasan": "Alat indra dengan fungsinya."
+    },
+    {
+      "id": "A07",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Padi : Beras = Tebu : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Tanah"
+        },
+        {
+          "id": "B",
+          "text": "Batang"
+        },
+        {
+          "id": "C",
+          "text": "Gula"
+        },
+        {
+          "id": "D",
+          "text": "Kebun"
+        },
+        {
+          "id": "E",
+          "text": "Air"
+        }
+      ],
+      "kunci": "C",
+      "pembahasan": "Bahan mentah dengan hasil olahannya."
+    },
+    {
+      "id": "A08",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Dokter : Rumah sakit = Hakim : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Kantor"
+        },
+        {
+          "id": "B",
+          "text": "Penjara"
+        },
+        {
+          "id": "C",
+          "text": "Polisi"
+        },
+        {
+          "id": "D",
+          "text": "Pengadilan"
+        },
+        {
+          "id": "E",
+          "text": "Undang-undang"
+        }
+      ],
+      "kunci": "D",
+      "pembahasan": "Profesi dengan tempat kerjanya."
+    },
+    {
+      "id": "A09",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Hujan : Payung = Panas : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Mantel"
+        },
+        {
+          "id": "B",
+          "text": "Sepatu"
+        },
+        {
+          "id": "C",
+          "text": "Topi"
+        },
+        {
+          "id": "D",
+          "text": "Sarung"
+        },
+        {
+          "id": "E",
+          "text": "Jaket"
+        }
+      ],
+      "kunci": "C",
+      "pembahasan": "Benda pelindung dari kondisi cuaca. Mantel tidak dipakai karena juga pelindung dari hujan, sehingga tidak unik untuk panas."
+    },
+    {
+      "id": "A10",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Kertas : Gunting = Kayu : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Palu"
+        },
+        {
+          "id": "B",
+          "text": "Paku"
+        },
+        {
+          "id": "C",
+          "text": "Pensil"
+        },
+        {
+          "id": "D",
+          "text": "Gergaji"
+        },
+        {
+          "id": "E",
+          "text": "Meja"
+        }
+      ],
+      "kunci": "D",
+      "pembahasan": "Bahan dengan alat yang dipakai untuk memotongnya."
+    },
+    {
+      "id": "A11",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Dingin : Es = Panas : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Kipas"
+        },
+        {
+          "id": "B",
+          "text": "Api"
+        },
+        {
+          "id": "C",
+          "text": "Kulkas"
+        },
+        {
+          "id": "D",
+          "text": "Asap"
+        },
+        {
+          "id": "E",
+          "text": "Kayu"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Sifat dengan wujud yang paling khas mewakilinya."
+    },
+    {
+      "id": "A12",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Buku : Perpustakaan = Ikan : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Kolam"
+        },
+        {
+          "id": "B",
+          "text": "Pasar"
+        },
+        {
+          "id": "C",
+          "text": "Nelayan"
+        },
+        {
+          "id": "D",
+          "text": "Akuarium"
+        },
+        {
+          "id": "E",
+          "text": "Jaring"
+        }
+      ],
+      "kunci": "D",
+      "pembahasan": "Benda dengan tempat penyimpanannya."
+    },
+    {
+      "id": "A13",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pensil : Menulis = Pisau : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Mengukur"
+        },
+        {
+          "id": "B",
+          "text": "Memotong"
+        },
+        {
+          "id": "C",
+          "text": "Menjahit"
+        },
+        {
+          "id": "D",
+          "text": "Memasak"
+        },
+        {
+          "id": "E",
+          "text": "Menggambar"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Alat dengan fungsi utamanya."
+    },
+    {
+      "id": "A14",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Ayam : Telur = Sapi : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Daging"
+        },
+        {
+          "id": "B",
+          "text": "Kulit"
+        },
+        {
+          "id": "C",
+          "text": "Tanduk"
+        },
+        {
+          "id": "D",
+          "text": "Susu"
+        },
+        {
+          "id": "E",
+          "text": "Bulu"
+        }
+      ],
+      "kunci": "D",
+      "pembahasan": "Hewan dengan hasil yang diberikannya."
+    },
+    {
+      "id": "A15",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Kaki : Sepatu = Tangan : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Jam"
+        },
+        {
+          "id": "B",
+          "text": "Cincin"
+        },
+        {
+          "id": "C",
+          "text": "Jari"
+        },
+        {
+          "id": "D",
+          "text": "Sarung tangan"
+        },
+        {
+          "id": "E",
+          "text": "Baju"
+        }
+      ],
+      "kunci": "D",
+      "pembahasan": "Anggota tubuh dengan benda yang menutupinya."
+    },
+    {
+      "id": "A16",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Kacamata : Mata = Sepatu : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Topi"
+        },
+        {
+          "id": "B",
+          "text": "Sarung"
+        },
+        {
+          "id": "C",
+          "text": "Kaki"
+        },
+        {
+          "id": "D",
+          "text": "Jam"
+        },
+        {
+          "id": "E",
+          "text": "Tangan"
+        }
+      ],
+      "kunci": "C",
+      "pembahasan": "Benda yang dipakai di atas bagian tubuh tertentu untuk melindunginya."
+    },
+    {
+      "id": "A17",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pena : Tinta = Mobil : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Jalan"
+        },
+        {
+          "id": "B",
+          "text": "Roda"
+        },
+        {
+          "id": "C",
+          "text": "Sopir"
+        },
+        {
+          "id": "D",
+          "text": "Garasi"
+        },
+        {
+          "id": "E",
+          "text": "Bensin"
+        }
+      ],
+      "kunci": "E",
+      "pembahasan": "Alat dengan bahan bakar yang membuatnya bekerja."
+    },
+    {
+      "id": "A18",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Guru : Kapur = Dokter : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Stetoskop"
+        },
+        {
+          "id": "B",
+          "text": "Papan tulis"
+        },
+        {
+          "id": "C",
+          "text": "Buku"
+        },
+        {
+          "id": "D",
+          "text": "Kursi"
+        },
+        {
+          "id": "E",
+          "text": "Pasien"
+        }
+      ],
+      "kunci": "A",
+      "pembahasan": "Profesi dengan alat kerja utamanya."
+    },
+    {
+      "id": "A19",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilot : Pesawat = Masinis : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Stasiun"
+        },
+        {
+          "id": "B",
+          "text": "Rel"
+        },
+        {
+          "id": "C",
+          "text": "Kereta api"
+        },
+        {
+          "id": "D",
+          "text": "Gerbong"
+        },
+        {
+          "id": "E",
+          "text": "Tiket"
+        }
+      ],
+      "kunci": "C",
+      "pembahasan": "Pelaku dengan kendaraan yang dikemudikannya."
+    },
+    {
+      "id": "A20",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Sejarah : Masa lalu = Ramalan : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Masa kini"
+        },
+        {
+          "id": "B",
+          "text": "Masa depan"
+        },
+        {
+          "id": "C",
+          "text": "Kemarin"
+        },
+        {
+          "id": "D",
+          "text": "Dulu"
+        },
+        {
+          "id": "E",
+          "text": "Sekarang"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Hubungan sesuatu dengan wilayah waktu yang dibahasnya."
+    },
+    {
+      "id": "A21",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Murid : Belajar = Dokter : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Mengajar"
+        },
+        {
+          "id": "B",
+          "text": "Mengobati"
+        },
+        {
+          "id": "C",
+          "text": "Memasak"
+        },
+        {
+          "id": "D",
+          "text": "Bernyanyi"
+        },
+        {
+          "id": "E",
+          "text": "Memimpin"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Pelaku dengan kegiatan utama profesinya."
+    },
+    {
+      "id": "A22",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "SINONIM",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah sinonim dari \"cerdas\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Malas"
+        },
+        {
+          "id": "B",
+          "text": "Lambat"
+        },
+        {
+          "id": "C",
+          "text": "Pintar"
+        },
+        {
+          "id": "D",
+          "text": "Sederhana"
+        },
+        {
+          "id": "E",
+          "text": "Rajin"
+        }
+      ],
+      "kunci": "C",
+      "pembahasan": "\"Cerdas\" dan \"pintar\" sama-sama berarti mampu berpikir dengan baik."
+    },
+    {
+      "id": "A23",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "SINONIM",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah sinonim dari \"bahagia\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Sedih"
+        },
+        {
+          "id": "B",
+          "text": "Senang"
+        },
+        {
+          "id": "C",
+          "text": "Marah"
+        },
+        {
+          "id": "D",
+          "text": "Takut"
+        },
+        {
+          "id": "E",
+          "text": "Lelah"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Keduanya menunjukkan perasaan gembira."
+    },
+    {
+      "id": "A24",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "SINONIM",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah sinonim dari \"indah\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Elok"
+        },
+        {
+          "id": "B",
+          "text": "Jelek"
+        },
+        {
+          "id": "C",
+          "text": "Biasa"
+        },
+        {
+          "id": "D",
+          "text": "Kusam"
+        },
+        {
+          "id": "E",
+          "text": "Rapi"
+        }
+      ],
+      "kunci": "A",
+      "pembahasan": "\"Indah\" dan \"elok\" sama-sama berarti bagus dipandang."
+    },
+    {
+      "id": "A25",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "SINONIM",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah sinonim dari \"amanah\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Mudah tersinggung"
+        },
+        {
+          "id": "B",
+          "text": "Sulit berubah"
+        },
+        {
+          "id": "C",
+          "text": "Cepat lupa"
+        },
+        {
+          "id": "D",
+          "text": "Dapat dipercaya"
+        },
+        {
+          "id": "E",
+          "text": "Pandai bicara"
+        }
+      ],
+      "kunci": "D",
+      "pembahasan": "\"Amanah\" berarti dapat dipercaya dan menjalankan tanggung jawab."
+    },
+    {
+      "id": "A26",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "SINONIM",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah sinonim dari \"persuasif\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Membingungkan"
+        },
+        {
+          "id": "B",
+          "text": "Meyakinkan"
+        },
+        {
+          "id": "C",
+          "text": "Menakutkan"
+        },
+        {
+          "id": "D",
+          "text": "Mengecewakan"
+        },
+        {
+          "id": "E",
+          "text": "Menjengkelkan"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Keduanya berarti mampu memengaruhi orang lain agar percaya atau setuju."
+    },
+    {
+      "id": "A27",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "SINONIM",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah sinonim dari \"signifikan\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Sepele"
+        },
+        {
+          "id": "B",
+          "text": "Bermakna"
+        },
+        {
+          "id": "C",
+          "text": "Biasa"
+        },
+        {
+          "id": "D",
+          "text": "Sementara"
+        },
+        {
+          "id": "E",
+          "text": "Tidak penting"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "\"Signifikan\" berarti penting, berarti, atau berpengaruh besar. \"Bermakna\" adalah padanan yang paling dekat."
+    },
+    {
+      "id": "A28",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "SINONIM",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah sinonim dari \"konsisten\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Berubah-ubah"
+        },
+        {
+          "id": "B",
+          "text": "Tetap"
+        },
+        {
+          "id": "C",
+          "text": "Ragu-ragu"
+        },
+        {
+          "id": "D",
+          "text": "Acak"
+        },
+        {
+          "id": "E",
+          "text": "Cepat"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "\"Konsisten\" berarti tetap pada pendirian atau sikap yang sama."
+    },
+    {
+      "id": "A29",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "SINONIM",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah sinonim dari \"evaluasi\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Penilaian"
+        },
+        {
+          "id": "B",
+          "text": "Pelaksanaan"
+        },
+        {
+          "id": "C",
+          "text": "Perencanaan"
+        },
+        {
+          "id": "D",
+          "text": "Pembukaan"
+        },
+        {
+          "id": "E",
+          "text": "Penutupan"
+        }
+      ],
+      "kunci": "A",
+      "pembahasan": "\"Evaluasi\" berarti penilaian terhadap suatu kegiatan atau hasil."
+    },
+    {
+      "id": "A30",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANTONIM",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah antonim dari \"tinggi\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Rendah"
+        },
+        {
+          "id": "B",
+          "text": "Tebal"
+        },
+        {
+          "id": "C",
+          "text": "Panjang"
+        },
+        {
+          "id": "D",
+          "text": "Besar"
+        },
+        {
+          "id": "E",
+          "text": "Tipis"
+        }
+      ],
+      "kunci": "A",
+      "pembahasan": "Pasangan lawan kata yang paling umum."
+    },
+    {
+      "id": "A31",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANTONIM",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah antonim dari \"cepat\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Lambat"
+        },
+        {
+          "id": "B",
+          "text": "Tinggi"
+        },
+        {
+          "id": "C",
+          "text": "Mudah"
+        },
+        {
+          "id": "D",
+          "text": "Dekat"
+        },
+        {
+          "id": "E",
+          "text": "Jauh"
+        }
+      ],
+      "kunci": "A",
+      "pembahasan": "Kecepatan berlawanan dengan kelambatan."
+    },
+    {
+      "id": "A32",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANTONIM",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah antonim dari \"maju\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Berhenti"
+        },
+        {
+          "id": "B",
+          "text": "Mundur"
+        },
+        {
+          "id": "C",
+          "text": "Naik"
+        },
+        {
+          "id": "D",
+          "text": "Pergi"
+        },
+        {
+          "id": "E",
+          "text": "Turun"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Arah gerak yang berlawanan."
+    },
+    {
+      "id": "A33",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANTONIM",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah antonim dari \"hemat\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Irit"
+        },
+        {
+          "id": "B",
+          "text": "Kaya"
+        },
+        {
+          "id": "C",
+          "text": "Murah"
+        },
+        {
+          "id": "D",
+          "text": "Boros"
+        },
+        {
+          "id": "E",
+          "text": "Miskin"
+        }
+      ],
+      "kunci": "D",
+      "pembahasan": "\"Hemat\" berarti tidak berlebihan dalam memakai, sedangkan \"boros\" berarti berlebihan."
+    },
+    {
+      "id": "A34",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANTONIM",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah antonim dari \"optimis\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Realistis"
+        },
+        {
+          "id": "B",
+          "text": "Idealis"
+        },
+        {
+          "id": "C",
+          "text": "Pesimis"
+        },
+        {
+          "id": "D",
+          "text": "Pasif"
+        },
+        {
+          "id": "E",
+          "text": "Kritis"
+        }
+      ],
+      "kunci": "C",
+      "pembahasan": "\"Optimis\" berarti yakin akan hasil baik, sedangkan \"pesimis\" berarti tidak yakin."
+    },
+    {
+      "id": "A35",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANTONIM",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah antonim dari \"terbuka\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Terbatas"
+        },
+        {
+          "id": "B",
+          "text": "Terkunci"
+        },
+        {
+          "id": "C",
+          "text": "Rahasia"
+        },
+        {
+          "id": "D",
+          "text": "Jauh"
+        },
+        {
+          "id": "E",
+          "text": "Tertutup"
+        }
+      ],
+      "kunci": "E",
+      "pembahasan": "Keadaan tidak terbuka atau tertutup dari luar."
+    },
+    {
+      "id": "A36",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANTONIM",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah antonim dari \"konkret\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Nyata"
+        },
+        {
+          "id": "B",
+          "text": "Praktis"
+        },
+        {
+          "id": "C",
+          "text": "Pasti"
+        },
+        {
+          "id": "D",
+          "text": "Abstrak"
+        },
+        {
+          "id": "E",
+          "text": "Sederhana"
+        }
+      ],
+      "kunci": "D",
+      "pembahasan": "\"Konkret\" berwujud nyata dan dapat diamati, lawannya \"abstrak\", yaitu hanya ada dalam konsep."
+    },
+    {
+      "id": "A37",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "MAKNA",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah makna yang paling tepat dari istilah \"aspek\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Tempat tinggal sementara"
+        },
+        {
+          "id": "B",
+          "text": "Sudut pandang atau bagian tertentu dari suatu hal"
+        },
+        {
+          "id": "C",
+          "text": "Pendapat umum"
+        },
+        {
+          "id": "D",
+          "text": "Jenis pekerjaan"
+        },
+        {
+          "id": "E",
+          "text": "Bentuk bangunan"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "\"Aspek\" menunjuk pada sisi atau bagian tertentu dari sebuah persoalan."
+    },
+    {
+      "id": "A38",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "MAKNA",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah makna yang paling tepat dari istilah \"empati\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Rasa iba tanpa tindakan"
+        },
+        {
+          "id": "B",
+          "text": "Kemampuan memahami dan merasakan perasaan orang lain"
+        },
+        {
+          "id": "C",
+          "text": "Keinginan untuk menang"
+        },
+        {
+          "id": "D",
+          "text": "Rasa takut yang berlebihan"
+        },
+        {
+          "id": "E",
+          "text": "Kebiasaan meminta maaf"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "\"Empati\" berarti menempatkan diri pada posisi orang lain dan merasakan apa yang dirasakannya."
+    },
+    {
+      "id": "A39",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "MAKNA",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah makna yang paling tepat dari istilah \"proporsional\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Dilakukan dengan cepat"
+        },
+        {
+          "id": "B",
+          "text": "Sesuai dengan porsi atau bagiannya"
+        },
+        {
+          "id": "C",
+          "text": "Tanpa aturan"
+        },
+        {
+          "id": "D",
+          "text": "Sangat mahal"
+        },
+        {
+          "id": "E",
+          "text": "Berlebihan"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "\"Proporsional\" berarti seimbang dan sesuai dengan porsinya."
+    },
+    {
+      "id": "A40",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "MAKNA",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah makna yang paling tepat dari istilah \"hipotesis\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Kesimpulan akhir"
+        },
+        {
+          "id": "B",
+          "text": "Data mentah"
+        },
+        {
+          "id": "C",
+          "text": "Dugaan sementara yang perlu diuji"
+        },
+        {
+          "id": "D",
+          "text": "Teori yang sudah terbukti"
+        },
+        {
+          "id": "E",
+          "text": "Pendapat umum"
+        }
+      ],
+      "kunci": "C",
+      "pembahasan": "\"Hipotesis\" adalah jawaban sementara yang masih harus dibuktikan melalui pengujian."
+    },
+    {
+      "id": "B01",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "praktek"
+        },
+        {
+          "id": "B",
+          "text": "praktik"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"praktik\", dengan vokal i di akhir.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B02",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "analisa"
+        },
+        {
+          "id": "B",
+          "text": "analisis"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"analisis\", dari serapan bahasa Yunani.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B03",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "kwalitas"
+        },
+        {
+          "id": "B",
+          "text": "kualitas"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Ejaan baku menggunakan k, bukan kw.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B04",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "sholat"
+        },
+        {
+          "id": "B",
+          "text": "salat"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"salat\", dengan huruf h tidak dipakai.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B05",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "mesjid"
+        },
+        {
+          "id": "B",
+          "text": "masjid"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"masjid\".",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B06",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "nomer"
+        },
+        {
+          "id": "B",
+          "text": "nomor"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"nomor\".",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B07",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "merubah"
+        },
+        {
+          "id": "B",
+          "text": "mengubah"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"mengubah\", dari dasar \"ubah\".",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B08",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "M",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "silahkan"
+        },
+        {
+          "id": "B",
+          "text": "silakan"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"silakan\", tanpa huruf h di tengah.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B09",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "efektip"
+        },
+        {
+          "id": "B",
+          "text": "efektif"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"efektif\", dengan akhiran -if.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B10",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "obyektif"
+        },
+        {
+          "id": "B",
+          "text": "objektif"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"objektif\", dengan huruf j.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B11",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "standard"
+        },
+        {
+          "id": "B",
+          "text": "standar"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"standar\".",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B12",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "kwitansi"
+        },
+        {
+          "id": "B",
+          "text": "kuitansi"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"kuitansi\".",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B13",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "hakekat"
+        },
+        {
+          "id": "B",
+          "text": "hakikat"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"hakikat\".",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B14",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "sinonym"
+        },
+        {
+          "id": "B",
+          "text": "sinonim"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"sinonim\", dengan akhiran -im.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B15",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "atlit"
+        },
+        {
+          "id": "B",
+          "text": "atlet"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"atlet\".",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B16",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "dzikir"
+        },
+        {
+          "id": "B",
+          "text": "zikir"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"zikir\", tanpa huruf d di awal.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B17",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "S",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "aktip"
+        },
+        {
+          "id": "B",
+          "text": "aktif"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"aktif\".",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B18",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "hipotesa"
+        },
+        {
+          "id": "B",
+          "text": "hipotesis"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"hipotesis\".",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B19",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "cendrung"
+        },
+        {
+          "id": "B",
+          "text": "cenderung"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"cenderung\", dengan huruf e sebelum n.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "B20",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "ekspor"
+        },
+        {
+          "id": "B",
+          "text": "eksport"
+        }
+      ],
+      "kunci": "A",
+      "pembahasan": "Bentuk baku \"ekspor\", dari serapan bahasa Inggris \"export\".",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "C01",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "M",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "APOTEK",
+      "jumlah_huruf": 6,
+      "definisi": "Tempat meramu dan menjual obat berdasarkan resep dokter.",
+      "petunjuk": "Diserap dari bahasa Belanda \"apotheek\".",
+      "bentuk_tidak_baku": "apotik",
+      "pembahasan": "Ditulis \"apotek\", tanpa huruf i di akhir.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "C02",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "M",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "DOKTER",
+      "jumlah_huruf": 6,
+      "definisi": "Orang yang berprofesi mengobati dan menyembuhkan orang sakit.",
+      "petunjuk": "Diserap dari bahasa Belanda \"dokter\".",
+      "bentuk_tidak_baku": null,
+      "pembahasan": "Jangan tertukar dengan \"doktor\", yang berarti gelar akademik.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "C03",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "M",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "JADWAL",
+      "jumlah_huruf": 6,
+      "definisi": "Daftar atau tabel kegiatan beserta waktu pelaksanaannya.",
+      "petunjuk": "Diserap dari bahasa Arab.",
+      "bentuk_tidak_baku": "jadual",
+      "pembahasan": "Ditulis dengan huruf w.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "C04",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "M",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "PROSES",
+      "jumlah_huruf": 6,
+      "definisi": "Rangkaian tindakan atau perubahan yang berlangsung secara bertahap.",
+      "petunjuk": "Diserap dari bahasa Belanda \"proces\".",
+      "bentuk_tidak_baku": "proces",
+      "pembahasan": "Ditulis dengan huruf s di akhir.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "C05",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "M",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "MASJID",
+      "jumlah_huruf": 6,
+      "definisi": "Bangunan tempat umat Islam beribadah dan sembahyang.",
+      "petunjuk": "Diserap dari bahasa Arab.",
+      "bentuk_tidak_baku": "mesjid",
+      "pembahasan": "Ditulis dengan huruf j setelah a.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "C06",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "S",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "SISTEM",
+      "jumlah_huruf": 6,
+      "definisi": "Perangkat unsur yang secara teratur saling berkaitan dan membentuk satu kesatuan.",
+      "petunjuk": "Diserap dari bahasa Belanda \"systeem\".",
+      "bentuk_tidak_baku": "sistim",
+      "pembahasan": "Ditulis \"sistem\", dengan huruf e.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "C07",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "S",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "IJAZAH",
+      "jumlah_huruf": 6,
+      "definisi": "Surat tanda tamat belajar atau lulus dari suatu sekolah atau perguruan tinggi.",
+      "petunjuk": "Diserap dari bahasa Arab.",
+      "bentuk_tidak_baku": "ijasah",
+      "pembahasan": "Ditulis dengan huruf z.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "C08",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "S",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "PASIEN",
+      "jumlah_huruf": 6,
+      "definisi": "Orang yang sedang menderita sakit dan dirawat atau diobati.",
+      "petunjuk": "Diserap dari bahasa Belanda \"patiënt\".",
+      "bentuk_tidak_baku": "pasen",
+      "pembahasan": "Ditulis dengan -ien di akhir.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "C09",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "S",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "RISIKO",
+      "jumlah_huruf": 6,
+      "definisi": "Akibat yang kurang menyenangkan atau merugikan dari suatu tindakan.",
+      "petunjuk": "Diserap dari bahasa Belanda \"risico\".",
+      "bentuk_tidak_baku": "resiko",
+      "pembahasan": "Ditulis dengan huruf i di tengah.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "C10",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "S",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "KAIDAH",
+      "jumlah_huruf": 6,
+      "definisi": "Rumusan asas yang menjadi aturan atau hukum yang sudah pasti.",
+      "petunjuk": "Diserap dari bahasa Arab.",
+      "bentuk_tidak_baku": "kaedah",
+      "pembahasan": "Ditulis dengan huruf i.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "C11",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "S",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "SIRKUS",
+      "jumlah_huruf": 6,
+      "definisi": "Pertunjukan keliling yang menampilkan akrobat, badut, dan binatang terlatih.",
+      "petunjuk": "Diserap dari bahasa Belanda \"circus\".",
+      "bentuk_tidak_baku": "cirkus",
+      "pembahasan": "Ditulis dengan huruf s di awal.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "C12",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "S",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "MUSEUM",
+      "jumlah_huruf": 6,
+      "definisi": "Tempat benda bersejarah atau ilmiah disimpan dan dipamerkan.",
+      "petunjuk": "Diserap dari bahasa Belanda \"museum\".",
+      "bentuk_tidak_baku": "musium",
+      "pembahasan": "Ditulis dengan huruf e di tengah.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "C13",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "S",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "AGENDA",
+      "jumlah_huruf": 6,
+      "definisi": "Daftar kegiatan atau acara yang direncanakan akan dilaksanakan.",
+      "petunjuk": "Diserap dari bahasa Latin.",
+      "bentuk_tidak_baku": null,
+      "pembahasan": "Tidak perlu diganti dengan \"agenda acara\", karena sudah bermakna lengkap.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "C14",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "SU",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "KARIER",
+      "jumlah_huruf": 6,
+      "definisi": "Perkembangan dan kemajuan dalam pekerjaan, jabatan, atau profesi seseorang.",
+      "petunjuk": "Kata serapan dari bahasa Prancis.",
+      "bentuk_tidak_baku": "karir",
+      "pembahasan": "Vokal i dan e bertemu di tengah kata, sehingga sering salah ditulis menjadi lima huruf.",
+      "verifikasi_pending": true
+    },
+    {
+      "id": "C15",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "SU",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "PRAKTIK",
+      "jumlah_huruf": 7,
+      "definisi": "Pelaksanaan secara nyata dari apa yang disebut dalam teori.",
+      "petunjuk": "Diserap dari bahasa Belanda \"praktijk\".",
+      "bentuk_tidak_baku": "praktek",
+      "pembahasan": "Bentuk sifatnya adalah \"praktis\". Huruf vokal kedua adalah i.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "D01",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Kata depan",
+      "tingkat": "M",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Kegiatan itu dilakukan di-kampus setiap Senin.",
+      "kata_salah": "di-kampus",
+      "kunci": "di kampus",
+      "pembahasan": "Kata depan \"di\" ditulis terpisah dari kata tempatnya."
+    },
+    {
+      "id": "D02",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Kata depan",
+      "tingkat": "M",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Dia pergi kesekolah dengan sepeda.",
+      "kata_salah": "kesekolah",
+      "kunci": "ke sekolah",
+      "pembahasan": "Kata depan \"ke\" ditulis terpisah."
+    },
+    {
+      "id": "D03",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Kata penghubung",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Dikarenakan hujan, pertandingan ditunda.",
+      "kata_salah": "Dikarenakan",
+      "kunci": "Karena",
+      "pembahasan": "Kata penghubung sebab yang baku adalah \"karena\"."
+    },
+    {
+      "id": "D04",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_HAPUS",
+      "subtopik": "Kalimat tidak efektif",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_hapus",
+      "kalimat": "Walaupun hujan, tetapi kegiatan tetap berjalan.",
+      "kata_berlebihan": "tetapi",
+      "opsi_jawaban": [
+        {
+          "text": "Ganti jadi \"namun\"",
+          "benar": false
+        },
+        {
+          "text": "Ganti jadi \"sehingga\"",
+          "benar": false
+        },
+        {
+          "text": "Hapus kata/frasa ini",
+          "benar": true
+        },
+        {
+          "text": "Biarkan saja, kalimat sudah benar",
+          "benar": false
+        }
+      ],
+      "kunci": "Hapus kata/frasa \"tetapi\"",
+      "pembahasan": "\"Walaupun\" dan \"tetapi\" sama-sama menyatakan pertentangan. Mengganti dengan kata hubung lain tidak menyelesaikan masalah  -  intinya ada kata yang berlebihan dan harus dibuang, bukan soal pilihan katanya."
+    },
+    {
+      "id": "D05",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_HAPUS",
+      "subtopik": "Kalimat tidak efektif",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_hapus",
+      "kalimat": "Dia bekerja keras agar supaya lulus tepat waktu.",
+      "kata_berlebihan": "supaya",
+      "opsi_jawaban": [
+        {
+          "text": "Ganti jadi \"untuk\"",
+          "benar": false
+        },
+        {
+          "text": "Ganti jadi \"demi\"",
+          "benar": false
+        },
+        {
+          "text": "Hapus kata/frasa ini",
+          "benar": true
+        },
+        {
+          "text": "Biarkan saja, kalimat sudah benar",
+          "benar": false
+        }
+      ],
+      "kunci": "Hapus kata/frasa \"supaya\"",
+      "pembahasan": "\"Agar\" dan \"supaya\" sama-sama bermakna tujuan. Cukup salah satu saja, bukan diganti kata lain."
+    },
+    {
+      "id": "D06",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_HAPUS",
+      "subtopik": "Kalimat tidak efektif",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_hapus",
+      "kalimat": "Para pengunjung diharapkan untuk tertib.",
+      "kata_berlebihan": "untuk",
+      "opsi_jawaban": [
+        {
+          "text": "Ganti jadi \"agar\"",
+          "benar": false
+        },
+        {
+          "text": "Ganti jadi \"supaya\"",
+          "benar": false
+        },
+        {
+          "text": "Hapus kata/frasa ini",
+          "benar": true
+        },
+        {
+          "text": "Biarkan saja, kalimat sudah benar",
+          "benar": false
+        }
+      ],
+      "kunci": "Hapus kata/frasa \"untuk\"",
+      "pembahasan": "Frasa \"diharapkan\" sudah cukup menyatakan harapan tanpa kata \"untuk\" di depannya."
+    },
+    {
+      "id": "D07",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Ejaan",
+      "tingkat": "M",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Surat itu di tujukan kepada Bapak Rektor.",
+      "kata_salah": "di tujukan",
+      "kunci": "ditujukan",
+      "pembahasan": "Awalan \"di-\" yang membentuk kata kerja pasif ditulis serangkai dengan kata dasarnya."
+    },
+    {
+      "id": "D08",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Ejaan",
+      "tingkat": "M",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Dia menyimpan ijasah di lemari.",
+      "kata_salah": "ijasah",
+      "kunci": "ijazah",
+      "pembahasan": "Ejaan baku menggunakan huruf z."
+    },
+    {
+      "id": "D09",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Ejaan",
+      "tingkat": "M",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Saya sangat tertarik dengan bidang analisa data.",
+      "kata_salah": "analisa",
+      "kunci": "analisis",
+      "pembahasan": "Bentuk baku \"analisis\"."
+    },
+    {
+      "id": "D10",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Ejaan",
+      "tingkat": "M",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Panitia telah merubah jadwal lomba.",
+      "kata_salah": "merubah",
+      "kunci": "mengubah",
+      "pembahasan": "Bentuk baku \"mengubah\"."
+    },
+    {
+      "id": "D11",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Ejaan",
+      "tingkat": "M",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Silahkan masuk ke dalam ruangan.",
+      "kata_salah": "Silahkan",
+      "kunci": "Silakan",
+      "pembahasan": "Bentuk baku \"silakan\"."
+    },
+    {
+      "id": "D12",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Ejaan",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Bapak itu bertanggungjawab penuh atas kegiatan tersebut.",
+      "kata_salah": "bertanggungjawab",
+      "kunci": "bertanggung jawab",
+      "pembahasan": "Ditulis sebagai dua kata."
+    },
+    {
+      "id": "D13",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Ejaan",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Koperasi tersebut mensejahterakan anggotanya.",
+      "kata_salah": "mensejahterakan",
+      "kunci": "menyejahterakan",
+      "pembahasan": "Bentuk baku \"menyejahterakan\"."
+    },
+    {
+      "id": "D14",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Ejaan",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Nasehat orang tua selalu saya ingat.",
+      "kata_salah": "Nasehat",
+      "kunci": "Nasihat",
+      "pembahasan": "Bentuk baku \"nasihat\"."
+    },
+    {
+      "id": "D15",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Ejaan",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Tim kami berhasil mencapai tujuan dengan efektip.",
+      "kata_salah": "efektip",
+      "kunci": "efektif",
+      "pembahasan": "Bentuk baku \"efektif\"."
+    },
+    {
+      "id": "D16",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Huruf kapital",
+      "tingkat": "M",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Hasil ujian akan diumumkan pada tanggal 5 juni 2026.",
+      "kata_salah": "juni",
+      "kunci": "Juni",
+      "pembahasan": "Nama bulan ditulis dengan huruf kapital di awal."
+    },
+    {
+      "id": "D17",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Huruf kapital",
+      "tingkat": "M",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Saya berencana mendaftar di universitas indonesia melalui jalur SNBP.",
+      "kata_salah": "universitas indonesia",
+      "kunci": "Universitas Indonesia",
+      "pembahasan": "Nama resmi lembaga pendidikan ditulis dengan huruf kapital di setiap kata."
+    },
+    {
+      "id": "D18",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Huruf kapital",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Ayah membeli Buku tulis di toko buku.",
+      "kata_salah": "Buku",
+      "kunci": "buku",
+      "pembahasan": "Huruf kapital hanya untuk awal kalimat dan nama diri."
+    },
+    {
+      "id": "D19",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Pilihan kata",
+      "tingkat": "M",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Pendaftaran dilakukan secara on-line melalui situs resmi.",
+      "kata_salah": "on-line",
+      "kunci": "daring",
+      "pembahasan": "Padanan baku untuk \"online\" adalah \"daring\"."
+    },
+    {
+      "id": "D20",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_HAPUS",
+      "subtopik": "Pilihan kata",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_hapus",
+      "kalimat": "Ibu mengajak adik ke pasar dan juga untuk membeli sayur.",
+      "kata_berlebihan": "dan juga",
+      "opsi_jawaban": [
+        {
+          "text": "Ganti jadi \"serta\"",
+          "benar": false
+        },
+        {
+          "text": "Ganti jadi \"lalu\"",
+          "benar": false
+        },
+        {
+          "text": "Hapus kata/frasa ini",
+          "benar": true
+        },
+        {
+          "text": "Biarkan saja, kalimat sudah benar",
+          "benar": false
+        }
+      ],
+      "kunci": "Hapus kata/frasa \"dan juga\"",
+      "pembahasan": "Tujuan sudah cukup dinyatakan dengan kata \"untuk\", sehingga \"dan juga\" di depannya berlebihan."
+    },
+    {
+      "id": "D21",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_HAPUS",
+      "subtopik": "Pilihan kata",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_hapus",
+      "kalimat": "Saya sangat setuju sekali dengan pendapat itu.",
+      "kata_berlebihan": "sekali",
+      "opsi_jawaban": [
+        {
+          "text": "Ganti jadi \"amat\"",
+          "benar": false
+        },
+        {
+          "text": "Ganti jadi \"banget\"",
+          "benar": false
+        },
+        {
+          "text": "Hapus kata/frasa ini",
+          "benar": true
+        },
+        {
+          "text": "Biarkan saja, kalimat sudah benar",
+          "benar": false
+        }
+      ],
+      "kunci": "Hapus kata/frasa \"sekali\"",
+      "pembahasan": "\"Sangat\" dan \"sekali\" sama-sama menyatakan tingkat tertinggi. Cukup pakai salah satu."
+    },
+    {
+      "id": "D22",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_HAPUS",
+      "subtopik": "Pilihan kata",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_hapus",
+      "kalimat": "Ayahnya mencoba mengatasi masalah keluarga dengan cara yang paling efektif sekali.",
+      "kata_berlebihan": "sekali",
+      "opsi_jawaban": [
+        {
+          "text": "Ganti jadi \"banget\"",
+          "benar": false
+        },
+        {
+          "text": "Ganti jadi \"amat\"",
+          "benar": false
+        },
+        {
+          "text": "Hapus kata/frasa ini",
+          "benar": true
+        },
+        {
+          "text": "Biarkan saja, kalimat sudah benar",
+          "benar": false
+        }
+      ],
+      "kunci": "Hapus kata/frasa \"sekali\"",
+      "pembahasan": "Kata \"paling\" sudah menyatakan tingkat tertinggi, sehingga \"sekali\" di belakangnya berlebihan."
+    },
+    {
+      "id": "D23",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_HAPUS",
+      "subtopik": "Kalimat tidak efektif",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_hapus",
+      "kalimat": "Mereka sudah telah tiba di bandara.",
+      "kata_berlebihan": "telah",
+      "opsi_jawaban": [
+        {
+          "text": "Ganti jadi \"pernah\"",
+          "benar": false
+        },
+        {
+          "text": "Ganti jadi \"baru\"",
+          "benar": false
+        },
+        {
+          "text": "Hapus kata/frasa ini",
+          "benar": true
+        },
+        {
+          "text": "Biarkan saja, kalimat sudah benar",
+          "benar": false
+        }
+      ],
+      "kunci": "Hapus kata/frasa \"telah\"",
+      "pembahasan": "\"Sudah\" dan \"telah\" sama-sama menunjukkan waktu lampau. Cukup salah satu."
+    },
+    {
+      "id": "D24",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_HAPUS",
+      "subtopik": "Kalimat tidak efektif",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_hapus",
+      "kalimat": "Para pemuda-pemuda desa itu bergotong royong membersihkan sungai.",
+      "kata_berlebihan": "Para",
+      "opsi_jawaban": [
+        {
+          "text": "Ganti jadi \"Semua\"",
+          "benar": false
+        },
+        {
+          "text": "Ganti jadi \"Seluruh\"",
+          "benar": false
+        },
+        {
+          "text": "Hapus kata/frasa ini",
+          "benar": true
+        },
+        {
+          "text": "Biarkan saja, kalimat sudah benar",
+          "benar": false
+        }
+      ],
+      "kunci": "Hapus kata/frasa \"Para\"",
+      "pembahasan": "\"Pemuda-pemuda\" sudah menyatakan jamak lewat pengulangan, sehingga \"para\" di depannya tidak perlu."
+    },
+    {
+      "id": "D25",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_HAPUS",
+      "subtopik": "Kalimat tidak efektif",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_hapus",
+      "kalimat": "Dengan demikian, maka kesimpulan penelitian ini adalah bahwa metode tersebut efektif.",
+      "kata_berlebihan": "maka",
+      "opsi_jawaban": [
+        {
+          "text": "Ganti jadi \"sehingga\"",
+          "benar": false
+        },
+        {
+          "text": "Ganti jadi \"karena itu\"",
+          "benar": false
+        },
+        {
+          "text": "Hapus kata/frasa ini",
+          "benar": true
+        },
+        {
+          "text": "Biarkan saja, kalimat sudah benar",
+          "benar": false
+        }
+      ],
+      "kunci": "Hapus kata/frasa \"maka\"",
+      "pembahasan": "\"Dengan demikian\" dan \"maka\" sama-sama menunjukkan akibat. Cukup salah satu."
+    },
+    {
+      "id": "D26",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_HAPUS",
+      "subtopik": "Kalimat tidak efektif",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_hapus",
+      "kalimat": "Kebutuhan air bersih di desa itu semakin meningkat, sehingga pemerintah menetapkan peraturan baru yang mengatur tentang pengelolaan air.",
+      "kata_berlebihan": "tentang",
+      "opsi_jawaban": [
+        {
+          "text": "Ganti jadi \"akan\"",
+          "benar": false
+        },
+        {
+          "text": "Ganti jadi \"mengenai\"",
+          "benar": false
+        },
+        {
+          "text": "Hapus kata/frasa ini",
+          "benar": true
+        },
+        {
+          "text": "Biarkan saja, kalimat sudah benar",
+          "benar": false
+        }
+      ],
+      "kunci": "Hapus kata/frasa \"tentang\"",
+      "pembahasan": "\"Mengatur\" sudah berarti menetapkan aturan mengenai sesuatu, sehingga \"tentang\" di belakangnya berlebihan."
+    },
+    {
+      "id": "D27",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_HAPUS",
+      "subtopik": "Kalimat tidak efektif",
+      "tingkat": "SU",
+      "waktu_detik": 20,
+      "tipe": "kalimat_hapus",
+      "kalimat": "Dia selalu menyelesaikan tugas dengan hasil yang sangat memuaskan sekali.",
+      "kata_berlebihan": "sekali",
+      "opsi_jawaban": [
+        {
+          "text": "Ganti jadi \"banget\"",
+          "benar": false
+        },
+        {
+          "text": "Ganti jadi \"amat\"",
+          "benar": false
+        },
+        {
+          "text": "Hapus kata/frasa ini",
+          "benar": true
+        },
+        {
+          "text": "Biarkan saja, kalimat sudah benar",
+          "benar": false
+        }
+      ],
+      "kunci": "Hapus kata/frasa \"sekali\"",
+      "pembahasan": "\"Sangat memuaskan\" sudah cukup, kata \"sekali\" berlebihan."
+    },
+    {
+      "id": "D28",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Ragam bahasa",
+      "tingkat": "M",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Aku bakal ngasih tau hasilnya besok.",
+      "kata_salah": "bakal",
+      "kunci": "akan",
+      "pembahasan": "Dalam bahasa tulis baku, \"bakal\" diganti dengan \"akan\". Kata lain seperti \"ngasih\" dan \"tau\" juga perlu diubah menjadi \"memberi\" dan \"tahu\"."
+    },
+    {
+      "id": "D29",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Ragam bahasa",
+      "tingkat": "S",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Dia nggak ikut lomba itu karena sakit.",
+      "kata_salah": "nggak",
+      "kunci": "tidak",
+      "pembahasan": "Bentuk baku dari \"nggak\" adalah \"tidak\"."
+    },
+    {
+      "id": "D30",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Ragam bahasa",
+      "tingkat": "SU",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Kami udah selesai mengerjakan proyek itu.",
+      "kata_salah": "udah",
+      "kunci": "sudah",
+      "pembahasan": "Bentuk baku dari \"udah\" adalah \"sudah\"."
+    },
+    {
+      "id": "SU01",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Dokter : Diagnosis = Hakim : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Putusan"
+        },
+        {
+          "id": "B",
+          "text": "Sidang"
+        },
+        {
+          "id": "C",
+          "text": "Saksi"
+        },
+        {
+          "id": "D",
+          "text": "Undang-undang"
+        },
+        {
+          "id": "E",
+          "text": "Pengacara"
+        }
+      ],
+      "kunci": "A",
+      "pembahasan": "Profesi dengan hasil keputusan utamanya. Dokter menetapkan diagnosis, hakim menjatuhkan putusan."
+    },
+    {
+      "id": "SU02",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Parasit : Inang = Pemangsa : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Sarang"
+        },
+        {
+          "id": "B",
+          "text": "Mangsa"
+        },
+        {
+          "id": "C",
+          "text": "Predator"
+        },
+        {
+          "id": "D",
+          "text": "Makanan"
+        },
+        {
+          "id": "E",
+          "text": "Hutan"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Makhluk dengan pihak yang menjadi sasaran hidupnya. Parasit bergantung pada inang, pemangsa memburu mangsa."
+    },
+    {
+      "id": "SU03",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Dirigen : Orkestra = Kurator : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Museum"
+        },
+        {
+          "id": "B",
+          "text": "Seniman"
+        },
+        {
+          "id": "C",
+          "text": "Pameran"
+        },
+        {
+          "id": "D",
+          "text": "Koleksi"
+        },
+        {
+          "id": "E",
+          "text": "Lukisan"
+        }
+      ],
+      "kunci": "A",
+      "pembahasan": "Pemimpin dengan lembaga atau kelompok yang dikelolanya."
+    },
+    {
+      "id": "SU04",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANALOGI",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Dekan : Fakultas = Kepala desa : ?",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Desa"
+        },
+        {
+          "id": "B",
+          "text": "Kecamatan"
+        },
+        {
+          "id": "C",
+          "text": "Lurah"
+        },
+        {
+          "id": "D",
+          "text": "Warga"
+        },
+        {
+          "id": "E",
+          "text": "Kabupaten"
+        }
+      ],
+      "kunci": "A",
+      "pembahasan": "Pemimpin dengan unit wilayah atau lembaga yang dipimpinnya."
+    },
+    {
+      "id": "SU05",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "SINONIM",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah sinonim dari \"ambigu\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Bermakna ganda"
+        },
+        {
+          "id": "B",
+          "text": "Jelas"
+        },
+        {
+          "id": "C",
+          "text": "Pasti"
+        },
+        {
+          "id": "D",
+          "text": "Sederhana"
+        },
+        {
+          "id": "E",
+          "text": "Terbatas"
+        }
+      ],
+      "kunci": "A",
+      "pembahasan": "\"Ambigu\" berarti dapat ditafsirkan dengan lebih dari satu makna."
+    },
+    {
+      "id": "SU06",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANTONIM",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah antonim dari \"kontradiksi\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Kesesuaian"
+        },
+        {
+          "id": "B",
+          "text": "Pertentangan"
+        },
+        {
+          "id": "C",
+          "text": "Perbedaan"
+        },
+        {
+          "id": "D",
+          "text": "Kesalahan"
+        },
+        {
+          "id": "E",
+          "text": "Kebenaran"
+        }
+      ],
+      "kunci": "A",
+      "pembahasan": "\"Pertentangan\" adalah padanan dari \"kontradiksi\", sedangkan lawannya adalah kesesuaian."
+    },
+    {
+      "id": "SU07",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "ANTONIM",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah antonim dari \"akumulasi\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Pengulangan"
+        },
+        {
+          "id": "B",
+          "text": "Penyusutan"
+        },
+        {
+          "id": "C",
+          "text": "Pengumpulan"
+        },
+        {
+          "id": "D",
+          "text": "Perhitungan"
+        },
+        {
+          "id": "E",
+          "text": "Pembagian"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "\"Akumulasi\" berarti penumpukan atau penambahan sedikit demi sedikit, sehingga lawannya adalah \"penyusutan\", yaitu berkurangnya jumlah secara bertahap."
+    },
+    {
+      "id": "SU08",
+      "kategori": "PPU",
+      "tab_label": "Padanan Kata (PPU)",
+      "subjenis": "MAKNA",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_5",
+      "prompt": "Pilihlah makna yang paling tepat dari istilah \"hegemoni\".",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "Perdamaian antarnegara"
+        },
+        {
+          "id": "B",
+          "text": "Dominasi pengaruh satu pihak atas pihak lain"
+        },
+        {
+          "id": "C",
+          "text": "Kerja sama ekonomi"
+        },
+        {
+          "id": "D",
+          "text": "Gerakan rakyat"
+        },
+        {
+          "id": "E",
+          "text": "Pembagian kekuasaan"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "\"Hegemoni\" berarti kepemimpinan atau dominasi yang menguasai pihak lain, baik secara politik maupun budaya."
+    },
+    {
+      "id": "SU09",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "SU",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "PSIKIS",
+      "jumlah_huruf": 6,
+      "definisi": "Berhubungan dengan jiwa atau batin.",
+      "petunjuk": "Kata sifat yang berkaitan dengan jiwa.",
+      "bentuk_tidak_baku": "psikhis",
+      "pembahasan": "Ditulis tanpa huruf h di tengah.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "SU10",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "WORDLE",
+      "tingkat": "SU",
+      "waktu_detik": 60,
+      "tipe": "wordle",
+      "kata": "TEKNIK",
+      "jumlah_huruf": 6,
+      "definisi": "Cara atau metode melaksanakan sesuatu secara ilmiah dan terampil.",
+      "petunjuk": "Diserap dari bahasa Inggris \"technique\".",
+      "bentuk_tidak_baku": "tehnik",
+      "pembahasan": "Ditulis dengan huruf k, bukan h.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "SU11",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "aksesoris"
+        },
+        {
+          "id": "B",
+          "text": "aksesori"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"aksesori\".",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "SU12",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "kwota"
+        },
+        {
+          "id": "B",
+          "text": "kuota"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"kuota\", dengan ku-.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "SU13",
+      "kategori": "PUEBI",
+      "tab_label": "Kata Baku & Wordle (PUEBI)",
+      "subjenis": "KATA_BAKU_PG",
+      "tingkat": "SU",
+      "waktu_detik": 12,
+      "tipe": "pilihan_ganda_2",
+      "prompt": "Pilihlah bentuk kata baku sesuai KBBI.",
+      "opsi": [
+        {
+          "id": "A",
+          "text": "konkrit"
+        },
+        {
+          "id": "B",
+          "text": "konkret"
+        }
+      ],
+      "kunci": "B",
+      "pembahasan": "Bentuk baku \"konkret\", dengan huruf e di akhir.",
+      "verifikasi_pending": false
+    },
+    {
+      "id": "SU14",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_HAPUS",
+      "subtopik": "Kalimat tidak efektif",
+      "tingkat": "SU",
+      "waktu_detik": 20,
+      "tipe": "kalimat_hapus",
+      "kalimat": "Akibat banyaknya tugas, sehingga dia kurang tidur.",
+      "kata_berlebihan": "sehingga",
+      "opsi_jawaban": [
+        {
+          "text": "Ganti jadi \"maka\"",
+          "benar": false
+        },
+        {
+          "text": "Ganti jadi \"karena itu\"",
+          "benar": false
+        },
+        {
+          "text": "Hapus kata/frasa ini",
+          "benar": true
+        },
+        {
+          "text": "Biarkan saja, kalimat sudah benar",
+          "benar": false
+        }
+      ],
+      "kunci": "Hapus kata/frasa \"sehingga\"",
+      "pembahasan": "\"Akibat\" dan \"sehingga\" sama-sama menunjukkan sebab dan akibat. Pakai salah satu saja."
+    },
+    {
+      "id": "SU15",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_HAPUS",
+      "subtopik": "Kalimat tidak efektif",
+      "tingkat": "SU",
+      "waktu_detik": 20,
+      "tipe": "kalimat_hapus",
+      "kalimat": "Kedua orang tua saya keduanya bekerja sebagai guru.",
+      "kata_berlebihan": "keduanya",
+      "opsi_jawaban": [
+        {
+          "text": "Ganti jadi \"semua\"",
+          "benar": false
+        },
+        {
+          "text": "Ganti jadi \"mereka\"",
+          "benar": false
+        },
+        {
+          "text": "Hapus kata/frasa ini",
+          "benar": true
+        },
+        {
+          "text": "Biarkan saja, kalimat sudah benar",
+          "benar": false
+        }
+      ],
+      "kunci": "Hapus kata/frasa \"keduanya\"",
+      "pembahasan": "\"Kedua\" sudah menyatakan jumlah dua orang."
+    },
+    {
+      "id": "SU16",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_HAPUS",
+      "subtopik": "Kalimat tidak efektif",
+      "tingkat": "SU",
+      "waktu_detik": 20,
+      "tipe": "kalimat_hapus",
+      "kalimat": "Naskah itu diperiksa secara teliti dan dengan cermat.",
+      "kata_berlebihan": "dan dengan cermat",
+      "opsi_jawaban": [
+        {
+          "text": "Ganti jadi \"dan secara saksama\"",
+          "benar": false
+        },
+        {
+          "text": "Ganti jadi \"dan secara mendalam\"",
+          "benar": false
+        },
+        {
+          "text": "Hapus kata/frasa ini",
+          "benar": true
+        },
+        {
+          "text": "Biarkan saja, kalimat sudah benar",
+          "benar": false
+        }
+      ],
+      "kunci": "Hapus kata/frasa \"dan dengan cermat\"",
+      "pembahasan": "\"Teliti\" dan \"cermat\" bermakna sama, sehingga cukup salah satu. Frasa penghubungnya ikut dibuang semua (bukan cuma kata \"cermat\"-nya) biar kalimat tidak menggantung."
+    },
+    {
+      "id": "SU17",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Pilihan kata",
+      "tingkat": "SU",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Pengumuman penerimaan mahasiswa baru di-upload pada laman resmi.",
+      "kata_salah": "di-upload",
+      "kunci": "diunggah",
+      "pembahasan": "Padanan baku untuk \"upload\" adalah \"unggah\". Awalan \"di-\" ditulis serangkai dengan kata dasarnya."
+    },
+    {
+      "id": "SU18",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Huruf kapital",
+      "tingkat": "SU",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Dia lulusan Fakultas Ekonomi universitas Gajah Mada.",
+      "kata_salah": "universitas",
+      "kunci": "Universitas",
+      "pembahasan": "Nama resmi lembaga pendidikan diawali huruf kapital, sehingga \"Universitas Gajah Mada\" ditulis dengan U kapital."
+    },
+    {
+      "id": "SU19",
+      "kategori": "PBM",
+      "tab_label": "Benerin Kalimat (PBM)",
+      "subjenis": "KALIMAT_GANTI",
+      "subtopik": "Ejaan",
+      "tingkat": "SU",
+      "waktu_detik": 20,
+      "tipe": "kalimat_ganti",
+      "kalimat": "Berkas itu telah di-setujui atasan.",
+      "kata_salah": "di-setujui",
+      "kunci": "disetujui",
+      "pembahasan": "Awalan \"di-\" yang membentuk kata kerja pasif ditulis serangkai dengan kata dasarnya, tanpa tanda hubung."
+    }
+  ]
+}

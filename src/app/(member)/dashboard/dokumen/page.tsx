@@ -21,8 +21,16 @@ import {
   Trash2,
   X,
   UploadCloud,
+  Download,
+  HardDrive,
 } from 'lucide-react'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
+import {
+  saveDocToLocalVault,
+  getDocFromLocalVault,
+  deleteDocFromLocalVault,
+  formatFileSize,
+} from '@/lib/localFileVault'
 
 const CONFIDENCE_LABEL: Record<DocConfidence | 'generik', { label: string; color: string; bg: string }> = {
   tinggi: { label: 'Sumber Resmi PTN', color: '#15803d', bg: '#dcfce7' },
@@ -40,6 +48,8 @@ interface ProgressRow {
 interface DocAttachment {
   link?: string
   fileName?: string
+  fileSize?: number
+  isLocalDevice?: boolean
   uploadedAt: string
 }
 
@@ -125,24 +135,47 @@ export default function DokumenPage() {
     }
   }
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+
   function handleOpenModal(jalurId: string, docName: string) {
     const key = `${jalurId}::${docName}`
     const existing = attachments[key]
     setModalLink(existing?.link || '')
     setModalFileName(existing?.fileName || '')
+    setSelectedFile(null)
     setActiveModal({ jalurId, docName })
   }
 
-  function handleSaveAttachment(e: React.FormEvent) {
+  async function handleSaveAttachment(e: React.FormEvent) {
     e.preventDefault()
     if (!activeModal || !userId) return
     const key = `${activeModal.jalurId}::${activeModal.docName}`
+
+    let isLocal = attachments[key]?.isLocalDevice || false
+    let fileSize = attachments[key]?.fileSize
+
+    if (selectedFile) {
+      try {
+        const saved = await saveDocToLocalVault(
+          userId,
+          activeModal.jalurId,
+          activeModal.docName,
+          selectedFile
+        )
+        isLocal = true
+        fileSize = saved.fileSize
+      } catch (err) {
+        console.error('Failed to save to local IndexedDB vault:', err)
+      }
+    }
 
     const updated = {
       ...attachments,
       [key]: {
         link: modalLink.trim() || undefined,
-        fileName: modalFileName.trim() || undefined,
+        fileName: selectedFile ? selectedFile.name : modalFileName.trim() || undefined,
+        fileSize,
+        isLocalDevice: isLocal,
         uploadedAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
       },
     }
@@ -158,17 +191,31 @@ export default function DokumenPage() {
     }
 
     setActiveModal(null)
+    setSelectedFile(null)
   }
 
-  function handleDeleteAttachment(jalurId: string, docName: string) {
+  async function handleDeleteAttachment(jalurId: string, docName: string) {
     if (!userId) return
     const key = `${jalurId}::${docName}`
+    await deleteDocFromLocalVault(userId, jalurId, docName)
     const updated = { ...attachments }
     delete updated[key]
     setAttachments(updated)
     try {
       localStorage.setItem(`otwptn_doc_vault_${userId}`, JSON.stringify(updated))
     } catch {}
+  }
+
+  async function handleOpenLocalDoc(jalurId: string, docName: string) {
+    if (!userId) return
+    const docRecord = await getDocFromLocalVault(userId, jalurId, docName)
+    if (!docRecord || !docRecord.blob) {
+      alert('File belum tersimpan di memori perangkat ini. Silakan pilih berkas ulang.')
+      return
+    }
+    const url = URL.createObjectURL(docRecord.blob)
+    window.open(url, '_blank')
+    setTimeout(() => URL.revokeObjectURL(url), 60000)
   }
 
   const allDocumentsList = useMemo(() => {
@@ -373,12 +420,27 @@ export default function DokumenPage() {
                                     <span>Buka Link Drive ↗</span>
                                   </a>
                                 )}
-                                {att.fileName && (
+                                {att.fileName && att.isLocalDevice ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenLocalDoc(j.id, doc)}
+                                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[10.5px] font-bold cursor-pointer transition-colors"
+                                    title="Klik untuk membuka/mengunduh berkas langsung dari memori perangkat"
+                                  >
+                                    <HardDrive size={12} />
+                                    <span className="truncate max-w-[140px]">{att.fileName}</span>
+                                    {att.fileSize ? (
+                                      <span className="text-[9.5px] font-normal text-emerald-600">
+                                        ({formatFileSize(att.fileSize)})
+                                      </span>
+                                    ) : null}
+                                  </button>
+                                ) : att.fileName ? (
                                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10.5px] font-bold">
                                     <FileText size={12} />
                                     <span className="truncate max-w-[140px]">{att.fileName}</span>
                                   </span>
-                                )}
+                                ) : null}
                                 <span className="text-[10px] text-gray-400">
                                   Tersimpan {att.uploadedAt}
                                 </span>
@@ -488,26 +550,32 @@ export default function DokumenPage() {
                 <div className="h-px bg-gray-200 flex-1" />
               </div>
 
-              {/* Slot 2: File Upload (Simpan nama file & metadata) */}
+              {/* Slot 2: File Upload (Disimpan aman di perangkat pengguna) */}
               <div>
                 <label className="block mb-1.5 text-gray-900">
-                  Upload File Langsung <span className="text-gray-400 font-normal">(PDF / JPG / PNG)</span>
+                  Upload Berkas ke Perangkat Anda <span className="text-gray-400 font-normal">(PDF / JPG / PNG)</span>
                 </label>
-                <div className="p-3 rounded-2xl bg-gray-50 border border-dashed border-gray-300 text-center">
+                <div className="p-3 rounded-2xl bg-gray-50 border border-dashed border-amber-300 text-center">
                   <input
                     type="file"
                     accept=".pdf,.png,.jpg,.jpeg"
                     onChange={e => {
                       const file = e.target.files?.[0]
-                      if (file) setModalFileName(file.name)
+                      if (file) {
+                        setSelectedFile(file)
+                        setModalFileName(file.name)
+                      }
                     }}
-                    className="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[11px] file:font-black file:bg-amber-400 file:text-amber-950 hover:file:bg-amber-300"
+                    className="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-[11px] file:font-black file:bg-amber-400 file:text-amber-950 hover:file:bg-amber-300 cursor-pointer"
                   />
                   {modalFileName && (
-                    <p className="mt-2 text-[11px] text-emerald-700 font-bold">
-                      ✓ File dipilih: {modalFileName}
+                    <p className="mt-2 text-[11px] text-emerald-700 font-bold flex items-center justify-center gap-1">
+                      <HardDrive size={13} /> Berkas dipilih: {modalFileName}
                     </p>
                   )}
+                  <p className="text-[10px] text-gray-400 mt-2 font-normal">
+                    🔒 Berkas disimpan di memori browser perangkat ini (IndexedDB). Tidak memakan kuota server dan privasi Anda terjaga.
+                  </p>
                 </div>
               </div>
 

@@ -952,12 +952,12 @@ export default function OnboardingPage() {
     playSfx('select')
     setRedirectText('Menyiapkan Ruang Belajar...')
 
-    // Wait for the background save if it is still running (with 2.5s safeguard timeout)
+    // Wait for the background save if it is still running (with 1.2s safeguard timeout for instant responsiveness)
     if (finishPromiseRef.current) {
       try {
         await Promise.race([
           finishPromiseRef.current,
-          new Promise(res => setTimeout(res, 2500))
+          new Promise(res => setTimeout(res, 1200))
         ])
       } catch {
         // proceed
@@ -966,7 +966,7 @@ export default function OnboardingPage() {
       try {
         await Promise.race([
           handleFinish(),
-          new Promise(res => setTimeout(res, 2500))
+          new Promise(res => setTimeout(res, 1200))
         ])
       } catch {
         // proceed
@@ -976,7 +976,7 @@ export default function OnboardingPage() {
     setRedirectText('Mengarahkan ke Dashboard...')
     setTimeout(() => {
       window.location.href = '/dashboard'
-    }, 400)
+    }, 250)
   }
 
   async function handleFinish() {
