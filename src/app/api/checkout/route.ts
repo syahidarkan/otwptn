@@ -20,7 +20,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid payment method' }, { status: 400 })
   }
 
-  // Rate limit: max 3 pending orders per user per 10 minutes
+  // Reuse existing pending order for the same tier (avoids duplicate payment links)
+  const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString()
+  const { data: existingOrder } = await supabase
+    .from('orders')
+    .select('id, payment_url, doku_reference')
+    .eq('user_id', user.id)
+    .eq('tier', tier)
+    .eq('status', 'pending')
+    .eq('payment_method', payment_method)
+    .gte('created_at', thirtyMinutesAgo)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  if (existingOrder?.payment_url) {
+    return NextResponse.json({
+      payment_method,
+      payment_url: existingOrder.payment_url,
+      order_id: existingOrder.id,
+    })
+  }
+
+  // Rate limit: max 5 pending orders per user per 10 minutes
   const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString()
   const { count: recentOrders } = await supabase
     .from('orders')
@@ -28,7 +50,7 @@ export async function POST(request: Request) {
     .eq('user_id', user.id)
     .eq('status', 'pending')
     .gte('created_at', tenMinutesAgo)
-  if ((recentOrders ?? 0) >= 3) {
+  if ((recentOrders ?? 0) >= 5) {
     return NextResponse.json({ error: 'Terlalu banyak permintaan. Tunggu beberapa menit.' }, { status: 429 })
   }
 
