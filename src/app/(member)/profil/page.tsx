@@ -124,21 +124,28 @@ export default function ProfilPage() {
     }))
   }, [])
 
+  const [insightError, setInsightError] = useState<string | null>(null)
+
   const fetchCampusInsight = async (ptn: string, prodi: string) => {
     if (!ptn || !prodi) return
     setInsightLoading(true)
+    setInsightError(null)
+    setCampusInsight(null)
     try {
       const res = await fetch(
         `/api/campus-insight?ptn=${encodeURIComponent(ptn)}&jurusan=${encodeURIComponent(prodi)}`
       )
-      if (res.ok) {
-        const json = await res.json()
-        if (json.data) {
-          setCampusInsight(json.data)
-        }
+      const json = await res.json()
+      if (res.status === 404 && json.error === 'jurusan_tidak_valid') {
+        setInsightError(json.message ?? `Program studi "${prodi}" tidak ditemukan di "${ptn}".`)
+      } else if (res.ok && json.data) {
+        setCampusInsight(json.data)
+      } else {
+        setInsightError('Gagal memuat insight. Coba lagi beberapa saat.')
       }
     } catch (e) {
       console.error('Failed to load campus insight:', e)
+      setInsightError('Gagal terhubung ke server. Periksa koneksimu.')
     } finally {
       setInsightLoading(false)
     }
@@ -614,6 +621,17 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
                 Menganalisis perkiraan gaji, lingkungan kampus, biaya hidup, dan prospek karir untuk {form.target_prodi_1} di {form.target_ptn_1}.
               </p>
             </div>
+          ) : insightError ? (
+            <div className="p-8 rounded-3xl bg-red-50 border border-red-200 shadow-sm flex items-start gap-4">
+              <div className="w-10 h-10 rounded-2xl bg-red-100 flex items-center justify-center flex-shrink-0">
+                <span className="text-red-600 font-black text-lg">✕</span>
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-red-900">Program Studi Tidak Ditemukan</h4>
+                <p className="text-xs text-red-700 mt-1 font-medium leading-relaxed">{insightError}</p>
+                <p className="text-xs text-red-500 mt-2">Pastikan nama jurusan dan PTN sesuai dengan data resmi PDDikti / Diktiristek. Contoh yang benar: &quot;Teknik Informatika&quot; di &quot;Institut Teknologi Bandung&quot;.</p>
+              </div>
+            </div>
           ) : (
             <>
               {/* DOSSIER HERO BANNER */}
@@ -623,7 +641,7 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
                     Insight Karir & Lingkungan Kampus AI
                   </span>
                   <span className="text-[10px] font-bold bg-white/50 px-2.5 py-0.5 rounded-full text-amber-950">
-                    Terkoneksi Database
+                    Terverifikasi Data Resmi
                   </span>
                 </div>
                 <h2 className="text-xl md:text-2xl font-black tracking-tight leading-snug">

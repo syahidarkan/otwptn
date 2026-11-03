@@ -86,34 +86,93 @@ export async function GET(request: Request) {
     console.warn('Campus insight database check skipped/fallback:', err)
   }
 
-  // 3. Not in database -> Generate via AI
+  // 3. Not in database -> Validate then Generate via AI
   try {
     const { client, model } = getAiClient('fast')
 
-    const prompt = `Kamu adalah pakar konsultan pendidikan tinggi dan analisis prospek karir kampus Indonesia di platform OTWPTN.
-Berikan analisis mendalam, realistis, dan memotivasi mengenai Program Studi: "${jurusan}" di Kampus: "${ptn}".
+    const validationPrompt = `Kamu adalah verifikator data akademik PTN Indonesia yang SANGAT KETAT dan hanya mengandalkan fakta resmi.
 
-Balas HANYA dengan format JSON valid tanpa format markdown atau kutip luar tambahan. Skema JSON:
+TUGAS: Verifikasi apakah program studi "${jurusan}" BENAR-BENAR ADA dan AKTIF di "${ptn}" Indonesia.
+
+ATURAN KETAT:
+- Hanya jawab berdasarkan fakta nyata. Jangan menebak.
+- Jika ada keraguan sedikit pun, jawab "tidak_valid".
+- Nama jurusan yang mirip tapi beda (misal: "Teknik Sipil" ≠ "Rekayasa Sipil") = verifikasi apakah nama itu RESMI.
+- Jika PTN yang dimaksud tidak jelas atau tidak dikenal = tidak_valid.
+- Jika jurusan itu tidak ada di PTN tersebut (misal: Fisioterapi di ITB, Kedokteran Hewan di UI = tidak ada) = tidak_valid.
+
+Balas HANYA JSON murni tanpa markdown:
+{
+  "is_valid": true | false,
+  "nama_resmi_ptn": "Nama resmi lengkap PTN (null jika tidak valid)",
+  "nama_resmi_jurusan": "Nama resmi program studi sesuai Dikti/PDDikti (null jika tidak valid)",
+  "fakultas": "Nama fakultas/sekolah (null jika tidak valid)",
+  "alasan_tidak_valid": "Penjelasan singkat mengapa tidak valid (null jika valid)"
+}`
+
+    const validationCompletion = await client.chat.completions.create({
+      model,
+      messages: [
+        { role: 'system', content: 'Kamu verifikator data akademik PTN Indonesia. Output HANYA JSON murni.' },
+        { role: 'user', content: validationPrompt },
+      ],
+      temperature: 0,
+      max_tokens: 300,
+    })
+
+    const validationRaw = (validationCompletion.choices[0]?.message?.content ?? '{}')
+      .replace(/```json/g, '').replace(/```/g, '').trim()
+
+    let validationResult: { is_valid: boolean; nama_resmi_ptn: string | null; nama_resmi_jurusan: string | null; fakultas: string | null; alasan_tidak_valid: string | null }
+    try {
+      validationResult = JSON.parse(validationRaw)
+    } catch {
+      validationResult = { is_valid: false, nama_resmi_ptn: null, nama_resmi_jurusan: null, fakultas: null, alasan_tidak_valid: 'Gagal memverifikasi data' }
+    }
+
+    if (!validationResult.is_valid) {
+      return NextResponse.json(
+        {
+          error: 'jurusan_tidak_valid',
+          message: `Program studi "${jurusan}" tidak ditemukan di "${ptn}". ${validationResult.alasan_tidak_valid ?? ''}`.trim(),
+          ptn,
+          jurusan,
+        },
+        { status: 404 }
+      )
+    }
+
+    // Use verified official names for accurate data generation
+    const verifiedPtn = validationResult.nama_resmi_ptn ?? ptn
+    const verifiedJurusan = validationResult.nama_resmi_jurusan ?? jurusan
+    const verifiedFakultas = validationResult.fakultas ?? ''
+
+    const insightPrompt = `Kamu adalah pakar konsultan pendidikan tinggi dan analisis prospek karir kampus Indonesia di platform OTWPTN.
+Berikan analisis mendalam dan AKURAT mengenai Program Studi: "${verifiedJurusan}"${verifiedFakultas ? ` (${verifiedFakultas})` : ''} di Kampus: "${verifiedPtn}".
+
+PENTING: Berikan informasi faktual dan realistis. Jangan mengarang data gaji atau alumni yang tidak ada dasarnya.
+
+Balas HANYA dengan format JSON valid tanpa format markdown:
 {
   "headline": "Kalimat headline penyemangat yang menyebutkan jurusan dan kampus secara spesifik",
   "gaji": {
-    "deskripsi": "Ulasan 2-3 kalimat mengenai peluang pasar kerja dan daya saing lulusan jurusan ini",
+    "deskripsi": "Ulasan 2-3 kalimat mengenai peluang pasar kerja dan daya saing lulusan jurusan ini secara realistis",
     "fresh_grad": "Rp X.000.000 - Rp Y.000.000 / bulan",
     "mid_career": "Rp X.000.000 - Rp Y.000.000 / bulan",
     "senior": "Rp X.000.000 - Rp Y.000.000+ / bulan"
   },
   "lingkungan": {
-    "deskripsi": "Ulasan suasana akademik, kultur mahasiswa, dan dinamika kampus di ${ptn}",
-    "lokasi": "Deskripsi lokasi kampus ${ptn} dan opsi tempat tinggal/kos mahasiswa sekitar",
+    "deskripsi": "Ulasan suasana akademik, kultur mahasiswa, dan dinamika kampus di ${verifiedPtn}",
+    "lokasi": "Deskripsi lokasi kampus dan opsi tempat tinggal mahasiswa",
     "transportasi": "Kemudahan akses angkutan umum/komuter/shuttle kampus",
-    "fasilitas": "Laboratorium, perpustakaan, atau fasilitas penunjang utama di ${ptn}",
-    "suasana": "Kultur pertemanan, organisasi, dan gaya hidup mahasiswa di kota tersebut"
+    "fasilitas": "Laboratorium, perpustakaan, atau fasilitas penunjang utama di ${verifiedPtn}",
+    "suasana": "Kultur pertemanan, organisasi, dan gaya hidup mahasiswa"
   },
   "jalur_dan_biaya": {
-    "deskripsi": "Pilihan seleksi masuk dan kebijakan biaya kuliah UKT di ${ptn}",
+    "deskripsi": "Pilihan seleksi masuk dan kebijakan biaya kuliah UKT di ${verifiedPtn}",
     "snbp_snbt": "Estimasi rentang UKT per semester jalur nasional",
-    "mandiri": "Gambaran jalur mandiri ${ptn} (IPI/uang pangkal atau non-IPI)",
-    "biaya_hidup": "Perkiraan biaya hidup kos, makan, dan operasional per bulan di kota tersebut"
+    "mandiri": "Gambaran jalur mandiri (IPI/uang pangkal atau non-IPI)",
+    "biaya_hidup": "Perkiraan biaya hidup kos, makan, dan operasional per bulan"
   },
   "alumni_dan_prospek": {
     "deskripsi": "Kekuatan ikatan alumni dan sektor industri yang menyerap lulusan",
@@ -122,106 +181,44 @@ Balas HANYA dengan format JSON valid tanpa format markdown atau kutip luar tamba
   },
   "tips_lolos": {
     "deskripsi": "Tips persiapan belajar, analisis mapel pendukung rapor, dan strategi lolos seleksi",
-    "strategi_khusus": "Trik spesifik untuk menembus persaingan jurusan ${jurusan} di ${ptn}"
+    "strategi_khusus": "Trik spesifik untuk menembus persaingan jurusan ini di ${verifiedPtn}"
   }
 }`
 
     const completion = await client.chat.completions.create({
       model,
       messages: [
-        {
-          role: 'system',
-          content:
-            'Kamu adalah asisten AI pendidikan tinggi Indonesia. Hasilkan output HANYA dalam JSON murni valid.',
-        },
-        { role: 'user', content: prompt },
+        { role: 'system', content: 'Kamu adalah asisten AI pendidikan tinggi Indonesia. Hasilkan output HANYA dalam JSON murni valid.' },
+        { role: 'user', content: insightPrompt },
       ],
-      temperature: 0.6,
+      temperature: 0.5,
       max_tokens: 1500,
     })
 
     const rawText = completion.choices[0]?.message?.content || '{}'
-    const cleanJson = rawText
-      .replace(/```json/g, '')
-      .replace(/```/g, '')
-      .trim()
-
+    const cleanJson = rawText.replace(/```json/g, '').replace(/```/g, '').trim()
     const parsedData: CampusInsightPayload = JSON.parse(cleanJson)
 
-    // Save to server memory cache
     memoryInsightCache[cacheKey] = parsedData
 
-    // Save to Supabase Database (non-blocking)
+    // Save to Supabase (non-blocking)
     try {
       const supabase = await createClient()
       await supabase.from('campus_insights').upsert(
-        {
-          ptn,
-          jurusan,
-          insight_data: parsedData,
-          created_at: new Date().toISOString(),
-        },
+        { ptn: verifiedPtn, jurusan: verifiedJurusan, insight_data: parsedData, created_at: new Date().toISOString() },
         { onConflict: 'ptn,jurusan' }
       )
     } catch (saveErr) {
       console.warn('Could not save campus insight to Supabase:', saveErr)
     }
 
-    return NextResponse.json({
-      data: parsedData,
-      source: 'ai_generated',
-      ptn,
-      jurusan,
-    })
+    return NextResponse.json({ data: parsedData, source: 'ai_generated', ptn: verifiedPtn, jurusan: verifiedJurusan })
   } catch (error) {
-    console.error('AI insight generation failed, using fallback:', error)
-
-    // Robust heuristic fallback generator
-    const fallbackData: CampusInsightPayload = {
-      headline: `Raih Impian Menjadi Profesional Unggul di ${jurusan}, ${ptn}!`,
-      gaji: {
-        deskripsi: `Lulusan ${jurusan} dari ${ptn} memiliki nilai tawar yang kuat di dunia industri modern dengan prospek kerja yang terus berkembang.`,
-        fresh_grad: 'Rp 6.500.000 - Rp 12.000.000 / bulan',
-        mid_career: 'Rp 15.000.000 - Rp 30.000.000 / bulan',
-        senior: 'Rp 35.000.000 - Rp 70.000.000+ / bulan',
-      },
-      lingkungan: {
-        deskripsi: `Kampus ${ptn} menyediakan ekosistem akademik yang dinamis, kolaboratif, dan mendukung perkembangan intelektual mahasiswa.`,
-        lokasi: `Kampus utama ${ptn} dengan akses lingkungan asri dan kawasan hunian mahasiswa terjangkau.`,
-        transportasi: `Didukung jaringan transportasi publik lokal dan armada mobilitas kampus.`,
-        fasilitas: `Perpustakaan digital, pusat kegiatan mahasiswa, laboratorium terpadu, dan fasilitas olahraga.`,
-        suasana: `Komunitas mahasiswa aktif dengan beragam organisasi keilmuan dan unit kegiatan seni/olahraga.`,
-      },
-      jalur_dan_biaya: {
-        deskripsi: `Penerimaan mahasiswa baru ${ptn} diselenggarakan melalui jalur prestasi nasional, ujian tes, dan jalur mandiri.`,
-        snbp_snbt: 'Rp 500.000 - Rp 15.000.000 / semester (Sesuai Golongan UKT)',
-        mandiri: 'Tersedia jalur seleksi mandiri berbasis rapor/portofolio/ujian mandiri.',
-        biaya_hidup: 'Rp 1.800.000 - Rp 3.500.000 / bulan (Kos dan kebutuhan dasar)',
-      },
-      alumni_dan_prospek: {
-        deskripsi: `Jaringan alumni ${ptn} tersebar di berbagai institusi pemerintah, BUMN, korporasi swasta, dan industri startup.`,
-        profesi_populer: [
-          `Spesialis ${jurusan}`,
-          'Konsultan & Analis',
-          'Peneliti & Akademisi',
-          'Manajer Operasional / Project Lead',
-        ],
-        alumni_tokoh: ['Sektor Industri Nasional', 'Lembaga Pemerintahan & BUMN'],
-      },
-      tips_lolos: {
-        deskripsi: `Pertahankan tren peningkatan nilai rapor pada mata pelajaran pendukung linear dan lengkapi dengan sertifikat prestasi relevan.`,
-        strategi_khusus: `Fokus pada optimasi nilai rapor semester 1-5 dan latih konsistensi pemahaman materi di Arena Latihan OTWPTN.`,
-      },
-    }
-
-    memoryInsightCache[cacheKey] = fallbackData
-
-    return NextResponse.json({
-      data: fallbackData,
-      source: 'fallback',
-      ptn,
-      jurusan,
-    })
+    console.error('Campus insight generation failed:', error)
+    return NextResponse.json(
+      { error: 'Gagal menghasilkan insight. Coba lagi beberapa saat.' },
+      { status: 500 }
+    )
   }
 }
 
