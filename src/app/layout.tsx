@@ -4,6 +4,8 @@ import './globals.css'
 import { LEGAL_ENTITY } from '@/lib/constants'
 import ThemeHydrator from '@/components/ThemeHydrator'
 import CustomerServiceWidget from '@/components/chat/CustomerServiceWidget'
+import GlobalPageLoader from '@/components/ui/GlobalPageLoader'
+import { Suspense } from 'react'
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -274,6 +276,9 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col antialiased bg-bg text-fg font-sans">
+        <Suspense fallback={null}>
+          <GlobalPageLoader />
+        </Suspense>
         <ThemeHydrator />
         {children}
         <CustomerServiceWidget />

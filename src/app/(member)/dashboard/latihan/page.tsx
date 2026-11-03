@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useSearchParams } from 'next/navigation'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
 import PadananKataGame from '@/components/games/PadananKataGame'
 import BakuAtauNggakGame from '@/components/games/BakuAtauNggakGame'
@@ -28,6 +29,25 @@ type ActiveTab = 'padanan-kata' | 'baku-atau-nggak' | 'benerin-kalimat' | 'campu
 export default function LatihanPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('padanan-kata')
   const [leaderboard] = useState<LeaderboardEntry[]>(INITIAL_LEADERBOARD)
+
+  // Instant sync with URL query param (?tab=baku-atau-nggak, ?tab=benerin-kalimat, etc.)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const syncFromUrl = () => {
+      const params = new URLSearchParams(window.location.search)
+      const tabParam = params.get('tab')
+      if (
+        tabParam &&
+        ['padanan-kata', 'baku-atau-nggak', 'benerin-kalimat', 'campuran-battle', 'leaderboard'].includes(tabParam)
+      ) {
+        setActiveTab(tabParam as ActiveTab)
+      }
+    }
+    syncFromUrl()
+
+    window.addEventListener('popstate', syncFromUrl)
+    return () => window.removeEventListener('popstate', syncFromUrl)
+  }, [])
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 md:px-8 pt-6 sm:pt-8 md:pt-10 pb-24 space-y-8">

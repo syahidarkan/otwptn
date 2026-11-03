@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import {
@@ -24,8 +24,12 @@ import {
   HelpCircle,
   Edit3,
   Building,
+  Loader2,
+  BookOpen,
 } from 'lucide-react'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
+import SearchablePicker from '@/components/ui/SearchablePicker'
+import { INDONESIA_PTN_LIST, INDONESIA_JURUSAN_LIST } from '@/lib/indonesiaPtnDirectory'
 
 export const OTBEE_AVATARS = [
   { id: 'av-1', src: '/avatars/avatar-1.png', label: 'Pejuang PTN' },
@@ -81,6 +85,70 @@ export default function ProfilPage() {
   const [passwordSaved, setPasswordSaved] = useState(false)
   const [passwordLoading, setPasswordLoading] = useState(false)
 
+  // Dynamic AI Campus Insight states
+  const [campusInsight, setCampusInsight] = useState<any>(null)
+  const [insightLoading, setInsightLoading] = useState(false)
+
+  const ptnOptions = useMemo(() => {
+    return INDONESIA_PTN_LIST.map(p => ({
+      label: `${p.name} (${p.shortName})`,
+      value: p.name,
+      sub: `${p.city}, ${p.province}`,
+    }))
+  }, [])
+
+  const jurusanOptions = useMemo(() => {
+    return INDONESIA_JURUSAN_LIST.map(j => ({
+      label: j,
+      value: j,
+    }))
+  }, [])
+
+  const fetchCampusInsight = async (ptn: string, prodi: string) => {
+    if (!ptn || !prodi) return
+    setInsightLoading(true)
+    try {
+      const res = await fetch(
+        `/api/campus-insight?ptn=${encodeURIComponent(ptn)}&jurusan=${encodeURIComponent(prodi)}`
+      )
+      if (res.ok) {
+        const json = await res.json()
+        if (json.data) {
+          setCampusInsight(json.data)
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load campus insight:', e)
+    } finally {
+      setInsightLoading(false)
+    }
+  }
+
+  const handleSaveTarget = async () => {
+    setIsEditingTarget(false)
+    if (form.target_ptn_1 && form.target_prodi_1) {
+      fetchCampusInsight(form.target_ptn_1, form.target_prodi_1)
+    }
+
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (user) {
+        await supabase
+          .from('profiles')
+          .update({
+            target_ptns: [form.target_ptn_1, form.target_ptn_2].filter(Boolean),
+            target_majors: [form.target_prodi_1, form.target_prodi_2].filter(Boolean),
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', user.id)
+      }
+    } catch (err) {
+      console.warn('Failed saving target ptn to db:', err)
+    }
+  }
+
   useEffect(() => {
     // Read local stored avatar first
     try {
@@ -126,6 +194,9 @@ export default function ProfilPage() {
                 avatar: finalAvatar,
               }
             })
+            if (targetPtns[0] && targetMajors[0]) {
+              fetchCampusInsight(targetPtns[0], targetMajors[0])
+            }
           }
           setLoading(false)
         })
@@ -400,293 +471,379 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
           {/* Target Kuliah Card Header */}
           <div className="p-6 md:p-8 rounded-3xl bg-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-amber-400 text-amber-950 flex items-center justify-center text-xl font-black shadow-xs">
-                UI
+              <div className="w-14 h-14 rounded-2xl bg-amber-400 text-amber-950 flex items-center justify-center text-lg font-black shadow-xs flex-shrink-0 uppercase">
+                {form.target_ptn_1 ? form.target_ptn_1.substring(0, 3) : 'PTN'}
               </div>
               <div>
                 <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full">
                   Target Kuliah Utama
                 </span>
                 <h3 className="text-lg font-black text-gray-950 mt-1">
-                  {form.target_ptn_1}
+                  {form.target_ptn_1 || 'Pilih PTN Impianmu'}
                 </h3>
                 <p className="text-xs font-bold text-amber-700">
-                  {form.target_prodi_1}
+                  {form.target_prodi_1 || 'Pilih Program Studi'}
                 </p>
+                {form.target_ptn_2 && (
+                  <p className="text-[11px] text-gray-400 font-medium mt-0.5">
+                    Pilihan 2: {form.target_prodi_2 ? `${form.target_prodi_2} - ` : ''}{form.target_ptn_2}
+                  </p>
+                )}
               </div>
             </div>
 
             <button
               onClick={() => setIsEditingTarget(!isEditingTarget)}
-              className="px-5 py-2.5 rounded-full text-xs font-black bg-gray-100 hover:bg-gray-200 text-gray-800 flex items-center gap-1.5 transition-colors self-start sm:self-auto"
+              className="px-5 py-2.5 rounded-full text-xs font-black bg-gray-100 hover:bg-gray-200 text-gray-800 flex items-center gap-1.5 transition-colors self-start sm:self-auto cursor-pointer"
             >
-              <Edit3 size={14} /> Ubah Target Kuliah
+              <Edit3 size={14} /> {isEditingTarget ? 'Tutup Pilihan' : 'Ubah Target Kuliah'}
             </button>
           </div>
 
-          {/* Form Ubah Target (Toggleable) */}
+          {/* Form Ubah Target (Dropdown Pilihan Lengkap Seluruh PTN & Jurusan) */}
           {isEditingTarget && (
-            <div className="p-6 rounded-3xl bg-amber-50/70 border border-amber-200/60 space-y-4">
-              <h4 className="text-xs font-black text-gray-900">Ubah Universitas & Program Studi</h4>
+            <div className="p-6 rounded-3xl bg-amber-50/70 border border-amber-200/60 space-y-4 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-black text-gray-900">Pilih Universitas & Jurusan PTN</h4>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Pilih dari direktori lengkap seluruh universitas negeri dan program studi di Indonesia.
+                  </p>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold text-gray-700 mb-1 block">Pilihan PTN 1</label>
-                  <input
+                  <SearchablePicker
+                    label="Pilihan PTN Utama (Wajib)"
+                    placeholder="Ketik atau pilih PTN 1 (contoh: UI, ITB, UGM)..."
                     value={form.target_ptn_1}
-                    onChange={e => setForm({ ...form, target_ptn_1: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-2xl bg-white text-xs font-semibold text-gray-900 outline-none"
+                    onChange={v => setForm({ ...form, target_ptn_1: v })}
+                    options={ptnOptions}
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-gray-700 mb-1 block">Program Studi 1</label>
-                  <input
+                  <SearchablePicker
+                    label="Program Studi Pilihan 1 (Wajib)"
+                    placeholder="Ketik atau pilih Jurusan 1 (contoh: Kedokteran, Ilmu Komputer)..."
                     value={form.target_prodi_1}
-                    onChange={e => setForm({ ...form, target_prodi_1: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-2xl bg-white text-xs font-semibold text-gray-900 outline-none"
+                    onChange={v => setForm({ ...form, target_prodi_1: v })}
+                    options={jurusanOptions}
                   />
                 </div>
               </div>
-              <button
-                onClick={() => setIsEditingTarget(false)}
-                className="btn-brand-primary px-5 py-2 rounded-full text-xs font-bold"
-              >
-                Selesai Mengubah
-              </button>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                <div>
+                  <SearchablePicker
+                    label="Pilihan PTN Cadangan (Pilihan 2)"
+                    placeholder="Pilih PTN pilihan 2..."
+                    value={form.target_ptn_2}
+                    onChange={v => setForm({ ...form, target_ptn_2: v })}
+                    options={ptnOptions}
+                  />
+                </div>
+                <div>
+                  <SearchablePicker
+                    label="Program Studi Cadangan (Pilihan 2)"
+                    placeholder="Pilih Jurusan pilihan 2..."
+                    value={form.target_prodi_2}
+                    onChange={v => setForm({ ...form, target_prodi_2: v })}
+                    options={jurusanOptions}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsEditingTarget(false)}
+                  className="px-4 py-2 rounded-full text-xs font-bold bg-white text-gray-600 hover:bg-gray-100"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveTarget}
+                  className="btn-brand-primary px-6 py-2.5 rounded-full text-xs font-black shadow-sm flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Save size={14} /> Simpan Target & Perbarui AI Insight
+                </button>
+              </div>
             </div>
           )}
 
-          {/* DOSSIER HERO BANNER */}
-          <div className="p-8 rounded-3xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-amber-950 shadow-lg space-y-2">
-            <span className="text-[10px] font-black uppercase tracking-wider bg-black/10 px-3 py-1 rounded-full inline-block">
-              Insight Karir & Lingkungan Kampus
-            </span>
-            <h2 className="text-2xl md:text-3xl font-black tracking-tight leading-snug">
-              Wujudkan Mimpi Jadi Ahli AI di Kampus Perjuangan: Menuju Masa Depan Cerah Bersama UI!
-            </h2>
-            <p className="text-xs md:text-sm font-bold opacity-90">
-              KECERDASAN ARTIFISIAL, Universitas Indonesia
-            </p>
-          </div>
-
-          {/* 5 STRUCTURED INSIGHT SECTIONS (PERSIS PERMINTAAN USER) */}
-          <div className="space-y-6">
-            {/* 1. PERKIRAAN GAJI ALUMNI */}
-            <div className="p-7 rounded-3xl bg-white shadow-md space-y-4">
-              <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
-                <span className="w-8 h-8 rounded-2xl bg-amber-100 text-amber-900 font-black text-sm flex items-center justify-center">
-                  1
-                </span>
-                <h3 className="text-base font-black text-gray-950">
-                  Perkiraan Gaji Alumni
-                </h3>
-              </div>
-
-              <p className="text-xs text-gray-600 leading-relaxed font-medium">
-                Lulusan Kecerdasan Artifisial UI berada di garda terdepan revolusi teknologi. Dengan keahlian yang sangat dicari di era digital, masa depan finansialmu sangat menjanjikan baik di dalam maupun luar negeri.
+          {/* Loading Skeleton during AI Insight fetch */}
+          {insightLoading ? (
+            <div className="p-10 rounded-3xl bg-white shadow-md text-center space-y-3">
+              <Loader2 size={32} className="animate-spin text-amber-500 mx-auto" />
+              <h4 className="text-sm font-black text-gray-900">
+                Menghubungkan ke Database & Menghitung Insight AI...
+              </h4>
+              <p className="text-xs text-gray-500 max-w-md mx-auto">
+                Menganalisis perkiraan gaji, lingkungan kampus, biaya hidup, dan prospek karir untuk {form.target_prodi_1} di {form.target_ptn_1}.
               </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
-                <div className="p-4 rounded-2xl bg-gray-50/80 space-y-1">
-                  <p className="text-xs font-bold text-gray-700">Fresh Graduate (AI Engineer/Data Scientist)</p>
-                  <p className="text-sm font-black text-emerald-700 font-mono">
-                    Rp 10.000.000 - Rp 18.000.000 / bulan
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-gray-50/80 space-y-1">
-                  <p className="text-xs font-bold text-gray-700">Mid-Career (3-5 tahun)</p>
-                  <p className="text-sm font-black text-amber-800 font-mono">
-                    Rp 25.000.000 - Rp 45.000.000 / bulan
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-gray-50/80 space-y-1">
-                  <p className="text-xs font-bold text-gray-700">Senior (5+ tahun/Lead AI)</p>
-                  <p className="text-sm font-black text-rose-700 font-mono">
-                    Rp 50.000.000 - Rp 100.000.000+ / bulan
-                  </p>
-                </div>
-              </div>
             </div>
-
-            {/* 2. KONDISI DAERAH KAMPUS */}
-            <div className="p-7 rounded-3xl bg-white shadow-md space-y-4">
-              <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
-                <span className="w-8 h-8 rounded-2xl bg-amber-100 text-amber-900 font-black text-sm flex items-center justify-center">
-                  2
-                </span>
-                <h3 className="text-base font-black text-gray-950">
-                  Kondisi Daerah Kampus
-                </h3>
+          ) : (
+            <>
+              {/* DOSSIER HERO BANNER */}
+              <div className="p-8 rounded-3xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-amber-950 shadow-lg space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-black/10 px-3 py-1 rounded-full inline-block">
+                    Insight Karir & Lingkungan Kampus AI
+                  </span>
+                  <span className="text-[10px] font-bold bg-white/50 px-2.5 py-0.5 rounded-full text-amber-950">
+                    Terkoneksi Database
+                  </span>
+                </div>
+                <h2 className="text-xl md:text-2xl font-black tracking-tight leading-snug">
+                  {campusInsight?.headline ||
+                    `Wujudkan Mimpi Jadi Profesional Unggul Bersama ${form.target_ptn_1 || 'PTN Impian'}!`}
+                </h2>
+                <p className="text-xs md:text-sm font-bold opacity-90 uppercase">
+                  {form.target_prodi_1 || 'Program Studi'}, {form.target_ptn_1 || 'Universitas Negeri'}
+                </p>
               </div>
 
-              <p className="text-xs text-gray-600 leading-relaxed font-medium">
-                Kampus UI Depok menawarkan harmoni antara rimbunnya hutan kota dan fasilitas teknologi modern. Kamu akan merasakan atmosfer akademik yang kental namun tetap santai dengan ikon &lsquo;Bikun&rsquo; yang siap mengantarmu kuliah.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 text-xs">
-                <div className="p-4 rounded-2xl bg-gray-50 space-y-1">
-                  <span className="font-black text-gray-900 block">📍 Lokasi</span>
-                  <p className="text-gray-600 leading-relaxed font-medium">
-                    Kampus UI Depok yang asri dengan luas 320 hektar, paru-paru hijau di perbatasan Jakarta-Depok.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-gray-50 space-y-1">
-                  <span className="font-black text-gray-900 block">🚆 Transportasi</span>
-                  <p className="text-gray-600 leading-relaxed font-medium">
-                    Akses mudah dengan KRL (Stasiun UI & Pondok Cina), serta Bis Kuning (Bikun) gratis di dalam area kampus.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-gray-50 space-y-1">
-                  <span className="font-black text-gray-900 block">🏛️ Fasilitas</span>
-                  <p className="text-gray-600 leading-relaxed font-medium">
-                    Perpustakaan &lsquo;The Crystal of Knowledge&rsquo;, laboratorium AI canggih di Fasilkom, dan area olahraga lengkap.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-gray-50 space-y-1">
-                  <span className="font-black text-gray-900 block">🌳 Lingkungan</span>
-                  <p className="text-gray-600 leading-relaxed font-medium">
-                    Lingkungan belajar yang tenang, inklusif, dan dikelilingi banyak tempat makan mahasiswa yang terjangkau.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* 3. JALUR MASUK & BIAYA */}
-            <div className="p-7 rounded-3xl bg-white shadow-md space-y-4">
-              <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
-                <span className="w-8 h-8 rounded-2xl bg-amber-100 text-amber-900 font-black text-sm flex items-center justify-center">
-                  3
-                </span>
-                <h3 className="text-base font-black text-gray-950">
-                  Jalur Masuk & Biaya
-                </h3>
-              </div>
-
-              <p className="text-xs text-gray-600 leading-relaxed font-medium">
-                UI membuka pintu bagi talenta terbaik melalui berbagai jalur seleksi. Persiapkan dirimu dengan matang karena setiap usaha yang kamu lakukan hari ini adalah investasi untuk masa depanmu.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1 text-xs">
-                <div className="p-4 rounded-2xl bg-gray-50 space-y-1.5">
-                  <span className="font-black text-gray-900 block">SNBP & SNBT</span>
-                  <p className="text-emerald-700 font-black font-mono">Rp 0 - Rp 20.000.000 / semester</p>
-                  <p className="text-gray-500 font-medium">Berdasarkan kemampuan ekonomi (UKT berkeadilan) tanpa uang pangkal.</p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-gray-50 space-y-1.5">
-                  <span className="font-black text-gray-900 block">SIMAK UI (Mandiri)</span>
-                  <p className="text-amber-800 font-black font-mono">Rp 15.000.000 - Rp 25.000.000 / semester</p>
-                  <p className="text-gray-500 font-medium">Terdapat Iuran Pengembangan Institusi (IPI) yang dibayarkan satu kali di awal.</p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-gray-50 space-y-1.5">
-                  <span className="font-black text-gray-900 block">Biaya Hidup</span>
-                  <p className="text-gray-900 font-black font-mono">Rp 2.500.000 - Rp 4.500.000 / bulan</p>
-                  <p className="text-gray-500 font-medium">(Kos: 1.5-2.5jt, Makan & Transport: 1-2jt di sekitar Depok).</p>
-                </div>
-              </div>
-            </div>
-
-            {/* 4. ALUMNI TERKENAL & INSPIRASI */}
-            <div className="p-7 rounded-3xl bg-white shadow-md space-y-4">
-              <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
-                <span className="w-8 h-8 rounded-2xl bg-amber-100 text-amber-900 font-black text-sm flex items-center justify-center">
-                  4
-                </span>
-                <h3 className="text-base font-black text-gray-950">
-                  Alumni Terkenal & Inspirasi
-                </h3>
-              </div>
-
-              <p className="text-xs text-gray-600 leading-relaxed font-medium">
-                Fasilkom UI telah melahirkan tokoh-tokoh hebat yang mengubah lanskap teknologi Indonesia. Kamu adalah calon penerus yang akan menuliskan sejarah baru di bidang kecerdasan buatan.
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
-                {[
-                  { name: 'Shinta Dhanuwardoyo', role: 'Founder Bubu.com', desc: 'Pelopor industri digital Indonesia' },
-                  { name: 'Natali Ardianto', role: 'Co-Founder Tiket.com', desc: 'Tokoh startup unicorn tanah air' },
-                  { name: 'Dondi Hananto', role: 'Partner Patamar Capital', desc: 'Venture Capitalist ternama' },
-                  { name: 'Alamanda Shantika', role: 'Founder Binar Academy', desc: 'Alumni Fasilkom UI inspiratif' },
-                ].map((alumni, ai) => (
-                  <div key={ai} className="p-4 rounded-2xl bg-gray-50 space-y-1">
-                    <h5 className="text-xs font-black text-gray-900">{alumni.name}</h5>
-                    <p className="text-[11px] font-bold text-amber-800">{alumni.role}</p>
-                    <p className="text-[10px] text-gray-400 font-medium">{alumni.desc}</p>
+              {/* 5 STRUCTURED INSIGHT SECTIONS */}
+              <div className="space-y-6">
+                {/* 1. PERKIRAAN GAJI ALUMNI */}
+                <div className="p-7 rounded-3xl bg-white shadow-md space-y-4">
+                  <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
+                    <span className="w-8 h-8 rounded-2xl bg-amber-100 text-amber-900 font-black text-sm flex items-center justify-center">
+                      1
+                    </span>
+                    <h3 className="text-base font-black text-gray-950">
+                      Perkiraan Gaji Alumni & Peluang Pasar
+                    </h3>
                   </div>
-                ))}
+
+                  <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                    {campusInsight?.gaji?.deskripsi ||
+                      `Lulusan ${form.target_prodi_1} dari ${form.target_ptn_1} memiliki nilai tawar yang kuat di dunia industri modern dengan daya saing tinggi.`}
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                    <div className="p-4 rounded-2xl bg-gray-50/80 space-y-1">
+                      <p className="text-xs font-bold text-gray-700">Fresh Graduate (Tahun 1-2)</p>
+                      <p className="text-sm font-black text-emerald-700 font-mono">
+                        {campusInsight?.gaji?.fresh_grad || 'Rp 7.000.000 - Rp 14.000.000 / bulan'}
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-gray-50/80 space-y-1">
+                      <p className="text-xs font-bold text-gray-700">Mid-Career (3-5 tahun)</p>
+                      <p className="text-sm font-black text-amber-800 font-mono">
+                        {campusInsight?.gaji?.mid_career || 'Rp 18.000.000 - Rp 35.000.000 / bulan'}
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-gray-50/80 space-y-1">
+                      <p className="text-xs font-bold text-gray-700">Senior (5+ tahun / Lead)</p>
+                      <p className="text-sm font-black text-rose-700 font-mono">
+                        {campusInsight?.gaji?.senior || 'Rp 40.000.000 - Rp 80.000.000+ / bulan'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. KONDISI DAERAH KAMPUS */}
+                <div className="p-7 rounded-3xl bg-white shadow-md space-y-4">
+                  <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
+                    <span className="w-8 h-8 rounded-2xl bg-amber-100 text-amber-900 font-black text-sm flex items-center justify-center">
+                      2
+                    </span>
+                    <h3 className="text-base font-black text-gray-950">
+                      Kondisi Daerah & Fasilitas Kampus
+                    </h3>
+                  </div>
+
+                  <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                    {campusInsight?.lingkungan?.deskripsi ||
+                      `Kampus ${form.target_ptn_1} menawarkan atmosfer akademik yang kondusif dengan fasilitas riset dan kegiatan mahasiswa lengkap.`}
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 text-xs">
+                    <div className="p-4 rounded-2xl bg-gray-50 space-y-1">
+                      <span className="font-black text-gray-900 block">📍 Lokasi & Hunian Mahasiswa</span>
+                      <p className="text-gray-600 leading-relaxed font-medium">
+                        {campusInsight?.lingkungan?.lokasi || `Area kampus ${form.target_ptn_1} dengan lingkungan kos mahasiswa terjangkau.`}
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-gray-50 space-y-1">
+                      <span className="font-black text-gray-900 block">🚆 Transportasi</span>
+                      <p className="text-gray-600 leading-relaxed font-medium">
+                        {campusInsight?.lingkungan?.transportasi || 'Akses mudah dengan transportasi umum lokal dan shuttle transportasi kampus.'}
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-gray-50 space-y-1">
+                      <span className="font-black text-gray-900 block">🏛️ Fasilitas Utama</span>
+                      <p className="text-gray-600 leading-relaxed font-medium">
+                        {campusInsight?.lingkungan?.fasilitas || 'Perpustakaan digital, laboratorium komputasi terpadu, dan fasilitas olahraga.'}
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-gray-50 space-y-1">
+                      <span className="font-black text-gray-900 block">🌳 Suasana & Kultur Belajar</span>
+                      <p className="text-gray-600 leading-relaxed font-medium">
+                        {campusInsight?.lingkungan?.suasana || 'Ekosistem belajar kolaboratif dengan ragam komunitas dan organisasi keilmuan aktif.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. JALUR MASUK & BIAYA */}
+                <div className="p-7 rounded-3xl bg-white shadow-md space-y-4">
+                  <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
+                    <span className="w-8 h-8 rounded-2xl bg-amber-100 text-amber-900 font-black text-sm flex items-center justify-center">
+                      3
+                    </span>
+                    <h3 className="text-base font-black text-gray-950">
+                      Jalur Masuk, UKT & Biaya Hidup
+                    </h3>
+                  </div>
+
+                  <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                    {campusInsight?.jalur_dan_biaya?.deskripsi ||
+                      `Penerimaan mahasiswa baru di ${form.target_ptn_1} dibuka melalui SNBP, SNBT, dan Jalur Mandiri.`}
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1 text-xs">
+                    <div className="p-4 rounded-2xl bg-gray-50 space-y-1.5">
+                      <span className="font-black text-gray-900 block">SNBP & SNBT (Nasional)</span>
+                      <p className="text-emerald-700 font-black font-mono">
+                        {campusInsight?.jalur_dan_biaya?.snbp_snbt || 'Rp 500.000 - Rp 15.000.000 / semester'}
+                      </p>
+                      <p className="text-gray-500 font-medium">Berdasarkan kelompok UKT berkeadilan tanpa uang pangkal.</p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-gray-50 space-y-1.5">
+                      <span className="font-black text-gray-900 block">Jalur Mandiri</span>
+                      <p className="text-amber-800 font-black font-mono">
+                        {campusInsight?.jalur_dan_biaya?.mandiri || 'UKT Kelompok Atas + IPI (Iuran Pengembangan Institusi)'}
+                      </p>
+                      <p className="text-gray-500 font-medium">Seleksi mandiri berbasis ujian tulis atau portofolio nilai rapor.</p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-gray-50 space-y-1.5">
+                      <span className="font-black text-gray-900 block">Biaya Hidup Bulanan</span>
+                      <p className="text-gray-900 font-black font-mono">
+                        {campusInsight?.jalur_dan_biaya?.biaya_hidup || 'Rp 2.000.000 - Rp 3.800.000 / bulan'}
+                      </p>
+                      <p className="text-gray-500 font-medium">(Estimasi kos, konsumsi harian, dan transport di kota kampus).</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. PROSPEK KARIR & ALUMNI */}
+                <div className="p-7 rounded-3xl bg-white shadow-md space-y-4">
+                  <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
+                    <span className="w-8 h-8 rounded-2xl bg-amber-100 text-amber-900 font-black text-sm flex items-center justify-center">
+                      4
+                    </span>
+                    <h3 className="text-base font-black text-gray-950">
+                      Prospek Karir & Jaringan Alumni
+                    </h3>
+                  </div>
+
+                  <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                    {campusInsight?.alumni_dan_prospek?.deskripsi ||
+                      `Jaringan alumni ${form.target_ptn_1} tersebar luas di berbagai sektor industri nasional dan multinasional.`}
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                    <div className="p-4 rounded-2xl bg-gray-50 space-y-2">
+                      <h5 className="text-xs font-black text-gray-900">Profesi Lulusan Populer</h5>
+                      <ul className="text-xs text-gray-700 space-y-1 font-medium list-disc list-inside">
+                        {(campusInsight?.alumni_dan_prospek?.profesi_populer || [
+                          `Spesialis ${form.target_prodi_1}`,
+                          'Konsultan Profesional & Peneliti',
+                          'Manajer Operasional / Project Leader',
+                          'Technopreneur / Pengusaha Industri',
+                        ]).map((prof: string, pi: number) => (
+                          <li key={pi} className="truncate">{prof}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-gray-50 space-y-2">
+                      <h5 className="text-xs font-black text-gray-900">Sektor Industri Penyerap</h5>
+                      <ul className="text-xs text-gray-700 space-y-1 font-medium list-disc list-inside">
+                        {(campusInsight?.alumni_dan_prospek?.alumni_tokoh || [
+                          'Perusahaan Multinasional & BUMN',
+                          'Instansi Pemerintah & Kementerian',
+                          'Perusahaan Teknologi & R&D',
+                        ]).map((sec: string, si: number) => (
+                          <li key={si} className="truncate">{sec}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. TIPS LOLOS SELEKSI & STRATEGI KHUSUS */}
+                <div className="p-7 rounded-3xl bg-white shadow-md space-y-4">
+                  <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
+                    <span className="w-8 h-8 rounded-2xl bg-amber-100 text-amber-900 font-black text-sm flex items-center justify-center">
+                      5
+                    </span>
+                    <h3 className="text-base font-black text-gray-950">
+                      Tips Lolos & Strategi Khusus Seleksi
+                    </h3>
+                  </div>
+
+                  <p className="text-xs text-gray-700 leading-relaxed font-medium">
+                    {campusInsight?.tips_lolos?.deskripsi ||
+                      `Pastikan nilai rapor mata pelajaran pendukung linear menunjukkan tren meningkat dan lengkapi esai motivasi personal yang autentik.`}
+                  </p>
+
+                  <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/60 text-xs text-amber-950 font-medium leading-relaxed">
+                    <p className="font-bold text-amber-900 mb-1">💡 Strategi Rekomendasi Konsultan OTWPTN:</p>
+                    {campusInsight?.tips_lolos?.strategi_khusus ||
+                      `Gunakan fitur Kalkulator Peluang dan Essay AI Review di platform OTWPTN untuk memverifikasi kesiapan berkas sebelum pendaftaran dibuka.`}
+                  </div>
+                </div>
+
+                {/* BAGIKAN KE TEMAN */}
+                <div className="p-7 rounded-3xl bg-white shadow-md space-y-4">
+                  <h4 className="text-xs font-black text-gray-900">Bagikan Impian Target Kuliahmu</h4>
+
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(
+                        `Target Kuliah Impianku di ${form.target_ptn_1}!\nJurusan: ${form.target_prodi_1}\n"${campusInsight?.headline || 'Menuju Kampus Impian Bersama OTWPTN'}"\n\n#PejuangPTN2026 #OTWPTN`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-5 py-2.5 rounded-full text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 transition-colors"
+                    >
+                      <MessageCircle size={14} /> WhatsApp
+                    </a>
+
+                    <a
+                      href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                        `Target Kuliah Impianku di ${form.target_ptn_1}! Jurusan: ${form.target_prodi_1} #PejuangPTN2026 #OTWPTN`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-5 py-2.5 rounded-full text-xs font-black bg-black hover:bg-gray-800 text-white flex items-center gap-1.5 transition-colors"
+                    >
+                      <Globe2 size={14} /> X (Twitter)
+                    </a>
+
+                    <button
+                      onClick={handleCopyShareText}
+                      className="px-5 py-2.5 rounded-full text-xs font-black bg-gray-100 hover:bg-gray-200 text-gray-900 flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Copy size={14} /> {copiedShareText ? 'Teks Tersalin!' : 'Salin teks'}
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            {/* 5. PELUANG KARIR GLOBAL & DISCLAIMER */}
-            <div className="p-7 rounded-3xl bg-white shadow-md space-y-4">
-              <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
-                <span className="w-8 h-8 rounded-2xl bg-amber-100 text-amber-900 font-black text-sm flex items-center justify-center">
-                  5
-                </span>
-                <h3 className="text-base font-black text-gray-950">
-                  Peluang Karir Global
-                </h3>
-              </div>
-
-              <p className="text-xs text-gray-700 leading-relaxed font-medium">
-                Gelar dari UI adalah paspor untuk berkarir di perusahaan teknologi raksasa dunia atau membangun startup unicorn-mu sendiri. Bidang AI mencakup sektor kesehatan, finansial, hingga pemerintahan.
-              </p>
-
-              <div className="p-3.5 rounded-2xl bg-gray-50 text-[11px] text-gray-500 font-medium flex items-center gap-2">
-                <HelpCircle size={15} className="text-amber-600 flex-shrink-0" />
-                <span>Dirangkum KakAI dari artikel di Google. Cek lagi ke situs resmi kampus.</span>
-              </div>
-            </div>
-
-            {/* BAGIKAN KE TEMAN (WHATSAPP, X, INSTAGRAM, SALIN TEKS) */}
-            <div className="p-7 rounded-3xl bg-white shadow-md space-y-4">
-              <h4 className="text-xs font-black text-gray-900">Bagikan ke teman</h4>
-
-              <div className="flex flex-wrap items-center gap-2.5">
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent(shareTextContent)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-5 py-2.5 rounded-full text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 transition-colors"
-                >
-                  <MessageCircle size={14} /> WhatsApp
-                </a>
-
-                <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTextContent)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-5 py-2.5 rounded-full text-xs font-black bg-black hover:bg-gray-800 text-white flex items-center gap-1.5 transition-colors"
-                >
-                  <Globe2 size={14} /> X (Twitter)
-                </a>
-
-                <button
-                  onClick={handleCopyShareText}
-                  className="px-5 py-2.5 rounded-full text-xs font-black bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white flex items-center gap-1.5 shadow-xs"
-                >
-                  <Camera size={14} /> Instagram Story
-                </button>
-
-                <button
-                  onClick={handleCopyShareText}
-                  className="px-5 py-2.5 rounded-full text-xs font-black bg-gray-100 hover:bg-gray-200 text-gray-900 flex items-center gap-1.5 transition-colors"
-                >
-                  <Copy size={14} /> {copiedShareText ? 'Teks Tersalin!' : 'Salin teks'}
-                </button>
-              </div>
-
-              {/* Hashtags pill */}
-              <div className="p-3 rounded-2xl bg-gray-50 font-mono text-[11px] text-amber-900/80 break-words leading-relaxed">
-                #UniversitasIndonesia #KecerdasanArtifisial #AIIndonesia #PejuangPTN2026 #FasilkomUI #InfoKuliah #SNBT #SIMAKUI
-              </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       )}
 

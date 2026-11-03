@@ -45,6 +45,21 @@ const NAV_GROUPS: NavGroup[] = [
   {
     category: 'Belajar & Latihan',
     items: [
+      { id: 'nav-essay', label: 'Essay AI Review', href: '/dashboard/essay', icon: FileCheck2 },
+      { id: 'nav-otbee', label: 'Otbee AI Asisten', href: '/dashboard/otbee', icon: Sparkles },
+      {
+        id: 'nav-modul',
+        label: 'Modul & Video',
+        href: '/dashboard/ecourse',
+        icon: PlayCircle,
+        children: [
+          { id: 'sub-modul-snbp', label: 'SNBP', href: '/dashboard/ecourse?cat=snbp' },
+          { id: 'sub-modul-jalur-essay', label: 'Jalur Essay', href: '/dashboard/ecourse?cat=jalur-essay' },
+          { id: 'sub-modul-jalur-prestasi', label: 'Jalur Prestasi', href: '/dashboard/ecourse?cat=jalur-prestasi' },
+          { id: 'sub-modul-basic-essay', label: 'Basic Essay (PPU & PBM)', href: '/dashboard/ecourse?cat=basic-essay' },
+          { id: 'sub-modul-essay', label: 'Essay', href: '/dashboard/ecourse?cat=essay' },
+        ],
+      },
       {
         id: 'nav-latihan',
         label: 'Arena Latihan PPU & PBM',
@@ -57,20 +72,6 @@ const NAV_GROUPS: NavGroup[] = [
           { id: 'sub-latihan-puebi', label: 'Wordle Baku (PUEBI)', href: '/dashboard/latihan?tab=baku-atau-nggak' },
         ],
       },
-      { id: 'nav-essay', label: 'Essay AI Review', href: '/dashboard/essay', icon: FileCheck2 },
-      {
-        id: 'nav-modul',
-        label: 'Modul & Video',
-        href: '/dashboard/ecourse',
-        icon: PlayCircle,
-        children: [
-          { id: 'sub-modul-all', label: 'Semua Modul & Video', href: '/dashboard/ecourse' },
-          { id: 'sub-modul-pbm', label: 'Materi PBM & PPU', href: '/dashboard/ecourse?cat=pbm' },
-          { id: 'sub-modul-snbp', label: 'Strategi Non-Tes & SNBP', href: '/dashboard/ecourse?cat=snbp' },
-          { id: 'sub-modul-esai', label: 'Bedah Esai & Portofolio', href: '/dashboard/ecourse?cat=esai' },
-        ],
-      },
-      { id: 'nav-otbee', label: 'Otbee AI Asisten', href: '/dashboard/otbee', icon: Sparkles },
     ],
   },
   {
@@ -112,28 +113,8 @@ export default function Sidebar() {
   const [level, setLevel] = useState(1)
   const [coins, setCoins] = useState(250)
 
-  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({
-    'nav-latihan': true,
-    'nav-modul': true,
-  })
-
-  // Auto-expand menu if current pathname matches any item or child
-  useEffect(() => {
-    if (!pathname) return
-    NAV_GROUPS.forEach(group => {
-      group.items.forEach(item => {
-        if (item.children) {
-          const isChildActive = item.children.some(child => {
-            const childPath = child.href.split('?')[0]
-            return pathname === childPath
-          })
-          if (pathname.startsWith(item.href) || isChildActive) {
-            setExpandedMenus(prev => ({ ...prev, [item.id]: true }))
-          }
-        }
-      })
-    })
-  }, [pathname])
+  // Default dropdown closed - only opens when clicked by user
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({})
 
   const toggleExpand = (id: string, e?: React.MouseEvent) => {
     if (e) {
@@ -278,11 +259,11 @@ export default function Sidebar() {
                 <div key={id} className="space-y-1">
                   {children && children.length > 0 ? (
                     <div className="flex items-center">
-                      <Link
+                      <button
                         id={id}
-                        href={href}
-                        onClick={() => setMobileOpen(false)}
-                        className="flex-1 flex items-center justify-between gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-colors group"
+                        type="button"
+                        onClick={() => toggleExpand(id)}
+                        className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-colors group cursor-pointer text-left"
                         style={{
                           color: isParentActive ? 'var(--accent-ink)' : 'var(--muted)',
                           background: isParentActive ? 'var(--accent)' : 'transparent',
@@ -292,18 +273,13 @@ export default function Sidebar() {
                           <Icon size={17} strokeWidth={2.2} className="flex-shrink-0" />
                           <span className="truncate">{label}</span>
                         </div>
-                        <button
-                          type="button"
-                          onClick={(e) => toggleExpand(id, e)}
-                          aria-label={`Toggle sub-menu ${label}`}
-                          className="p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-                        >
+                        <div className="p-1 rounded-md text-gray-400 group-hover:text-gray-900 transition-colors">
                           <ChevronDown
                             size={14}
-                            className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                            className={`transition-transform duration-200 ${isExpanded ? 'rotate-180 text-amber-700' : ''}`}
                           />
-                        </button>
-                      </Link>
+                        </div>
+                      </button>
                     </div>
                   ) : (
                     <Link
@@ -323,7 +299,7 @@ export default function Sidebar() {
 
                   {/* Sub-menu with vertical tree line (Gambar 2 reference) */}
                   {children && isExpanded && (
-                    <div className="ml-5 pl-3 py-1 space-y-1 border-l-2 border-gray-200 dark:border-gray-800 animate-in fade-in slide-in-from-top-1 duration-150">
+                    <div className="ml-5 pl-3 py-1 space-y-1 border-l-2 border-amber-300 dark:border-amber-700/60 animate-in fade-in slide-in-from-top-1 duration-150">
                       {children.map(sub => {
                         const isSubActive =
                           pathname === sub.href ||
@@ -335,10 +311,10 @@ export default function Sidebar() {
                             key={sub.id}
                             href={sub.href}
                             onClick={() => setMobileOpen(false)}
-                            className={`block px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors truncate ${
+                            className={`block px-3 py-2 rounded-xl text-xs font-bold transition-all truncate cursor-pointer ${
                               isSubActive
-                                ? 'text-amber-950 bg-amber-100/80 font-bold dark:bg-amber-900/30 dark:text-amber-300'
-                                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100/70 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/60'
+                                ? 'text-amber-950 bg-amber-300 shadow-2xs font-black'
+                                : 'text-gray-600 hover:text-gray-950 hover:bg-amber-50/70 dark:text-gray-400 dark:hover:text-white'
                             }`}
                           >
                             {sub.label}

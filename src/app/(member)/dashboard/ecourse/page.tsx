@@ -75,9 +75,13 @@ export default function EcoursePage() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       const cat = params.get('cat')
-      if (cat === 'pbm') setJalurId('pbm')
-      else if (cat === 'snbp') setJalurId('snbp')
-      else if (cat === 'esai' || cat === 'ppkb') setJalurId('ppkb')
+      if (cat && EJALUR_LIST.some(j => j.id === cat)) {
+        setJalurId(cat)
+      } else if (cat === 'pbm' || cat === 'ppu') {
+        setJalurId('basic-essay')
+      } else if (cat === 'esai' || cat === 'ppkb') {
+        setJalurId('essay')
+      }
     }
 
     // Check profile tier
@@ -157,6 +161,13 @@ export default function EcoursePage() {
     if (currentIdx < allLessons.length - 1) {
       const nxt = allLessons[currentIdx + 1]
       const nxtStg = jalur.stages.find(s => s.lessons.some(l => l.id === nxt.id)) ?? activeStage
+      if (nxt.isPremium && userTier === 'free') {
+        setPremiumModalData({
+          title: nxt.title,
+          unit: nxtStg.id,
+        })
+        return
+      }
       setActiveLesson(nxt)
       setActiveStage(nxtStg)
     }
@@ -615,21 +626,29 @@ export default function EcoursePage() {
             {/* Modal Body / Article */}
             <div className="p-6 sm:p-8 overflow-y-auto flex-1 text-gray-800 text-sm leading-relaxed">
               {activeLesson.type === 'video' && (
-                <div className="mb-6 rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 aspect-video shadow-lg">
-                  {activeLesson.videoUrl ? (
-                    <iframe
-                      src={activeLesson.videoUrl}
-                      title={activeLesson.title}
-                      className="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-white">
-                      <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
-                        <Play size={28} className="text-white fill-white ml-1" />
+                <div className="mb-6 space-y-2">
+                  <div className="rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 aspect-video shadow-lg">
+                    {activeLesson.videoUrl ? (
+                      <iframe
+                        src={activeLesson.videoUrl}
+                        title={activeLesson.title}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-white">
+                        <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+                          <Play size={28} className="text-white fill-white ml-1" />
+                        </div>
+                        <span className="text-xs font-semibold mt-3 text-slate-300">Video segera hadir</span>
                       </div>
-                      <span className="text-xs font-semibold mt-3 text-slate-300">Video segera hadir</span>
+                    )}
+                  </div>
+                  {activeLesson.videoCredit && (
+                    <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-900">
+                      <span className="font-extrabold text-amber-950">📺 Referensi Video:</span>
+                      <span className="font-medium text-amber-800">{activeLesson.videoCredit}</span>
                     </div>
                   )}
                 </div>

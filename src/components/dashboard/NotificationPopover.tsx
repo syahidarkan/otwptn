@@ -156,11 +156,11 @@ export default function NotificationPopover({
         </div>
 
         {/* Filter Category Tabs */}
-        <div className="flex items-center gap-1.5 pt-1.5 pb-3 px-0.5 overflow-x-auto no-scrollbar flex-shrink-0">
+        <div className="flex items-center gap-2 py-2 px-1 overflow-x-auto no-scrollbar flex-shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab('all')}
-            className={`px-3 py-1.5 rounded-full text-[11px] font-black transition-all cursor-pointer whitespace-nowrap leading-none ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap leading-tight ${
               activeTab === 'all'
                 ? 'bg-amber-400 text-amber-950 shadow-2xs'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200/80'
@@ -171,7 +171,7 @@ export default function NotificationPopover({
           <button
             type="button"
             onClick={() => setActiveTab('broadcast')}
-            className={`px-3 py-1.5 rounded-full text-[11px] font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 leading-none ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 leading-tight ${
               activeTab === 'broadcast'
                 ? 'bg-amber-400 text-amber-950 shadow-2xs'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200/80'
@@ -182,7 +182,7 @@ export default function NotificationPopover({
           <button
             type="button"
             onClick={() => setActiveTab('article')}
-            className={`px-3 py-1.5 rounded-full text-[11px] font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 leading-none ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 leading-tight ${
               activeTab === 'article'
                 ? 'bg-amber-400 text-amber-950 shadow-2xs'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200/80'
@@ -193,7 +193,7 @@ export default function NotificationPopover({
           <button
             type="button"
             onClick={() => setActiveTab('update')}
-            className={`px-3 py-1.5 rounded-full text-[11px] font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 leading-none ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 leading-tight ${
               activeTab === 'update'
                 ? 'bg-amber-400 text-amber-950 shadow-2xs'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200/80'
