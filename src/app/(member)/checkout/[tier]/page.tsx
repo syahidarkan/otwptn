@@ -2,8 +2,15 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Check, ChevronLeft, ChevronRight, Star, Zap, Shield, Users, BookOpen, MessageSquare, Clock } from 'lucide-react'
-import Link from 'next/link'
+import { Check, ChevronLeft, ChevronRight, Star, Zap, Shield, Users, BookOpen, MessageSquare, Clock, Loader2 } from 'lucide-react'
+
+// Frontend key → backend tier key mapping
+const TIER_KEY_MAP: Record<string, string> = {
+  premium: 'web_premium',
+  nectar: 'review',
+  honeycomb: 'dokumen',
+  'queen-bee': 'menyeluruh',
+}
 
 const TIERS = [
   {
@@ -104,43 +111,63 @@ export default function CheckoutPage() {
   const [selected, setSelected] = useState(defaultIdx)
   const [carouselIdx, setCarouselIdx] = useState(0)
   const [featureIdx, setFeatureIdx] = useState(0)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const featureIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setCarouselIdx(i => (i + 1) % TIERS.length)
-    }, 3200)
+    intervalRef.current = setInterval(() => setCarouselIdx(i => (i + 1) % TIERS.length), 3200)
     return () => clearInterval(intervalRef.current!)
   }, [])
 
   useEffect(() => {
-    featureIntervalRef.current = setInterval(() => {
-      setFeatureIdx(i => (i + 1) % FEATURE_HIGHLIGHTS.length)
-    }, 2800)
+    featureIntervalRef.current = setInterval(() => setFeatureIdx(i => (i + 1) % FEATURE_HIGHLIGHTS.length), 2800)
     return () => clearInterval(featureIntervalRef.current!)
   }, [])
 
   const current = TIERS[selected]
   const featured = TIERS[carouselIdx]
 
+  const handleCheckout = async () => {
+    setIsLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier: TIER_KEY_MAP[current.key], payment_method: 'mayar' }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error ?? 'Gagal memproses pembayaran. Coba lagi.')
+        return
+      }
+      if (data.payment_url) {
+        window.location.href = data.payment_url
+      }
+    } catch {
+      setError('Koneksi gagal. Periksa internet dan coba lagi.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen py-10 px-4" style={{ background: 'var(--bg)' }}>
       <div className="max-w-5xl mx-auto">
 
-        {/* Back */}
         <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm font-semibold mb-8 hover:opacity-70 transition-opacity" style={{ color: 'var(--muted)' }}>
           <ChevronLeft size={16} /> Kembali
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-          {/* Left: Tier Selector + Details */}
+          {/* Left: Tier Selector */}
           <div>
             <h1 className="text-2xl font-extrabold mb-1" style={{ color: 'var(--fg)' }}>Upgrade Akun</h1>
             <p className="text-sm mb-6" style={{ color: 'var(--muted)' }}>Pilih paket yang sesuai dengan kebutuhanmu</p>
 
-            {/* Tier Cards */}
             <div className="space-y-3 mb-8">
               {TIERS.map((t, i) => (
                 <button
@@ -178,7 +205,6 @@ export default function CheckoutPage() {
               ))}
             </div>
 
-            {/* Selected Tier Benefits */}
             <div className="rounded-2xl p-5" style={{ background: current.bgColor, border: `1.5px solid ${current.color}44` }}>
               <p className="text-xs font-semibold mb-3" style={{ color: 'var(--muted)' }}>Benefit {current.name}:</p>
               <ul className="space-y-2">
@@ -192,16 +218,14 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Right: Summary + Carousel + CTA */}
+          {/* Right: Summary + CTA */}
           <div className="flex flex-col gap-5">
 
-            {/* Auto-slide Promo Carousel */}
+            {/* Promo Carousel */}
             <div className="rounded-2xl overflow-hidden relative" style={{ background: `linear-gradient(135deg, ${featured.color}22 0%, ${featured.color}11 100%)`, border: `1.5px solid ${featured.color}44`, minHeight: 120 }}>
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-black px-2.5 py-0.5 rounded-full text-white" style={{ background: featured.color }}>
-                    {featured.name}
-                  </span>
+                  <span className="text-xs font-black px-2.5 py-0.5 rounded-full text-white" style={{ background: featured.color }}>{featured.name}</span>
                   <span className="text-xs font-bold" style={{ color: 'var(--muted)' }}>- {featured.price}</span>
                 </div>
                 <p className="text-sm font-semibold mb-3" style={{ color: 'var(--fg)' }}>{featured.desc}</p>
@@ -211,7 +235,6 @@ export default function CheckoutPage() {
                   ))}
                 </div>
               </div>
-              {/* Dots */}
               <div className="flex items-center justify-center gap-1.5 pb-3">
                 {TIERS.map((_, i) => (
                   <button key={i} onClick={() => setCarouselIdx(i)}
@@ -222,7 +245,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Feature Highlight Carousel */}
+            {/* Feature Highlight */}
             <div className="rounded-2xl p-4 flex items-center gap-4" style={{ background: 'var(--bg-alt)', border: '1.5px solid var(--border)' }}>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b' }}>
                 {(() => { const Icon = FEATURE_HIGHLIGHTS[featureIdx].icon; return <Icon size={18} /> })()}
@@ -241,33 +264,42 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Order Summary */}
+            {/* Order Summary + CTA */}
             <div className="rounded-2xl p-5" style={{ background: 'var(--bg-alt)', border: '1.5px solid var(--border)' }}>
               <h3 className="font-extrabold text-sm mb-4" style={{ color: 'var(--fg)' }}>Ringkasan Pesanan</h3>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm" style={{ color: 'var(--muted)' }}>{current.name}</span>
                 <span className="text-sm font-bold" style={{ color: 'var(--fg)' }}>{current.price}</span>
               </div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs" style={{ color: 'var(--muted)' }}>Biaya admin</span>
-                <span className="text-xs font-semibold text-emerald-600">Gratis</span>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs" style={{ color: 'var(--muted)' }}>Biaya layanan gateway</span>
+                <span className="text-xs font-semibold" style={{ color: 'var(--muted)' }}>Ditambahkan saat checkout</span>
               </div>
-              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.75rem' }} className="flex items-center justify-between mb-5">
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.75rem' }} className="flex items-center justify-between mb-5 mt-3">
                 <span className="font-extrabold text-sm" style={{ color: 'var(--fg)' }}>Total</span>
                 <span className="font-extrabold text-lg" style={{ color: current.color }}>{current.price}</span>
               </div>
 
-              <Link
-                href={`https://wa.me/6281326197196?text=Halo+saya+ingin+upgrade+ke+paket+${encodeURIComponent(current.name)}+seharga+${encodeURIComponent(current.price)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full text-center py-3.5 rounded-xl font-extrabold text-sm text-white transition-all hover:opacity-90 active:scale-[0.98]"
+              {error && (
+                <div className="mb-3 p-3 rounded-xl bg-red-50 text-red-700 text-xs font-semibold border border-red-200">
+                  {error}
+                </div>
+              )}
+
+              <button
+                onClick={handleCheckout}
+                disabled={isLoading}
+                className="block w-full text-center py-3.5 rounded-xl font-extrabold text-sm text-white transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
                 style={{ background: current.color }}
               >
-                Bayar & Aktifkan {current.name} →
-              </Link>
+                {isLoading ? (
+                  <><Loader2 size={16} className="animate-spin" /> Memproses...</>
+                ) : (
+                  <>Bayar & Aktifkan {current.name} →</>
+                )}
+              </button>
               <p className="text-center text-xs mt-3" style={{ color: 'var(--muted)' }}>
-                Pembayaran via transfer bank / QRIS · Aktivasi dalam 1×24 jam
+                VA Bank · QRIS · GoPay · OVO · Dana · Kartu Kredit
               </p>
             </div>
 
