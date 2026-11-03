@@ -143,9 +143,9 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, tier, school_name, school, avg_rapor, cert_count, target_jalurs')
+    .select('full_name, tier, school_name, school, avg_rapor, cert_count, target_jalurs, referral_code')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   const firstName = (profile?.full_name || 'Pejuang PTN').split(' ')[0]
   const tier = profile?.tier || 'free'
@@ -448,7 +448,7 @@ export default async function DashboardPage() {
         {/* Quote Card & Ajak Teman */}
         <div className="flex flex-col gap-5">
           <QuoteCard />
-          <AjakTemanCard userRefCode={user?.id ? user.id.slice(0, 8).toUpperCase() : 'PEJUANG2026'} />
+          <AjakTemanCard userRefCode={profile?.referral_code ?? user.id.slice(0, 6).toUpperCase()} />
         </div>
       </div>
     </div>

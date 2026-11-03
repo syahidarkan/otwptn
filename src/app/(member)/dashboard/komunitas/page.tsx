@@ -275,6 +275,7 @@ export default function KomunitasPage() {
   const [cuitanList, setCuitanList] = useState<CuitanPost[]>(INITIAL_CUITAN)
   const [newCuitanText, setNewCuitanText] = useState('')
   const [cuitanFilter, setCuitanFilter] = useState<'Semua' | 'SNBP' | 'Esai' | 'Mentor'>('Semua')
+  const [cuitanLoading, setCuitanLoading] = useState(false)
 
   // Gating & Creation Modals
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -297,27 +298,84 @@ export default function KomunitasPage() {
     })
   }, [supabase])
 
+  useEffect(() => {
+    // Load real community posts from DB
+    fetch('/api/community')
+      .then(r => r.json())
+      .then(data => {
+        if (data.posts?.length > 0) {
+          const mapped: CuitanPost[] = data.posts.map((p: {
+            id: string
+            content: string
+            likes: number
+            created_at: string
+            profiles: { full_name?: string; avatar_url?: string; target_ptns?: string[]; target_majors?: string[] } | null
+          }) => {
+            const prof = p.profiles
+            const ptn = prof?.target_ptns?.[0] ?? '—'
+            const name = prof?.full_name ?? 'Pejuang PTN'
+            const handle = '@' + name.toLowerCase().replace(/\s+/g, '').slice(0, 10)
+            const elapsed = Math.floor((Date.now() - new Date(p.created_at).getTime()) / 60000)
+            const timeStr = elapsed < 1 ? 'Baru saja' : elapsed < 60 ? `${elapsed}m yang lalu` : elapsed < 1440 ? `${Math.floor(elapsed / 60)}j yang lalu` : `${Math.floor(elapsed / 1440)}h yang lalu`
+            return {
+              id: p.id,
+              author: name,
+              handle,
+              avatar: prof?.avatar_url ?? '',
+              targetPTN: ptn,
+              time: timeStr,
+              content: p.content,
+              likes: p.likes,
+              replies: 0,
+              liked: false,
+            }
+          })
+          setCuitanList(mapped)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   const isPremiumUser = tier !== 'free' && tier !== ''
 
   const activeCircle = circles.find(c => c.id === selectedCircleId)
   const currentMessages = selectedCircleId ? messagesMap[selectedCircleId] || [] : []
 
-  function handlePostCuitan() {
-    if (!newCuitanText.trim()) return
-    const newPost: CuitanPost = {
-      id: 'post-' + Date.now(),
-      author: 'Kamu',
-      handle: '@pejuangptn',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-      targetPTN: 'UI · Target Pilihan',
-      time: 'Baru saja',
-      content: newCuitanText.trim(),
-      likes: 1,
-      replies: 0,
-      liked: true,
+  async function handlePostCuitan() {
+    if (!newCuitanText.trim() || cuitanLoading) return
+    setCuitanLoading(true)
+    try {
+      const res = await fetch('/api/community', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newCuitanText.trim() }),
+      })
+      const data = await res.json()
+      if (res.ok && data.post) {
+        const p = data.post
+        const prof = p.profiles
+        const name = prof?.full_name ?? 'Kamu'
+        const handle = '@' + name.toLowerCase().replace(/\s+/g, '').slice(0, 10)
+        const newPost: CuitanPost = {
+          id: p.id,
+          author: name,
+          handle,
+          avatar: prof?.avatar_url ?? '',
+          targetPTN: prof?.target_ptns?.[0] ?? '—',
+          time: 'Baru saja',
+          content: p.content,
+          likes: 0,
+          replies: 0,
+          liked: false,
+        }
+        setCuitanList(prev => [newPost, ...prev])
+        setNewCuitanText('')
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setCuitanLoading(false)
     }
-    setCuitanList([newPost, ...cuitanList])
-    setNewCuitanText('')
   }
 
   function handleToggleLike(id: string) {
@@ -477,9 +535,10 @@ export default function KomunitasPage() {
               </span>
               <button
                 onClick={handlePostCuitan}
-                className="btn-brand-primary px-5 py-2 rounded-full text-xs font-black shadow-xs"
+                disabled={cuitanLoading}
+                className="btn-brand-primary px-5 py-2 rounded-full text-xs font-black shadow-xs disabled:opacity-60"
               >
-                Posting Cuitan
+                {cuitanLoading ? 'Posting...' : 'Posting Cuitan'}
               </button>
             </div>
           </div>

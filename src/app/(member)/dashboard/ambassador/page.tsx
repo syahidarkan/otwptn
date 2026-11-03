@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Copy,
@@ -34,23 +34,40 @@ export default function AmbassadorDashboardPage() {
   const [posterAspect, setPosterAspect] = useState<'Story 9:16' | 'Feed 4:5'>('Story 9:16')
   const [activeDemoVideo, setActiveDemoVideo] = useState<{ title: string; desc: string; duration: string; videoUrl: string; feature: string } | null>(null)
 
-  // Monitoring Stats & Financials
-  const [totalReferred] = useState(6)
-  const [totalEarnings] = useState(450000)
-  const [alreadyWithdrawn] = useState(100000)
-  const activeBalance = totalEarnings - alreadyWithdrawn // Rp 350.000
+  // Monitoring Stats & Financials (loaded from API)
+  const [totalReferred, setTotalReferred] = useState(0)
+  const [totalEarnings, setTotalEarnings] = useState(0)
+  const [alreadyWithdrawn, setAlreadyWithdrawn] = useState(0)
+  const [activeBalance, setActiveBalance] = useState(0)
+  const [statsLoading, setStatsLoading] = useState(true)
+
+  // Referral code (loaded from DB)
+  const [referralCode, setReferralCode] = useState('')
+  const referralUrl = referralCode ? `https://otwptn.id/r/${referralCode}` : ''
 
   // Withdrawal Modal State
   const [withdrawModalOpen, setWithdrawModalOpen] = useState(false)
-  const [withdrawAmount, setWithdrawAmount] = useState(String(activeBalance))
+  const [withdrawAmount, setWithdrawAmount] = useState('')
   const [bankTarget, setBankTarget] = useState('BCA')
-  const [accountNumber, setAccountNumber] = useState('8720192831')
-  const [accountHolder, setAccountHolder] = useState('ACAN')
+  const [accountNumber, setAccountNumber] = useState('')
+  const [accountHolder, setAccountHolder] = useState('')
   const [withdrawSuccess, setWithdrawSuccess] = useState(false)
+  const [withdrawError, setWithdrawError] = useState('')
 
-  // Referral code format [NAMA]OTW[ANGKA] -> ACANOTW01
-  const referralCode = 'ACANOTW01'
-  const referralUrl = `https://otwptn.id/r/${referralCode}`
+  useEffect(() => {
+    fetch('/api/ambassador')
+      .then(r => r.json())
+      .then(data => {
+        setReferralCode(data.referralCode ?? '')
+        setTotalReferred(data.totalReferred ?? 0)
+        setTotalEarnings(data.totalEarnings ?? 0)
+        setAlreadyWithdrawn(data.alreadyWithdrawn ?? 0)
+        setActiveBalance(data.activeBalance ?? 0)
+        setWithdrawAmount(String(data.activeBalance ?? 0))
+      })
+      .catch(() => {})
+      .finally(() => setStatsLoading(false))
+  }, [])
 
   function handleCopyCode() {
     navigator.clipboard.writeText(referralCode)
@@ -77,13 +94,38 @@ export default function AmbassadorDashboardPage() {
     link.click()
   }
 
-  function handleWithdrawSubmit(e: React.FormEvent) {
+  async function handleWithdrawSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setWithdrawSuccess(true)
-    setTimeout(() => {
-      setWithdrawSuccess(false)
-      setWithdrawModalOpen(false)
-    }, 2000)
+    setWithdrawError('')
+    try {
+      const res = await fetch('/api/ambassador', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: Number(withdrawAmount),
+          bank_name: bankTarget,
+          account_number: accountNumber,
+          account_holder: accountHolder,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setWithdrawError(data.error ?? 'Gagal mengajukan penarikan')
+        return
+      }
+      setWithdrawSuccess(true)
+      // Refresh stats
+      const statsRes = await fetch('/api/ambassador')
+      const statsData = await statsRes.json()
+      setAlreadyWithdrawn(statsData.alreadyWithdrawn ?? 0)
+      setActiveBalance(statsData.activeBalance ?? 0)
+      setTimeout(() => {
+        setWithdrawSuccess(false)
+        setWithdrawModalOpen(false)
+      }, 2000)
+    } catch {
+      setWithdrawError('Terjadi kesalahan. Coba lagi.')
+    }
   }
 
   // Screen Record Demos per Feature of otwptn (12 Individual Lightweight 60FPS Video Recordings)
@@ -897,7 +939,7 @@ export default function AmbassadorDashboardPage() {
       {/* 5. TAUTAN FOOTER (PERSIS PINTARLY) */}
       <div className="rounded-3xl bg-white shadow-md divide-y divide-gray-100 overflow-hidden">
         <a
-          href="https://chat.whatsapp.com/sample-ambassador-otwptn"
+          href="https://wa.me/6285156667221?text=Halo+Kak%2C+saya+ingin+bergabung+grup+Student+Ambassador+OTWPTN"
           target="_blank"
           rel="noopener noreferrer"
           className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
@@ -1019,6 +1061,10 @@ export default function AmbassadorDashboardPage() {
                     className="w-full px-4 py-2.5 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
                   />
                 </div>
+
+                {withdrawError && (
+                  <p className="text-xs text-red-600 font-semibold bg-red-50 px-3 py-2 rounded-xl">{withdrawError}</p>
+                )}
 
                 <div className="pt-2 flex items-center gap-3">
                   <button

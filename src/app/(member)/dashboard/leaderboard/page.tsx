@@ -1,32 +1,45 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
-import {
-  Trophy,
-  Flame,
-  Medal,
-  Star,
-  Sparkles,
-  Award,
-  Users,
-  Search,
-  ChevronUp,
-} from 'lucide-react'
 
-const LEADERBOARD_USERS = [
-  { rank: 1, name: 'Fajar Nugraha', school: 'SMAN 8 Jakarta', targetPTN: 'UI · Ilmu Komputer', xp: 2450, streak: 21, essays: 6, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80' },
-  { rank: 2, name: 'Keisha Maharani', school: 'MAN 2 Surabaya', targetPTN: 'UNAIR · Kedokteran', xp: 2280, streak: 18, essays: 5, avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80' },
-  { rank: 3, name: 'Dinda Ayuningtyas', school: 'SMAN 3 Bandung', targetPTN: 'ITB · SBM ITB', xp: 2120, streak: 14, essays: 4, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' },
-  { rank: 4, name: 'Bima Pratama', school: 'SMA Taruna Nusantara', targetPTN: 'UGM · Teknik Sipil', xp: 1980, streak: 9, essays: 4, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80' },
-  { rank: 5, name: 'Nayla Zahira', school: 'SMAN 1 Yogyakarta', targetPTN: 'UI · Psikologi', xp: 1850, streak: 11, essays: 3, avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=200&q=80' },
-  { rank: 6, name: 'Raffi Kurniawan', school: 'SMAN 1 Surabaya', targetPTN: 'ITS · Informatika', xp: 1720, streak: 15, essays: 3, avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80' },
-  { rank: 7, name: 'Siti Nurhaliza', school: 'SMAN 1 Semarang', targetPTN: 'UNDIP · Kesmas', xp: 1610, streak: 8, essays: 2, avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80' },
-  { rank: 8, name: 'Syahid Arkan (Kamu)', school: 'SMAN 8 Jakarta', targetPTN: 'UI · Ilmu Komputer', xp: 1450, streak: 7, essays: 2, avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80', isYou: true },
-]
+type LeaderboardEntry = {
+  rank: number
+  user_id: string
+  name: string
+  school: string
+  targetPTN: string
+  xp: number
+  streak: number
+  avatar: string | null
+  isYou: boolean
+}
 
 export default function LeaderboardPage() {
   const [period, setPeriod] = useState<'mingguan' | 'bulanan' | 'sepanjang-masa'>('mingguan')
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const loadLeaderboard = useCallback(async (p: string) => {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/leaderboard?period=${p}`)
+      if (res.ok) {
+        const data = await res.json()
+        setEntries(data.entries ?? [])
+      }
+    } catch {
+      // silently fail — show empty state
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { loadLeaderboard(period) }, [period, loadLeaderboard])
+
+  const top3 = entries.slice(0, 3)
+  const rest = entries.slice(3)
+  const youEntry = entries.find(e => e.isYou)
 
   return (
     <div className="w-full px-6 md:px-8 py-8 md:py-10">
@@ -34,127 +47,121 @@ export default function LeaderboardPage() {
         title="Papan Peringkat Pejuang PTN"
         subtitle="Pantau progres belajar, konsistensi streak, dan kumpulkan XP melalui penulisan essay dan latihan rasionalisasi nilai rapor."
         mascot="/fitur/ecourse-modul.png"
-        badgeText="Weekly Leaderboard"
+        badgeText="Live Leaderboard"
       />
 
-      {/* Top 3 Podium Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 items-end">
-        {/* Rank 2 */}
-        <div className="p-6 rounded-3xl bg-white shadow-md text-center flex flex-col items-center order-2 md:order-1">
-          <span className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 font-black text-xs flex items-center justify-center mb-3">
-            #2
-          </span>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={LEADERBOARD_USERS[1].avatar}
-            alt=""
-            className="w-16 h-16 rounded-full object-cover shadow-sm mb-3"
-          />
-          <h3 className="text-sm font-black text-gray-900">{LEADERBOARD_USERS[1].name}</h3>
-          <p className="text-[11px] text-amber-700 font-bold mt-0.5">{LEADERBOARD_USERS[1].targetPTN}</p>
-          <span className="mt-3 px-3 py-1 rounded-full text-xs font-black bg-amber-50 text-amber-900">
-            {LEADERBOARD_USERS[1].xp} XP
-          </span>
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
         </div>
-
-        {/* Rank 1 (Gold Winner) */}
-        <div className="p-8 rounded-3xl bg-gradient-to-b from-amber-50 to-white shadow-xl text-center flex flex-col items-center order-1 md:order-2 border-2 border-amber-300 scale-105">
-          <div className="w-10 h-10 rounded-full bg-amber-400 text-amber-950 font-black text-sm flex items-center justify-center mb-3 shadow-md">
-            👑 #1
-          </div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={LEADERBOARD_USERS[0].avatar}
-            alt=""
-            className="w-20 h-20 rounded-full object-cover shadow-md mb-3 border-2 border-amber-400"
-          />
-          <h3 className="text-base font-black text-gray-900">{LEADERBOARD_USERS[0].name}</h3>
-          <p className="text-xs text-amber-800 font-black mt-0.5">{LEADERBOARD_USERS[0].targetPTN}</p>
-          <span className="mt-3 btn-brand-primary px-4 py-1.5 rounded-full text-xs font-black shadow-xs">
-            {LEADERBOARD_USERS[0].xp} XP · 21 Hari Streak
-          </span>
+      ) : entries.length === 0 ? (
+        <div className="text-center py-20 text-gray-400">
+          <p className="text-4xl mb-4">🏆</p>
+          <p className="font-bold text-gray-600">Belum ada data untuk periode ini</p>
+          <p className="text-sm mt-1">Mulai review esai atau kalkulator untuk masuk leaderboard!</p>
         </div>
+      ) : (
+        <>
+          {/* Top 3 Podium */}
+          {top3.length >= 3 && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 items-end">
+              {/* Rank 2 */}
+              <PodiumCard entry={top3[1]} size="small" order="order-2 md:order-1" />
+              {/* Rank 1 */}
+              <PodiumCard entry={top3[0]} size="large" order="order-1 md:order-2" />
+              {/* Rank 3 */}
+              <PodiumCard entry={top3[2]} size="small" order="order-3" />
+            </div>
+          )}
 
-        {/* Rank 3 */}
-        <div className="p-6 rounded-3xl bg-white shadow-md text-center flex flex-col items-center order-3">
-          <span className="w-8 h-8 rounded-full bg-amber-100 text-amber-800 font-black text-xs flex items-center justify-center mb-3">
-            #3
-          </span>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={LEADERBOARD_USERS[2].avatar}
-            alt=""
-            className="w-16 h-16 rounded-full object-cover shadow-sm mb-3"
-          />
-          <h3 className="text-sm font-black text-gray-900">{LEADERBOARD_USERS[2].name}</h3>
-          <p className="text-[11px] text-amber-700 font-bold mt-0.5">{LEADERBOARD_USERS[2].targetPTN}</p>
-          <span className="mt-3 px-3 py-1 rounded-full text-xs font-black bg-amber-50 text-amber-900">
-            {LEADERBOARD_USERS[2].xp} XP
-          </span>
-        </div>
-      </div>
-
-      {/* Leaderboard Table List */}
-      <div className="p-6 rounded-3xl bg-white shadow-md space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-          <h3 className="text-sm font-black text-gray-900">Peringkat Lengkap Siswa</h3>
-          <div className="flex gap-2">
-            {(['mingguan', 'bulanan', 'sepanjang-masa'] as const).map(p => (
-              <button
-                key={p}
-                onClick={() => setPeriod(p)}
-                className={`px-3 py-1 rounded-full text-xs font-bold capitalize transition-all ${
-                  period === p
-                    ? 'btn-brand-primary'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {p.replace('-', ' ')}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          {LEADERBOARD_USERS.map(user => (
-            <div
-              key={user.rank}
-              className={`p-3.5 rounded-2xl flex items-center gap-3 transition-colors ${
-                user.isYou
-                  ? 'bg-amber-100/70 border-2 border-amber-300'
-                  : 'bg-gray-50/70 hover:bg-gray-100/60'
-              }`}
-            >
-              <span className="w-7 text-center text-xs font-black text-gray-500 font-mono">
-                #{user.rank}
-              </span>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className="w-10 h-10 rounded-full object-cover shadow-xs"
-              />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <h4 className="text-xs font-black text-gray-900 truncate">{user.name}</h4>
-                  {user.isYou && (
-                    <span className="text-[10px] font-black uppercase tracking-wider bg-amber-500 text-white px-2 py-0.2 rounded-full">
-                      Peringkat Kamu
-                    </span>
-                  )}
-                </div>
-                <p className="text-[11px] text-amber-700 font-bold truncate mt-0.5">
-                  🎯 {user.targetPTN}
-                </p>
-              </div>
-
-              <div className="text-right flex-shrink-0">
-                <span className="text-xs font-black text-gray-900 block">{user.xp} XP</span>
-                <span className="text-[10px] font-bold text-gray-400">🔥 {user.streak} Hari</span>
+          {/* Leaderboard Table */}
+          <div className="p-6 rounded-3xl bg-white shadow-md space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <h3 className="text-sm font-black text-gray-900">Peringkat Lengkap Siswa</h3>
+              <div className="flex gap-2">
+                {(['mingguan', 'bulanan', 'sepanjang-masa'] as const).map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setPeriod(p)}
+                    className={`px-3 py-1 rounded-full text-xs font-bold capitalize transition-all ${
+                      period === p ? 'btn-brand-primary' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {p.replace('-', ' ')}
+                  </button>
+                ))}
               </div>
             </div>
-          ))}
+
+            <div className="space-y-2">
+              {(top3.length >= 3 ? rest : entries).map(entry => (
+                <EntryRow key={entry.user_id} entry={entry} />
+              ))}
+              {!youEntry && (
+                <p className="text-center text-xs text-gray-400 pt-2">
+                  Kamu belum masuk leaderboard periode ini. Review esai atau buka kalkulator untuk XP!
+                </p>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+function Avatar({ src, name, size }: { src: string | null; name: string; size: number }) {
+  if (src) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={src} alt={name} className={`w-${size} h-${size} rounded-full object-cover`} />
+  }
+  const initials = name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
+  return (
+    <div className={`w-${size} h-${size} rounded-full bg-amber-200 flex items-center justify-center text-amber-900 font-black text-xs`}>
+      {initials}
+    </div>
+  )
+}
+
+function PodiumCard({ entry, size, order }: { entry: LeaderboardEntry; size: 'small' | 'large'; order: string }) {
+  const isLarge = size === 'large'
+  return (
+    <div className={`${isLarge ? 'p-8 scale-105 border-2 border-amber-300 shadow-xl bg-gradient-to-b from-amber-50 to-white' : 'p-6 shadow-md bg-white'} rounded-3xl text-center flex flex-col items-center ${order}`}>
+      <div className={`${isLarge ? 'w-10 h-10 bg-amber-400 text-amber-950 text-sm' : 'w-8 h-8 bg-slate-100 text-slate-700 text-xs'} rounded-full font-black flex items-center justify-center mb-3 shadow-md`}>
+        {isLarge ? `👑 #1` : `#${entry.rank}`}
+      </div>
+      <Avatar src={entry.avatar} name={entry.name} size={isLarge ? 20 : 16} />
+      <h3 className={`${isLarge ? 'text-base' : 'text-sm'} font-black text-gray-900 mt-3`}>{entry.name}</h3>
+      <p className={`${isLarge ? 'text-xs' : 'text-[11px]'} text-amber-800 font-black mt-0.5`}>{entry.targetPTN}</p>
+      <span className={`mt-3 ${isLarge ? 'btn-brand-primary px-4 py-1.5 shadow-xs text-xs' : 'px-3 py-1 bg-amber-50 text-amber-900 text-xs'} rounded-full font-black`}>
+        {entry.xp} XP{isLarge ? ` · ${entry.streak} Hari Streak` : ''}
+      </span>
+      {entry.isYou && <span className="mt-2 text-[10px] font-black uppercase tracking-wider bg-amber-500 text-white px-2 py-0.5 rounded-full">Kamu</span>}
+    </div>
+  )
+}
+
+function EntryRow({ entry }: { entry: LeaderboardEntry }) {
+  return (
+    <div className={`p-3.5 rounded-2xl flex items-center gap-3 transition-colors ${
+      entry.isYou ? 'bg-amber-100/70 border-2 border-amber-300' : 'bg-gray-50/70 hover:bg-gray-100/60'
+    }`}>
+      <span className="w-7 text-center text-xs font-black text-gray-500 font-mono">#{entry.rank}</span>
+      <Avatar src={entry.avatar} name={entry.name} size={10} />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <h4 className="text-xs font-black text-gray-900 truncate">{entry.name}</h4>
+          {entry.isYou && (
+            <span className="text-[10px] font-black uppercase tracking-wider bg-amber-500 text-white px-2 py-0.5 rounded-full">
+              Kamu
+            </span>
+          )}
         </div>
+        <p className="text-[11px] text-amber-700 font-bold truncate mt-0.5">🎯 {entry.targetPTN}</p>
+      </div>
+      <div className="text-right flex-shrink-0">
+        <span className="text-xs font-black text-gray-900 block">{entry.xp} XP</span>
+        <span className="text-[10px] font-bold text-gray-400">🔥 {entry.streak} Hari</span>
       </div>
     </div>
   )

@@ -107,19 +107,23 @@ export default function TrackingJalurPage() {
         setLoading(false)
         return
       }
-      supabase
-        .from('profiles')
-        .select('target_jalurs')
-        .eq('id', data.user.id)
-        .single()
-        .then(({ data: profile }) => {
-          const tj = profile?.target_jalurs ?? []
-          if (tj.length > 0) {
-            setTargetJalurs(tj)
-            setActiveJalurId(tj[0])
+      Promise.all([
+        supabase.from('profiles').select('target_jalurs').eq('id', data.user.id).maybeSingle(),
+        supabase.from('jalur_checkpoint_progress').select('jalur_id, completed_checkpoint_ids').eq('user_id', data.user.id),
+      ]).then(([profileRes, progressRes]) => {
+        const tj = profileRes.data?.target_jalurs ?? []
+        if (tj.length > 0) {
+          setTargetJalurs(tj)
+          const firstJalur = tj[0]
+          setActiveJalurId(firstJalur)
+          // Load saved checkpoints for first jalur
+          const progress = progressRes.data?.find((p: { jalur_id: string }) => p.jalur_id === firstJalur)
+          if (progress?.completed_checkpoint_ids?.length) {
+            setCompletedSteps(progress.completed_checkpoint_ids)
           }
-          setLoading(false)
-        })
+        }
+        setLoading(false)
+      })
     })
   }, [supabase])
 
@@ -136,9 +140,21 @@ export default function TrackingJalurPage() {
   const checkpoints = CHECKPOINTS_DATA[currentJalur.id] ?? CHECKPOINTS_DATA.default
 
   function toggleStep(id: string) {
-    setCompletedSteps(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    )
+    setCompletedSteps(prev => {
+      const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+      // Persist to Supabase
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user && activeJalurId) {
+          supabase.from('jalur_checkpoint_progress').upsert({
+            user_id: data.user.id,
+            jalur_id: activeJalurId,
+            completed_checkpoint_ids: next,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'user_id,jalur_id' })
+        }
+      })
+      return next
+    })
   }
 
   const progressPercent = Math.round(
@@ -210,7 +226,24 @@ export default function TrackingJalurPage() {
         ).map(j => (
           <button
             key={j.id}
-            onClick={() => setActiveJalurId(j.id)}
+            onClick={() => {
+              setActiveJalurId(j.id)
+              setCompletedSteps([])
+              supabase.auth.getUser().then(({ data }) => {
+                if (data.user) {
+                  supabase.from('jalur_checkpoint_progress')
+                    .select('completed_checkpoint_ids')
+                    .eq('user_id', data.user.id)
+                    .eq('jalur_id', j.id)
+                    .maybeSingle()
+                    .then(({ data: progress }) => {
+                      if (progress?.completed_checkpoint_ids?.length) {
+                        setCompletedSteps(progress.completed_checkpoint_ids)
+                      }
+                    })
+                }
+              })
+            }}
             className={`px-5 py-2.5 rounded-full text-xs font-extrabold whitespace-nowrap transition-all ${
               activeJalurId === j.id
                 ? 'btn-brand-primary'
