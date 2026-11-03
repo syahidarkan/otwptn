@@ -91,14 +91,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Gagal membuat payment link', details: mayarData }, { status: 502 })
     }
 
+    const merchantSlug = process.env.MAYAR_MERCHANT_SLUG ?? 'otwptn'
+    const paymentUrl = `https://${merchantSlug}.myr.id/pay/${mayarData.data.id}`
+
     await supabase.from('orders').update({
       doku_reference: mayarData.data.id,
-      payment_url: mayarData.data.link,
+      payment_url: paymentUrl,
     }).eq('id', order.id)
 
     return NextResponse.json({
       payment_method: 'mayar',
-      payment_url: mayarData.data.link,
+      payment_url: paymentUrl,
       order_id: order.id,
     })
   } catch {
