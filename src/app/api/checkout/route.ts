@@ -14,9 +14,12 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { tier } = await request.json()
+  const { tier, payment_method = 'doku' } = await request.json()
   const tierInfo = TIER_PRICES[tier]
   if (!tierInfo) return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
+  if (payment_method !== 'doku' && payment_method !== 'transfer') {
+    return NextResponse.json({ error: 'Invalid payment method' }, { status: 400 })
+  }
 
   const { data: profile } = await supabase.from('profiles').select('full_name, tier').eq('id', user.id).maybeSingle()
 
@@ -34,16 +37,37 @@ export async function POST(request: Request) {
 
   const invoiceNumber = `INV-${Date.now()}-${user.id.slice(0, 8).toUpperCase()}`
 
+  // For bank transfer, append random 3-digit suffix (100-999) to create a unique amount
+  // This allows matching the transfer back to a specific order
+  const uniqueAmount = payment_method === 'transfer'
+    ? tierInfo.amount + Math.floor(Math.random() * 900) + 100
+    : tierInfo.amount
+
   const { data: order } = await supabase.from('orders').insert({
     user_id: user.id,
     tier,
-    amount: tierInfo.amount,
+    amount: uniqueAmount,
     status: 'pending',
     invoice_number: invoiceNumber,
-    payment_method: 'doku',
+    payment_method,
   }).select('id').single()
 
   if (!order) return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
+
+  // Bank transfer: return account details + unique amount, no DOKU call needed
+  if (payment_method === 'transfer') {
+    return NextResponse.json({
+      payment_method: 'transfer',
+      order_id: order.id,
+      invoice_number: invoiceNumber,
+      bank_name: 'Bank Jago',
+      account_number: process.env.JAGO_ACCOUNT_NUMBER ?? '',
+      account_name: process.env.JAGO_ACCOUNT_NAME ?? '',
+      amount: uniqueAmount,
+      base_amount: tierInfo.amount,
+      tier_name: tierInfo.name,
+    })
+  }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
