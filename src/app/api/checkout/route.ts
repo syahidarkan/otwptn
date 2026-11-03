@@ -81,7 +81,6 @@ export async function POST(request: Request) {
         description: `Paket ${tierInfo.name} otwptn.com`,
         amount: tierInfo.amount,
         redirectUrl: `${appUrl}/dashboard?payment=success`,
-        expiredAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       }),
     })
 
