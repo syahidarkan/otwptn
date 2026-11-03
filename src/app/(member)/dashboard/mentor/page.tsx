@@ -196,6 +196,7 @@ interface MentoringRecord {
 export default function MentorAlumniPage() {
   const supabase = createClient()
   const [tier, setTier] = useState<string>('free')
+  const [isAdmin, setIsAdmin] = useState(false)
   const [, setLoading] = useState(true)
   const [demoUnlocked, setDemoUnlocked] = useState(false)
   const [mentoringRecord, setMentoringRecord] = useState<MentoringRecord | null>(null)
@@ -247,16 +248,18 @@ export default function MentorAlumniPage() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('tier, full_name, school_name')
+        .select('tier, full_name, school_name, is_admin')
         .eq('id', data.user.id)
         .single()
 
       const t = profile?.tier || 'free'
+      const admin = !!profile?.is_admin
       setTier(t)
+      setIsAdmin(admin)
       if (profile?.school_name) setSchoolName(profile.school_name)
 
-      // Load real mentoring record if user has a paid tier
-      if (t !== 'free') {
+      // Admins and paid users unlock the premium view
+      if (t !== 'free' || admin) {
         const { data: rec } = await supabase
           .from('mentoring')
           .select('mentor_name, mentor_email, wa_group_link, tier, zoom_sessions_total, zoom_sessions_used, revision_count_total, revision_count_used')
@@ -275,8 +278,8 @@ export default function MentorAlumniPage() {
     })
   }, [supabase])
 
-  const isUnlocked = demoUnlocked || (tier !== 'free' && tier !== '')
-  const isRealPremium = tier !== 'free' && tier !== ''
+  const isUnlocked = demoUnlocked || isAdmin || (tier !== 'free' && tier !== '')
+  const isRealPremium = isAdmin || (tier !== 'free' && tier !== '')
 
   function handleFormat(tag: string) {
     setEssayContent(prev => prev + `\n[${tag}] Bagian yang ditandai...`)
