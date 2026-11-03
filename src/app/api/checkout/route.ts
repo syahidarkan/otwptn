@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     ? tierInfo.amount + Math.floor(Math.random() * 900) + 100
     : tierInfo.amount
 
-  const { data: order } = await supabase.from('orders').insert({
+  const { data: order, error: orderError } = await supabase.from('orders').insert({
     user_id: user.id,
     tier,
     amount: uniqueAmount,
@@ -48,7 +48,10 @@ export async function POST(request: Request) {
     payment_method,
   }).select('id').single()
 
-  if (!order) return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
+  if (orderError || !order) {
+    console.error('[checkout] insert error:', orderError)
+    return NextResponse.json({ error: 'Failed to create order', details: orderError?.message }, { status: 500 })
+  }
 
   if (payment_method === 'transfer') {
     return NextResponse.json({
