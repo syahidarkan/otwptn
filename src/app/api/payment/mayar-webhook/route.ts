@@ -4,6 +4,14 @@ import { NextResponse } from 'next/server'
 // Mayar fires this when a payment link is paid
 // Payload: { event: "payment.received", data: { productId, transactionStatus, customerEmail, ... } }
 export async function POST(request: Request) {
+  // Verify Mayar webhook secret header
+  const webhookSecret = process.env.MAYAR_WEBHOOK_SECRET ?? ''
+  const incoming = request.headers.get('x-callback-token') ?? request.headers.get('authorization') ?? ''
+  if (webhookSecret && incoming && incoming !== webhookSecret && incoming !== `Bearer ${webhookSecret}`) {
+    console.warn('[mayar-webhook] Invalid webhook secret')
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   let body: { event?: string; data?: Record<string, unknown> }
   try {
     body = await request.json()
