@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   const { tier, payment_method = 'doku' } = await request.json()
   const tierInfo = TIER_PRICES[tier]
   if (!tierInfo) return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
-  if (payment_method !== 'doku' && payment_method !== 'transfer') {
+  if (!['doku', 'transfer', 'mayar'].includes(payment_method)) {
     return NextResponse.json({ error: 'Invalid payment method' }, { status: 400 })
   }
 
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
   if (!order) return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
 
-  // Bank transfer: return account details + unique amount, no DOKU call needed
+  // Bank transfer: return account details + unique amount, no API call needed
   if (payment_method === 'transfer') {
     return NextResponse.json({
       payment_method: 'transfer',
@@ -70,6 +70,47 @@ export async function POST(request: Request) {
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+
+  // Mayar: create a payment link, get back a URL + unique product ID for webhook matching
+  if (payment_method === 'mayar') {
+    try {
+      const mayarRes = await fetch('https://api.mayar.id/hl/v1/product/paymentlink/create', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.MAYAR_API_KEY ?? ''}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: `OTWPTN ${tierInfo.name} - ${invoiceNumber}`,
+          description: `Paket ${tierInfo.name} otwptn.com`,
+          amount: tierInfo.amount,
+          redirectUrl: `${appUrl}/dashboard/upgrade?status=success`,
+          expiredAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        }),
+      })
+
+      const mayarData = await mayarRes.json()
+
+      if (!mayarRes.ok || !mayarData?.data?.id) {
+        await supabase.from('orders').update({ status: 'failed' }).eq('id', order.id)
+        return NextResponse.json({ error: 'Gagal membuat payment link', details: mayarData }, { status: 502 })
+      }
+
+      await supabase.from('orders').update({
+        doku_reference: mayarData.data.id,
+        payment_url: mayarData.data.link,
+      }).eq('id', order.id)
+
+      return NextResponse.json({
+        payment_method: 'mayar',
+        payment_url: mayarData.data.link,
+        order_id: order.id,
+      })
+    } catch {
+      await supabase.from('orders').update({ status: 'failed' }).eq('id', order.id)
+      return NextResponse.json({ error: 'Gagal terhubung ke Mayar' }, { status: 503 })
+    }
+  }
 
   const dokuPayload = {
     order: {
