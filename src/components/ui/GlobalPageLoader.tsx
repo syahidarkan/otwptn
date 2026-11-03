@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import Image from 'next/image'
 
 export default function GlobalPageLoader() {
   const pathname = usePathname()
@@ -104,23 +103,26 @@ export default function GlobalPageLoader() {
         }}
       />
 
-      {/* Centered Modal Popup with Animated Mascot (Exact Reference from Screenshot) */}
+      {/* Centered Modal Popup with Animated Mascot (Exact Reference Style) */}
       {loading && progress < 100 && (
-        <div className="fixed inset-0 flex items-center justify-center p-4 bg-black/25 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-[280px] sm:max-w-[320px] rounded-3xl p-6 bg-[#fffdf7] border-2 border-amber-200/80 shadow-2xl text-center space-y-4 animate-in zoom-in-95 duration-200">
-            {/* Animated Circular Aura & Mascot */}
+        <div className="fixed inset-0 flex items-center justify-center p-4 bg-black/30 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="w-full max-w-[290px] sm:max-w-[320px] rounded-3xl p-6 bg-white border border-gray-100 shadow-2xl text-center space-y-4 animate-in zoom-in-95 duration-200">
+            {/* Animated Circular Aura & Verified Mascot */}
             <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
               {/* Outer soft ring pulse */}
-              <div className="absolute inset-0 rounded-full bg-emerald-100/60 animate-ping opacity-50" />
-              <div className="w-24 h-24 rounded-full bg-gradient-to-b from-emerald-50 to-amber-50 border-2 border-emerald-200/80 flex items-center justify-center shadow-inner overflow-hidden">
-                {/* Mascot with floating bounce animation */}
-                <div className="animate-bounce" style={{ animationDuration: '1.4s' }}>
-                  <Image
-                    src="/mascot-hd/graduation-trophy.png"
+              <div className="absolute inset-0 rounded-full bg-emerald-100/60 animate-ping opacity-40" />
+
+              <div className="w-24 h-24 rounded-full bg-gradient-to-b from-emerald-50 via-white to-amber-50/60 border-2 border-emerald-300 flex items-center justify-center shadow-inner relative overflow-hidden">
+                {/* Floating Mascot with guaranteed working path */}
+                <div className="animate-bounce" style={{ animationDuration: '1.2s' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/mascot/thumbsup.png"
                     alt="Otbee Loading"
-                    width={80}
-                    height={80}
-                    className="object-contain drop-shadow-md"
+                    className="w-16 h-16 object-contain drop-shadow-md select-none pointer-events-none"
+                    onError={e => {
+                      (e.target as HTMLImageElement).src = '/mascot-hd/thumbsup.png'
+                    }}
                   />
                 </div>
               </div>
@@ -128,7 +130,7 @@ export default function GlobalPageLoader() {
 
             {/* Title & Animated Dots */}
             <div>
-              <div className="flex items-center justify-center gap-1.5 text-base sm:text-lg font-black text-gray-900 tracking-tight">
+              <div className="flex items-center justify-center gap-1.5 text-base sm:text-lg font-black text-gray-950 tracking-tight">
                 <span>Menyiapkan Ruang Belajar</span>
                 <span className="flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />

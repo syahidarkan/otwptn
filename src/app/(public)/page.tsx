@@ -2,7 +2,6 @@ import HeroSection from '@/components/landing/HeroSection'
 import EssayCheckerSection from '@/components/landing/EssayCheckerSection'
 import PTNLogoSection from '@/components/landing/PTNLogoSection'
 import KenapaSection from '@/components/landing/KenapaSection'
-import CaraKerjaSection from '@/components/landing/CaraKerjaSection'
 import FiturSection from '@/components/landing/FiturSection'
 import MentorSection from '@/components/landing/MentorSection'
 import OmegleSection from '@/components/landing/OmegleSection'
@@ -22,7 +21,6 @@ export default function HomePage() {
         <EssayCheckerSection />
       </div>
       <KenapaSection />
-      <CaraKerjaSection />
       <FiturSection />
       <MentorSection />
       <OmegleSection />
