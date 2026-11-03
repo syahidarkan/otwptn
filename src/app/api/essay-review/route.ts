@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
 
@@ -125,7 +125,9 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
   }
 
   try {
-    await supabase.from('essay_feedback').insert({
+    const admin = await createAdminClient()
+
+    await admin.from('essay_feedback').insert({
       essay_id,
       feedback_json: result,
       score: result.overall,
@@ -135,8 +137,8 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
     await supabase.from('essays').update({ revision_count: (essayData?.revision_count ?? 0) + 1 }).eq('id', essay_id)
 
     if (!isStaff) {
-      const curUsed = (await supabase.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'ai_essay').maybeSingle()).data?.used_count ?? 0
-      await supabase.from('usage_quotas').upsert({ user_id: user.id, feature: 'ai_essay', used_count: curUsed + 1 }, { onConflict: 'user_id,feature' })
+      const curUsed = (await admin.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'ai_essay').maybeSingle()).data?.used_count ?? 0
+      await admin.from('usage_quotas').upsert({ user_id: user.id, feature: 'ai_essay', used_count: curUsed + 1 }, { onConflict: 'user_id,feature' })
     }
   } catch (dbErr) {
     console.warn('[AI Essay Review] Non-blocking DB log warning:', dbErr)

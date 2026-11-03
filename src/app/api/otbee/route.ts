@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { getAiClient } from '@/lib/ai/client'
 
 const TIER_OTBEE_LIMIT: Record<string, number | null> = {
@@ -85,8 +85,9 @@ export async function POST(request: Request) {
       controller.enqueue(encoder.encode('data: [DONE]\n\n'))
       controller.close()
 
-      const curUsed = (await supabase.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'otbee_chat').maybeSingle()).data?.used_count ?? 0
-      await supabase.from('usage_quotas').upsert({ user_id: user.id, feature: 'otbee_chat', used_count: curUsed + 1 }, { onConflict: 'user_id,feature' })
+      const admin = await createAdminClient()
+      const curUsed = (await admin.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'otbee_chat').maybeSingle()).data?.used_count ?? 0
+      await admin.from('usage_quotas').upsert({ user_id: user.id, feature: 'otbee_chat', used_count: curUsed + 1 }, { onConflict: 'user_id,feature' })
 
       if (conversation_id) {
         const allMessages = [...messages, { role: 'assistant', content: fullContent, created_at: new Date().toISOString() }]

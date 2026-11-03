@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
 
@@ -180,10 +180,11 @@ Berikan respons HANYA dalam format JSON valid (tanpa markdown backtick):
         result_json: result,
       })
 
-      await supabase.from('usage_quotas').upsert({
+      const admin = await createAdminClient()
+      await admin.from('usage_quotas').upsert({
         user_id: user.id,
         feature: 'ai_kalkulator',
-        used_count: (TIER_KALKULATOR_LIMIT[tier] === null ? 0 : ((await supabase.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'ai_kalkulator').maybeSingle()).data?.used_count ?? 0)) + 1,
+        used_count: (TIER_KALKULATOR_LIMIT[tier] === null ? 0 : ((await admin.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'ai_kalkulator').maybeSingle()).data?.used_count ?? 0)) + 1,
       }, { onConflict: 'user_id,feature' })
     } catch (dbErr) {
       console.warn('[AI Kalkulator] Non-blocking DB quota log warning:', dbErr)
