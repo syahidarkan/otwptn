@@ -317,3 +317,4 @@ export default function LessonDetailPage({ params }: { params: Promise<{ lessonI
     </div>
   )
 }
+

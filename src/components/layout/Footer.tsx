@@ -88,6 +88,7 @@ const SEO_COLS = [
     heading: 'Tentang',
     links: [
       { label: 'Tentang otwptn', href: '/tentang' },
+      { label: 'Karier (Marketing Partner)', href: '/career/content-creator' },
       { label: 'Paket & Harga', href: '/upgrade' },
       { label: 'Testimoni', href: '/#testimoni' },
       { label: 'Komunitas', href: '/komunitas' },
