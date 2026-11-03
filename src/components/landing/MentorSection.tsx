@@ -145,23 +145,23 @@ export default function MentorSection() {
         <div>
           {/* 3 Columns Grid: 1 Kiri Card Panjang, 2 Tengah Sedang, 3 Kanan Landscape */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-            {/* COLUMN 1 (KIRI: Card Panjang) */}
+            {/* COLUMN 1 (KIRI: Card Panjang, Background Putih) */}
             <div className="flex flex-col items-center">
               {/* Yellow Bubble 1 */}
               <div className="w-9 h-9 rounded-full bg-amber-400 text-gray-950 font-black text-sm flex items-center justify-center shadow-md mb-3 z-10">
                 1
               </div>
 
-              {/* Card 1 Body (Panjang/Portrait) */}
-              <div className="w-full rounded-3xl p-5 bg-[#18181b]/95 border border-white/10 shadow-xl space-y-3">
+              {/* Card 1 Body (Panjang/Portrait - Background Putih) */}
+              <div className="w-full rounded-3xl p-5 bg-white border border-rose-200 shadow-md space-y-3">
                 {/* Search Bar */}
-                <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/5 border border-white/10 text-xs text-gray-300">
+                <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-gray-50 border border-gray-200 text-xs text-gray-900">
                   <Search size={14} className="text-gray-400 flex-shrink-0" />
-                  <span className="font-semibold truncate text-white">{searchQuery}</span>
+                  <span className="font-semibold truncate text-gray-900">{searchQuery}</span>
                 </div>
 
                 {/* Mentor Photo */}
-                <div className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-slate-800 border border-white/10">
+                <div className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-slate-100 border border-gray-100">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80"
@@ -175,27 +175,27 @@ export default function MentorSection() {
 
                 {/* Mentor Info */}
                 <div>
-                  <h4 className="text-base font-black text-white">Chloe Rahmawati</h4>
-                  <p className="text-xs text-gray-400 font-medium">
+                  <h4 className="text-base font-black text-gray-950">Chloe Rahmawati</h4>
+                  <p className="text-xs text-gray-600 font-semibold">
                     Ilmu Komputer · Universitas Indonesia
                   </p>
                 </div>
 
                 {/* Bullet achievements */}
-                <ul className="text-[11px] text-gray-300 space-y-1 list-disc list-inside font-medium leading-relaxed">
+                <ul className="text-[11px] text-gray-700 space-y-1 list-disc list-inside font-medium leading-relaxed">
                   <li>Medali Emas Puspresnas OSN 2024</li>
                   <li>Parlemen Remaja Nasional 2023</li>
                   <li>Top 1% Skor UTBK SNBT & Lolos SNBP</li>
                 </ul>
 
                 {/* Tags & PTN Logos */}
-                <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-2">
+                <div className="pt-2 border-t border-gray-100 flex items-center justify-between gap-2">
                   <div className="space-y-1.5">
                     <div className="flex flex-wrap gap-1">
                       {['UI', 'ITB', 'UGM', 'UNAIR'].map(p => (
                         <span
                           key={p}
-                          className="px-2 py-0.5 rounded-md bg-amber-400/10 text-amber-300 text-[10px] font-bold border border-amber-400/20"
+                          className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 text-[10px] font-bold border border-rose-200"
                         >
                           {p}
                         </span>
@@ -205,26 +205,26 @@ export default function MentorSection() {
                       {PTN_LOGOS.map(logo => (
                         <div
                           key={logo.name}
-                          className="w-5 h-5 rounded-full bg-white/10 border border-white/15 p-0.5 flex items-center justify-center"
+                          className="w-5 h-5 rounded-full bg-white border border-gray-200 p-0.5 flex items-center justify-center shadow-2xs"
                           title={logo.name}
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={logo.src} alt={logo.name} className="w-full h-full object-contain" />
                         </div>
                       ))}
-                      <span className="text-[10px] text-gray-400 font-bold ml-0.5">+12 PTN</span>
+                      <span className="text-[10px] text-gray-500 font-bold ml-0.5">+12 PTN</span>
                     </div>
                   </div>
 
                   {/* Mascot Inside Card 1 */}
-                  <div className="flex flex-col items-center flex-shrink-0 bg-white/5 border border-white/10 rounded-2xl p-1.5">
+                  <div className="flex flex-col items-center flex-shrink-0 bg-amber-50/70 border border-amber-200 rounded-2xl p-1.5">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/mascot/thumbsup.png"
                       alt="Verified Otbee"
                       className="w-8 h-8 object-contain drop-shadow"
                     />
-                    <span className="text-[8px] font-black uppercase text-amber-300 tracking-wider">
+                    <span className="text-[8px] font-black uppercase text-amber-800 tracking-wider">
                       Verified
                     </span>
                   </div>
@@ -233,47 +233,49 @@ export default function MentorSection() {
 
               {/* Bottom Label Pill 1 */}
               <div className="mt-3 text-center">
-                <span className="px-3.5 py-1.5 rounded-full bg-white/10 text-xs font-bold text-gray-200 border border-white/15 shadow-2xs inline-block">
+                <span className="px-3.5 py-1.5 rounded-full bg-white text-xs font-bold text-gray-900 border border-gray-200 shadow-sm inline-block">
                   Pilih mentor yang sesuai dengan kamu
                 </span>
               </div>
             </div>
 
-            {/* COLUMN 2 (TENGAH: Card Sedang / Tidak Sepanjang Kiri) */}
+            {/* COLUMN 2 (TENGAH: Card Sedang / Tidak Sepanjang Kiri - Background Putih) */}
             <div className="flex flex-col items-center">
               {/* Yellow Bubble 2 */}
               <div className="w-9 h-9 rounded-full bg-amber-400 text-gray-950 font-black text-sm flex items-center justify-center shadow-md mb-3 z-10">
                 2
               </div>
 
-              {/* Card 2 Body (Sedang/Fit Content) */}
-              <div className="w-full rounded-3xl p-5 bg-[#18181b]/95 border border-white/10 shadow-xl space-y-3.5">
+              {/* Card 2 Body (Sedang/Fit Content - Background Putih) */}
+              <div className="w-full rounded-3xl p-5 bg-white border-2 border-cyan-400 shadow-md space-y-3.5">
                 {/* Note Header */}
-                <div className="flex items-center gap-2 pb-2.5 border-b border-white/10">
+                <div className="flex items-center gap-2 pb-2.5 border-b border-gray-100">
                   <span className="text-base">✏️</span>
-                  <span className="text-xs font-black uppercase tracking-wider text-cyan-300">
+                  <span className="text-xs font-black uppercase tracking-wider text-cyan-900">
                     Catatan
                   </span>
                 </div>
 
                 {/* Note Content */}
-                <p className="text-xs text-gray-300 leading-relaxed font-medium">
-                  Aku ingin masuk ke Fasilkom UI atau Teknik Informatika ITB dengan jurusan favorit. Nilai raporku rata-rata 92.5 tapi aku masih bingung menyusun esai motivasi diri dan memilih sertifikat yang punya bobot tertinggi. Butuh bimbingan dalam proses aplikasi serta tips lolos SNBP.
-                </p>
+                <div className="p-3.5 rounded-2xl bg-cyan-50/60 border border-cyan-100">
+                  <p className="text-xs text-gray-800 leading-relaxed font-medium">
+                    Aku ingin masuk ke Fasilkom UI atau Teknik Informatika ITB dengan jurusan favorit. Nilai raporku rata-rata 92.5 tapi aku masih bingung menyusun esai motivasi diri dan memilih sertifikat yang punya bobot tertinggi. Butuh bimbingan dalam proses aplikasi serta tips lolos SNBP.
+                  </p>
+                </div>
 
                 {/* Tags & Mascot Inside Card 2 */}
-                <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-3">
+                <div className="pt-2 border-t border-gray-100 flex items-center justify-between gap-3">
                   <div className="flex flex-wrap gap-1.5">
-                    <span className="px-2 py-0.5 rounded-md bg-cyan-500/10 text-cyan-300 text-[10px] font-bold border border-cyan-500/20">
+                    <span className="px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-800 text-[10px] font-bold border border-cyan-200">
                       Bedah Esai
                     </span>
-                    <span className="px-2 py-0.5 rounded-md bg-cyan-500/10 text-cyan-300 text-[10px] font-bold border border-cyan-500/20">
+                    <span className="px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-800 text-[10px] font-bold border border-cyan-200">
                       Review Portofolio
                     </span>
                   </div>
 
                   {/* Mascot Inside Card 2 (Otbee Writing Notes at Desk) */}
-                  <div className="flex-shrink-0 bg-white/5 border border-white/10 rounded-2xl p-1.5">
+                  <div className="flex-shrink-0 bg-cyan-50/70 border border-cyan-200 rounded-2xl p-1.5">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/mascot/glasses-writing-desk.png"
@@ -286,23 +288,23 @@ export default function MentorSection() {
 
               {/* Bottom Label Pill 2 */}
               <div className="mt-3 text-center">
-                <span className="px-3.5 py-1.5 rounded-full bg-white/10 text-xs font-bold text-gray-200 border border-white/15 shadow-2xs inline-block">
+                <span className="px-3.5 py-1.5 rounded-full bg-white text-xs font-bold text-gray-900 border border-gray-200 shadow-sm inline-block">
                   Tulis catatan agar mentor tau tentang kamu
                 </span>
               </div>
             </div>
 
-            {/* COLUMN 3 (KANAN: Landscape Card) */}
+            {/* COLUMN 3 (KANAN: Landscape Card - Background Putih) */}
             <div className="flex flex-col items-center">
               {/* Yellow Bubble 3 */}
               <div className="w-9 h-9 rounded-full bg-amber-400 text-gray-950 font-black text-sm flex items-center justify-center shadow-md mb-3 z-10">
                 3
               </div>
 
-              {/* Card 3 Body (Landscape Aspect Video) */}
-              <div className="w-full rounded-3xl p-5 bg-[#18181b]/95 border border-white/10 shadow-xl space-y-3">
+              {/* Card 3 Body (Landscape Aspect Video - Background Putih) */}
+              <div className="w-full rounded-3xl p-5 bg-white border-2 border-purple-400 shadow-md space-y-3">
                 {/* Landscape Video Screen */}
-                <div className="relative rounded-2xl overflow-hidden aspect-video bg-slate-900 border border-white/10 shadow-md">
+                <div className="relative rounded-2xl overflow-hidden aspect-video bg-slate-900 border border-gray-200 shadow-sm">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80"
@@ -328,19 +330,19 @@ export default function MentorSection() {
                 </div>
 
                 {/* Session Highlights & Mascot Inside Card 3 */}
-                <div className="pt-1 border-t border-white/10 flex items-center justify-between gap-3">
+                <div className="pt-1 border-t border-gray-100 flex items-center justify-between gap-3">
                   <div className="space-y-0.5">
-                    <div className="flex items-center gap-1 text-[11px] font-black text-purple-300">
-                      <Video size={13} />
+                    <div className="flex items-center gap-1 text-[11px] font-black text-purple-900">
+                      <Video size={13} className="text-purple-600" />
                       <span>Google Meet 45 Menit</span>
                     </div>
-                    <p className="text-[10px] text-gray-400 font-medium">
+                    <p className="text-[10px] text-gray-600 font-medium">
                       Diskusi 1-on-1 & koreksi esai kalimat demi kalimat
                     </p>
                   </div>
 
                   {/* Mascot Inside Card 3 (Otbee with Headset) */}
-                  <div className="flex-shrink-0 bg-white/5 border border-white/10 rounded-2xl p-1.5">
+                  <div className="flex-shrink-0 bg-purple-50 border border-purple-200 rounded-2xl p-1.5">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/mascot/video-call-match.png"
@@ -353,18 +355,18 @@ export default function MentorSection() {
 
               {/* Bottom Label Pill 3 */}
               <div className="mt-3 text-center">
-                <span className="px-3.5 py-1.5 rounded-full bg-white/10 text-xs font-bold text-gray-200 border border-white/15 shadow-2xs inline-block">
+                <span className="px-3.5 py-1.5 rounded-full bg-white text-xs font-bold text-gray-900 border border-gray-200 shadow-sm inline-block">
                   Ketemu dengan mentor dan dapatkan bimbingan
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Bottom Right CTA Button (Matching Reference Screenshot) */}
+          {/* Bottom Right CTA Button (Brand Yellow Button) */}
           <div className="flex justify-end mt-6">
             <Link
               href="/checkout/intensif"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-xs font-black bg-purple-700 hover:bg-purple-600 text-white shadow-xl hover:shadow-2xl transition-all duration-200 cursor-pointer"
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-full text-xs font-black bg-amber-400 hover:bg-amber-300 text-gray-950 shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer"
             >
               <span>Lihat Pilihan Mentor</span>
               <ArrowRight size={14} />
