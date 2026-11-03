@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import {
   DollarSign,
   Wallet,
@@ -17,30 +18,74 @@ import {
   Award,
 } from 'lucide-react'
 
+interface PayoutRow {
+  id: string
+  amount: number
+  status: string
+  tier: string
+  created_at: string
+  profiles: { full_name: string } | null
+}
+
 export default function MentorPemasukanPage() {
   const [copiedCode, setCopiedCode] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
   const [withdrawModalOpen, setWithdrawModalOpen] = useState(false)
   const [withdrawSuccess, setWithdrawSuccess] = useState(false)
 
-  // Mentor financial monitoring states
-  const totalMentees = 3
-  const honorPerMentee = [
-    { name: 'Salma Salsabila', pkg: 'Queen Bee (Royal Jelly)', honor: 750000, date: '28 Okt 2026', status: 'Siap Cair' },
-    { name: 'Arkan Danendra', pkg: 'Honeycomb', honor: 450000, date: '27 Okt 2026', status: 'Siap Cair' },
-    { name: 'Nabila Putri', pkg: 'Nectar', honor: 250000, date: '26 Okt 2026', status: 'Selesai Dicairkan' },
-  ]
-  const totalHonor = 1450000
-  const alreadyPaid = 250000
-  const activeBalance = totalHonor - alreadyPaid // Rp 1.200.000
+  const [payouts, setPayouts] = useState<PayoutRow[]>([])
+  const [referralCode, setReferralCode] = useState('')
+  const [totalHonor, setTotalHonor] = useState(0)
+  const [alreadyPaid, setAlreadyPaid] = useState(0)
+  const [ambassadorEarnings, setAmbassadorEarnings] = useState(0)
 
-  // Mentor Ambassador states
-  const mentorAmbassadorCode = 'RAYHANOTW01'
-  const mentorAmbassadorUrl = `https://otwptn.id/r/${mentorAmbassadorCode}`
-  const ambassadorEarnings = 300000 // Dari referral tambahan
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) return
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('referral_code')
+        .eq('id', data.user.id)
+        .maybeSingle()
+
+      setReferralCode(profile?.referral_code ?? '')
+
+      const { data: rows } = await supabase
+        .from('mentor_payouts')
+        .select('id, amount, status, tier, created_at, profiles:mentee_id(full_name)')
+        .eq('mentor_id', data.user.id)
+        .order('created_at', { ascending: false })
+
+      const payoutRows = (rows ?? []).map(r => ({
+        ...r,
+        profiles: Array.isArray(r.profiles) ? (r.profiles[0] ?? null) : r.profiles,
+      })) as unknown as PayoutRow[]
+      setPayouts(payoutRows)
+
+      const total = payoutRows.reduce((s, p) => s + p.amount, 0)
+      const paid = payoutRows.filter(p => p.status === 'paid').reduce((s, p) => s + p.amount, 0)
+      setTotalHonor(total)
+      setAlreadyPaid(paid)
+
+      // Get ambassador commissions
+      const { data: commissions } = await supabase
+        .from('ambassador_commissions')
+        .select('amount, status')
+        .eq('ambassador_id', data.user.id)
+        .eq('status', 'cleared')
+
+      setAmbassadorEarnings(commissions?.reduce((s, c) => s + c.amount, 0) ?? 0)
+    })
+  }, [])
+
+  const activeBalance = totalHonor - alreadyPaid
+
+  const mentorAmbassadorUrl = referralCode ? `https://otwptn.id/r/${referralCode}` : ''
 
   function handleCopyCode() {
-    navigator.clipboard.writeText(mentorAmbassadorCode)
+    navigator.clipboard.writeText(referralCode)
     setCopiedCode(true)
     setTimeout(() => setCopiedCode(false), 2000)
   }
@@ -86,7 +131,7 @@ export default function MentorPemasukanPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
           <div className="p-5 rounded-2xl bg-gray-50 space-y-1">
             <span className="text-[11px] font-bold text-gray-500">Mentee Dibimbing</span>
-            <p className="text-2xl font-black text-gray-900">{totalMentees} Siswa</p>
+            <p className="text-2xl font-black text-gray-900">{payouts.length} Siswa</p>
             <p className="text-[10px] text-emerald-600 font-bold">● Seluruh sesi aktif</p>
           </div>
 
@@ -130,31 +175,39 @@ export default function MentorPemasukanPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 font-semibold text-gray-900">
-              {honorPerMentee.map((item, idx) => (
-                <tr key={idx} className="hover:bg-gray-50">
-                  <td className="py-3.5 px-4 font-black">{item.name}</td>
-                  <td className="py-3.5 px-4">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-950">
-                      {item.pkg}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 text-gray-500 font-normal">{item.date}</td>
-                  <td className="py-3.5 px-4 font-black font-mono text-emerald-700">
-                    Rp {item.honor.toLocaleString('id-ID')}
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black ${
-                        item.status === 'Siap Cair'
-                          ? 'bg-amber-100 text-amber-900'
-                          : 'bg-emerald-100 text-emerald-800'
-                      }`}
-                    >
-                      {item.status}
-                    </span>
+              {payouts.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-gray-400 text-xs">
+                    Belum ada data honorarium. Honor akan muncul setelah mentee di-assign.
                   </td>
                 </tr>
-              ))}
+              ) : payouts.map((item) => {
+                const TIER_PKG: Record<string, string> = { menyeluruh: 'Queen Bee (Royal Jelly)', dokumen: 'Nectar' }
+                const statusLabel = item.status === 'paid' ? 'Selesai Dicairkan' : item.status === 'cleared' ? 'Siap Cair' : 'Menunggu'
+                return (
+                  <tr key={item.id} className="hover:bg-gray-50">
+                    <td className="py-3.5 px-4 font-black">{item.profiles?.full_name ?? '-'}</td>
+                    <td className="py-3.5 px-4">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-950">
+                        {TIER_PKG[item.tier] ?? item.tier}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 text-gray-500 font-normal">
+                      {new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </td>
+                    <td className="py-3.5 px-4 font-black font-mono text-emerald-700">
+                      Rp {item.amount.toLocaleString('id-ID')}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black ${
+                        item.status === 'paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'
+                      }`}>
+                        {statusLabel}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
@@ -190,7 +243,7 @@ export default function MentorPemasukanPage() {
               Kode Referral Khusus Mentormu:
             </span>
             <span className="text-xl font-black text-gray-950 font-mono tracking-widest">
-              {mentorAmbassadorCode}
+              {referralCode || '...'}
             </span>
           </div>
 

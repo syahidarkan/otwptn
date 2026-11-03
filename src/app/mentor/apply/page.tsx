@@ -40,19 +40,30 @@ export default function MentorApplyPage() {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) return
       setUserId(data.user.id)
-      const existing = localStorage.getItem(`otwptn_mentor_app_${data.user.id}`)
-      if (existing) {
-        try {
-          const parsed = JSON.parse(existing)
-          setForm(prev => ({
-            ...prev,
-            ...parsed,
-          }))
-          setSubmitted(true)
-        } catch {
-          // ignore
-        }
-      }
+
+      // Check for existing application in DB
+      supabase
+        .from('mentor_applications')
+        .select('*')
+        .eq('user_id', data.user.id)
+        .maybeSingle()
+        .then(({ data: app }) => {
+          if (app) {
+            setForm(prev => ({
+              ...prev,
+              fullName: app.full_name || prev.fullName,
+              email: app.email || prev.email,
+              phone: app.phone || prev.phone,
+              university: app.university || prev.university,
+              major: app.major || prev.major,
+              track: app.track || prev.track,
+              gradYear: app.grad_year || prev.gradYear,
+            }))
+            if (app.status === 'pending' || app.status === 'approved') {
+              setSubmitted(true)
+            }
+          }
+        })
 
       supabase
         .from('profiles')
@@ -83,20 +94,20 @@ export default function MentorApplyPage() {
           school_name: form.university,
         }).eq('id', user.id)
 
-        localStorage.setItem(`otwptn_mentor_app_${user.id}`, JSON.stringify({
-          fullName: form.fullName,
+        await supabase.from('mentor_applications').upsert({
+          user_id: user.id,
+          full_name: form.fullName,
           email: form.email,
           phone: form.phone,
           university: form.university,
           major: form.major,
           track: form.track,
-          gradYear: form.gradYear,
-          loaFileName: loaFile?.name || 'Dokumen_LOA.pdf',
+          grad_year: form.gradYear,
           status: 'pending',
-          submittedAt: new Date().toISOString(),
-        }))
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' })
       } catch (err) {
-        console.warn('Update profile error:', err)
+        console.warn('Submit application error:', err)
       }
     }
 

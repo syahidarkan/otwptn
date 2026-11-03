@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   ShieldCheck,
   CheckCircle2,
@@ -248,7 +248,7 @@ const UNASSIGNED_MENTEES: UnassignedMentee[] = [
 
 export default function SuperAdminMentorsPage() {
   const [activeTab, setActiveTab] = useState<'verification' | 'work_monitoring' | 'payouts'>('verification')
-  const [mentors, setMentors] = useState<MentorCandidate[]>(MOCK_MENTORS)
+  const [mentors, setMentors] = useState<MentorCandidate[]>([])
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [inspectMentor, setInspectMentor] = useState<MentorCandidate | null>(null)
@@ -256,8 +256,68 @@ export default function SuperAdminMentorsPage() {
   const [assignMenteeModal, setAssignMenteeModal] = useState<UnassignedMentee | null>(null)
   const [selectedMentorForAssignment, setSelectedMentorForAssignment] = useState('')
   const [notification, setNotification] = useState<string | null>(null)
-  const [unassignedList, setUnassignedList] = useState<UnassignedMentee[]>(UNASSIGNED_MENTEES)
+  const [unassignedList, setUnassignedList] = useState<UnassignedMentee[]>([])
   const [copiedBank, setCopiedBank] = useState<string | null>(null)
+  const [dataLoading, setDataLoading] = useState(true)
+
+  const load = useCallback(async () => {
+    setDataLoading(true)
+    try {
+      const res = await fetch('/api/admin/mentor-applications')
+      if (!res.ok) return
+      const data = await res.json()
+
+      // Map applications to MentorCandidate format
+      const mapped: MentorCandidate[] = (data.applications ?? []).map((app: {
+        id: string; user_id?: string; full_name: string; email: string; phone?: string;
+        university: string; major: string; track?: string; grad_year?: string;
+        loa_url?: string; essay_url?: string; cert_url?: string; status: string;
+        created_at: string; bank_name?: string; account_number?: string; account_holder?: string;
+      }) => ({
+        id: app.id,
+        fullName: app.full_name,
+        email: app.email,
+        whatsapp: app.phone ?? '',
+        university: app.university,
+        major: app.major,
+        admissionTrack: app.track ?? '',
+        graduationYear: app.grad_year ?? '',
+        loaUrl: app.loa_url ?? '#',
+        essayUrl: app.essay_url,
+        certUrl: app.cert_url,
+        status: app.status as 'pending' | 'approved' | 'rejected',
+        appliedAt: new Date(app.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+        menteeCount: data.menteeCounts?.[app.user_id ?? ''] ?? 0,
+        isOnline: false,
+        lastActive: 'Tidak diketahui',
+        bankName: app.bank_name ?? '-',
+        accountNumber: app.account_number ?? '-',
+        accountHolder: app.account_holder ?? app.full_name,
+        accumulatedPayout: data.payouts?.[app.user_id ?? '']?.ready ?? 0,
+        payoutStatus: (data.payouts?.[app.user_id ?? '']?.ready ?? 0) > 0 ? 'ready' : 'completed',
+        mentees: [],
+      }))
+      setMentors(mapped)
+
+      // Map unassigned orders
+      const unassigned: UnassignedMentee[] = (data.unassignedOrders ?? []).map((order: {
+        id: string; tier: string; created_at: string;
+        profiles: { id: string; full_name: string; school_name?: string; target_ptns?: string[] } | null;
+      }) => ({
+        id: order.id,
+        name: order.profiles?.full_name ?? 'Unknown',
+        school: order.profiles?.school_name ?? '-',
+        package: order.tier === 'menyeluruh' ? 'Queen Bee' : 'Nectar',
+        targetPTN: order.profiles?.target_ptns?.join(', ') ?? '-',
+        registeredAt: new Date(order.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+      }))
+      setUnassignedList(unassigned)
+    } finally {
+      setDataLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { load() }, [load])
 
   const filteredMentors = mentors.filter(m => {
     const matchesFilter = filterStatus === 'all' ? true : m.status === filterStatus
@@ -268,54 +328,79 @@ export default function SuperAdminMentorsPage() {
     return matchesFilter && matchesSearch
   })
 
-  const handleApprove = (id: string) => {
+  const handleApprove = async (id: string) => {
+    await fetch('/api/admin/mentor-applications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'approve', application_id: id }),
+    })
     setMentors(prev => prev.map(m => m.id === id ? { ...m, status: 'approved' } : m))
     setNotification('✓ Mentor berhasil diapprove! Akses dashboard & pembagian mentee aktif.')
     setInspectMentor(null)
     setTimeout(() => setNotification(null), 4000)
   }
 
-  const handleReject = (id: string) => {
+  const handleReject = async (id: string) => {
+    await fetch('/api/admin/mentor-applications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'reject', application_id: id }),
+    })
     setMentors(prev => prev.map(m => m.id === id ? { ...m, status: 'rejected' } : m))
     setNotification('✕ Pengajuan mentor ditolak.')
     setInspectMentor(null)
     setTimeout(() => setNotification(null), 4000)
   }
 
-  const handleAssignMentee = () => {
+  const handleAssignMentee = async () => {
     if (!selectedMentorForAssignment || !assignMenteeModal) return
     const targetMentor = mentors.find(m => m.id === selectedMentorForAssignment)
-    
-    // Add to mentor's mentees list
-    setMentors(prev => prev.map(m => {
-      if (m.id === selectedMentorForAssignment) {
-        const newMentee: MenteeWorkItem = {
-          id: assignMenteeModal.id,
-          menteeName: assignMenteeModal.name,
-          school: assignMenteeModal.school,
-          package: assignMenteeModal.package,
-          targetPTN: assignMenteeModal.targetPTN,
-          assignedDate: 'Hari ini',
-          zoomStatus: 'pending',
-          essayStatus: 'waiting_mentee',
-          essayFeedback: 'Baru di-assign, menunggu submission draft essay mentee.',
-          waGroupStatus: 'pending',
-          portfolioStatus: 'pending',
-          overallProgress: 10,
-        }
-        const payoutAdd = assignMenteeModal.package === 'Queen Bee' ? 120000 : assignMenteeModal.package === 'Honeycomb' ? 60000 : 25000
-        return {
-          ...m,
-          menteeCount: m.menteeCount + 1,
-          accumulatedPayout: m.accumulatedPayout + payoutAdd,
-          mentees: [newMentee, ...m.mentees],
-        }
-      }
-      return m
-    }))
 
-    setUnassignedList(prev => prev.filter(u => u.id !== assignMenteeModal.id))
-    setNotification(`Mentee ${assignMenteeModal.name} berhasil di-assign ke mentor ${targetMentor?.fullName}!`)
+    const res = await fetch('/api/admin/mentor-applications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'assign_mentee',
+        application_id: selectedMentorForAssignment,
+        order_id: assignMenteeModal.id,
+        mentor_id: targetMentor?.id,
+        mentor_name: targetMentor?.fullName,
+      }),
+    })
+
+    if (res.ok) {
+      const newMentee: MenteeWorkItem = {
+        id: assignMenteeModal.id,
+        menteeName: assignMenteeModal.name,
+        school: assignMenteeModal.school,
+        package: assignMenteeModal.package,
+        targetPTN: assignMenteeModal.targetPTN,
+        assignedDate: 'Hari ini',
+        zoomStatus: 'pending',
+        essayStatus: 'waiting_mentee',
+        essayFeedback: 'Baru di-assign, menunggu submission draft essay mentee.',
+        waGroupStatus: 'pending',
+        portfolioStatus: 'pending',
+        overallProgress: 10,
+      }
+      const payoutAdd = assignMenteeModal.package === 'Queen Bee' ? 120000 : assignMenteeModal.package === 'Honeycomb' ? 60000 : 25000
+      setMentors(prev => prev.map(m => {
+        if (m.id === selectedMentorForAssignment) {
+          return {
+            ...m,
+            menteeCount: m.menteeCount + 1,
+            accumulatedPayout: m.accumulatedPayout + payoutAdd,
+            mentees: [newMentee, ...m.mentees],
+          }
+        }
+        return m
+      }))
+      setUnassignedList(prev => prev.filter(u => u.id !== assignMenteeModal.id))
+      setNotification(`Mentee ${assignMenteeModal.name} berhasil di-assign ke mentor ${targetMentor?.fullName}!`)
+    } else {
+      setNotification('Gagal assign mentee. Coba lagi.')
+    }
+
     setAssignMenteeModal(null)
     setSelectedMentorForAssignment('')
     setTimeout(() => setNotification(null), 4000)
@@ -404,10 +489,23 @@ export default function SuperAdminMentorsPage() {
     setTimeout(() => setCopiedBank(null), 2500)
   }
 
-  const handleCompletePayout = (mentorId: string) => {
+  const handleCompletePayout = async (mentorId: string) => {
+    await fetch('/api/admin/mentor-applications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'mark_payout', mentor_id: mentorId }),
+    })
     setMentors(prev => prev.map(m => m.id === mentorId ? { ...m, payoutStatus: 'completed' } : m))
     setNotification('✓ Status transfer honorarium berhasil diperbarui menjadi SELESAI!')
     setTimeout(() => setNotification(null), 4000)
+  }
+
+  if (dataLoading) {
+    return (
+      <div className="flex items-center justify-center py-20 text-gray-400 text-sm font-semibold">
+        Memuat data mentor...
+      </div>
+    )
   }
 
   return (

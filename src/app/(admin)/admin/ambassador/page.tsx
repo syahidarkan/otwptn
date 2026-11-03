@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   Sparkles, Users, DollarSign, ArrowUpRight, CheckCircle2,
   Clock, Search, Filter, ShieldCheck, Download, AlertCircle,
@@ -97,27 +97,46 @@ const MOCK_AMBASSADORS: AmbassadorUser[] = [
 ]
 
 export default function AdminAmbassadorPage() {
-  const [ambassadors, setAmbassadors] = useState<AmbassadorUser[]>(MOCK_AMBASSADORS)
+  const [ambassadors, setAmbassadors] = useState<AmbassadorUser[]>([])
   const [search, setSearch] = useState('')
   const [payoutSuccess, setPayoutSuccess] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const handleApproveWithdraw = (amb: AmbassadorUser) => {
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/admin/ambassadors')
+      if (res.ok) {
+        const data = await res.json()
+        setAmbassadors(data.ambassadors ?? [])
+      }
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { load() }, [load])
+
+  const handleApproveWithdraw = async (amb: AmbassadorUser) => {
     if (!confirm(`Konfirmasi transfer penarikan komisi tunai sebesar ${formatRupiah(amb.pendingWithdraw)} ke ${amb.bankInfo}?`)) return
 
-    setAmbassadors(prev =>
-      prev.map(a =>
-        a.id === amb.id
-          ? {
-              ...a,
-              withdrawnCommission: a.withdrawnCommission + a.pendingWithdraw,
-              pendingWithdraw: 0,
-            }
-          : a
-      )
-    )
+    const res = await fetch('/api/admin/ambassadors', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'approve_withdrawal', user_id: amb.id }),
+    })
 
-    setPayoutSuccess(`Berhasil menyetujui transfer ${formatRupiah(amb.pendingWithdraw)} ke rekening ${amb.fullName}!`)
-    setTimeout(() => setPayoutSuccess(null), 4000)
+    if (res.ok) {
+      setAmbassadors(prev =>
+        prev.map(a =>
+          a.id === amb.id
+            ? { ...a, withdrawnCommission: a.withdrawnCommission + a.pendingWithdraw, pendingWithdraw: 0 }
+            : a
+        )
+      )
+      setPayoutSuccess(`Berhasil menyetujui transfer ${formatRupiah(amb.pendingWithdraw)} ke rekening ${amb.fullName}!`)
+      setTimeout(() => setPayoutSuccess(null), 4000)
+    }
   }
 
   // Aggregate stats
@@ -132,6 +151,14 @@ export default function AdminAmbassadorPage() {
       a.referralCode.toLowerCase().includes(search.toLowerCase()) ||
       a.school.toLowerCase().includes(search.toLowerCase())
   )
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20 text-gray-400 text-sm font-semibold">
+        Memuat data ambassador...
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

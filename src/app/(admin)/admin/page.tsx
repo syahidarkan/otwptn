@@ -1,13 +1,14 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { formatRupiah, formatDateTime } from '@/lib/utils'
-import { CATEGORY_LABEL, TIER_LABEL } from '@/lib/constants'
 import Badge from '@/components/ui/Badge'
-import type { Registration, RegistrationStatus, JalurCategory } from '@/types'
 import { Users, Clock, CheckCircle, TrendingUp } from 'lucide-react'
 
-const statusBadge: Record<RegistrationStatus, 'pending' | 'confirmed' | 'rejected' | 'expired'> = {
-  pending: 'pending', confirmed: 'confirmed', rejected: 'rejected', expired: 'expired',
+const STATUS_BADGE: Record<string, 'pending' | 'confirmed' | 'rejected' | 'expired'> = {
+  pending: 'pending',
+  paid: 'confirmed',
+  failed: 'rejected',
+  expired: 'expired',
 }
 
 export default async function AdminDashboard() {
@@ -22,25 +23,30 @@ export default async function AdminDashboard() {
     { count: totalCount },
     { count: pendingCount },
     { count: memberCount },
-    { data: recentRegs },
+    { data: recentOrders },
     { data: revenueData },
   ] = await Promise.all([
-    supabase.from('registrations').select('*', { count: 'exact', head: true }),
-    supabase.from('registrations').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-    supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'member'),
+    supabase.from('orders').select('*', { count: 'exact', head: true }),
+    supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('profiles').select('*', { count: 'exact', head: true }).not('tier', 'is', null),
     supabase
-      .from('registrations')
-      .select('*, profiles!user_id(full_name, email), packages(category, tier)')
+      .from('orders')
+      .select('id, tier, amount, status, created_at, profiles!user_id(full_name, email)')
       .order('created_at', { ascending: false })
       .limit(5),
     supabase
-      .from('registrations')
-      .select('total_price')
-      .eq('status', 'confirmed')
+      .from('orders')
+      .select('amount')
+      .eq('status', 'paid')
       .gte('confirmed_at', startOfMonth),
   ])
 
-const revenue = revenueData?.reduce((sum, r) => sum + (r.total_price ?? 0), 0) ?? 0
+  const revenue = revenueData?.reduce((sum, r) => sum + (r.amount ?? 0), 0) ?? 0
+
+  const TIER_LABEL: Record<string, string> = {
+    dokumen: 'Nectar (Dokumen)',
+    menyeluruh: 'Queen Bee (Menyeluruh)',
+  }
 
   const metrics = [
     { label: 'Total Pendaftar', value: totalCount ?? 0, icon: Users, color: 'text-blue-600' },
@@ -97,18 +103,18 @@ const revenue = revenueData?.reduce((sum, r) => sum + (r.total_price ?? 0), 0) ?
               {m.alert && <span className="text-[10px] bg-rose-600 text-white px-2 py-0.5 rounded-full font-bold">Perlu tindakan</span>}
             </div>
             <p className="text-2xl font-black text-gray-950">
-              {m.isText ? m.value : m.value.toLocaleString()}
+              {m.isText ? m.value : (m.value as number).toLocaleString()}
             </p>
             <p className="text-xs text-gray-500 font-medium mt-1">{m.label}</p>
           </div>
         ))}
       </div>
 
-      {/* Recent registrations */}
+      {/* Recent orders */}
       <div className="bg-white rounded-3xl shadow-md p-6 border-0 space-y-5">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-black text-gray-950 text-base">5 Pendaftaran Siswa Terbaru</h2>
+            <h2 className="font-black text-gray-950 text-base">5 Order Siswa Terbaru</h2>
             <p className="text-xs text-gray-500">Daftar pendaftar teranyar yang masuk ke sistem.</p>
           </div>
           <a href="/admin/pendaftar" className="text-xs text-amber-700 hover:text-amber-800 font-bold">
@@ -128,20 +134,18 @@ const revenue = revenueData?.reduce((sum, r) => sum + (r.total_price ?? 0), 0) ?
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {recentRegs?.map((reg: Registration) => {
-                const profile = reg.profiles as { full_name: string } | null
-                const pkg = reg.packages as { category: JalurCategory; tier: string } | null
+              {recentOrders?.map((order) => {
+                const profileRaw = order.profiles
+                const profile = (Array.isArray(profileRaw) ? profileRaw[0] : profileRaw) as { full_name: string } | null
                 return (
-                  <tr key={reg.id} className="hover:bg-amber-50/20 transition">
+                  <tr key={order.id} className="hover:bg-amber-50/20 transition">
                     <td className="py-3 font-medium text-brand-black">{profile?.full_name ?? '-'}</td>
-                    <td className="py-3 text-brand-muted">
-                      {pkg ? `${CATEGORY_LABEL[pkg.category]} ${TIER_LABEL[pkg.tier]}` : '-'}
-                    </td>
-                    <td className="py-3">{formatRupiah(reg.total_price)}</td>
-                    <td className="py-3 text-brand-muted">{formatDateTime(reg.created_at)}</td>
+                    <td className="py-3 text-brand-muted">{TIER_LABEL[order.tier] ?? order.tier}</td>
+                    <td className="py-3">{formatRupiah(order.amount)}</td>
+                    <td className="py-3 text-brand-muted">{formatDateTime(order.created_at)}</td>
                     <td className="py-3">
-                      <Badge variant={statusBadge[reg.status as RegistrationStatus]}>
-                        {reg.status}
+                      <Badge variant={STATUS_BADGE[order.status] ?? 'pending'}>
+                        {order.status}
                       </Badge>
                     </td>
                   </tr>

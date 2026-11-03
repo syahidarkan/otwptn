@@ -159,40 +159,97 @@ const INITIAL_MENTEES: MenteeItem[] = [
   },
 ]
 
+const TIER_TO_PACKAGE: Record<string, MenteeItem['packageName']> = {
+  menyeluruh: 'Queen Bee (Royal Jelly)',
+  dokumen: 'Nectar',
+}
+
 export default function MentorDashboardPage() {
-  const [mentees, setMentees] = useState<MenteeItem[]>(INITIAL_MENTEES)
+  const [mentees, setMentees] = useState<MenteeItem[]>([])
+  const [mentoringIds, setMentoringIds] = useState<Record<string, string>>({})
   const [search, setSearch] = useState('')
   const [filterPackage, setFilterPackage] = useState<'Semua' | 'Nectar' | 'Honeycomb' | 'Queen Bee (Royal Jelly)'>('Semua')
   const [mentorName, setMentorName] = useState('Mentor Alumni')
   const [mentorUni, setMentorUni] = useState('')
   const [isPendingLoa, setIsPendingLoa] = useState(false)
+  const [dataLoaded, setDataLoaded] = useState(false)
+  const [honorTotal, setHonorTotal] = useState(0)
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) return
-      const appData = localStorage.getItem(`otwptn_mentor_app_${data.user.id}`)
-      if (appData) {
-        try {
-          const parsed = JSON.parse(appData)
-          if (parsed.status === 'pending') {
-            setIsPendingLoa(true)
-          }
-        } catch {
-          // ignore
-        }
-      }
 
-      supabase
+      // Load mentor profile
+      const { data: profile } = await supabase
         .from('profiles')
         .select('full_name, school_name')
         .eq('id', data.user.id)
         .maybeSingle()
-        .then(({ data: profile }) => {
-          const name = profile?.full_name || data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Mentor Alumni'
-          setMentorName(name)
-          if (profile?.school_name) setMentorUni(profile.school_name)
+
+      const name = profile?.full_name || data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Mentor Alumni'
+      setMentorName(name)
+      if (profile?.school_name) setMentorUni(profile.school_name)
+
+      // Check application status in DB
+      const { data: app } = await supabase
+        .from('mentor_applications')
+        .select('status')
+        .eq('user_id', data.user.id)
+        .maybeSingle()
+
+      if (app?.status === 'pending') setIsPendingLoa(true)
+
+      // Load real mentees from API
+      const res = await fetch('/api/mentor/mentees')
+      if (res.ok) {
+        const json = await res.json()
+        const ids: Record<string, string> = {}
+        const mapped: MenteeItem[] = (json.mentees ?? []).map((record: {
+          id: string; tier: string; wa_group_link?: string; checklist?: { task: string; done: boolean }[];
+          profiles: { id: string; full_name: string; avatar_url?: string; school_name?: string; target_ptns?: string[]; email?: string; phone?: string } | null;
+        }) => {
+          const p = record.profiles
+          const targets = p?.target_ptns ?? []
+          ids[p?.id ?? record.id] = record.id
+          return {
+            id: p?.id ?? record.id,
+            name: p?.full_name ?? 'Mentee',
+            avatar: p?.avatar_url ?? '',
+            school: p?.school_name ?? '-',
+            targetPtn1: targets[0] ?? '-',
+            targetProdi1: targets[0] ?? '-',
+            targetPtn2: targets[1] ?? '-',
+            targetProdi2: targets[1] ?? '-',
+            track: '-',
+            packageName: TIER_TO_PACKAGE[record.tier] ?? 'Nectar',
+            status: 'Analisis Pilihan Siap' as MenteeItem['status'],
+            whatsapp: (p?.phone ?? '').replace(/\D/g, ''),
+            waGroupLink: record.wa_group_link,
+            essayTitle: 'Esai Motivasi',
+            essayContent: '',
+            raporSummary: '-',
+            certificates: [],
+            checklist: record.checklist ?? [
+              { task: 'Kirim link grup WA (Mentor + Admin + Mentee)', done: !!record.wa_group_link },
+              { task: 'Sesi konsultasi awal & bedah target', done: false },
+              { task: 'Koreksi esai draf 1', done: false },
+            ],
+          }
         })
+        setMentees(mapped)
+        setMentoringIds(ids)
+
+        // Load honor total from payouts
+        const { data: payouts } = await supabase
+          .from('mentor_payouts')
+          .select('amount')
+          .eq('mentor_id', data.user.id)
+          .in('status', ['pending', 'cleared'])
+        setHonorTotal(payouts?.reduce((s, p) => s + p.amount, 0) ?? 0)
+      }
+
+      setDataLoaded(true)
     })
   }, [])
 
@@ -232,36 +289,54 @@ export default function MentorDashboardPage() {
   }
 
   function handleToggleChecklist(menteeId: string, taskIdx: number) {
+    let updatedChecklist: { task: string; done: boolean }[] = []
     setMentees(prev =>
       prev.map(m => {
         if (m.id === menteeId) {
-          const updatedChecklist = [...m.checklist]
-          updatedChecklist[taskIdx].done = !updatedChecklist[taskIdx].done
-          return { ...m, checklist: updatedChecklist }
+          const cl = [...m.checklist]
+          cl[taskIdx] = { ...cl[taskIdx], done: !cl[taskIdx].done }
+          updatedChecklist = cl
+          return { ...m, checklist: cl }
         }
         return m
       })
     )
     if (activeMentee?.id === menteeId) {
-      const updated = { ...activeMentee }
-      updated.checklist[taskIdx].done = !updated.checklist[taskIdx].done
-      setActiveMentee(updated)
+      const cl = [...activeMentee.checklist]
+      cl[taskIdx] = { ...cl[taskIdx], done: !cl[taskIdx].done }
+      setActiveMentee({ ...activeMentee, checklist: cl })
+      updatedChecklist = cl
+    }
+    const mentoringId = mentoringIds[menteeId]
+    if (mentoringId && updatedChecklist.length) {
+      fetch('/api/mentor/mentees', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mentoring_id: mentoringId, checklist: updatedChecklist }),
+      })
     }
   }
 
   function handleSaveVipAnalysis() {
     if (!activeMentee) return
-    const updated = {
-      ...activeMentee,
-      vipAnalysis: {
-        recommendationPil1: vipPil1,
-        recommendationPil2: vipPil2,
-        riskNotes: vipRisk,
-        submittedAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
-      },
+    const vipData = {
+      recommendationPil1: vipPil1,
+      recommendationPil2: vipPil2,
+      riskNotes: vipRisk,
+      submittedAt: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
     }
+    const updated = { ...activeMentee, vipAnalysis: vipData }
     setActiveMentee(updated)
     setMentees(prev => prev.map(m => (m.id === activeMentee.id ? updated : m)))
+
+    const mentoringId = mentoringIds[activeMentee.id]
+    if (mentoringId) {
+      fetch('/api/mentor/mentees', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mentoring_id: mentoringId, vip_analysis: vipData }),
+      })
+    }
     setVipSaved(true)
     setTimeout(() => setVipSaved(false), 2500)
   }
@@ -275,6 +350,19 @@ export default function MentorDashboardPage() {
     }
     setActiveMentee(updated)
     setMentees(prev => prev.map(m => (m.id === activeMentee.id ? updated : m)))
+
+    const mentoringId = mentoringIds[activeMentee.id]
+    if (mentoringId) {
+      fetch('/api/mentor/mentees', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mentoring_id: mentoringId,
+          wa_group_link: waGroupLinkInput,
+          zoom_link: zoomLinkInput,
+        }),
+      })
+    }
     setLinkSaved(true)
     setTimeout(() => setLinkSaved(false), 2500)
   }
@@ -319,11 +407,13 @@ export default function MentorDashboardPage() {
         <div className="flex items-center gap-4">
           <div className="p-3.5 rounded-2xl bg-gray-50 text-center min-w-[100px]">
             <span className="text-[10px] font-bold text-gray-500 uppercase">Mentee Aktif</span>
-            <p className="text-xl font-black text-gray-900">{mentees.length} Siswa</p>
+            <p className="text-xl font-black text-gray-900">{dataLoaded ? `${mentees.length} Siswa` : '...'}</p>
           </div>
           <div className="p-3.5 rounded-2xl bg-amber-50 text-center min-w-[100px]">
             <span className="text-[10px] font-bold text-amber-800 uppercase">Honor Mentoring</span>
-            <p className="text-xl font-black text-amber-950">Rp 1.450.000</p>
+            <p className="text-xl font-black text-amber-950">
+              Rp {honorTotal.toLocaleString('id-ID')}
+            </p>
           </div>
         </div>
       </div>
