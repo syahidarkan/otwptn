@@ -9,10 +9,8 @@ import {
   Star,
   ArrowRight,
   HelpCircle,
-  QrCode,
-  CreditCard,
   X,
-  CheckCircle2,
+  Loader2,
   Lock,
   Crown,
   Compass,
@@ -21,6 +19,7 @@ import { LEGAL_ENTITY } from '@/lib/constants'
 
 interface TierPlan {
   id: string
+  backendKey: string
   name: string
   subtitle: string
   tagline: string
@@ -36,6 +35,7 @@ interface TierPlan {
 const PLANS: TierPlan[] = [
   {
     id: 'premium_only',
+    backendKey: 'web_premium',
     name: 'Akun Premium',
     subtitle: 'Fitur Only · Tanpa Mentor',
     tagline: 'Akses tanpa batas ke seluruh ekosistem cerdas otwptn secara mandiri.',
@@ -54,6 +54,7 @@ const PLANS: TierPlan[] = [
   },
   {
     id: 'nectar',
+    backendKey: 'review',
     name: 'Paket Nectar',
     subtitle: 'Opsi Review · Termasuk Akun Premium',
     tagline: 'Udah punya draft tapi masih ragu? Nectar poles dokumenmu biar bebas dari blind spot.',
@@ -73,6 +74,7 @@ const PLANS: TierPlan[] = [
   },
   {
     id: 'honeycomb',
+    backendKey: 'dokumen',
     name: 'Paket Honeycomb',
     subtitle: 'Opsi Reguler · Termasuk Akun Premium',
     tagline: 'Kami bimbing kamu susun dokumen step-by-step dari kerangka sampai strategi jurusan.',
@@ -92,6 +94,7 @@ const PLANS: TierPlan[] = [
   },
   {
     id: 'queen_bee',
+    backendKey: 'menyeluruh',
     name: 'Paket Queen Bee',
     subtitle: 'Royal Jelly VIP · Termasuk Akun Premium',
     tagline: 'Ratu lebah selalu diprioritaskan. Akses mentor unlimited dan perlakuan paling eksklusif.',
@@ -129,12 +132,36 @@ const COMPARISON_ROWS = [
 
 export default function UpgradePage() {
   const [selectedPlan, setSelectedPlan] = useState<TierPlan | null>(null)
-  const [paymentMethod, setPaymentMethod] = useState<'qris' | 'transfer'>('qris')
-  const [checkoutSuccess, setCheckoutSuccess] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
-  function handleCompletePayment(e: React.FormEvent) {
-    e.preventDefault()
-    setCheckoutSuccess(true)
+  async function handleCheckout() {
+    if (!selectedPlan) return
+    setIsSubmitting(true)
+    setError('')
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier: selectedPlan.backendKey, payment_method: 'mayar' }),
+      })
+      const data = await res.json()
+      if (res.status === 401) {
+        window.location.href = `/login?redirect=/upgrade`
+        return
+      }
+      if (!res.ok) {
+        setError(data.error ?? 'Gagal memproses. Coba lagi.')
+        return
+      }
+      if (data.payment_url) {
+        window.location.href = data.payment_url
+      }
+    } catch {
+      setError('Koneksi gagal. Periksa internet dan coba lagi.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -327,7 +354,7 @@ export default function UpgradePage() {
         </div>
       </div>
 
-      {/* Checkout Drawer / Modal */}
+      {/* Checkout Modal */}
       {selectedPlan && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-up"
@@ -335,94 +362,45 @@ export default function UpgradePage() {
         >
           <div className="w-full max-w-md rounded-3xl bg-white p-6 sm:p-7 shadow-2xl relative">
             <button
-              onClick={() => setSelectedPlan(null)}
+              onClick={() => { setSelectedPlan(null); setError('') }}
               className="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 hover:bg-gray-200"
             >
               <X size={16} />
             </button>
 
-            {checkoutSuccess ? (
-              <div className="text-center py-6">
-                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 size={36} />
-                </div>
-                <h3 className="text-xl font-extrabold text-gray-900 mb-2">Pendaftaran Berhasil!</h3>
-                <p className="text-xs text-gray-600 leading-relaxed mb-6">
-                  Akunmu telah resmi ditingkatkan ke <strong>{selectedPlan.name}</strong> di bawah naungan <strong>{LEGAL_ENTITY.name}</strong>.{' '}
-                  {selectedPlan.mentorIncluded
-                    ? 'Mentor alumni berprestasi segera ditugaskan ke akunmu dalam 1x24 jam.'
-                    : 'Seluruh fitur cerdas platform sekarang terbuka penuh tanpa batas.'}
-                </p>
-                <Link
-                  href="/dashboard"
-                  className="btn-brand-primary px-8 py-3 text-xs font-extrabold inline-block"
-                >
-                  Masuk ke Dashboard Sekarang
-                </Link>
-              </div>
-            ) : (
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full mb-2 inline-block">
-                  Konfirmasi Pembayaran Resmi
-                </span>
-                <h3 className="text-xl font-extrabold text-gray-900 mb-0.5">{selectedPlan.name}</h3>
-                <p className="text-xs text-gray-400 font-semibold mb-3">{selectedPlan.subtitle}</p>
-                <p className="text-2xl font-black text-gray-900 mb-4">{selectedPlan.price}</p>
+            <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full mb-2 inline-block">
+              Konfirmasi Pembayaran
+            </span>
+            <h3 className="text-xl font-extrabold text-gray-900 mb-0.5">{selectedPlan.name}</h3>
+            <p className="text-xs text-gray-400 font-semibold mb-1">{selectedPlan.subtitle}</p>
+            <p className="text-2xl font-black text-gray-900 mb-4">{selectedPlan.price}</p>
 
-                {/* Payment Selector */}
-                <div className="grid grid-cols-2 gap-2.5 mb-5">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('qris')}
-                    className={`p-3 rounded-2xl flex flex-col items-center gap-1.5 transition-all ${
-                      paymentMethod === 'qris'
-                        ? 'bg-amber-100/70 ring-2 ring-amber-400'
-                        : 'bg-gray-50 hover:bg-gray-100'
-                    }`}
-                  >
-                    <QrCode size={20} className="text-gray-800" />
-                    <span className="text-xs font-bold text-gray-900">QRIS Instan</span>
-                  </button>
+            <div className="p-3 rounded-xl bg-amber-50 text-xs text-amber-900 font-medium mb-5">
+              VA Bank · QRIS · GoPay · OVO · Dana · Kartu Kredit — pilih saat checkout di Mayar.
+            </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('transfer')}
-                    className={`p-3 rounded-2xl flex flex-col items-center gap-1.5 transition-all ${
-                      paymentMethod === 'transfer'
-                        ? 'bg-amber-100/70 ring-2 ring-amber-400'
-                        : 'bg-gray-50 hover:bg-gray-100'
-                    }`}
-                  >
-                    <CreditCard size={20} className="text-gray-800" />
-                    <span className="text-xs font-bold text-gray-900">Bank Transfer</span>
-                  </button>
-                </div>
-
-                {paymentMethod === 'qris' ? (
-                  <div className="p-4 rounded-2xl bg-gray-50 text-center mb-5">
-                    <div className="w-36 h-36 bg-white mx-auto rounded-xl p-2 shadow-xs mb-2 flex items-center justify-center border border-gray-100">
-                      <QrCode size={120} className="text-gray-900" />
-                    </div>
-                    <p className="text-[11px] font-bold text-gray-700">Scan via GoPay, OVO, BCA, DANA, dll.</p>
-                  </div>
-                ) : (
-                  <div className="p-4 rounded-2xl bg-gray-50 mb-5 space-y-1.5 text-xs">
-                    <p className="text-gray-500 font-medium">Bank Tujuan Rekening PT:</p>
-                    <p className="font-extrabold text-gray-900">Bank Mandiri / BSI Syariah</p>
-                    <p className="text-gray-500 font-medium mt-2">Nomor Rekening:</p>
-                    <p className="font-mono font-black text-amber-700 text-sm">1370019283741</p>
-                    <p className="text-gray-500 font-medium">Atas Nama: <span className="font-bold text-gray-900">{LEGAL_ENTITY.name}</span></p>
-                  </div>
-                )}
-
-                <button
-                  onClick={handleCompletePayment}
-                  className="w-full py-3.5 rounded-full text-xs font-extrabold btn-brand-primary"
-                >
-                  Konfirmasi Selesaikan Pembayaran
-                </button>
+            {error && (
+              <div className="mb-4 p-3 rounded-xl bg-red-50 text-red-700 text-xs font-semibold border border-red-200">
+                {error}
               </div>
             )}
+
+            <button
+              onClick={handleCheckout}
+              disabled={isSubmitting}
+              className="w-full py-3.5 rounded-full text-xs font-extrabold btn-brand-primary disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <><Loader2 size={14} className="animate-spin" /> Memproses...</>
+              ) : (
+                <>Lanjut ke Pembayaran →</>
+              )}
+            </button>
+
+            <p className="text-center text-[11px] text-gray-400 mt-3">
+              <ShieldCheck size={11} className="inline mr-1 mb-0.5" />
+              Diproses aman via Mayar · Akun aktif otomatis setelah bayar
+            </p>
           </div>
         </div>
       )}
