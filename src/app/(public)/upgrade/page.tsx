@@ -252,7 +252,7 @@ export default function UpgradePage() {
               <button
                 onClick={() => {
                   setSelectedPlan(plan)
-                  setCheckoutSuccess(false)
+                  setError('')
                 }}
                 className={`w-full py-3.5 rounded-full text-xs font-extrabold transition-all shadow-md ${
                   plan.popular ? 'btn-brand-primary' : 'bg-gray-900 text-white hover:bg-black'
