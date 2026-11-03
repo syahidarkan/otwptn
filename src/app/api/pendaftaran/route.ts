@@ -18,6 +18,7 @@ const schema = z.object({
   phone: z.string().min(8),
   school: z.string().min(2),
   payment_proof_url: z.string().url(),
+  referral_code: z.string().optional(),
 })
 
 export async function POST(request: Request) {
@@ -35,12 +36,11 @@ export async function POST(request: Request) {
     // 1. Check / create user account
     let userId: string
 
-    // Check if email already has an account via profiles table
     const { data: existingProfile } = await supabase
       .from('profiles')
       .select('id')
       .eq('email', data.email)
-      .single()
+      .maybeSingle()
 
     if (existingProfile?.id) {
       userId = existingProfile.id
@@ -63,57 +63,55 @@ export async function POST(request: Request) {
         full_name: data.full_name,
         email: data.email,
         phone: data.phone,
-        school: data.school,
-      })
+        school_name: data.school,
+      }, { onConflict: 'id' })
     }
 
-    // 2. Find package id by category + tier
-    const { data: pkg } = await supabase
-      .from('packages')
-      .select('id')
-      .eq('category', data.category)
-      .eq('tier', data.tier)
-      .eq('is_active', true)
-      .single()
+    // 2. Create order (manual transfer flow)
+    const invoiceNumber = `INV-${Date.now()}-${userId.slice(0, 8).toUpperCase()}`
 
-    // 3. Find jalur_utama id - stored as string id from constants, match by name pattern or fallback null
-    // The jalur ids in constants are string slugs, map them to DB or store as-is
-    const jalurUtamaId: string | null = pkg ? null : null // filled below
-
-    // Insert registration with jalur_utama_id as text (id from JALUR_LIST constants)
-    const { data: registration, error: regError } = await supabase
-      .from('registrations')
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
       .insert({
         user_id: userId,
-        package_id: pkg?.id ?? null,
-        jalur_utama_id: data.jalur_utama_id as unknown as string,
-        addon_jalur_ids: data.addon_jalur_ids,
-        total_price: data.total_price,
+        tier: data.tier,
+        amount: data.total_price,
         status: 'pending',
-        payment_proof: data.payment_proof_url,
+        invoice_number: invoiceNumber,
         payment_method: 'transfer',
+        referral_code: data.referral_code ?? null,
+        notes: JSON.stringify({
+          category: data.category,
+          jalur_utama_id: data.jalur_utama_id,
+          addon_jalur_ids: data.addon_jalur_ids,
+          payment_proof_url: data.payment_proof_url,
+        }),
       })
       .select('id')
       .single()
 
-    if (regError || !registration) {
+    if (orderError || !order) {
       return NextResponse.json({ error: 'Gagal menyimpan pendaftaran' }, { status: 500 })
     }
 
-    // 4. Send confirmation email
-    await sendEmail({
-      to: data.email,
-      subject: 'Pendaftaran Bimbingan Diterima - otwptn',
-      react: createElement(PendaftaranDiterima, {
-        full_name: data.full_name,
-        category: data.category as JalurCategory,
-        tier: data.tier as PackageTier,
-        total_price: data.total_price,
-        registration_id: registration.id,
-      }),
-    })
+    // 3. Send confirmation email
+    try {
+      await sendEmail({
+        to: data.email,
+        subject: 'Pendaftaran Bimbingan Diterima - otwptn',
+        react: createElement(PendaftaranDiterima, {
+          full_name: data.full_name,
+          category: data.category as JalurCategory,
+          tier: data.tier as PackageTier,
+          total_price: data.total_price,
+          registration_id: order.id,
+        }),
+      })
+    } catch {
+      // Non-fatal: order already created
+    }
 
-    return NextResponse.json({ success: true, registration_id: registration.id })
+    return NextResponse.json({ success: true, registration_id: order.id })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
