@@ -1,21 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Check,
   Sparkles,
   ShieldCheck,
   Star,
-  ArrowRight,
-  HelpCircle,
   X,
   Loader2,
   Lock,
   Crown,
   Compass,
+  User,
+  Mail,
+  CreditCard,
+  QrCode,
+  Building2,
+  Smartphone,
 } from 'lucide-react'
 import { LEGAL_ENTITY } from '@/lib/constants'
+import { createClient } from '@/lib/supabase/client'
 
 interface TierPlan {
   id: string
@@ -134,6 +139,19 @@ export default function UpgradePage() {
   const [selectedPlan, setSelectedPlan] = useState<TierPlan | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [userInfo, setUserInfo] = useState<{ name: string; email: string } | null>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUserInfo({
+          name: user.user_metadata?.full_name ?? user.user_metadata?.name ?? 'Pengguna',
+          email: user.email ?? '',
+        })
+      }
+    })
+  }, [])
 
   async function handleCheckout() {
     if (!selectedPlan) return
@@ -354,53 +372,143 @@ export default function UpgradePage() {
         </div>
       </div>
 
-      {/* Checkout Modal */}
+      {/* Checkout Modal - Detail Konfirmasi */}
       {selectedPlan && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-up"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
           role="dialog"
+          onClick={e => { if (e.target === e.currentTarget) { setSelectedPlan(null); setError('') } }}
         >
-          <div className="w-full max-w-md rounded-3xl bg-white p-6 sm:p-7 shadow-2xl relative">
-            <button
-              onClick={() => { setSelectedPlan(null); setError('') }}
-              className="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 hover:bg-gray-200"
-            >
-              <X size={16} />
-            </button>
-
-            <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full mb-2 inline-block">
-              Konfirmasi Pembayaran
-            </span>
-            <h3 className="text-xl font-extrabold text-gray-900 mb-0.5">{selectedPlan.name}</h3>
-            <p className="text-xs text-gray-400 font-semibold mb-1">{selectedPlan.subtitle}</p>
-            <p className="text-2xl font-black text-gray-900 mb-4">{selectedPlan.price}</p>
-
-            <div className="p-3 rounded-xl bg-amber-50 text-xs text-amber-900 font-medium mb-5">
-              VA Bank · QRIS · GoPay · OVO · Dana · Kartu Kredit — pilih saat checkout di Mayar.
+          <div className="w-full max-w-lg rounded-3xl bg-white shadow-2xl relative overflow-hidden max-h-[92vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full inline-block mb-1">
+                  Konfirmasi Pembelian
+                </span>
+                <h3 className="text-lg font-extrabold text-gray-900">{selectedPlan.name}</h3>
+                <p className="text-xs text-gray-400 font-semibold">{selectedPlan.subtitle}</p>
+              </div>
+              <button
+                onClick={() => { setSelectedPlan(null); setError('') }}
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 hover:bg-gray-200 flex-shrink-0"
+              >
+                <X size={15} />
+              </button>
             </div>
 
-            {error && (
-              <div className="mb-4 p-3 rounded-xl bg-red-50 text-red-700 text-xs font-semibold border border-red-200">
-                {error}
-              </div>
-            )}
+            {/* Scrollable body */}
+            <div className="overflow-y-auto flex-1 px-6 py-4 space-y-4">
 
-            <button
-              onClick={handleCheckout}
-              disabled={isSubmitting}
-              className="w-full py-3.5 rounded-full text-xs font-extrabold btn-brand-primary disabled:opacity-60 flex items-center justify-center gap-2"
-            >
-              {isSubmitting ? (
-                <><Loader2 size={14} className="animate-spin" /> Memproses...</>
-              ) : (
-                <>Lanjut ke Pembayaran →</>
+              {/* User info */}
+              {userInfo && (
+                <div className="rounded-2xl bg-gray-50 p-4 space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-2">Data Pemesan</p>
+                  <div className="flex items-center gap-2 text-xs text-gray-700">
+                    <User size={13} className="text-gray-400 flex-shrink-0" />
+                    <span className="font-semibold">{userInfo.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-700">
+                    <Mail size={13} className="text-gray-400 flex-shrink-0" />
+                    <span className="font-semibold">{userInfo.email}</span>
+                  </div>
+                </div>
               )}
-            </button>
 
-            <p className="text-center text-[11px] text-gray-400 mt-3">
-              <ShieldCheck size={11} className="inline mr-1 mb-0.5" />
-              Diproses aman via Mayar · Akun aktif otomatis setelah bayar
-            </p>
+              {/* Package details */}
+              <div className="rounded-2xl border border-amber-200 bg-amber-50/40 p-4">
+                <p className="text-[10px] font-black uppercase tracking-wider text-amber-600 mb-3">Paket yang Dibeli</p>
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <p className="text-sm font-extrabold text-gray-900">{selectedPlan.name}</p>
+                    <p className="text-[11px] text-gray-500 font-medium">{selectedPlan.tagline}</p>
+                  </div>
+                  <div className="text-right flex-shrink-0 ml-4">
+                    <p className="text-lg font-black text-amber-700">{selectedPlan.price}</p>
+                    <p className="text-[10px] text-gray-400">/{selectedPlan.period}</p>
+                  </div>
+                </div>
+
+                {/* Benefits list */}
+                <div className="space-y-1.5 pt-3 border-t border-amber-200">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-gray-500 mb-2">Yang Kamu Dapatkan:</p>
+                  {selectedPlan.features.map((feat, i) => (
+                    <div key={i} className="flex items-start gap-2 text-xs text-gray-700">
+                      <div className="w-4 h-4 rounded-full bg-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check size={9} className="text-white stroke-[3]" />
+                      </div>
+                      <span className={feat.includes('OTOMATIS') ? 'font-extrabold text-amber-800' : 'font-medium'}>
+                        {feat}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price breakdown */}
+              <div className="rounded-2xl bg-gray-50 p-4">
+                <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-3">Rincian Pembayaran</p>
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex justify-between text-gray-600">
+                    <span>{selectedPlan.name}</span>
+                    <span className="font-bold text-gray-900">{selectedPlan.price}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-500">
+                    <span>Biaya gateway pembayaran</span>
+                    <span className="font-semibold">Ditambahkan saat checkout</span>
+                  </div>
+                  <div className="flex justify-between font-extrabold text-gray-900 pt-2 border-t border-gray-200 text-sm">
+                    <span>Total yang dibayar</span>
+                    <span className="text-amber-700">{selectedPlan.price} + fee</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment methods */}
+              <div className="rounded-2xl bg-gray-50 p-4">
+                <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-3">Metode Pembayaran</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { icon: Building2, label: 'Virtual Account', sub: 'BCA, Mandiri, BNI, BRI, BSI' },
+                    { icon: QrCode, label: 'QRIS', sub: 'Semua aplikasi e-wallet' },
+                    { icon: Smartphone, label: 'E-Wallet', sub: 'GoPay, OVO, Dana, ShopeePay' },
+                    { icon: CreditCard, label: 'Kartu Kredit', sub: 'Visa, Mastercard' },
+                  ].map(({ icon: Icon, label, sub }) => (
+                    <div key={label} className="flex items-center gap-2 p-2 rounded-xl bg-white border border-gray-100">
+                      <Icon size={14} className="text-amber-600 flex-shrink-0" />
+                      <div>
+                        <p className="text-[11px] font-bold text-gray-800">{label}</p>
+                        <p className="text-[10px] text-gray-400">{sub}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer CTA */}
+            <div className="px-6 py-4 border-t border-gray-100 flex-shrink-0 bg-white">
+              {error && (
+                <div className="mb-3 p-3 rounded-xl bg-red-50 text-red-700 text-xs font-semibold border border-red-200">
+                  {error}
+                </div>
+              )}
+              <button
+                onClick={handleCheckout}
+                disabled={isSubmitting}
+                className="w-full py-3.5 rounded-full text-sm font-extrabold btn-brand-primary disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <><Loader2 size={15} className="animate-spin" /> Memproses...</>
+                ) : (
+                  <>Bayar & Aktifkan {selectedPlan.name} →</>
+                )}
+              </button>
+              <p className="text-center text-[11px] text-gray-400 mt-2.5">
+                <ShieldCheck size={11} className="inline mr-1 mb-0.5" />
+                Aman via Mayar · Akun aktif otomatis setelah bayar · {LEGAL_ENTITY.name}
+              </p>
+            </div>
           </div>
         </div>
       )}
