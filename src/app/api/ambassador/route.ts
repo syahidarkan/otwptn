@@ -60,6 +60,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Minimal penarikan Rp 50.000' }, { status: 400 })
   }
 
+  // Rate limit: max 2 pending withdrawals at a time
+  const { count: pendingCount } = await supabase
+    .from('withdrawal_requests')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('status', 'pending')
+  if ((pendingCount ?? 0) >= 2) {
+    return NextResponse.json({ error: 'Sudah ada permintaan penarikan yang menunggu' }, { status: 429 })
+  }
+
   // Verify user has enough balance
   const { data: commissions } = await supabase
     .from('ambassador_commissions')

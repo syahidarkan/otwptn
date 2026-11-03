@@ -31,10 +31,14 @@ export async function POST(request: Request) {
   const requestId = request.headers.get('Request-Id') ?? ''
   const requestTimestamp = request.headers.get('Request-Timestamp') ?? ''
 
-  // Skip verification in dev mode without secret key configured
-  const skipVerification = !secretKey || process.env.NODE_ENV === 'development'
+  // In production, always require a secret key and valid signature
+  if (!secretKey && process.env.NODE_ENV !== 'development') {
+    console.error('[DOKU Webhook] DOKU_SECRET_KEY not configured in production')
+    return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
+  }
 
-  if (!skipVerification && !verifyDokuSignature(rawBody, signatureHeader, requestId, requestTimestamp, clientId, secretKey)) {
+  const shouldVerify = secretKey && process.env.NODE_ENV !== 'development'
+  if (shouldVerify && !verifyDokuSignature(rawBody, signatureHeader, requestId, requestTimestamp, clientId, secretKey)) {
     console.warn('[DOKU Webhook] Invalid signature — rejected')
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
   }

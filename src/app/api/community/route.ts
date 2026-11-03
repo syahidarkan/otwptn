@@ -23,6 +23,17 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  // Rate limit: max 5 posts per user per minute
+  const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString()
+  const { count: recentPosts } = await supabase
+    .from('community_posts')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .gte('created_at', oneMinuteAgo)
+  if ((recentPosts ?? 0) >= 5) {
+    return NextResponse.json({ error: 'Terlalu banyak postingan. Tunggu sebentar.' }, { status: 429 })
+  }
+
   const { content } = await request.json()
   if (!content || typeof content !== 'string' || content.trim().length < 3) {
     return NextResponse.json({ error: 'Konten terlalu pendek' }, { status: 400 })

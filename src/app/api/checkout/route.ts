@@ -20,6 +20,18 @@ export async function POST(request: Request) {
 
   const { data: profile } = await supabase.from('profiles').select('full_name, tier').eq('id', user.id).maybeSingle()
 
+  // Rate limit: max 3 pending orders per user per 10 minutes
+  const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString()
+  const { count: recentOrders } = await supabase
+    .from('orders')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('status', 'pending')
+    .gte('created_at', tenMinutesAgo)
+  if ((recentOrders ?? 0) >= 3) {
+    return NextResponse.json({ error: 'Terlalu banyak permintaan. Tunggu beberapa menit.' }, { status: 429 })
+  }
+
   const invoiceNumber = `INV-${Date.now()}-${user.id.slice(0, 8).toUpperCase()}`
 
   const { data: order } = await supabase.from('orders').insert({
