@@ -154,31 +154,33 @@ interface EssayComment {
   replies: { author: string; text: string; time: string }[]
 }
 
-const INITIAL_COMMENTS: EssayComment[] = [
-  {
-    id: 'comm-1',
-    mentorName: 'Kak Rayhan Fadillah',
-    mentorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-    quote: 'Saya adalah anak yang rajin dan berbakti kepada orang tua.',
-    type: 'hapus',
-    comment: 'Bagian ini terlalu klise dan generik. Tim penilai PPKB UI mencari dorongan intelektual dan problem konkret yang ingin kamu selesaikan lewat prodi pilihan, bukan sekadar sifat umum.',
-    time: 'Kemarin, 14:20',
-    replies: [
-      { author: 'Kamu (Mentee)', text: 'Baik Kak, kalau diganti dengan alasan ketertarikan pada proyek otomasi sistem rumah gimana?', time: 'Kemarin, 15:10' },
-      { author: 'Kak Rayhan Fadillah', text: 'Nah itu jauh lebih spesifik dan berkarakter! Masukkan itu.', time: 'Kemarin, 15:30' },
-    ],
-  },
-  {
-    id: 'comm-2',
-    mentorName: 'Kak Rayhan Fadillah',
-    mentorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-    quote: 'Pengalaman saya menjadi ketua panitia pentas seni.',
-    type: 'perlu-bukti',
-    comment: 'Tolong tambahkan metrik keberhasilan konkret: berapa jumlah peserta yang hadir? Berapa anggaran yang kamu kelola? Ini akan membuktikan kompetensi leadership kamu.',
-    time: 'Hari ini, 09:15',
-    replies: [],
-  },
-]
+function makeInitialComments(mentorName: string): EssayComment[] {
+  return [
+    {
+      id: 'comm-1',
+      mentorName,
+      mentorAvatar: '',
+      quote: 'Saya adalah anak yang rajin dan berbakti kepada orang tua.',
+      type: 'hapus',
+      comment: 'Bagian ini terlalu klise dan generik. Tim penilai PPKB UI mencari dorongan intelektual dan problem konkret yang ingin kamu selesaikan lewat prodi pilihan, bukan sekadar sifat umum.',
+      time: 'Kemarin, 14:20',
+      replies: [
+        { author: 'Kamu (Mentee)', text: 'Baik Kak, kalau diganti dengan alasan ketertarikan pada proyek otomasi sistem rumah gimana?', time: 'Kemarin, 15:10' },
+        { author: mentorName, text: 'Nah itu jauh lebih spesifik dan berkarakter! Masukkan itu.', time: 'Kemarin, 15:30' },
+      ],
+    },
+    {
+      id: 'comm-2',
+      mentorName,
+      mentorAvatar: '',
+      quote: 'Pengalaman saya menjadi ketua panitia pentas seni.',
+      type: 'perlu-bukti',
+      comment: 'Tolong tambahkan metrik keberhasilan konkret: berapa jumlah peserta yang hadir? Berapa anggaran yang kamu kelola? Ini akan membuktikan kompetensi leadership kamu.',
+      time: 'Hari ini, 09:15',
+      replies: [],
+    },
+  ]
+}
 
 interface MentoringRecord {
   mentor_name: string | null
@@ -211,7 +213,7 @@ export default function MentorAlumniPage() {
   const [essayContent, setEssayContent] = useState(
     `Sejak duduk di bangku kelas 10, saya menaruh minat mendalam pada integrasi kecerdasan buatan dalam pemrosesan data kesehatan. Saat mengamati sistem pendaftaran puskesmas di daerah saya yang masih mengalami antrean berulang, saya menyadari bahwa efisiensi sistem informasi bukan sekadar kemudahan teknologi, melainkan hak layanan publik yang mendesak.\n\nMelalui keikutsertaan saya dalam Olimpiade Informatika dan pengembangan aplikasi mini berbasis web untuk inventaris ekstrakurikuler, saya belajar bagaimana logika algoritma dapat memecahkan masalah nyata di sekitar kita.\n\nMemilih Fakultas Ilmu Komputer Universitas Indonesia adalah keputusan terencana untuk mendalami rekayasa perangkat lunak dan data science di bawah bimbingan para akademisi terbaik tanah air.`
   )
-  const [comments, setComments] = useState<EssayComment[]>(INITIAL_COMMENTS)
+  const [comments, setComments] = useState<EssayComment[]>([])
   const [replyInput, setReplyInput] = useState<Record<string, string>>({})
   const [versionHistoryOpen, setVersionHistoryOpen] = useState(false)
 
@@ -260,7 +262,12 @@ export default function MentorAlumniPage() {
           .select('mentor_name, mentor_email, wa_group_link, tier, zoom_sessions_total, zoom_sessions_used, revision_count_total, revision_count_used')
           .eq('user_id', data.user.id)
           .maybeSingle()
-        if (rec) setMentoringRecord(rec as MentoringRecord)
+        if (rec) {
+          setMentoringRecord(rec as MentoringRecord)
+          setComments(makeInitialComments(rec.mentor_name ?? 'Mentor Kamu'))
+        } else {
+          setComments(makeInitialComments('Mentor Kamu'))
+        }
         setDemoUnlocked(true)
       }
 
@@ -416,7 +423,7 @@ export default function MentorAlumniPage() {
                     Amankan Kuota Mentorship Sekarang <ArrowRight size={15} />
                   </Link>
                   <button
-                    onClick={() => setDemoUnlocked(true)}
+                    onClick={() => { setDemoUnlocked(true); if (comments.length === 0) setComments(makeInitialComments('Kak Alumni otwptn')) }}
                     className="px-6 py-3.5 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors flex items-center gap-2"
                   >
                     <ShieldCheck size={15} className="text-amber-600" /> Coba Simulasi Portal VIP
@@ -549,20 +556,17 @@ export default function MentorAlumniPage() {
               {/* Left (5 cols): Mentor Video & Audio Wave */}
               <div className="lg:col-span-5 rounded-2xl bg-gray-50 p-5 space-y-4">
                 <div className="flex items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
-                    alt=""
-                    className="w-14 h-14 rounded-2xl object-cover shadow-xs"
-                  />
+                  <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <GraduationCap size={24} className="text-amber-700" />
+                  </div>
                   <div>
                     <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-full">
                       ● Sesi Terhubung
                     </span>
                     <h4 className="text-xs font-black text-gray-900 mt-1">
-                      Kak Rayhan Fadillah, S.Kom.
+                      {mentoringRecord?.mentor_name ?? ASSIGNED_MENTOR.name}
                     </h4>
-                    <p className="text-[11px] text-gray-500">Alumni Fasilkom UI · Mentor Pendamping</p>
+                    <p className="text-[11px] text-gray-500">Alumni PTN · Mentor Pendamping otwptn</p>
                   </div>
                 </div>
 
@@ -630,7 +634,7 @@ export default function MentorAlumniPage() {
                 <div className="p-4 rounded-xl bg-white shadow-xs border-l-3 border-amber-400 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black text-gray-900">
-                      Catatan Mentor Kak Rayhan:
+                      Catatan {mentoringRecord?.mentor_name ?? 'Mentor'}:
                     </span>
                     <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full">
                       {activeAnnotationIdx === 0 ? 'Perlu Diganti' : 'Hook Sudah Kuat!'}
@@ -1401,12 +1405,20 @@ export default function MentorAlumniPage() {
                     </select>
                   </div>
 
-                  <button
-                    onClick={() => setBookingConfirmed(true)}
-                    className="w-full btn-brand-primary py-3.5 rounded-full text-xs font-black shadow-md flex items-center justify-center gap-2 mt-4"
-                  >
-                    <Calendar size={15} /> Konfirmasi Jadwal Sesi Mentoring
-                  </button>
+                  {mentoringRecord?.wa_group_link ? (
+                    <a
+                      href={`${mentoringRecord.wa_group_link}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full btn-brand-primary py-3.5 rounded-full text-xs font-black shadow-md flex items-center justify-center gap-2 mt-4"
+                    >
+                      <MessageCircle size={15} /> Kirim Request Jadwal ke Mentor via WA
+                    </a>
+                  ) : (
+                    <div className="w-full p-3.5 rounded-2xl bg-amber-50 text-amber-900 text-xs text-center font-semibold mt-4">
+                      Link WhatsApp Group akan dikirim mentor setelah assign. Gunakan form ini untuk mencatat preferensi jadwalmu.
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1429,7 +1441,7 @@ export default function MentorAlumniPage() {
 
                 <div className="space-y-3 mb-5">
                   {[
-                    { ver: 'v1.2 (Saat Ini)', time: 'Hari ini, 10:20', author: 'Mentor Rayhan (Anotasi Ditambahkan)' },
+                    { ver: 'v1.2 (Saat Ini)', time: 'Hari ini, 10:20', author: `${mentoringRecord?.mentor_name ?? 'Mentor'} (Anotasi Ditambahkan)` },
                     { ver: 'v1.1', time: 'Kemarin, 16:45', author: 'Kamu (Perbaikan Paragraf 2)' },
                     { ver: 'v1.0 (Draf Awal)', time: '2 hari lalu, 11:00', author: 'Kamu (Draf Pertama Dibuat)' },
                   ].map((v, idx) => (
