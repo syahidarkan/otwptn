@@ -179,7 +179,7 @@ export default function MentorSection() {
               </div>
 
               {/* Card 1 Body (Panjang/Portrait - Background Putih) */}
-              <div className="w-full rounded-3xl p-5 bg-white border border-rose-200 shadow-md space-y-3">
+              <div className="card-on-dark w-full rounded-3xl p-5 bg-white border border-rose-200 shadow-md space-y-3">
                 {/* Search Bar with Typing Effect */}
                 <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-gray-50 border border-gray-200 text-xs shadow-2xs">
                   <Search size={14} className="text-gray-500 flex-shrink-0" />
@@ -276,7 +276,7 @@ export default function MentorSection() {
               </div>
 
               {/* Card 2 Body (Sedang/Fit Content - Background Putih) */}
-              <div className="w-full rounded-3xl p-5 bg-white border-2 border-cyan-400 shadow-md space-y-3.5">
+              <div className="card-on-dark w-full rounded-3xl p-5 bg-white border-2 border-cyan-400 shadow-md space-y-3.5">
                 {/* Note Header (Icon instead of Emoji) */}
                 <div className="flex items-center gap-2 pb-2.5 border-b border-gray-100">
                   <FileEdit size={16} className="text-cyan-800 flex-shrink-0" />
@@ -331,7 +331,7 @@ export default function MentorSection() {
               </div>
 
               {/* Card 3 Body (Landscape Aspect Video - Background Putih) */}
-              <div className="w-full rounded-3xl p-5 bg-white border-2 border-purple-400 shadow-md space-y-3">
+              <div className="card-on-dark w-full rounded-3xl p-5 bg-white border-2 border-purple-400 shadow-md space-y-3">
                 {/* Landscape Video Screen */}
                 <div className="relative rounded-2xl overflow-hidden aspect-video bg-slate-900 border border-gray-200 shadow-sm">
                   {/* eslint-disable-next-line @next/next/no-img-element */}

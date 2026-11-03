@@ -133,6 +133,28 @@ html.dark .public-light-theme .text-amber-400 {
   color: rgba(255,255,255,0.85);
 }
 
+/* Reset text colour for light (white-bg) cards embedded inside dark sections */
+.dark-section .card-on-dark,
+.dark-section .card-on-dark h1,
+.dark-section .card-on-dark h2,
+.dark-section .card-on-dark h3,
+.dark-section .card-on-dark h4,
+.dark-section .card-on-dark h5,
+.dark-section .card-on-dark p,
+.dark-section .card-on-dark span,
+.dark-section .card-on-dark li,
+.public-light-theme .dark-section .card-on-dark,
+.public-light-theme .dark-section .card-on-dark h1,
+.public-light-theme .dark-section .card-on-dark h2,
+.public-light-theme .dark-section .card-on-dark h3,
+.public-light-theme .dark-section .card-on-dark h4,
+.public-light-theme .dark-section .card-on-dark h5,
+.public-light-theme .dark-section .card-on-dark p,
+.public-light-theme .dark-section .card-on-dark span,
+.public-light-theme .dark-section .card-on-dark li {
+  color: #111827 !important;
+}
+
 .public-light-theme .glass-nav,
 html.dark .public-light-theme .glass-nav {
   background-color: rgba(255, 255, 255, 0.95) !important;
