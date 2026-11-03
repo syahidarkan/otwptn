@@ -360,7 +360,10 @@ export default function CariTemanBelajarPage() {
         remoteStreamRef.current = remoteStream
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = remoteStream
-          remoteVideoRef.current.play().catch(() => {})
+          remoteVideoRef.current.muted = false
+          remoteVideoRef.current.play().catch(() => {
+            setIsAudioBlocked(true)
+          })
         }
         if (remoteAudioRef.current) {
           remoteAudioRef.current.srcObject = remoteStream
@@ -396,7 +399,10 @@ export default function CariTemanBelajarPage() {
     if (phase === 'connected' && remoteStreamRef.current) {
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = remoteStreamRef.current
-        remoteVideoRef.current.play().catch(() => {})
+        remoteVideoRef.current.muted = false
+        remoteVideoRef.current.play().catch(() => {
+          setIsAudioBlocked(true)
+        })
       }
       if (remoteAudioRef.current) {
         remoteAudioRef.current.srcObject = remoteStreamRef.current
@@ -733,25 +739,30 @@ export default function CariTemanBelajarPage() {
             <div
               onClick={() => {
                 if (remoteVideoRef.current) {
+                  remoteVideoRef.current.muted = false
                   remoteVideoRef.current.play().catch(() => {})
                 }
-                if (remoteAudioRef.current && isAudioBlocked) {
-                  remoteAudioRef.current.play().then(() => setIsAudioBlocked(false)).catch(() => {})
+                if (remoteAudioRef.current) {
+                  remoteAudioRef.current.play().catch(() => {})
                 }
+                setIsAudioBlocked(false)
               }}
               className="relative rounded-3xl overflow-hidden aspect-[4/3] bg-gray-950 shadow-xl flex items-center justify-center text-white cursor-pointer"
             >
               {/* Separate dedicated audio element */}
               <audio ref={remoteAudioRef} autoPlay playsInline />
 
-              {/* Remote live video feed - muted so browser NEVER blocks rendering */}
+              {/* Remote live video feed with audio */}
               <video
                 ref={remoteVideoRef}
                 autoPlay
                 playsInline
-                muted
                 onLoadedMetadata={(e) => {
-                  (e.target as HTMLVideoElement).play().catch(() => {})
+                  const el = e.target as HTMLVideoElement
+                  el.muted = false
+                  el.play().catch(() => {
+                    setIsAudioBlocked(true)
+                  })
                 }}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
                   phase === 'connected' ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none'

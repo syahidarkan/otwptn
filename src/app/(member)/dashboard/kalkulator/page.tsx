@@ -24,6 +24,8 @@ import {
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
 import SearchInput from '@/components/ui/SearchInput'
 import Select from '@/components/ui/Select'
+import SearchablePicker from '@/components/ui/SearchablePicker'
+import { INDONESIA_PTN_LIST, INDONESIA_JURUSAN_LIST } from '@/lib/indonesiaDirectory'
 
 interface KalkulatorResult {
   score: number
@@ -248,6 +250,7 @@ export default function KalkulatorPage() {
 
   const [classRank, setClassRank] = useState('')
   const [classTotal, setClassTotal] = useState('')
+  const [jurusanSma, setJurusanSma] = useState<'ipa' | 'ips' | 'merdeka' | 'kejuruan'>('ipa')
   const [isEligible, setIsEligible] = useState<boolean | null>(null)
   const [eligibleRank, setEligibleRank] = useState('')
   const [schoolQuota, setSchoolQuota] = useState('')
@@ -257,6 +260,21 @@ export default function KalkulatorPage() {
   const [pilihan1Prodi, setPilihan1Prodi] = useState('')
   const [pilihan2Ptn, setPilihan2Ptn] = useState('')
   const [pilihan2Prodi, setPilihan2Prodi] = useState('')
+
+  const ptnOptions = useMemo(() => {
+    return INDONESIA_PTN_LIST.map(p => ({
+      label: `${p.name} (${p.shortName})`,
+      value: p.name,
+      sub: `${p.city}, ${p.province}`,
+    }))
+  }, [])
+
+  const jurusanOptions = useMemo(() => {
+    return INDONESIA_JURUSAN_LIST.map(j => ({
+      label: j,
+      value: j,
+    }))
+  }, [])
 
   const [semesters, setSemesters] = useState<SemesterData[]>(
     Array.from({ length: 5 }, (_, i) => ({ semester: i + 1, subjects: [] }))
@@ -528,37 +546,46 @@ export default function KalkulatorPage() {
           {isSnbp ? (
             <>
               {/* Prodi Pilihan Card */}
-              <div className="p-6 rounded-3xl bg-white shadow-md">
-                <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-4">
-                  Pilihan Program Studi SNBP
-                </h3>
-                <div className="space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <input
-                      value={pilihan1Prodi}
-                      onChange={e => setPilihan1Prodi(e.target.value)}
-                      placeholder="Prodi Pilihan 1 (cth: Ilmu Komputer)"
-                      className="px-4 py-3 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
-                    />
-                    <input
+              <div className="p-6 rounded-3xl bg-white shadow-md space-y-4">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-gray-400">
+                    Pilihan Universitas & Program Studi SNBP
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Pilih target PTN dan Jurusan dari direktori resmi seluruh perguruan tinggi negeri Indonesia.
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <SearchablePicker
+                      label="Universitas PTN Pilihan 1 (Utama)"
+                      placeholder="Pilih PTN Pilihan 1..."
                       value={pilihan1Ptn}
-                      onChange={e => setPilihan1Ptn(e.target.value)}
-                      placeholder="PTN Pilihan 1 (cth: Universitas Indonesia)"
-                      className="px-4 py-3 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
+                      onChange={v => setPilihan1Ptn(v)}
+                      options={ptnOptions}
+                    />
+                    <SearchablePicker
+                      label="Program Studi Pilihan 1 (Utama)"
+                      placeholder="Pilih Jurusan Pilihan 1..."
+                      value={pilihan1Prodi}
+                      onChange={v => setPilihan1Prodi(v)}
+                      options={jurusanOptions}
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <input
-                      value={pilihan2Prodi}
-                      onChange={e => setPilihan2Prodi(e.target.value)}
-                      placeholder="Prodi Pilihan 2 (opsional)"
-                      className="px-4 py-3 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
-                    />
-                    <input
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                    <SearchablePicker
+                      label="Universitas PTN Pilihan 2 (Cadangan)"
+                      placeholder="Pilih PTN Pilihan 2..."
                       value={pilihan2Ptn}
-                      onChange={e => setPilihan2Ptn(e.target.value)}
-                      placeholder="PTN Pilihan 2 (opsional)"
-                      className="px-4 py-3 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
+                      onChange={v => setPilihan2Ptn(v)}
+                      options={ptnOptions}
+                    />
+                    <SearchablePicker
+                      label="Program Studi Pilihan 2 (Cadangan)"
+                      placeholder="Pilih Jurusan Pilihan 2..."
+                      value={pilihan2Prodi}
+                      onChange={v => setPilihan2Prodi(v)}
+                      options={jurusanOptions}
                     />
                   </div>
                 </div>
@@ -567,10 +594,10 @@ export default function KalkulatorPage() {
               {/* Akreditasi & Eligibility SNBP Card */}
               <div className="p-6 rounded-3xl bg-white shadow-md">
                 <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-1">
-                  Akreditasi Sekolah & Kuota Siswa Eligible
+                  Akreditasi Sekolah & Peringkat Eligible Seangkatan
                 </h3>
                 <p className="text-xs text-gray-500 mb-4">
-                  Akreditasi A (~40% siswa terbaik), B (~25%), C (~5%).
+                  SNBP menyeleksi siswa berdasarkan kuota sekolah: Akreditasi A (40%), B (25%), C (5%).
                 </p>
 
                 <div className="flex items-center gap-3 mb-4">
@@ -592,30 +619,30 @@ export default function KalkulatorPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1 block">
-                      Peringkat Rapor di Kelas
+                      Peringkat Siswa Eligible Seangkatan
                     </label>
                     <input
                       type="number"
                       min={1}
-                      value={classRank}
-                      onChange={e => setClassRank(e.target.value)}
-                      placeholder="cth. 2"
+                      value={eligibleRank}
+                      onChange={e => setEligibleRank(e.target.value)}
+                      placeholder="Contoh: Peringkat 5 seangkatan"
                       className="w-full px-4 py-3 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
                     />
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-700 mb-1 block">
-                      Dari Total Siswa Satu Kelas
+                      Total Kuota Siswa Eligible di Sekolah
                     </label>
                     <input
                       type="number"
                       min={1}
-                      value={classTotal}
-                      onChange={e => setClassTotal(e.target.value)}
-                      placeholder="cth. 36"
+                      value={schoolQuota}
+                      onChange={e => setSchoolQuota(e.target.value)}
+                      placeholder="Contoh: Kuota 48 siswa"
                       className="w-full px-4 py-3 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
                     />
                   </div>
@@ -650,39 +677,75 @@ export default function KalkulatorPage() {
             </>
           ) : (
             <div className="p-6 rounded-3xl bg-white shadow-md">
-              <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-4">
-                Peringkat & Kuota Siswa Sekolah
+              <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-1">
+                Peringkat Rapor Seangkatan Sekolah
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <p className="text-xs text-gray-500 mb-4">
+                Dihitung berdasarkan peringkat akumulasi nilai rapor semester 1-5 di sekolah.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-gray-700 mb-1 block">
-                    Peringkat di Kelas
+                    Peringkat Nilai Seangkatan
                   </label>
                   <input
                     type="number"
                     min={1}
-                    value={classRank}
-                    onChange={e => setClassRank(e.target.value)}
-                    placeholder="cth. 3"
+                    value={eligibleRank}
+                    onChange={e => setEligibleRank(e.target.value)}
+                    placeholder="Contoh: Peringkat 8"
                     className="w-full px-4 py-3 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
                   />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-gray-700 mb-1 block">
-                    Dari Total Siswa
+                    Total Siswa Satu Angkatan
                   </label>
                   <input
                     type="number"
                     min={1}
-                    value={classTotal}
-                    onChange={e => setClassTotal(e.target.value)}
-                    placeholder="cth. 36"
+                    value={schoolQuota}
+                    onChange={e => setSchoolQuota(e.target.value)}
+                    placeholder="Contoh: 160 siswa"
                     className="w-full px-4 py-3 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
                   />
                 </div>
               </div>
             </div>
           )}
+
+          {/* Rumpun Jurusan SMA / SMK Card (Pilih Sekali untuk Seluruh SMA) */}
+          <div className="p-6 rounded-3xl bg-white shadow-md space-y-3">
+            <div>
+              <h3 className="text-xs font-black uppercase tracking-wider text-gray-400">
+                Rumpun Jurusan SMA / SMK
+              </h3>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Pilih jurusan sekali untuk seluruh masa studi SMA. Berlaku untuk seluruh mata pelajaran semester 1-5.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+              {[
+                { id: 'ipa', label: '🧪 MIPA / IPA' },
+                { id: 'ips', label: '📚 IPS / Soshum' },
+                { id: 'merdeka', label: '⚡ Kurikulum Merdeka' },
+                { id: 'kejuruan', label: '🛠️ SMK / Kejuruan' },
+              ].map(j => (
+                <button
+                  key={j.id}
+                  type="button"
+                  onClick={() => setJurusanSma(j.id as any)}
+                  className={`py-3 px-3 rounded-2xl text-xs font-black transition-all border ${
+                    jurusanSma === j.id
+                      ? 'bg-amber-400 text-amber-950 border-amber-400 shadow-xs'
+                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                  }`}
+                >
+                  {j.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Nilai per Semester Card */}
           <div className="p-6 rounded-3xl bg-white shadow-md space-y-4">
@@ -748,29 +811,21 @@ export default function KalkulatorPage() {
                             updateSubject(s.semester, sub.id, { name: e.target.value })
                           }
                           placeholder="Nama Mapel (cth: Matematika Wajib)"
-                          className="flex-1 px-3 py-2 rounded-xl bg-white text-xs font-semibold text-gray-900 outline-none"
+                          className="flex-1 px-3 py-2 rounded-xl bg-white text-xs font-semibold text-gray-900 outline-none border border-gray-200 focus:border-amber-400"
                         />
-                        <div className="w-28 flex-shrink-0">
-                          <Select
-                            value={sub.category}
-                            onChange={v =>
-                              updateSubject(s.semester, sub.id, { category: v })
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={sub.grade}
+                            onChange={e =>
+                              updateSubject(s.semester, sub.id, { grade: e.target.value })
                             }
-                            options={CATEGORY_OPTIONS}
-                            size="sm"
+                            placeholder="Nilai (0-100)"
+                            className="w-24 px-3 py-2 rounded-xl bg-white text-xs font-extrabold text-gray-900 outline-none text-center border border-gray-200 focus:border-amber-400"
                           />
                         </div>
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          value={sub.grade}
-                          onChange={e =>
-                            updateSubject(s.semester, sub.id, { grade: e.target.value })
-                          }
-                          placeholder="Nilai"
-                          className="w-20 px-3 py-2 rounded-xl bg-white text-xs font-extrabold text-gray-900 outline-none text-center"
-                        />
                         <button
                           onClick={() => removeSubject(s.semester, sub.id)}
                           className="p-2 text-gray-400 hover:text-rose-600 transition-colors"

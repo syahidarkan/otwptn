@@ -65,12 +65,6 @@ const NAV_GROUPS: NavGroup[] = [
         label: 'Arena Latihan PPU & PBM',
         href: '/dashboard/latihan',
         icon: Swords,
-        children: [
-          { id: 'sub-latihan-all', label: 'Kuis & Arena Latihan', href: '/dashboard/latihan' },
-          { id: 'sub-latihan-pbm', label: 'Benerin Kalimat (PBM)', href: '/dashboard/latihan?tab=benerin-kalimat' },
-          { id: 'sub-latihan-ppu', label: 'Padanan Kata (PPU)', href: '/dashboard/latihan?tab=padanan-kata' },
-          { id: 'sub-latihan-puebi', label: 'Wordle Baku (PUEBI)', href: '/dashboard/latihan?tab=baku-atau-nggak' },
-        ],
       },
     ],
   },
@@ -281,6 +275,27 @@ export default function Sidebar() {
                         </div>
                       </button>
                     </div>
+                  ) : id === 'nav-mentor' ? (
+                    <Link
+                      id={id}
+                      href={href}
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-extrabold transition-all border shadow-sm group ${
+                        isParentActive
+                          ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 border-amber-500 shadow-md ring-2 ring-amber-300/60'
+                          : 'bg-gradient-to-r from-amber-50 via-amber-100 to-yellow-100 text-amber-950 border-amber-300/80 hover:border-amber-400 hover:shadow-md'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-6 h-6 rounded-lg bg-amber-400 text-amber-950 flex items-center justify-center flex-shrink-0 shadow-2xs group-hover:scale-110 transition-transform">
+                          <GraduationCap size={15} strokeWidth={2.4} />
+                        </div>
+                        <span className="truncate tracking-tight font-black">{label}</span>
+                      </div>
+                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-950 text-amber-300 shadow-2xs">
+                        VIP 1-ON-1
+                      </span>
+                    </Link>
                   ) : (
                     <Link
                       id={id}

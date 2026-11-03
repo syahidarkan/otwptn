@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 
 export default function GlobalPageLoader() {
   const pathname = usePathname()
@@ -61,7 +62,7 @@ export default function GlobalPageLoader() {
 
         // Start progress
         setLoading(true)
-        setProgress(20)
+        setProgress(25)
 
         if (timerRef.current) clearInterval(timerRef.current)
         timerRef.current = setInterval(() => {
@@ -70,9 +71,9 @@ export default function GlobalPageLoader() {
               if (timerRef.current) clearInterval(timerRef.current)
               return 85
             }
-            return prev + Math.floor(Math.random() * 12) + 5
+            return prev + Math.floor(Math.random() * 10) + 6
           })
-        }, 150)
+        }, 120)
       } catch {
         // invalid URL, ignore
       }
@@ -90,27 +91,66 @@ export default function GlobalPageLoader() {
   return (
     <div
       aria-hidden="true"
-      className="fixed top-0 left-0 right-0 z-[99999] pointer-events-none transition-opacity duration-300"
+      className="fixed inset-0 z-[99999] pointer-events-none transition-opacity duration-300"
       style={{ opacity: loading || progress > 0 ? 1 : 0 }}
     >
       {/* Top golden progress bar */}
       <div
-        className="h-1 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 shadow-sm transition-all ease-out"
+        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 shadow-sm transition-all ease-out z-[100000]"
         style={{
           width: `${progress}%`,
-          transitionDuration: progress === 100 ? '200ms' : '300ms',
+          transitionDuration: progress === 100 ? '200ms' : '250ms',
           boxShadow: '0 0 10px rgba(245, 158, 11, 0.7), 0 0 4px rgba(234, 179, 8, 0.9)',
         }}
       />
 
-      {/* Floating subtle loading badge at top right */}
+      {/* Centered Modal Popup with Animated Mascot (Exact Reference from Screenshot) */}
       {loading && progress < 100 && (
-        <div className="fixed top-3 right-4 z-[99999] flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-amber-300/80 shadow-md text-amber-950 text-[11px] font-black animate-fade-in pointer-events-none">
-          <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
-          <span>Memuat...</span>
+        <div className="fixed inset-0 flex items-center justify-center p-4 bg-black/25 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-[280px] sm:max-w-[320px] rounded-3xl p-6 bg-[#fffdf7] border-2 border-amber-200/80 shadow-2xl text-center space-y-4 animate-in zoom-in-95 duration-200">
+            {/* Animated Circular Aura & Mascot */}
+            <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
+              {/* Outer soft ring pulse */}
+              <div className="absolute inset-0 rounded-full bg-emerald-100/60 animate-ping opacity-50" />
+              <div className="w-24 h-24 rounded-full bg-gradient-to-b from-emerald-50 to-amber-50 border-2 border-emerald-200/80 flex items-center justify-center shadow-inner overflow-hidden">
+                {/* Mascot with floating bounce animation */}
+                <div className="animate-bounce" style={{ animationDuration: '1.4s' }}>
+                  <Image
+                    src="/mascot-hd/graduation-trophy.png"
+                    alt="Otbee Loading"
+                    width={80}
+                    height={80}
+                    className="object-contain drop-shadow-md"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Title & Animated Dots */}
+            <div>
+              <div className="flex items-center justify-center gap-1.5 text-base sm:text-lg font-black text-gray-900 tracking-tight">
+                <span>Menyiapkan Ruang Belajar</span>
+                <span className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 font-medium mt-1">
+                Menghubungkan akun dan materi belajarmu...
+              </p>
+            </div>
+
+            {/* Subtle bottom progress line */}
+            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-amber-500 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
         </div>
       )}
     </div>
   )
 }
-

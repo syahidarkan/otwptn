@@ -29,7 +29,12 @@ import {
 } from 'lucide-react'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
 import SearchablePicker from '@/components/ui/SearchablePicker'
-import { INDONESIA_PTN_LIST, INDONESIA_JURUSAN_LIST } from '@/lib/indonesiaPtnDirectory'
+import {
+  INDONESIA_PTN_LIST,
+  INDONESIA_JURUSAN_LIST,
+  TOP_SCHOOLS_LIST,
+  PROVINSI_INDONESIA_LIST,
+} from '@/lib/indonesiaDirectory'
 
 export const OTBEE_AVATARS = [
   { id: 'av-1', src: '/avatars/avatar-1.png', label: 'Pejuang PTN' },
@@ -101,6 +106,21 @@ export default function ProfilPage() {
     return INDONESIA_JURUSAN_LIST.map(j => ({
       label: j,
       value: j,
+    }))
+  }, [])
+
+  const schoolOptions = useMemo(() => {
+    return TOP_SCHOOLS_LIST.map(s => ({
+      label: `${s.name} (${s.kota})`,
+      value: s.name,
+      sub: `Peringkat #${s.rank} Nasional · ${s.prov}`,
+    }))
+  }, [])
+
+  const provinsiOptions = useMemo(() => {
+    return PROVINSI_INDONESIA_LIST.map(p => ({
+      label: p,
+      value: p,
     }))
   }, [])
 
@@ -425,12 +445,19 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-700 mb-1.5 block">Asal Sekolah</label>
-              <input
+              <SearchablePicker
+                label="Asal Sekolah SMA / MA / SMK"
+                placeholder="Cari atau pilih nama sekolah..."
                 value={form.school}
-                onChange={e => setForm({ ...form, school: e.target.value })}
-                placeholder="Contoh: SMAN 8 Jakarta"
-                className="w-full px-4 py-3 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
+                onChange={v => {
+                  const matched = TOP_SCHOOLS_LIST.find(s => s.name.toLowerCase() === v.toLowerCase())
+                  setForm(prev => ({
+                    ...prev,
+                    school: v,
+                    province: matched ? matched.prov : prev.province,
+                  }))
+                }}
+                options={schoolOptions}
               />
             </div>
 
@@ -439,16 +466,17 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
               <input
                 value={form.email}
                 disabled
-                className="w-full px-4 py-3 rounded-2xl bg-gray-100 text-xs font-semibold text-gray-500 outline-none cursor-not-allowed"
+                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 text-xs font-semibold text-gray-500 outline-none cursor-not-allowed"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-700 mb-1.5 block">Provinsi Sekolah</label>
-              <input
+              <SearchablePicker
+                label="Provinsi Sekolah"
+                placeholder="Pilih provinsi sekolah..."
                 value={form.province}
-                onChange={e => setForm({ ...form, province: e.target.value })}
-                className="w-full px-4 py-3 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
+                onChange={v => setForm({ ...form, province: v })}
+                options={provinsiOptions}
               />
             </div>
 

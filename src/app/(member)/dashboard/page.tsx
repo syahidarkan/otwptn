@@ -19,6 +19,7 @@ import QuoteCard from '@/components/dashboard/QuoteCard'
 import CardPattern, { type PatternType } from '@/components/ui/CardPattern'
 import AmbientStarsCanvas from '@/components/dashboard/AmbientStarsCanvas'
 import AjakTemanCard from '@/components/dashboard/AjakTemanCard'
+import { DashboardStreakCard, DashboardQuestsCard } from '@/components/dashboard/DashboardStreakAndQuests'
 
 interface FeatureConfig {
   label: string
@@ -234,47 +235,8 @@ export default async function DashboardPage() {
           />
         </div>
 
-        {/* Card: Streak Tracker (Glass Panel) */}
-        <div className="glass-panel rounded-3xl p-6 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-100 text-amber-600">
-                  <Flame size={20} className="fill-amber-500 text-amber-500" />
-                </div>
-                <div>
-                  <span className="text-lg font-black text-gray-900">0 hari</span>
-                  <p className="text-[11px] font-semibold text-gray-500">Streak Belajar</p>
-                </div>
-              </div>
-              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">
-                0 / 7 hari
-              </span>
-            </div>
-
-            <div className="flex justify-between gap-1 mb-5">
-              {DAYS.map((d, i) => (
-                <div
-                  key={i}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border border-gray-200 text-gray-400 bg-white/60"
-                >
-                  {d}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="border-t border-gray-200/80 pt-4 flex items-center justify-between text-sm">
-            <div>
-              <p className="font-extrabold text-base text-gray-900">0</p>
-              <p className="text-xs text-gray-500">materi selesai</p>
-            </div>
-            <div className="text-right">
-              <p className="font-extrabold text-base text-gray-900">100%</p>
-              <p className="text-xs text-gray-500">akurasi</p>
-            </div>
-          </div>
-        </div>
+        {/* Dynamic Streak Tracker */}
+        <DashboardStreakCard />
       </div>
 
       {/* Card 2: Upgrade ke Paket Mentor (Dark Navy Explorer Doodle Pattern matching Screenshot 3) */}
@@ -480,30 +442,8 @@ export default async function DashboardPage() {
 
       {/* Bottom Grid: Tantangan + Quote Card */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Tantangan Hari Ini */}
-        <div className="glass-panel rounded-3xl p-6 flex flex-col justify-between">
-          <div>
-            <h2 className="text-lg font-extrabold text-gray-900 mb-1">Tantangan Hari Ini</h2>
-            <p className="text-xs text-gray-500 mb-4">Kumpulkan XP dan bangun konsistensimu setiap hari</p>
-            <div className="flex flex-col divide-y divide-gray-100">
-              {[
-                { label: 'Lengkapi satu langkah pertama', xp: 20 },
-                { label: 'Baca satu modul belajar', xp: 15 },
-                { label: 'Ajak satu teman gabung', xp: 15 },
-              ].map(c => (
-                <div key={c.label} className="flex items-center justify-between py-3">
-                  <div className="flex items-center gap-3">
-                    <Circle size={16} className="text-gray-300" />
-                    <span className="text-sm font-medium text-gray-800">{c.label}</span>
-                  </div>
-                  <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                    +{c.xp} XP
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        {/* Dynamic Tantangan Hari Ini */}
+        <DashboardQuestsCard profile={profile} />
 
         {/* Quote Card & Ajak Teman */}
         <div className="flex flex-col gap-5">

@@ -279,6 +279,7 @@ export default function KomunitasPage() {
   // Gating & Creation Modals
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [upgradeAlertOpen, setUpgradeAlertOpen] = useState(false)
+  const [circleToJoin, setCircleToJoin] = useState<CircleItem | null>(null)
   const [newCircleName, setNewCircleName] = useState('')
   const [newCirclePtn, setNewCirclePtn] = useState('')
 
@@ -640,8 +641,14 @@ export default function KomunitasPage() {
                   </div>
 
                   <button
-                    onClick={() => handleJoinCircle(c.id)}
-                    className="w-full btn-brand-primary py-2 rounded-full text-xs font-black shadow-2xs flex items-center justify-center gap-1.5"
+                    onClick={() => {
+                      if (c.joined) {
+                        setSelectedCircleId(c.id)
+                      } else {
+                        setCircleToJoin(c)
+                      }
+                    }}
+                    className="w-full btn-brand-primary py-2 rounded-full text-xs font-black shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Crown size={13} /> {c.joined ? 'Buka Chat Circle' : 'Gabung'}
                   </button>
@@ -681,8 +688,14 @@ export default function KomunitasPage() {
                   </div>
 
                   <button
-                    onClick={() => handleJoinCircle(c.id)}
-                    className="w-full py-2 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors flex items-center justify-center gap-1.5"
+                    onClick={() => {
+                      if (c.joined) {
+                        setSelectedCircleId(c.id)
+                      } else {
+                        setCircleToJoin(c)
+                      }
+                    }}
+                    className="w-full py-2 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <LinkIcon size={13} /> {c.joined ? 'Buka Chat' : 'Gabung'}
                   </button>
@@ -989,6 +1002,57 @@ export default function KomunitasPage() {
                 className="w-full sm:w-auto px-5 py-3 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700"
               >
                 Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* KONFIRMASI GABUNG CIRCLE MODAL (ITEM 9) */}
+      {circleToJoin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl p-6 sm:p-7 max-w-sm w-full shadow-2xl relative text-center space-y-4">
+            <button
+              onClick={() => setCircleToJoin(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="w-16 h-16 rounded-2xl bg-amber-100 p-2 mx-auto flex items-center justify-center shadow-xs">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={circleToJoin.avatar} alt="" className="w-full h-full object-contain" />
+            </div>
+
+            <div>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200">
+                Konfirmasi Bergabung
+              </span>
+              <h3 className="text-base font-black text-gray-950 mt-1.5 leading-snug">
+                Gabung ke Circle &ldquo;{circleToJoin.name}&rdquo;?
+              </h3>
+              <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                Circle ini fokus pada <strong>{circleToJoin.ptnTarget}</strong> dengan {circleToJoin.membersCount} anggota aktif. Dengan bergabung, kamu bisa ikut berdiskusi di grup chat komunitas ini.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  handleJoinCircle(circleToJoin.id)
+                  setCircleToJoin(null)
+                }}
+                className="w-full btn-brand-primary py-3 rounded-full text-xs font-black shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <CheckCircle2 size={15} /> Ya, Gabung Circle Sekarang
+              </button>
+              <button
+                type="button"
+                onClick={() => setCircleToJoin(null)}
+                className="w-full py-2.5 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer"
+              >
+                Batal
               </button>
             </div>
           </div>

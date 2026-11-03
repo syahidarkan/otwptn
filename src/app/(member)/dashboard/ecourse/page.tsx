@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect, useMemo, Suspense } from 'react'
 import {
   ChevronDown,
   Lock,
@@ -9,17 +9,13 @@ import {
   Flag,
   Check,
   CheckCircle2,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Sparkles,
   Crown,
-  Trophy,
   ArrowRight,
 } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { EJALUR_LIST, type ELesson, type EStage, type EJalur } from '@/lib/ecourseData'
+import { EJALUR_LIST, type ELesson, type EStage } from '@/lib/ecourseData'
 import CardPattern from '@/components/ui/CardPattern'
 
 const STORAGE_KEY = 'ecourse_v2_completed'
@@ -33,18 +29,10 @@ function getCompleted(): string[] {
   }
 }
 
-function setCompleted(ids: string[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids))
-  } catch {
-    /* noop */
-  }
-}
-
 // Pintarly winding offsets (X percentage within the road canvas)
 const NODE_OFFSETS = [
-  [50, 36, 44, 50], // Unit 1 (meanders left, returns to center milestone)
-  [50, 64, 56, 50], // Unit 2 (meanders right, returns to center milestone)
+  [50, 36, 44, 50], // Unit 1
+  [50, 64, 56, 50], // Unit 2
   [50, 34, 46, 50], // Unit 3
   [50, 66, 54, 50], // Unit 4
   [50, 36, 44, 50], // Unit 5
@@ -57,12 +45,13 @@ const NODE_OFFSETS = [
 
 const ROW_HEIGHT = 100 // px per node row
 
-export default function EcoursePage() {
+function EcourseContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
   const [jalurId, setJalurId] = useState(EJALUR_LIST[0].id)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [completed, setCompletedState] = useState<string[]>([])
-  const [activeLesson, setActiveLesson] = useState<ELesson | null>(null)
-  const [activeStage, setActiveStage] = useState<EStage | null>(null)
   const [lockedNotice, setLockedNotice] = useState<string | null>(null)
   const [userTier, setUserTier] = useState<string>('free')
   const [premiumModalData, setPremiumModalData] = useState<{ title: string; unit: number } | null>(null)
@@ -70,19 +59,6 @@ export default function EcoursePage() {
 
   useEffect(() => {
     setCompletedState(getCompleted())
-
-    // Check category query param
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      const cat = params.get('cat')
-      if (cat && EJALUR_LIST.some(j => j.id === cat)) {
-        setJalurId(cat)
-      } else if (cat === 'pbm' || cat === 'ppu') {
-        setJalurId('basic-essay')
-      } else if (cat === 'esai' || cat === 'ppkb') {
-        setJalurId('essay')
-      }
-    }
 
     // Check profile tier
     const supabase = createClient()
@@ -98,6 +74,24 @@ export default function EcoursePage() {
         })
     })
   }, [])
+
+  // Dynamic category sync whenever searchParams change (sidebar sub-menu switching)
+  useEffect(() => {
+    const cat = searchParams.get('cat')
+    if (cat && EJALUR_LIST.some(j => j.id === cat)) {
+      setJalurId(cat)
+    } else if (cat === 'pbm' || cat === 'ppu' || cat === 'basic-essay') {
+      setJalurId('basic-essay')
+    } else if (cat === 'esai' || cat === 'ppkb' || cat === 'essay') {
+      setJalurId('essay')
+    } else if (cat === 'snbp') {
+      setJalurId('snbp')
+    } else if (cat === 'jalur-essay') {
+      setJalurId('jalur-essay')
+    } else if (cat === 'jalur-prestasi') {
+      setJalurId('jalur-prestasi')
+    }
+  }, [searchParams])
 
   useEffect(() => {
     function handle(e: MouseEvent) {
@@ -130,14 +124,6 @@ export default function EcoursePage() {
     return allLessons.slice(0, idx).every(l => completed.includes(l.id))
   }
 
-  function toggleDone(id: string) {
-    const updated = completed.includes(id)
-      ? completed.filter(x => x !== id)
-      : [...completed, id]
-    setCompletedState(updated)
-    setCompleted(updated)
-  }
-
   function handleNodeClick(lesson: ELesson, stage: EStage) {
     if (lesson.isPremium && userTier === 'free') {
       setPremiumModalData({
@@ -151,52 +137,30 @@ export default function EcoursePage() {
       setLockedNotice(`Materi "${lesson.title}" masih terkunci. Selesaikan materi sebelumnya terlebih dahulu!`)
       return
     }
-    setActiveLesson(lesson)
-    setActiveStage(stage)
+
+    // Direct navigation to dedicated full-page reader route
+    router.push(`/dashboard/ecourse/lesson/${lesson.id}`)
   }
 
-  function goNext() {
-    if (!activeLesson || !activeStage) return
-    const currentIdx = allLessons.findIndex(l => l.id === activeLesson.id)
-    if (currentIdx < allLessons.length - 1) {
-      const nxt = allLessons[currentIdx + 1]
-      const nxtStg = jalur.stages.find(s => s.lessons.some(l => l.id === nxt.id)) ?? activeStage
-      if (nxt.isPremium && userTier === 'free') {
-        setPremiumModalData({
-          title: nxt.title,
-          unit: nxtStg.id,
-        })
-        return
-      }
-      setActiveLesson(nxt)
-      setActiveStage(nxtStg)
-    }
-  }
-
-  function goPrev() {
-    if (!activeLesson || !activeStage) return
-    const currentIdx = allLessons.findIndex(l => l.id === activeLesson.id)
-    if (currentIdx > 0) {
-      const prv = allLessons[currentIdx - 1]
-      const prvStg = jalur.stages.find(s => s.lessons.some(l => l.id === prv.id)) ?? activeStage
-      setActiveLesson(prv)
-      setActiveStage(prvStg)
-    }
+  function handleSelectJalur(id: string) {
+    setJalurId(id)
+    setDropdownOpen(false)
+    router.push(`/dashboard/ecourse?cat=${id}`)
   }
 
   return (
     <div className="w-full min-h-screen relative bg-white">
-      {/* Pintarly Playful Doodle Canvas Background (Stars, Smileys, Triangles, Crosses) */}
+      {/* Pintarly Playful Canvas Background */}
       <CardPattern type="pintarly-doodles" opacity={0.45} />
 
       {/* Main Container */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Top Jalur Switcher (Pintarly Dropdown Pill) */}
+        {/* Top Jalur Switcher Pill */}
         <div className="flex justify-center mb-8 sticky top-4 z-40">
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="glass-panel rounded-full px-5 py-2.5 flex items-center gap-3 shadow-md hover:shadow-lg transition-all"
+              className="glass-panel rounded-full px-5 py-2.5 flex items-center gap-3 shadow-md hover:shadow-lg transition-all cursor-pointer"
               style={{ background: 'rgba(255, 255, 255, 0.95)' }}
             >
               <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-sky-100 flex-shrink-0">
@@ -226,12 +190,8 @@ export default function EcoursePage() {
                   {EJALUR_LIST.map(j => (
                     <button
                       key={j.id}
-                      onClick={() => {
-                        setJalurId(j.id)
-                        setDropdownOpen(false)
-                        setActiveLesson(null)
-                      }}
-                      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-left transition-colors ${
+                      onClick={() => handleSelectJalur(j.id)}
+                      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-left transition-colors cursor-pointer ${
                         j.id === jalurId
                           ? 'bg-amber-50 text-amber-900 font-bold'
                           : 'hover:bg-gray-50 text-gray-800 font-semibold'
@@ -249,100 +209,92 @@ export default function EcoursePage() {
           </div>
         </div>
 
-        {/* Content Layout: Center Winding Path + Right Sticky Sidebar */}
-        <div className="flex flex-col lg:flex-row items-start justify-center gap-8 lg:gap-12">
-          {/* CENTER: Winding Road Column (Max width matching Pintarly ~480-520px) */}
-          <div className="w-full max-w-[500px] mx-auto pb-32">
+        {/* Content Layout: Center Road Canvas + Desktop Sticky Progress Panel */}
+        <div className="flex flex-col lg:flex-row items-start justify-center gap-10">
+          {/* CENTER: Winding Road Canvas */}
+          <div className="w-full max-w-[620px] mx-auto flex flex-col items-center">
             {jalur.stages.map((stage, si) => {
               const offsets = NODE_OFFSETS[si % NODE_OFFSETS.length]
-              const stageCompletedCount = stage.lessons.filter(l =>
-                completed.includes(l.id)
-              ).length
-              const isStageFinished = stageCompletedCount === stage.lessons.length
-
-              // Total height for this stage (3 lesson nodes + 1 milestone node)
-              const stageNodeCount = stage.lessons.length + 1
-              const stageHeight = stageNodeCount * ROW_HEIGHT
+              const totalHeight = 4 * ROW_HEIGHT
+              const isStageFinished = stage.lessons.every(l => completed.includes(l.id))
 
               return (
-                <div key={stage.id} className="relative mb-14">
-                  {/* Floating Unit Header Card - Sticky top-20 so it sticks and gets pushed by the next unit */}
-                  <div className="sticky top-20 z-20 mx-2 mb-6 p-5 rounded-3xl bg-white shadow-md">
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">
-                      Unit {stage.id} · {stage.duration}
-                    </p>
-                    <h2 className="text-base font-extrabold text-gray-900 leading-snug mb-3">
-                      {stage.title}
-                    </h2>
-                    {/* Horizontal Progress Bar */}
-                    <div className="h-2 rounded-full overflow-hidden bg-gray-100 mb-1.5">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${(stageCompletedCount / stage.lessons.length) * 100}%`,
-                          background: 'linear-gradient(90deg, #38bdf8 0%, #0284c7 100%)',
-                        }}
-                      />
-                    </div>
-                    <div className="flex justify-between items-center text-[11px] font-semibold text-gray-400">
-                      <span>{stageCompletedCount} dari {stage.lessons.length} selesai</span>
-                      {isStageFinished && (
-                        <span className="text-emerald-600 font-bold flex items-center gap-1">
-                          <Check size={12} /> Selesai
+                <div key={stage.id} className="w-full mb-12">
+                  {/* Stage Banner / Header */}
+                  <div className="sticky top-20 z-30 mb-8 mx-auto max-w-[460px]">
+                    <div
+                      className="rounded-3xl p-4 sm:p-5 shadow-lg border border-white/60 backdrop-blur-md transition-transform"
+                      style={{
+                        background:
+                          si % 2 === 0
+                            ? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)'
+                            : 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
+                      }}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-black uppercase tracking-wider text-gray-700">
+                          Unit {stage.id}
                         </span>
-                      )}
+                        <span className="text-[11px] font-bold text-gray-600">
+                          {stage.lessons.filter(l => completed.includes(l.id)).length} /{' '}
+                          {stage.lessons.length} Selesai
+                        </span>
+                      </div>
+                      <h2 className="text-lg sm:text-xl font-black text-gray-950 leading-tight">
+                        {stage.title}
+                      </h2>
+                      <p className="text-xs text-gray-700 font-medium mt-1 leading-snug">
+                        {stage.description ?? `Estimasi durasi belajar: ± ${stage.duration}`}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Winding Road Track Container */}
-                  <div className="relative" style={{ height: stageHeight }}>
-                    {/* Smooth Continuous Winding SVG Road */}
+                  {/* Road Canvas with Winding SVG Track and Nodes */}
+                  <div
+                    className="relative w-full max-w-[420px] mx-auto"
+                    style={{ height: totalHeight }}
+                  >
+                    {/* SVG Winding Curved Track */}
                     <svg
-                      width="100%"
-                      height={stageHeight}
-                      viewBox={`0 0 100 ${stageHeight}`}
-                      preserveAspectRatio="none"
-                      className="absolute inset-0 pointer-events-none"
-                      style={{ zIndex: 0 }}
+                      className="absolute inset-0 w-full h-full pointer-events-none"
+                      style={{ overflow: 'visible' }}
                     >
-                      {/* Smooth curved bezier road path */}
-                      {Array.from({ length: stageNodeCount - 1 }).map((_, i) => {
-                        const x1 = offsets[i % offsets.length]
-                        const x2 = offsets[(i + 1) % offsets.length]
-                        const y1 = i * ROW_HEIGHT + ROW_HEIGHT / 2
-                        const y2 = (i + 1) * ROW_HEIGHT + ROW_HEIGHT / 2
-                        const mx = (x1 + x2) / 2
-                        const lessonId = stage.lessons[i]?.id
-                        const isDone = lessonId && completed.includes(lessonId)
-
-                        return (
-                          <g key={i}>
-                            {/* Outer road track */}
-                            <path
-                              d={`M ${x1} ${y1} Q ${mx} ${(y1 + y2) / 2} ${x2} ${y2}`}
-                              fill="none"
-                              stroke="#e2e8f0"
-                              strokeWidth="24"
-                              strokeLinecap="round"
-                              vectorEffect="non-scaling-stroke"
-                            />
-                            {/* Road progress highlight if completed */}
-                            {isDone && (
-                              <path
-                                d={`M ${x1} ${y1} Q ${mx} ${(y1 + y2) / 2} ${x2} ${y2}`}
-                                fill="none"
-                                stroke="#bbf7d0"
-                                strokeWidth="20"
-                                strokeLinecap="round"
-                                vectorEffect="non-scaling-stroke"
-                              />
-                            )}
-                          </g>
-                        )
-                      })}
+                      {/* Drop Shadow for the Road */}
+                      <path
+                        d={stage.lessons.reduce((acc, _, li) => {
+                          const x = offsets[li % offsets.length]
+                          const y = li * ROW_HEIGHT + ROW_HEIGHT / 2
+                          if (li === 0) return `M ${x * 4.2} ${y}`
+                          const prevX = offsets[(li - 1) % offsets.length]
+                          const prevY = (li - 1) * ROW_HEIGHT + ROW_HEIGHT / 2
+                          const midY = (prevY + y) / 2
+                          return `${acc} C ${prevX * 4.2} ${midY}, ${x * 4.2} ${midY}, ${x * 4.2} ${y}`
+                        }, '')}
+                        fill="none"
+                        stroke="#e2e8f0"
+                        strokeWidth="14"
+                        strokeLinecap="round"
+                      />
+                      {/* Main Cream / Light Blue Track */}
+                      <path
+                        d={stage.lessons.reduce((acc, _, li) => {
+                          const x = offsets[li % offsets.length]
+                          const y = li * ROW_HEIGHT + ROW_HEIGHT / 2
+                          if (li === 0) return `M ${x * 4.2} ${y}`
+                          const prevX = offsets[(li - 1) % offsets.length]
+                          const prevY = (li - 1) * ROW_HEIGHT + ROW_HEIGHT / 2
+                          const midY = (prevY + y) / 2
+                          return `${acc} C ${prevX * 4.2} ${midY}, ${x * 4.2} ${midY}, ${x * 4.2} ${y}`
+                        }, '')}
+                        fill="none"
+                        stroke={si % 2 === 0 ? '#fef08a' : '#bae6fd'}
+                        strokeWidth="8"
+                        strokeLinecap="round"
+                        strokeDasharray="6 6"
+                      />
                     </svg>
 
-                    {/* Lesson Nodes on Road */}
+                    {/* Lesson Nodes along the road */}
                     {stage.lessons.map((lesson, li) => {
                       const isDone = completed.includes(lesson.id)
                       const isCurrent = lesson.id === nextLesson?.id
@@ -362,7 +314,7 @@ export default function EcoursePage() {
                           }}
                         >
                           <div className="relative flex flex-col items-center">
-                            {/* "Mulai" / "Lanjut" Floating Badge (Centered Above Active Node) */}
+                            {/* "Mulai" / "Lanjut" Floating Badge */}
                             {isCurrent && (
                               <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap z-20 animate-bounce">
                                 <div className="px-3.5 py-1 rounded-full text-xs font-black tracking-wide bg-white text-gray-900 border border-gray-200 shadow-md">
@@ -374,7 +326,7 @@ export default function EcoursePage() {
                             {/* Node Button */}
                             <button
                               onClick={() => handleNodeClick(lesson, stage)}
-                              className={`rounded-full relative flex items-center justify-center transition-all duration-200 ${
+                              className={`rounded-full relative flex items-center justify-center transition-all duration-200 cursor-pointer ${
                                 isCurrent
                                   ? 'w-[72px] h-[72px] shadow-xl hover:scale-105 active:scale-95'
                                   : isDone
@@ -421,7 +373,7 @@ export default function EcoursePage() {
                               )}
                             </button>
 
-                            {/* Otbee Mascot Sitting Beside Active Node (Exact Pintarly Look) */}
+                            {/* Otbee Mascot Beside Active Node */}
                             {isCurrent && (
                               <div
                                 className="absolute pointer-events-none select-none z-10"
@@ -443,7 +395,7 @@ export default function EcoursePage() {
                       )
                     })}
 
-                    {/* Milestone Checkpoint Node (Unit End with Flag) */}
+                    {/* Milestone Checkpoint Node */}
                     <div
                       className="absolute"
                       style={{
@@ -468,7 +420,7 @@ export default function EcoursePage() {
                           />
                         </div>
 
-                        {/* Otbee Mascot waving flag at checkpoint (Exact Pintarly Look) */}
+                        {/* Otbee Mascot waving flag at checkpoint */}
                         <div
                           className="absolute pointer-events-none select-none"
                           style={{ left: 62, top: -20 }}
@@ -484,7 +436,7 @@ export default function EcoursePage() {
                     </div>
                   </div>
 
-                  {/* Free Unit Finished Card (Exact Pintarly Banner on Unit 1) */}
+                  {/* Free Unit Finished Card */}
                   {si === 0 && (
                     <div className="mt-8 mx-2 p-4 rounded-3xl bg-white shadow-md flex items-center justify-between gap-4">
                       <div className="flex items-center gap-2.5">
@@ -508,7 +460,7 @@ export default function EcoursePage() {
             })}
           </div>
 
-          {/* RIGHT: Desktop Sticky Sidebar (Exact Pintarly Desktop Layout - Pinned while scrolling) */}
+          {/* RIGHT: Desktop Sticky Sidebar */}
           <div className="hidden lg:block w-[360px] flex-shrink-0 sticky top-6 space-y-4 self-start z-20">
             {/* Card 1: Course Progress Overview */}
             <div className="p-5 rounded-3xl bg-white shadow-md">
@@ -538,11 +490,8 @@ export default function EcoursePage() {
                   Unit {nextStage.id} · {nextLesson.title}
                 </p>
                 <button
-                  onClick={() => {
-                    setActiveLesson(nextLesson)
-                    setActiveStage(nextStage)
-                  }}
-                  className="w-full py-3 rounded-full text-sm font-extrabold btn-brand-primary"
+                  onClick={() => handleNodeClick(nextLesson, nextStage)}
+                  className="w-full py-3 rounded-full text-sm font-extrabold btn-brand-primary cursor-pointer shadow-sm hover:shadow-md transition-all"
                 >
                   Lanjutkan
                 </button>
@@ -583,122 +532,6 @@ export default function EcoursePage() {
           </div>
         </div>
       </div>
-
-      {/* ─── LESSON STUDY MODAL (Glassmorphic Study Drawer) ─── */}
-      {activeLesson && activeStage && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/50 backdrop-blur-md animate-fade-up"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div
-            className="w-full max-w-2xl max-h-[90vh] rounded-3xl bg-white shadow-2xl flex flex-col overflow-hidden"
-          >
-            {/* Modal Header */}
-            <div className="p-5 sm:p-6 border-b border-gray-100 flex items-start justify-between gap-4 bg-gray-50/70">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800">
-                    Unit {activeStage.id}
-                  </span>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-200 text-gray-700">
-                    {activeLesson.type === 'video' ? 'Video' : 'Bacaan'} · {activeLesson.duration}
-                  </span>
-                  {activeLesson.isPremium && (
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-amber-950 flex items-center gap-1 shadow-2xs">
-                      <Crown size={11} className="fill-amber-950" /> Premium Eksklusif
-                    </span>
-                  )}
-                </div>
-                <h2 className="text-lg sm:text-xl font-extrabold text-gray-900 leading-snug">
-                  {activeLesson.title}
-                </h2>
-              </div>
-              <button
-                onClick={() => setActiveLesson(null)}
-                className="w-9 h-9 rounded-full flex items-center justify-center bg-gray-200/80 hover:bg-gray-300 text-gray-600 transition-colors flex-shrink-0"
-                aria-label="Tutup"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            {/* Modal Body / Article */}
-            <div className="p-6 sm:p-8 overflow-y-auto flex-1 text-gray-800 text-sm leading-relaxed">
-              {activeLesson.type === 'video' && (
-                <div className="mb-6 space-y-2">
-                  <div className="rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 aspect-video shadow-lg">
-                    {activeLesson.videoUrl ? (
-                      <iframe
-                        src={activeLesson.videoUrl}
-                        title={activeLesson.title}
-                        className="w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center text-white">
-                        <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
-                          <Play size={28} className="text-white fill-white ml-1" />
-                        </div>
-                        <span className="text-xs font-semibold mt-3 text-slate-300">Video segera hadir</span>
-                      </div>
-                    )}
-                  </div>
-                  {activeLesson.videoCredit && (
-                    <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-900">
-                      <span className="font-extrabold text-amber-950">📺 Referensi Video:</span>
-                      <span className="font-medium text-amber-800">{activeLesson.videoCredit}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div
-                className="prose prose-sm max-w-none prose-headings:font-extrabold prose-headings:text-gray-900 prose-p:leading-relaxed prose-li:my-0.5"
-                dangerouslySetInnerHTML={{ __html: activeLesson.content }}
-              />
-            </div>
-
-            {/* Modal Footer / Navigation Controls */}
-            <div className="p-4 sm:p-5 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <button
-                onClick={() => toggleDone(activeLesson.id)}
-                className={`w-full sm:w-auto px-6 py-2.5 rounded-full text-xs font-extrabold flex items-center justify-center gap-2 transition-all ${
-                  completed.includes(activeLesson.id)
-                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                    : 'glass-btn-primary'
-                }`}
-              >
-                {completed.includes(activeLesson.id) ? (
-                  <>
-                    <CheckCircle2 size={16} /> Selesai Dipelajari
-                  </>
-                ) : (
-                  <>
-                    <Check size={16} /> Tandai Selesai
-                  </>
-                )}
-              </button>
-
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <button
-                  onClick={goPrev}
-                  className="flex-1 sm:flex-none px-4 py-2 rounded-full text-xs font-bold bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-1"
-                >
-                  <ChevronLeft size={14} /> Sebelumnya
-                </button>
-                <button
-                  onClick={goNext}
-                  className="flex-1 sm:flex-none px-4 py-2 rounded-full text-xs font-bold bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-1"
-                >
-                  Berikutnya <ChevronRight size={14} />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Premium Exclusive Modal */}
       {premiumModalData && (
@@ -755,7 +588,7 @@ export default function EcoursePage() {
             <p className="text-xs text-gray-600 mb-5 leading-relaxed">{lockedNotice}</p>
             <button
               onClick={() => setLockedNotice(null)}
-              className="w-full py-2.5 rounded-full text-xs font-extrabold bg-gray-900 text-white hover:bg-gray-800 transition-colors"
+              className="w-full py-2.5 rounded-full text-xs font-extrabold bg-gray-900 text-white hover:bg-gray-800 transition-colors cursor-pointer"
             >
               Mengerti
             </button>
@@ -763,5 +596,13 @@ export default function EcoursePage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function EcoursePage() {
+  return (
+    <Suspense fallback={null}>
+      <EcourseContent />
+    </Suspense>
   )
 }

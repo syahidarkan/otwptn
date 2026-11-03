@@ -117,49 +117,67 @@ export default function SearchablePicker({
           <div className="max-h-56 overflow-y-auto space-y-0.5 pr-0.5 scrollbar-thin">
             {filtered.length === 0 ? (
               <div className="p-3 text-center">
-                <p className="text-xs text-gray-500 font-medium">Tidak ada pilihan yang cocok.</p>
+                <p className="text-xs text-gray-500 font-medium">Tidak ada pilihan yang cocok di database.</p>
                 {query.trim() && (
                   <button
                     type="button"
                     onClick={() => {
-                      onChange(query.trim())
+                      onChange(query.trim().toUpperCase())
                       setOpen(false)
                       setQuery('')
                     }}
-                    className="mt-1 text-[11px] font-bold text-amber-700 hover:underline cursor-pointer"
+                    className="mt-2 w-full py-2 px-3 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs font-black hover:bg-amber-100 transition-colors cursor-pointer"
                   >
-                    Gunakan &ldquo;{query.trim()}&rdquo;
+                    + Gunakan &ldquo;{query.trim().toUpperCase()}&rdquo;
                   </button>
                 )}
               </div>
             ) : (
-              filtered.map(opt => {
-                const isSelected = opt.value.toLowerCase() === (value || '').toLowerCase()
-                return (
+              <>
+                {filtered.map(opt => {
+                  const isSelected = opt.value.toLowerCase() === (value || '').toLowerCase()
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => {
+                        onChange(opt.value)
+                        setOpen(false)
+                        setQuery('')
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors flex items-center justify-between gap-2 cursor-pointer ${
+                        isSelected
+                          ? 'bg-amber-100/80 text-amber-950 font-bold'
+                          : 'text-gray-700 hover:bg-gray-50 hover:text-gray-950'
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate leading-tight">{opt.label}</p>
+                        {opt.sub && (
+                          <p className="text-[10px] text-gray-400 truncate mt-0.5 font-normal">{opt.sub}</p>
+                        )}
+                      </div>
+                      {isSelected && <Check size={13} className="text-amber-700 flex-shrink-0" />}
+                    </button>
+                  )
+                })}
+
+                {/* Option to enter custom uppercase text if query does not match any label exactly */}
+                {query.trim() && !filtered.some(f => f.label.toLowerCase() === query.trim().toLowerCase()) && (
                   <button
-                    key={opt.value}
                     type="button"
                     onClick={() => {
-                      onChange(opt.value)
+                      onChange(query.trim().toUpperCase())
                       setOpen(false)
                       setQuery('')
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors flex items-center justify-between gap-2 cursor-pointer ${
-                      isSelected
-                        ? 'bg-amber-100/80 text-amber-950 font-bold'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-950'
-                    }`}
+                    className="w-full text-left px-3 py-2 mt-1 rounded-xl text-xs font-bold text-amber-900 bg-amber-50/80 hover:bg-amber-100 border border-amber-200/60 transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate leading-tight">{opt.label}</p>
-                      {opt.sub && (
-                        <p className="text-[10px] text-gray-400 truncate mt-0.5 font-normal">{opt.sub}</p>
-                      )}
-                    </div>
-                    {isSelected && <Check size={13} className="text-amber-700 flex-shrink-0" />}
+                    <span>+ Gunakan input kustom:</span>
+                    <span className="font-black underline">&ldquo;{query.trim().toUpperCase()}&rdquo;</span>
                   </button>
-                )
-              })
+                )}
+              </>
             )}
           </div>
         </div>

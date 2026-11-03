@@ -1,0 +1,122 @@
+import { SCHOOLS as RAW_SCHOOLS } from '@/app/api/schools/data'
+import { INDONESIA_PTN_LIST, INDONESIA_JURUSAN_LIST } from './indonesiaPtnDirectory'
+
+// 38 Provinsi Resmi di Indonesia
+export const PROVINSI_INDONESIA_LIST = [
+  'Aceh',
+  'Sumatera Utara',
+  'Sumatera Barat',
+  'Riau',
+  'Kepulauan Riau',
+  'Jambi',
+  'Sumatera Selatan',
+  'Kepulauan Bangka Belitung',
+  'Bengkulu',
+  'Lampung',
+  'DKI Jakarta',
+  'Jawa Barat',
+  'Banten',
+  'Jawa Tengah',
+  'DI Yogyakarta',
+  'Jawa Timur',
+  'Bali',
+  'Nusa Tenggara Barat',
+  'Nusa Tenggara Timur',
+  'Kalimantan Barat',
+  'Kalimantan Tengah',
+  'Kalimantan Selatan',
+  'Kalimantan Timur',
+  'Kalimantan Utara',
+  'Sulawesi Utara',
+  'Gorontalo',
+  'Sulawesi Tengah',
+  'Sulawesi Barat',
+  'Sulawesi Selatan',
+  'Sulawesi Tenggara',
+  'Maluku',
+  'Maluku Utara',
+  'Papua',
+  'Papua Barat',
+  'Papua Selatan',
+  'Papua Tengah',
+  'Papua Pegunungan',
+  'Papua Barat Daya',
+]
+
+// Ekstraksi Kota / Kabupaten dari Dataset Sekolah & Kota Utama
+export const KOTA_KABUPATEN_LIST = Array.from(
+  new Set([
+    ...RAW_SCHOOLS.map(s => s.kota.trim()),
+    'Jakarta Pusat',
+    'Jakarta Selatan',
+    'Jakarta Barat',
+    'Jakarta Timur',
+    'Jakarta Utara',
+    'Kepulauan Seribu',
+    'Surabaya',
+    'Bandung',
+    'Semarang',
+    'Medan',
+    'Makassar',
+    'Palembang',
+    'Yogyakarta',
+    'Malang',
+    'Solo (Surakarta)',
+    'Denpasar',
+    'Padang',
+    'Pekanbaru',
+    'Bandar Lampung',
+    'Bogor',
+    'Depok',
+    'Tangerang',
+    'Tangerang Selatan',
+    'Bekasi',
+    'Banjarmasin',
+    'Pontianak',
+    'Samarinda',
+    'Balikpapan',
+    'Banda Aceh',
+    'Batam',
+    'Mataram',
+    'Kupang',
+    'Manado',
+    'Ambon',
+    'Jayapura',
+  ])
+).sort((a, b) => a.localeCompare(b))
+
+// Daftar SMA / MA / SMK Top Nasional (1000+ Sekolah)
+export const TOP_SCHOOLS_LIST = RAW_SCHOOLS.map(s => ({
+  name: s.name,
+  kota: s.kota,
+  prov: s.prov,
+  rank: s.rank,
+  tier: s.tier,
+}))
+
+// Daftar Fakultas Standar Perguruan Tinggi di Indonesia
+export const FAKULTAS_INDONESIA_LIST = [
+  'Fakultas Kedokteran (FK)',
+  'Fakultas Kedokteran Gigi (FKG)',
+  'Fakultas Farmasi (FF)',
+  'Fakultas Ilmu Keperawatan (FIK)',
+  'Fakultas Kesehatan Masyarakat (FKM)',
+  'Fakultas Ilmu Komputer (Fasilkom / STEI)',
+  'Fakultas Teknik (FT)',
+  'Fakultas Matematika dan Ilmu Pengetahuan Alam (FMIPA)',
+  'Fakultas Ekonomi dan Bisnis (FEB / SBM)',
+  'Fakultas Hukum (FH)',
+  'Fakultas Ilmu Sosial dan Ilmu Politik (FISIP)',
+  'Fakultas Ilmu Pengetahuan Budaya (FIB)',
+  'Fakultas Psikologi (FPsi)',
+  'Fakultas Pertanian (Faperta)',
+  'Fakultas Peternakan (Fapet)',
+  'Fakultas Perikanan dan Ilmu Kelautan (FPIK)',
+  'Fakultas Kehutanan (Fahutan)',
+  'Fakultas Seni Rupa dan Desain (FSRD)',
+  'Fakultas Ilmu Pendidikan (FIP)',
+  'Sekolah Vokasi / Program Pendidikan Vokasi',
+]
+
+export { INDONESIA_PTN_LIST, INDONESIA_JURUSAN_LIST }
+
