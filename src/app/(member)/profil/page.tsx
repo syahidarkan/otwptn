@@ -491,26 +491,24 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
                 )}
               </div>
             </div>
-
-            <button
-              onClick={() => setIsEditingTarget(!isEditingTarget)}
-              className="px-5 py-2.5 rounded-full text-xs font-black bg-gray-100 hover:bg-gray-200 text-gray-800 flex items-center gap-1.5 transition-colors self-start sm:self-auto cursor-pointer"
-            >
-              <Edit3 size={14} /> {isEditingTarget ? 'Tutup Pilihan' : 'Ubah Target Kuliah'}
-            </button>
           </div>
 
           {/* Form Ubah Target (Dropdown Pilihan Lengkap Seluruh PTN & Jurusan) */}
-          {isEditingTarget && (
-            <div className="p-6 rounded-3xl bg-amber-50/70 border border-amber-200/60 space-y-4 animate-in fade-in duration-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-sm font-black text-gray-900">Pilih Universitas & Jurusan PTN</h4>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Pilih dari direktori lengkap seluruh universitas negeri dan program studi di Indonesia.
-                  </p>
-                </div>
+          <div className="p-6 md:p-8 rounded-3xl bg-amber-50/70 border border-amber-200/80 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-amber-200/60">
+              <div>
+                <h4 className="text-sm md:text-base font-black text-gray-900 flex items-center gap-2">
+                  <GraduationCap size={18} className="text-amber-600" />
+                  Pilih Universitas & Jurusan PTN Impian
+                </h4>
+                <p className="text-xs text-gray-600 mt-0.5">
+                  Pilih dari direktori lengkap 85+ PTN dan 120+ Program Studi di seluruh Indonesia.
+                </p>
               </div>
+              <span className="text-[11px] font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full self-start sm:self-auto">
+                ⚡ Otomatis Memperbarui AI Insight
+              </span>
+            </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -518,7 +516,13 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
                     label="Pilihan PTN Utama (Wajib)"
                     placeholder="Ketik atau pilih PTN 1 (contoh: UI, ITB, UGM)..."
                     value={form.target_ptn_1}
-                    onChange={v => setForm({ ...form, target_ptn_1: v })}
+                    onChange={v => {
+                      const updated = { ...form, target_ptn_1: v }
+                      setForm(updated)
+                      if (v && updated.target_prodi_1) {
+                        fetchCampusInsight(v, updated.target_prodi_1)
+                      }
+                    }}
                     options={ptnOptions}
                   />
                 </div>
@@ -527,7 +531,13 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
                     label="Program Studi Pilihan 1 (Wajib)"
                     placeholder="Ketik atau pilih Jurusan 1 (contoh: Kedokteran, Ilmu Komputer)..."
                     value={form.target_prodi_1}
-                    onChange={v => setForm({ ...form, target_prodi_1: v })}
+                    onChange={v => {
+                      const updated = { ...form, target_prodi_1: v }
+                      setForm(updated)
+                      if (updated.target_ptn_1 && v) {
+                        fetchCampusInsight(updated.target_ptn_1, v)
+                      }
+                    }}
                     options={jurusanOptions}
                   />
                 </div>
@@ -557,13 +567,6 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => setIsEditingTarget(false)}
-                  className="px-4 py-2 rounded-full text-xs font-bold bg-white text-gray-600 hover:bg-gray-100"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
                   onClick={handleSaveTarget}
                   className="btn-brand-primary px-6 py-2.5 rounded-full text-xs font-black shadow-sm flex items-center gap-1.5 cursor-pointer"
                 >
@@ -571,7 +574,6 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
                 </button>
               </div>
             </div>
-          )}
 
           {/* Loading Skeleton during AI Insight fetch */}
           {insightLoading ? (

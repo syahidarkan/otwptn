@@ -233,3 +233,4 @@ export const INDONESIA_JURUSAN_LIST = [
   'Pendidikan Jasmani dan Olahraga (PJKR)',
   'Bimbingan dan Konseling (BK)',
 ]
+
