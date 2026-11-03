@@ -258,7 +258,7 @@ export default function CheckoutPage() {
               </div>
 
               <Link
-                href={`https://wa.me/6281234567890?text=Halo+saya+ingin+upgrade+ke+paket+${encodeURIComponent(current.name)}+seharga+${encodeURIComponent(current.price)}`}
+                href={`https://wa.me/6281326197196?text=Halo+saya+ingin+upgrade+ke+paket+${encodeURIComponent(current.name)}+seharga+${encodeURIComponent(current.price)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full text-center py-3.5 rounded-xl font-extrabold text-sm text-white transition-all hover:opacity-90 active:scale-[0.98]"

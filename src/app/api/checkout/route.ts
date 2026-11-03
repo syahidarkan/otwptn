@@ -1,11 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import crypto from 'crypto'
 
 const TIER_PRICES: Record<string, { amount: number; name: string }> = {
   web_premium: { amount: 30000, name: 'Web Premium' },
   review: { amount: 89000, name: 'Review' },
-  reguler: { amount: 179000, name: 'Reguler' },
-  intensif: { amount: 349000, name: 'Intensif' },
+  dokumen: { amount: 179000, name: 'Reguler' },
+  menyeluruh: { amount: 349000, name: 'Intensif' },
 }
 
 export async function POST(request: Request) {
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
   const tierInfo = TIER_PRICES[tier]
   if (!tierInfo) return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
 
-  const { data: profile } = await supabase.from('profiles').select('full_name, tier').eq('id', user.id).single()
+  const { data: profile } = await supabase.from('profiles').select('full_name, tier').eq('id', user.id).maybeSingle()
 
   const invoiceNumber = `INV-${Date.now()}-${user.id.slice(0, 8).toUpperCase()}`
 
@@ -59,6 +60,8 @@ export async function POST(request: Request) {
     },
   }
 
+  const requestTimestamp = new Date().toISOString()
+
   try {
     const dokuRes = await fetch(`${process.env.DOKU_BASE_URL}/checkout/v1/payment`, {
       method: 'POST',
@@ -66,8 +69,8 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
         'Client-Id': process.env.DOKU_CLIENT_ID ?? '',
         'Request-Id': invoiceNumber,
-        'Request-Timestamp': new Date().toISOString(),
-        'Signature': generateDokuSignature(dokuPayload, process.env.DOKU_SECRET_KEY ?? '', invoiceNumber),
+        'Request-Timestamp': requestTimestamp,
+        'Signature': generateDokuSignature(dokuPayload, process.env.DOKU_SECRET_KEY ?? '', invoiceNumber, requestTimestamp),
       },
       body: JSON.stringify(dokuPayload),
     })
@@ -90,11 +93,14 @@ export async function POST(request: Request) {
   }
 }
 
-function generateDokuSignature(payload: Record<string, unknown>, secretKey: string, requestId: string): string {
-  const crypto = require('crypto')
-  const timestamp = new Date().toISOString()
+function generateDokuSignature(
+  payload: Record<string, unknown>,
+  secretKey: string,
+  requestId: string,
+  timestamp: string,
+): string {
   const body = JSON.stringify(payload)
-  const digest = crypto.createHash('sha256').update(body).digest('base64')
+  const digest = 'SHA-256=' + crypto.createHash('sha256').update(body).digest('base64')
   const signatureRaw = `Client-Id:${process.env.DOKU_CLIENT_ID}\nRequest-Id:${requestId}\nRequest-Timestamp:${timestamp}\nRequest-Target:/checkout/v1/payment\nDigest:${digest}`
   return 'HMACSHA256=' + crypto.createHmac('sha256', secretKey).update(signatureRaw).digest('base64')
 }

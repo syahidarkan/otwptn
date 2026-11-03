@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
 
 const TIER_KALKULATOR_LIMIT: Record<string, number | null> = {
-  free: 1, web_premium: 5, review: 10, reguler: null, intensif: null,
+  free: 1, web_premium: 5, review: 10, dokumen: null, menyeluruh: null, intensif: null,
 }
 
 export async function POST(request: Request) {
@@ -11,9 +11,9 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('tier').eq('id', user.id).single()
+  const { data: profile } = await supabase.from('profiles').select('tier').eq('id', user.id).maybeSingle()
   const tier = profile?.tier ?? 'free'
-  const limit = TIER_KALKULATOR_LIMIT[tier]
+  const limit = TIER_KALKULATOR_LIMIT[tier] ?? null
 
   if (limit !== null) {
     const { data: quota } = await supabase
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       .select('used_count')
       .eq('user_id', user.id)
       .eq('feature', 'ai_kalkulator')
-      .single()
+      .maybeSingle()
 
     const used = quota?.used_count ?? 0
     if (used >= limit) {
@@ -183,7 +183,7 @@ Berikan respons HANYA dalam format JSON valid (tanpa markdown backtick):
       await supabase.from('usage_quotas').upsert({
         user_id: user.id,
         feature: 'ai_kalkulator',
-        used_count: (TIER_KALKULATOR_LIMIT[tier] === null ? 0 : ((await supabase.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'ai_kalkulator').single()).data?.used_count ?? 0)) + 1,
+        used_count: (TIER_KALKULATOR_LIMIT[tier] === null ? 0 : ((await supabase.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'ai_kalkulator').maybeSingle()).data?.used_count ?? 0)) + 1,
       }, { onConflict: 'user_id,feature' })
     } catch (dbErr) {
       console.warn('[AI Kalkulator] Non-blocking DB quota log warning:', dbErr)

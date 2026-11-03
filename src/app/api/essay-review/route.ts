@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
 
 const TIER_ESSAY_LIMIT: Record<string, number | null> = {
-  free: 1, web_premium: 3, review: 5, reguler: 10, intensif: null,
+  free: 1, web_premium: 3, review: 5, dokumen: 10, menyeluruh: null, intensif: null,
 }
 
 export async function POST(request: Request) {

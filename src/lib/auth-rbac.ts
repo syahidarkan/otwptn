@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 export type UserRole = 'superadmin' | 'mentor' | 'member'
-export type UserTier = 'free' | 'review' | 'dokumen' | 'menyeluruh'
+export type UserTier = 'free' | 'web_premium' | 'review' | 'dokumen' | 'menyeluruh' | 'intensif'
 
 export interface UserContext {
   id: string
@@ -79,9 +79,11 @@ export async function requireAuth(allowedRoles: UserRole[] = ['member', 'mentor'
 export function canAccessTier(userTier: UserTier, requiredTier: UserTier): boolean {
   const tierLevels: Record<UserTier, number> = {
     free: 0,
-    review: 1,
-    dokumen: 2,
-    menyeluruh: 3,
+    web_premium: 1,
+    review: 2,
+    dokumen: 3,
+    menyeluruh: 4,
+    intensif: 4,
   }
   return tierLevels[userTier] >= tierLevels[requiredTier]
 }

@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getAiClient } from '@/lib/ai/client'
 
 const TIER_OTBEE_LIMIT: Record<string, number | null> = {
-  free: 5, web_premium: null, review: null, reguler: null, intensif: null,
+  free: 5, web_premium: null, review: null, dokumen: null, menyeluruh: null, intensif: null,
 }
 
 const SYSTEM_PROMPT = `Kamu adalah Otbee 🐝, AI konsultan PTN non-tes dan pendamping belajar resmi otwptn (PT. Lembaga Sains Nasional).
@@ -35,10 +35,10 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return new Response('Unauthorized', { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('tier, role').eq('id', user.id).single()
+  const { data: profile } = await supabase.from('profiles').select('tier, role').eq('id', user.id).maybeSingle()
   const isStaff = profile?.role === 'superadmin' || profile?.role === 'mentor'
   const tier = profile?.tier ?? 'free'
-  const limit = isStaff ? null : TIER_OTBEE_LIMIT[tier]
+  const limit = isStaff ? null : (TIER_OTBEE_LIMIT[tier] ?? null)
 
   if (limit !== null) {
     const { data: quota } = await supabase
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       .select('used_count')
       .eq('user_id', user.id)
       .eq('feature', 'otbee_chat')
-      .single()
+      .maybeSingle()
     const used = quota?.used_count ?? 0
     if (used >= limit) {
       return new Response(JSON.stringify({ error: 'quota_exceeded', limit }), {
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
       controller.enqueue(encoder.encode('data: [DONE]\n\n'))
       controller.close()
 
-      const curUsed = (await supabase.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'otbee_chat').single()).data?.used_count ?? 0
+      const curUsed = (await supabase.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'otbee_chat').maybeSingle()).data?.used_count ?? 0
       await supabase.from('usage_quotas').upsert({ user_id: user.id, feature: 'otbee_chat', used_count: curUsed + 1 }, { onConflict: 'user_id,feature' })
 
       if (conversation_id) {
