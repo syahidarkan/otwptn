@@ -180,11 +180,23 @@ const INITIAL_COMMENTS: EssayComment[] = [
   },
 ]
 
+interface MentoringRecord {
+  mentor_name: string | null
+  mentor_email: string | null
+  wa_group_link: string | null
+  tier: string
+  zoom_sessions_total: number
+  zoom_sessions_used: number
+  revision_count_total: number
+  revision_count_used: number
+}
+
 export default function MentorAlumniPage() {
   const supabase = createClient()
   const [tier, setTier] = useState<string>('free')
   const [, setLoading] = useState(true)
   const [demoUnlocked, setDemoUnlocked] = useState(false)
+  const [mentoringRecord, setMentoringRecord] = useState<MentoringRecord | null>(null)
   const [activeTab, setActiveTab] = useState<'workspace' | 'profile-rapor' | 'booking'>('workspace')
 
   // University Filter for Mentor Roster
@@ -228,27 +240,36 @@ export default function MentorAlumniPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0)
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) {
-        setLoading(false)
-        return
-      }
-      supabase
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) { setLoading(false); return }
+
+      const { data: profile } = await supabase
         .from('profiles')
         .select('tier, full_name, school_name')
         .eq('id', data.user.id)
         .single()
-        .then(({ data: profile }) => {
-          const t = profile?.tier || 'free'
-          setTier(t)
-          if (t !== 'free') setDemoUnlocked(true)
-          if (profile?.school_name) setSchoolName(profile.school_name)
-          setLoading(false)
-        })
+
+      const t = profile?.tier || 'free'
+      setTier(t)
+      if (profile?.school_name) setSchoolName(profile.school_name)
+
+      // Load real mentoring record if user has a paid tier
+      if (t !== 'free') {
+        const { data: rec } = await supabase
+          .from('mentoring')
+          .select('mentor_name, mentor_email, wa_group_link, tier, zoom_sessions_total, zoom_sessions_used, revision_count_total, revision_count_used')
+          .eq('user_id', data.user.id)
+          .maybeSingle()
+        if (rec) setMentoringRecord(rec as MentoringRecord)
+        setDemoUnlocked(true)
+      }
+
+      setLoading(false)
     })
   }, [supabase])
 
   const isUnlocked = demoUnlocked || (tier !== 'free' && tier !== '')
+  const isRealPremium = tier !== 'free' && tier !== ''
 
   function handleFormat(tag: string) {
     setEssayContent(prev => prev + `\n[${tag}] Bagian yang ditandai...`)
@@ -308,7 +329,7 @@ export default function MentorAlumniPage() {
 
   return (
     <div className="w-full px-6 md:px-8 py-8 md:py-10 space-y-10">
-      {/* Top Simulation Mode Bar */}
+      {/* Top Mode Bar */}
       <div className="p-4 rounded-3xl bg-white shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs flex-shrink-0">
@@ -319,24 +340,28 @@ export default function MentorAlumniPage() {
               Program Mentorship 1-on-1 Alumni Top PTN
             </span>
             <span className="text-[11px] text-gray-500 font-medium">
-              {isUnlocked
-                ? 'Portal VIP Aktif - Akses Penuh ke Workspace, OCR Rapor, & Booking Meet'
-                : 'Mode Preview Siswa - Simulasi Kurikulum & Profil Mentor'}
+              {isRealPremium
+                ? mentoringRecord
+                  ? `Portal VIP Aktif · Mentor: ${mentoringRecord.mentor_name ?? 'Kak Alumni otwptn'}`
+                  : 'Portal VIP Aktif · Mentor sedang diproses admin'
+                : 'Mode Preview - Simulasi Kurikulum & Profil Mentor'}
             </span>
           </div>
         </div>
-        <button
-          onClick={() => setDemoUnlocked(!demoUnlocked)}
-          className="btn-brand-primary px-5 py-2.5 rounded-full text-xs font-black shadow-xs flex items-center gap-2"
-        >
-          {isUnlocked ? (
-            'Alihkan ke Mode Showcase'
-          ) : (
-            <>
-              <ShieldCheck size={14} /> Buka Simulasi Akses VIP Mentee
-            </>
-          )}
-        </button>
+        {!isRealPremium && (
+          <button
+            onClick={() => setDemoUnlocked(!demoUnlocked)}
+            className="btn-brand-primary px-5 py-2.5 rounded-full text-xs font-black shadow-xs flex items-center gap-2"
+          >
+            {isUnlocked ? (
+              'Tutup Simulasi'
+            ) : (
+              <>
+                <ShieldCheck size={14} /> Coba Simulasi VIP
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       {!isUnlocked ? (
@@ -858,40 +883,57 @@ export default function MentorAlumniPage() {
            ========================================================================= */
         <div className="space-y-6">
           {/* Mentor Profile Header Bar */}
-          <div className="p-6 rounded-3xl bg-white shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ASSIGNED_MENTOR.avatar}
-                alt=""
-                className="w-16 h-16 rounded-2xl object-cover shadow-xs"
-              />
+          {isRealPremium && !mentoringRecord ? (
+            <div className="p-6 rounded-3xl bg-amber-50 border border-amber-200 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                <Sparkles size={22} className="text-amber-700" />
+              </div>
               <div>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-900 mb-1">
-                  <ShieldCheck size={12} className="text-amber-700" /> Mentor Pendamping Kamu
-                </span>
-                <h2 className="text-lg font-black text-gray-900">{ASSIGNED_MENTOR.name}</h2>
-                <p className="text-xs text-gray-500 font-semibold">{ASSIGNED_MENTOR.major} · {ASSIGNED_MENTOR.univ}</p>
+                <h2 className="text-base font-black text-gray-900">Mentor Sedang Diproses</h2>
+                <p className="text-xs text-gray-600 font-medium mt-0.5">
+                  Pembayaranmu sudah dikonfirmasi. Admin sedang mencocokkan kamu dengan mentor alumni terbaik sesuai jurusan impianmu. Kamu akan dihubungi via WhatsApp maksimal 1×24 jam.
+                </p>
               </div>
             </div>
+          ) : (
+            <div className="p-6 rounded-3xl bg-white shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <GraduationCap size={28} className="text-amber-700" />
+                </div>
+                <div>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-900 mb-1">
+                    <ShieldCheck size={12} className="text-amber-700" /> Mentor Pendamping Kamu
+                  </span>
+                  <h2 className="text-lg font-black text-gray-900">
+                    {mentoringRecord?.mentor_name ?? ASSIGNED_MENTOR.name}
+                  </h2>
+                  <p className="text-xs text-gray-500 font-semibold">Alumni PTN · otwptn Mentor</p>
+                </div>
+              </div>
 
-            <div className="flex items-center gap-2.5">
-              <a
-                href={`https://wa.me/${ASSIGNED_MENTOR.waNumber}?text=Halo%20Kak%20Rayhan,%20saya%20mentee%20otwptn%20ingin%20konsultasi%20esai.`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2.5 rounded-full text-xs font-extrabold bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors flex items-center gap-1.5"
-              >
-                <MessageCircle size={15} className="text-emerald-600" /> WhatsApp Mentor
-              </a>
-              <button
-                onClick={() => setActiveTab('booking')}
-                className="btn-brand-primary px-5 py-2.5 rounded-full text-xs font-black shadow-xs flex items-center gap-1.5"
-              >
-                <Calendar size={15} /> Booking 1-on-1 Meet
-              </button>
+              <div className="flex items-center gap-2.5">
+                {mentoringRecord?.wa_group_link ? (
+                  <a
+                    href={mentoringRecord.wa_group_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2.5 rounded-full text-xs font-extrabold bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors flex items-center gap-1.5"
+                  >
+                    <MessageCircle size={15} className="text-emerald-600" /> WhatsApp Group Mentoring
+                  </a>
+                ) : (
+                  <span className="text-xs text-gray-400 font-medium">Link WA akan dikirim mentor</span>
+                )}
+                <button
+                  onClick={() => setActiveTab('booking')}
+                  className="btn-brand-primary px-5 py-2.5 rounded-full text-xs font-black shadow-xs flex items-center gap-1.5"
+                >
+                  <Calendar size={15} /> Booking 1-on-1 Meet
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Sub-Feature Navigation Tabs */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>

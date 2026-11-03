@@ -29,20 +29,31 @@ export async function POST(request: Request) {
 
   const { essay_id, content } = await request.json()
 
+  const wordCount = content.trim().split(/\s+/).filter(Boolean).length
   const { client, model } = getAiClient('complex')
   const prompt = `Kamu adalah Kurator Senior & Penilai Esai Motivasi / Personal Statement PTN Seleksi Non-Tes Indonesia (PPKB UI, PBUB UGM, SJP IPB, Golden Ticket UNAIR, SIMAK UI) di platform otwptn (PT. Lembaga Sains Nasional).
 
-TUGAS: Evaluasi draf esai berikut secara kritis, analitis, mendalam, dan berikan feedback konstruktif yang actionable.
+TUGAS: Evaluasi draf esai berikut secara KRITIS dan JUJUR. Jangan memberikan skor tinggi untuk esai yang tidak layak. Bersikaplah seperti kurator seleksi PTN yang ketat.
+
+INFORMASI ESAI:
+- Jumlah kata: ${wordCount} kata
+
+PANDUAN SKOR BERDASARKAN PANJANG ESAI:
+- < 100 kata: MAKSIMAL skor 45 untuk semua dimensi. Ini bukan esai, hanya draft kasar.
+- 100–199 kata: MAKSIMAL skor 62. Terlalu pendek untuk menunjukkan bukti nyata.
+- 200–299 kata: MAKSIMAL skor 75. Masih sangat kurang dari standar minimal esai PTN (300-600 kata).
+- 300–499 kata: Skor bisa 60-82 tergantung kualitas konten.
+- 500+ kata: Skor bisa 70-95 tergantung kualitas konten.
 
 DIMENSI PENILAIAN:
 1. Struktur (Structure 0-100):
-   - Hook pembuka: Menghindari pembuka klise ("Sejak kecil saya bercita-cita..."), memiliki pemantik emosional/intelektual yang autentik.
-   - Inti argumen (Body): Menggunakan pendekatan STAR (Situation, Task, Action, Result) dengan bukti aksi nyata.
+   - Hook pembuka: Menghindari pembuka klise ("Sejak kecil saya bercita-cita...", "Saya adalah siswa yang..."). Pembuka klise LANGSUNG turunkan 15-25 poin.
+   - Inti argumen (Body): Harus menggunakan pendekatan STAR (Situation, Task, Action, Result) dengan bukti aksi nyata dan angka.
    - Penutup: Visi kontribusi konkret untuk universitas dan Indonesia.
 2. Koherensi (Coherence 0-100):
    - Kelancaran transisi antar paragraf dan konsistensi benang merah tema.
 3. Kekuatan Argumen (Argument 0-100):
-   - Ketajaman alasan memilih prodi & kampus target. Apakah pelamar menunjukkan pemahaman kurikulum/laboratorium atau hanya sekadar pujian umum?
+   - Ketajaman alasan memilih prodi & kampus target. Apakah pelamar menunjukkan pemahaman kurikulum/laboratorium atau hanya sekadar pujian umum? Klaim tanpa bukti konkret: kurangi 20 poin.
 4. Bahasa & Diksi (Language 0-100):
    - Standar PUEBI, pilihan kata formal namun persuasif, ritme kalimat yang hidup, bebas dari typo dan frasa ambigu.
 
@@ -92,33 +103,37 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
     result = JSON.parse(rawContent)
   } catch (apiErr) {
     console.warn('[AI Essay Review] Primary AI call failed, generating heuristic evaluation:', apiErr)
-    const words = content.trim().split(/\s+/)
-    const wordCount = words.length
     const firstSentence = content.split(/[.!?]/)[0]?.trim() || content.slice(0, 30)
     const midSentence = content.slice(Math.floor(content.length / 2), Math.floor(content.length / 2) + 40).trim()
 
+    // Calibrated heuristic scores based on word count
+    const baseScore = wordCount < 100 ? 35 : wordCount < 200 ? 52 : wordCount < 300 ? 65 : wordCount < 500 ? 72 : 78
+
     result = {
-      structure: wordCount >= 250 ? 88 : 74,
-      coherence: wordCount >= 200 ? 85 : 72,
-      argument: 84,
-      language: 86,
-      overall: wordCount >= 250 ? 86 : 78,
-      feedback: `Esai kamu telah berhasil dianalisis (${wordCount} kata). Struktur gagasanmu sudah memiliki arah yang baik untuk seleksi non-tes. Perkuat kembali bukti tindakan nyata dan pertajam relevansi minatmu dengan program studi impian.`,
+      structure: Math.min(baseScore + 2, 80),
+      coherence: Math.min(baseScore - 2, 78),
+      argument: Math.min(baseScore - 4, 76),
+      language: Math.min(baseScore + 4, 82),
+      overall: baseScore,
+      feedback: wordCount < 200
+        ? `Esai kamu baru ${wordCount} kata — jauh di bawah standar minimal esai PTN non-tes (300-600 kata). Pada tahap ini, evaluasi mendalam belum bisa dilakukan karena konten yang ada terlalu sedikit untuk menunjukkan kemampuan argumentasi dan storytelling kamu. Prioritas utama: tulis lebih banyak, ceritakan pengalaman nyata dengan metode STAR.`
+        : `Esai kamu (${wordCount} kata) sudah memiliki arah dasar. Namun masih perlu pengembangan signifikan sebelum layak dikurasi panitia PTN. Perkuat bukti tindakan nyata dengan angka dan dampak konkret, serta pertajam relevansi pilihan jurusan.`,
       suggestions: [
-        'Gunakan pendekatan STAR (Situation, Task, Action, Result) untuk menceritakan capaianmu secara terukur.',
+        'Tambah panjang esai minimal 300 kata — esai terlalu pendek tidak akan lolos kurasi awal panitia seleksi.',
+        'Gunakan pendekatan STAR (Situation, Task, Action, Result) untuk menceritakan capaianmu secara terukur dengan data.',
         'Jelaskan alasan spesifik mengapa kurikulum atau laboratorium di kampus target sangat kamu butuhkan.',
-        'Perhalus transisi antar paragraf agar storytelling mengalir secara alami dan meyakinkan.',
+        'Perhalus kalimat pembuka — hindari klise "Saya adalah siswa..." dan ganti dengan hook yang memantik rasa ingin tahu.',
       ],
       issues: [
         {
-          quote: firstSentence.slice(0, 32),
+          quote: firstSentence.slice(0, 40),
           category: 'structure',
-          comment: 'Kalimat pembuka bisa diperkuat dengan hook pemantik yang lebih unik dan personal.',
+          comment: 'Kalimat pembuka klise dan generik. Mulailah dengan momen spesifik yang mengubah perspektifmu.',
         },
         {
-          quote: midSentence.slice(0, 32),
+          quote: midSentence.slice(0, 40),
           category: 'argument',
-          comment: 'Berikan bukti konkret atau dampak nyata dari kegiatan yang kamu lakukan.',
+          comment: 'Klaim tanpa bukti konkret. Cantumkan nama program, lomba, atau kegiatan nyata yang pernah kamu ikuti.',
         },
       ],
     }

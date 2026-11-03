@@ -204,8 +204,8 @@ export default function MentorSection() {
 
                 {/* Mentor Info */}
                 <div>
-                  <h4 className="text-base font-black text-gray-950">Chloe Rahmawati</h4>
-                  <p className="text-xs text-gray-800 font-bold mt-0.5">
+                  <h4 className="text-base font-black text-black">Chloe Rahmawati</h4>
+                  <p className="text-xs text-black font-bold mt-0.5">
                     Ilmu Komputer · Universitas Indonesia
                   </p>
                 </div>
@@ -287,7 +287,7 @@ export default function MentorSection() {
 
                 {/* Note Content (Pure Black Font) */}
                 <div className="p-3.5 rounded-2xl bg-cyan-50/70 border border-cyan-200">
-                  <p className="text-xs text-gray-950 leading-relaxed font-bold">
+                  <p className="text-xs text-black leading-relaxed font-bold">
                     Aku ingin masuk ke Fasilkom UI atau Teknik Informatika ITB dengan jurusan favorit. Nilai raporku rata-rata 92.5 tapi aku masih bingung menyusun esai motivasi diri dan memilih sertifikat yang punya bobot tertinggi. Butuh bimbingan dalam proses aplikasi serta tips lolos SNBP.
                   </p>
                 </div>
