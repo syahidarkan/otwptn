@@ -10,6 +10,7 @@ import {
   Search,
   ArrowRight,
   Video,
+  FileEdit,
 } from 'lucide-react'
 
 const FEATS = [
@@ -33,22 +34,47 @@ export default function MentorSection() {
   const y2 = useTransform(scrollYProgress, [0, 1], [-20, 20])
   const rotate = useTransform(scrollYProgress, [0, 1], [-4, 4])
 
-  // Animated Search Query cycling in Step 1
-  const [searchQuery, setSearchQuery] = useState('Kedokteran UI')
+  // Real Typing effect in Search Bar (Step 1)
+  const [displayText, setDisplayText] = useState('')
   useEffect(() => {
     const queries = [
-      'Kedokteran UI',
       'Teknik Informatika ITB',
+      'Kedokteran UI',
       'Ilmu Komunikasi UGM',
       'SBM ITB',
       'Kedokteran UNAIR',
     ]
-    let idx = 0
-    const interval = setInterval(() => {
-      idx = (idx + 1) % queries.length
-      setSearchQuery(queries[idx])
-    }, 3000)
-    return () => clearInterval(interval)
+    let queryIdx = 0
+    let charIdx = 0
+    let isDeleting = false
+    let timeoutId: NodeJS.Timeout
+
+    function tick() {
+      const current = queries[queryIdx]
+      if (!isDeleting) {
+        setDisplayText(current.slice(0, charIdx + 1))
+        charIdx++
+        if (charIdx === current.length) {
+          isDeleting = true
+          timeoutId = setTimeout(tick, 2200)
+          return
+        }
+        timeoutId = setTimeout(tick, 85)
+      } else {
+        setDisplayText(current.slice(0, charIdx - 1))
+        charIdx--
+        if (charIdx === 0) {
+          isDeleting = false
+          queryIdx = (queryIdx + 1) % queries.length
+          timeoutId = setTimeout(tick, 450)
+          return
+        }
+        timeoutId = setTimeout(tick, 40)
+      }
+    }
+
+    timeoutId = setTimeout(tick, 400)
+    return () => clearTimeout(timeoutId)
   }, [])
 
   const STARS = [
@@ -154,10 +180,13 @@ export default function MentorSection() {
 
               {/* Card 1 Body (Panjang/Portrait - Background Putih) */}
               <div className="w-full rounded-3xl p-5 bg-white border border-rose-200 shadow-md space-y-3">
-                {/* Search Bar */}
-                <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-gray-50 border border-gray-200 text-xs text-gray-900">
-                  <Search size={14} className="text-gray-400 flex-shrink-0" />
-                  <span className="font-semibold truncate text-gray-900">{searchQuery}</span>
+                {/* Search Bar with Typing Effect */}
+                <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-gray-50 border border-gray-200 text-xs shadow-2xs">
+                  <Search size={14} className="text-gray-500 flex-shrink-0" />
+                  <span className="font-bold text-gray-950 truncate flex items-center">
+                    {displayText}
+                    <span className="inline-block w-0.5 h-3.5 bg-amber-500 ml-0.5 animate-pulse" />
+                  </span>
                 </div>
 
                 {/* Mentor Photo */}
@@ -176,13 +205,13 @@ export default function MentorSection() {
                 {/* Mentor Info */}
                 <div>
                   <h4 className="text-base font-black text-gray-950">Chloe Rahmawati</h4>
-                  <p className="text-xs text-gray-600 font-semibold">
+                  <p className="text-xs text-gray-800 font-bold mt-0.5">
                     Ilmu Komputer · Universitas Indonesia
                   </p>
                 </div>
 
                 {/* Bullet achievements */}
-                <ul className="text-[11px] text-gray-700 space-y-1 list-disc list-inside font-medium leading-relaxed">
+                <ul className="text-[11px] text-gray-950 space-y-1 list-disc list-inside font-bold leading-relaxed">
                   <li>Medali Emas Puspresnas OSN 2024</li>
                   <li>Parlemen Remaja Nasional 2023</li>
                   <li>Top 1% Skor UTBK SNBT & Lolos SNBP</li>
@@ -195,7 +224,7 @@ export default function MentorSection() {
                       {['UI', 'ITB', 'UGM', 'UNAIR'].map(p => (
                         <span
                           key={p}
-                          className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 text-[10px] font-bold border border-rose-200"
+                          className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-900 text-[10px] font-bold border border-rose-200"
                         >
                           {p}
                         </span>
@@ -212,7 +241,7 @@ export default function MentorSection() {
                           <img src={logo.src} alt={logo.name} className="w-full h-full object-contain" />
                         </div>
                       ))}
-                      <span className="text-[10px] text-gray-500 font-bold ml-0.5">+12 PTN</span>
+                      <span className="text-[10px] text-gray-700 font-bold ml-0.5">+12 PTN</span>
                     </div>
                   </div>
 
@@ -224,7 +253,7 @@ export default function MentorSection() {
                       alt="Verified Otbee"
                       className="w-8 h-8 object-contain drop-shadow"
                     />
-                    <span className="text-[8px] font-black uppercase text-amber-800 tracking-wider">
+                    <span className="text-[8px] font-black uppercase text-amber-950 tracking-wider">
                       Verified
                     </span>
                   </div>
@@ -233,7 +262,7 @@ export default function MentorSection() {
 
               {/* Bottom Label Pill 1 */}
               <div className="mt-3 text-center">
-                <span className="px-3.5 py-1.5 rounded-full bg-white text-xs font-bold text-gray-900 border border-gray-200 shadow-sm inline-block">
+                <span className="px-3.5 py-1.5 rounded-full bg-white text-xs font-black text-gray-950 border border-gray-300 shadow-sm inline-block">
                   Pilih mentor yang sesuai dengan kamu
                 </span>
               </div>
@@ -248,17 +277,17 @@ export default function MentorSection() {
 
               {/* Card 2 Body (Sedang/Fit Content - Background Putih) */}
               <div className="w-full rounded-3xl p-5 bg-white border-2 border-cyan-400 shadow-md space-y-3.5">
-                {/* Note Header */}
+                {/* Note Header (Icon instead of Emoji) */}
                 <div className="flex items-center gap-2 pb-2.5 border-b border-gray-100">
-                  <span className="text-base">✏️</span>
-                  <span className="text-xs font-black uppercase tracking-wider text-cyan-900">
+                  <FileEdit size={16} className="text-cyan-800 flex-shrink-0" />
+                  <span className="text-xs font-black uppercase tracking-wider text-cyan-950">
                     Catatan
                   </span>
                 </div>
 
-                {/* Note Content */}
-                <div className="p-3.5 rounded-2xl bg-cyan-50/60 border border-cyan-100">
-                  <p className="text-xs text-gray-800 leading-relaxed font-medium">
+                {/* Note Content (Pure Black Font) */}
+                <div className="p-3.5 rounded-2xl bg-cyan-50/70 border border-cyan-200">
+                  <p className="text-xs text-gray-950 leading-relaxed font-bold">
                     Aku ingin masuk ke Fasilkom UI atau Teknik Informatika ITB dengan jurusan favorit. Nilai raporku rata-rata 92.5 tapi aku masih bingung menyusun esai motivasi diri dan memilih sertifikat yang punya bobot tertinggi. Butuh bimbingan dalam proses aplikasi serta tips lolos SNBP.
                   </p>
                 </div>
@@ -266,16 +295,16 @@ export default function MentorSection() {
                 {/* Tags & Mascot Inside Card 2 */}
                 <div className="pt-2 border-t border-gray-100 flex items-center justify-between gap-3">
                   <div className="flex flex-wrap gap-1.5">
-                    <span className="px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-800 text-[10px] font-bold border border-cyan-200">
+                    <span className="px-2 py-0.5 rounded-md bg-cyan-100 text-cyan-950 text-[10px] font-bold border border-cyan-300">
                       Bedah Esai
                     </span>
-                    <span className="px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-800 text-[10px] font-bold border border-cyan-200">
+                    <span className="px-2 py-0.5 rounded-md bg-cyan-100 text-cyan-950 text-[10px] font-bold border border-cyan-300">
                       Review Portofolio
                     </span>
                   </div>
 
                   {/* Mascot Inside Card 2 (Otbee Writing Notes at Desk) */}
-                  <div className="flex-shrink-0 bg-cyan-50/70 border border-cyan-200 rounded-2xl p-1.5">
+                  <div className="flex-shrink-0 bg-cyan-50/80 border border-cyan-200 rounded-2xl p-1.5">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/mascot/glasses-writing-desk.png"
@@ -288,7 +317,7 @@ export default function MentorSection() {
 
               {/* Bottom Label Pill 2 */}
               <div className="mt-3 text-center">
-                <span className="px-3.5 py-1.5 rounded-full bg-white text-xs font-bold text-gray-900 border border-gray-200 shadow-sm inline-block">
+                <span className="px-3.5 py-1.5 rounded-full bg-white text-xs font-black text-gray-950 border border-gray-300 shadow-sm inline-block">
                   Tulis catatan agar mentor tau tentang kamu
                 </span>
               </div>
@@ -313,7 +342,7 @@ export default function MentorSection() {
                   />
 
                   {/* Live Session Badge at top left */}
-                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-xs text-[9px] font-black text-white flex items-center gap-1 shadow-sm">
+                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/75 backdrop-blur-xs text-[9px] font-black text-white flex items-center gap-1 shadow-sm">
                     <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
                     <span>Live Session</span>
                   </div>
@@ -332,11 +361,11 @@ export default function MentorSection() {
                 {/* Session Highlights & Mascot Inside Card 3 */}
                 <div className="pt-1 border-t border-gray-100 flex items-center justify-between gap-3">
                   <div className="space-y-0.5">
-                    <div className="flex items-center gap-1 text-[11px] font-black text-purple-900">
-                      <Video size={13} className="text-purple-600" />
+                    <div className="flex items-center gap-1 text-[11px] font-black text-purple-950">
+                      <Video size={13} className="text-purple-700" />
                       <span>Google Meet 45 Menit</span>
                     </div>
-                    <p className="text-[10px] text-gray-600 font-medium">
+                    <p className="text-[10px] text-gray-900 font-bold">
                       Diskusi 1-on-1 & koreksi esai kalimat demi kalimat
                     </p>
                   </div>
@@ -355,7 +384,7 @@ export default function MentorSection() {
 
               {/* Bottom Label Pill 3 */}
               <div className="mt-3 text-center">
-                <span className="px-3.5 py-1.5 rounded-full bg-white text-xs font-bold text-gray-900 border border-gray-200 shadow-sm inline-block">
+                <span className="px-3.5 py-1.5 rounded-full bg-white text-xs font-black text-gray-950 border border-gray-300 shadow-sm inline-block">
                   Ketemu dengan mentor dan dapatkan bimbingan
                 </span>
               </div>
