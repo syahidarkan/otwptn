@@ -19,10 +19,13 @@ alter table orders
   add column if not exists paid_at timestamptz;
 
 -- Admin can manage all orders
-create policy if not exists "Admins can manage all orders"
-  on orders for all using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.is_admin = true)
-  );
+do $$ begin
+  if not exists (
+    select 1 from pg_policies where tablename = 'orders' and policyname = 'Admins can manage all orders'
+  ) then
+    execute 'create policy "Admins can manage all orders" on orders for all using (exists (select 1 from profiles p where p.id = auth.uid() and p.is_admin = true))';
+  end if;
+end $$;
 
 -- 2. Mentor applications table
 create table if not exists mentor_applications (
@@ -92,11 +95,21 @@ alter table mentoring
   add column if not exists updated_at timestamptz not null default now();
 
 -- Mentors can view their own mentees
-create policy if not exists "Mentors view own mentoring records"
-  on mentoring for select using (auth.uid() = mentor_id);
+do $$ begin
+  if not exists (
+    select 1 from pg_policies where tablename = 'mentoring' and policyname = 'Mentors view own mentoring records'
+  ) then
+    execute 'create policy "Mentors view own mentoring records" on mentoring for select using (auth.uid() = mentor_id)';
+  end if;
+end $$;
 
-create policy if not exists "Mentors update own mentoring records"
-  on mentoring for update using (auth.uid() = mentor_id);
+do $$ begin
+  if not exists (
+    select 1 from pg_policies where tablename = 'mentoring' and policyname = 'Mentors update own mentoring records'
+  ) then
+    execute 'create policy "Mentors update own mentoring records" on mentoring for update using (auth.uid() = mentor_id)';
+  end if;
+end $$;
 
 -- 5. Add role 'mentor' check to profiles
 -- profiles.role can now be: 'user' | 'mentor' | 'admin'
