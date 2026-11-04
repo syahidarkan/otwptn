@@ -413,28 +413,48 @@ export default function CariTemanBelajarPage() {
 
   // Ensure remote stream is mounted and playing once phase switches to connected
   useEffect(() => {
-    if (phase === 'connected' && remoteStreamRef.current) {
+    if (phase !== 'connected') {
+      setHasRemoteVideo(false)
+      return
+    }
+
+    const checkAndMount = () => {
+      const s = remoteStreamRef.current
       const videoEl = remoteVideoRef.current
-      if (videoEl) {
-        if (videoEl.srcObject !== remoteStreamRef.current) {
-          videoEl.srcObject = remoteStreamRef.current
-        }
-        videoEl.play().catch(() => {
-          videoEl.muted = true
-          videoEl.play().catch(() => {})
-          setIsAudioBlocked(true)
-        })
-      }
       const audioEl = remoteAudioRef.current
-      if (audioEl) {
-        if (audioEl.srcObject !== remoteStreamRef.current) {
-          audioEl.srcObject = remoteStreamRef.current
+
+      if (s) {
+        if (videoEl && videoEl.srcObject !== s) {
+          videoEl.srcObject = s
+          videoEl.play().catch(() => {})
         }
-        audioEl.play().catch(() => {
-          setIsAudioBlocked(true)
-        })
+        if (audioEl && audioEl.srcObject !== s) {
+          audioEl.srcObject = s
+          audioEl.play().catch(() => {})
+        }
+
+        const vTracks = s.getVideoTracks()
+        if (vTracks.length > 0) {
+          const vt = vTracks[0]
+          if (vt.readyState === 'live' && !vt.muted) {
+            setHasRemoteVideo(true)
+          }
+          vt.onunmute = () => {
+            setHasRemoteVideo(true)
+            videoEl?.play().catch(() => {})
+          }
+        }
+      }
+
+      if (videoEl && videoEl.videoWidth > 0 && videoEl.videoHeight > 0) {
+        setHasRemoteVideo(true)
       }
     }
+
+    const interval = setInterval(checkAndMount, 350)
+    checkAndMount()
+
+    return () => clearInterval(interval)
   }, [phase])
 
   function togglePTN(id: string) {
@@ -799,14 +819,14 @@ export default function CariTemanBelajarPage() {
                     setHasRemoteVideo(true)
                   }
                 }}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
-                  phase === 'connected' && hasRemoteVideo ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none'
+                className={`absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-300 ${
+                  phase === 'connected' ? 'opacity-100' : 'opacity-0 pointer-events-none'
                 }`}
               />
 
               {/* Connected Fallback Avatar / Audio Card if camera video is still loading or peer has no webcam */}
               {phase === 'connected' && !hasRemoteVideo && currentPeer && (
-                <div className="relative z-10 flex flex-col items-center justify-center p-6 text-center animate-in fade-in">
+                <div className="absolute inset-0 z-0 flex flex-col items-center justify-center p-6 text-center animate-in fade-in">
                   <div className="relative mb-3">
                     <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 text-amber-950 font-black text-2xl flex items-center justify-center shadow-lg border-2 border-white/20 animate-pulse">
                       {currentPeer.name.slice(0, 2).toUpperCase()}

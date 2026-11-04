@@ -86,27 +86,50 @@ export default function OmegleSection() {
     }
   }
 
-  // Ensure remote stream is properly mounted when connected
+  // Ensure remote stream is properly mounted and video status is continuously tracked
   useEffect(() => {
-    if (phase === 'connected' && remoteStreamRef.current) {
+    if (phase !== 'connected') {
+      setHasRemoteVideo(false)
+      return
+    }
+
+    const checkAndMount = () => {
+      const s = remoteStreamRef.current
       const vEl = remoteVideoRef.current
-      if (vEl && vEl.srcObject !== remoteStreamRef.current) {
-        vEl.srcObject = remoteStreamRef.current
-        vEl.muted = false
-        vEl.play().catch(() => {
-          vEl.muted = true
-          vEl.play().catch(() => {})
-          setIsAudioBlocked(true)
-        })
-      }
       const aEl = remoteAudioRef.current
-      if (aEl && aEl.srcObject !== remoteStreamRef.current) {
-        aEl.srcObject = remoteStreamRef.current
-        aEl.play().catch(() => {
-          setIsAudioBlocked(true)
-        })
+
+      if (s) {
+        if (vEl && vEl.srcObject !== s) {
+          vEl.srcObject = s
+          vEl.play().catch(() => {})
+        }
+        if (aEl && aEl.srcObject !== s) {
+          aEl.srcObject = s
+          aEl.play().catch(() => {})
+        }
+
+        const vTracks = s.getVideoTracks()
+        if (vTracks.length > 0) {
+          const vt = vTracks[0]
+          if (vt.readyState === 'live' && !vt.muted) {
+            setHasRemoteVideo(true)
+          }
+          vt.onunmute = () => {
+            setHasRemoteVideo(true)
+            vEl?.play().catch(() => {})
+          }
+        }
+      }
+
+      if (vEl && vEl.videoWidth > 0 && vEl.videoHeight > 0) {
+        setHasRemoteVideo(true)
       }
     }
+
+    const interval = setInterval(checkAndMount, 350)
+    checkAndMount()
+
+    return () => clearInterval(interval)
   }, [phase])
 
   async function handleStart() {
@@ -150,7 +173,9 @@ export default function OmegleSection() {
         remoteStreamRef.current = remoteStream
         const vEl = remoteVideoRef.current
         if (vEl) {
-          vEl.srcObject = remoteStream
+          if (vEl.srcObject !== remoteStream) {
+            vEl.srcObject = remoteStream
+          }
           vEl.muted = false
           vEl.play().catch(() => {
             // Autoplay blocked unmuted video, mute & retry so visuals render immediately
@@ -161,10 +186,15 @@ export default function OmegleSection() {
         }
         const aEl = remoteAudioRef.current
         if (aEl) {
-          aEl.srcObject = remoteStream
+          if (aEl.srcObject !== remoteStream) {
+            aEl.srcObject = remoteStream
+          }
           aEl.play().catch(() => {
             setIsAudioBlocked(true)
           })
+        }
+        if (remoteStream.getVideoTracks().length > 0) {
+          setHasRemoteVideo(true)
         }
         setPhase('connected')
       },
@@ -326,19 +356,19 @@ export default function OmegleSection() {
                   el.play().catch(() => {})
                   if (el.videoWidth > 0) setHasRemoteVideo(true)
                 }}
-                onPlaying={() => setHasRemoteVideo(true)}
-                onTimeUpdate={(e) => {
+                onResize={(e) => {
                   const el = e.target as HTMLVideoElement
-                  if (el.videoWidth > 0 && !hasRemoteVideo) setHasRemoteVideo(true)
+                  if (el.videoWidth > 0) setHasRemoteVideo(true)
                 }}
+                onPlaying={() => setHasRemoteVideo(true)}
                 className={`absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-300 ${
-                  phase === 'connected' && hasRemoteVideo ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                  phase === 'connected' ? 'opacity-100' : 'opacity-0 pointer-events-none'
                 }`}
               />
 
               {/* Connected fallback card when video is establishing or peer is audio-only */}
               {phase === 'connected' && peer && !hasRemoteVideo && (
-                <div className="relative z-10 flex flex-col items-center gap-3 p-6 text-center max-w-xs">
+                <div className="absolute inset-0 z-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
                   <div className="relative">
                     <div className="w-16 h-16 rounded-full flex items-center justify-center font-black text-xl text-amber-400 bg-amber-400/20 border-2 border-amber-400/40 shadow-lg">
                       {peer.name.slice(0, 2).toUpperCase()}

@@ -409,26 +409,30 @@ export class StudyCamWebRTC {
 
     // Handle incoming remote stream and tracks
     pc.ontrack = event => {
-      let streamToDeliver: MediaStream
-      if (event.streams && event.streams[0]) {
-        streamToDeliver = event.streams[0]
-        this.remoteStream = streamToDeliver
-      } else {
-        if (!this.remoteStream) {
-          this.remoteStream = new MediaStream()
-        }
-        if (event.track && !this.remoteStream.getTracks().some(t => t.id === event.track.id)) {
+      if (!this.remoteStream) {
+        this.remoteStream = new MediaStream()
+      }
+
+      if (event.track) {
+        if (!this.remoteStream.getTracks().some(t => t.id === event.track.id)) {
           this.remoteStream.addTrack(event.track)
         }
-        streamToDeliver = this.remoteStream
+        event.track.onunmute = () => {
+          if (this.remoteStream) {
+            this.callbacks.onRemoteStream(this.remoteStream)
+          }
+        }
       }
 
-      // Re-trigger callbacks when additional tracks arrive (e.g. video track after audio track)
-      streamToDeliver.onaddtrack = () => {
-        this.callbacks.onRemoteStream(streamToDeliver)
+      if (event.streams && event.streams[0]) {
+        event.streams[0].getTracks().forEach(t => {
+          if (!this.remoteStream!.getTracks().some(existing => existing.id === t.id)) {
+            this.remoteStream!.addTrack(t)
+          }
+        })
       }
 
-      this.callbacks.onRemoteStream(streamToDeliver)
+      this.callbacks.onRemoteStream(this.remoteStream)
     }
 
     // ICE connection state listener with auto-restart
