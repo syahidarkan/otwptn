@@ -89,6 +89,16 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
 
 interface HoneyFillProps { phase: 'entering' | 'holding' | 'exiting' }
 
+// Luma key constants — tune if honey edges look rough
+const LK_B_THRESHOLD = 200  // blue channel above this = white area candidate
+const LK_R_MIN = 225        // red also high = white (not just blue noise)
+const LK_G_MIN = 215        // green also high = white
+const LK_FEATHER = 55       // blue range over which alpha fades (B_THRESHOLD → B_THRESHOLD+FEATHER)
+
+// Canvas draw resolution — lower = faster luma key, higher = sharper honey edges
+const CANVAS_W = 480
+const CANVAS_H = 270
+
 export function HoneyFill({ phase }: HoneyFillProps) {
   const [cls, setCls] = useState('')
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -101,7 +111,22 @@ export function HoneyFill({ phase }: HoneyFillProps) {
       const vid = videoRef.current
       if (canvas && vid && vid.readyState >= 2) {
         const ctx = canvas.getContext('2d')
-        if (ctx) ctx.drawImage(vid, 0, 0, canvas.width, canvas.height)
+        if (ctx) {
+          ctx.clearRect(0, 0, CANVAS_W, CANVAS_H)
+          ctx.drawImage(vid, 0, 0, CANVAS_W, CANVAS_H)
+          // Luma key: remove white background pixels
+          const imgData = ctx.getImageData(0, 0, CANVAS_W, CANVAS_H)
+          const d = imgData.data
+          for (let i = 0; i < d.length; i += 4) {
+            const b = d[i + 2]
+            if (b > LK_B_THRESHOLD && d[i] > LK_R_MIN && d[i + 1] > LK_G_MIN) {
+              // Alpha: 255 at threshold, 0 at threshold+feather
+              const alpha = Math.max(0, 1 - (b - LK_B_THRESHOLD) / LK_FEATHER)
+              d[i + 3] = Math.round(alpha * 255)
+            }
+          }
+          ctx.putImageData(imgData, 0, 0)
+        }
       }
       rafRef.current = requestAnimationFrame(draw)
     }
@@ -109,12 +134,11 @@ export function HoneyFill({ phase }: HoneyFillProps) {
     rafRef.current = requestAnimationFrame(draw)
   }, [])
 
-  // Set canvas bitmap size to viewport on mount
   useEffect(() => {
     const canvas = canvasRef.current
     if (canvas) {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
+      canvas.width = CANVAS_W
+      canvas.height = CANVAS_H
     }
     return () => cancelAnimationFrame(rafRef.current)
   }, [])
@@ -159,7 +183,6 @@ export function HoneyFill({ phase }: HoneyFillProps) {
           userSelect: 'none',
         }}
       >
-        {/* Video hidden — only used for frame decoding */}
         <video
           ref={videoRef}
           muted playsInline preload="auto" loop
@@ -167,13 +190,12 @@ export function HoneyFill({ phase }: HoneyFillProps) {
         >
           <source src="/honey-splash.mp4" type="video/mp4" />
         </video>
-        {/* Canvas renders frames — mix-blend-mode works in Safari on canvas */}
+        {/* Real per-pixel alpha via luma key — no blend mode needed */}
         <canvas
           ref={canvasRef}
           style={{
             position: 'absolute', inset: 0,
             width: '100%', height: '100%',
-            mixBlendMode: 'multiply',
           }}
         />
       </div>
