@@ -46,6 +46,7 @@ export default function OmegleSection() {
   const [camDenied, setCamDenied] = useState(false)
   const [mediaError, setMediaError] = useState<string | null>(null)
   const [isAudioBlocked, setIsAudioBlocked] = useState(false)
+  const [hasRemoteVideo, setHasRemoteVideo] = useState(false)
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
@@ -88,13 +89,20 @@ export default function OmegleSection() {
   // Ensure remote stream is properly mounted when connected
   useEffect(() => {
     if (phase === 'connected' && remoteStreamRef.current) {
-      if (remoteVideoRef.current && remoteVideoRef.current.srcObject !== remoteStreamRef.current) {
-        remoteVideoRef.current.srcObject = remoteStreamRef.current
-        remoteVideoRef.current.play().catch(() => {})
+      const vEl = remoteVideoRef.current
+      if (vEl && vEl.srcObject !== remoteStreamRef.current) {
+        vEl.srcObject = remoteStreamRef.current
+        vEl.muted = false
+        vEl.play().catch(() => {
+          vEl.muted = true
+          vEl.play().catch(() => {})
+          setIsAudioBlocked(true)
+        })
       }
-      if (remoteAudioRef.current && remoteAudioRef.current.srcObject !== remoteStreamRef.current) {
-        remoteAudioRef.current.srcObject = remoteStreamRef.current
-        remoteAudioRef.current.play().catch(() => {
+      const aEl = remoteAudioRef.current
+      if (aEl && aEl.srcObject !== remoteStreamRef.current) {
+        aEl.srcObject = remoteStreamRef.current
+        aEl.play().catch(() => {
           setIsAudioBlocked(true)
         })
       }
@@ -102,6 +110,14 @@ export default function OmegleSection() {
   }, [phase])
 
   async function handleStart() {
+    // Prime audio elements on user click to satisfy Safari & Chrome autoplay policies
+    if (remoteAudioRef.current) {
+      remoteAudioRef.current.play().catch(() => {})
+    }
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.muted = false
+    }
+
     myProfile.current.id = 'user_' + Math.random().toString(36).substring(2, 9)
     let localStream = streamRef.current
     if (!localStream) {
@@ -111,6 +127,7 @@ export default function OmegleSection() {
     setPhase('searching')
     setPeer(null)
     setIsAudioBlocked(false)
+    setHasRemoteVideo(false)
 
     if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = null
@@ -131,13 +148,21 @@ export default function OmegleSection() {
       },
       onRemoteStream: (remoteStream) => {
         remoteStreamRef.current = remoteStream
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = remoteStream
-          remoteVideoRef.current.play().catch(() => {})
+        const vEl = remoteVideoRef.current
+        if (vEl) {
+          vEl.srcObject = remoteStream
+          vEl.muted = false
+          vEl.play().catch(() => {
+            // Autoplay blocked unmuted video, mute & retry so visuals render immediately
+            vEl.muted = true
+            vEl.play().catch(() => {})
+            setIsAudioBlocked(true)
+          })
         }
-        if (remoteAudioRef.current) {
-          remoteAudioRef.current.srcObject = remoteStream
-          remoteAudioRef.current.play().catch(() => {
+        const aEl = remoteAudioRef.current
+        if (aEl) {
+          aEl.srcObject = remoteStream
+          aEl.play().catch(() => {
             setIsAudioBlocked(true)
           })
         }
@@ -154,9 +179,11 @@ export default function OmegleSection() {
         setPeer(null)
         setPhase('idle')
         setIsAudioBlocked(false)
+        setHasRemoteVideo(false)
       },
       onTimeout: () => {
         setPhase('timeout')
+        setHasRemoteVideo(false)
       },
     })
 
@@ -178,6 +205,7 @@ export default function OmegleSection() {
     setPhase('idle')
     setPeer(null)
     setIsAudioBlocked(false)
+    setHasRemoteVideo(false)
   }
 
   function handleNext() {
@@ -274,11 +302,13 @@ export default function OmegleSection() {
             <div
               onClick={() => {
                 if (remoteVideoRef.current) {
+                  remoteVideoRef.current.muted = false
                   remoteVideoRef.current.play().catch(() => {})
                 }
-                if (remoteAudioRef.current && isAudioBlocked) {
+                if (remoteAudioRef.current) {
                   remoteAudioRef.current.play().then(() => setIsAudioBlocked(false)).catch(() => {})
                 }
+                setIsAudioBlocked(false)
               }}
               className="rounded-xl relative flex items-center justify-center overflow-hidden min-h-[220px] sm:min-h-0 cursor-pointer"
               style={{ background: '#111' }}
@@ -286,19 +316,45 @@ export default function OmegleSection() {
               {/* Separate dedicated audio element */}
               <audio ref={remoteAudioRef} autoPlay playsInline />
 
-              {/* Remote live video feed - muted so browser NEVER blocks video rendering */}
+              {/* Remote live video feed */}
               <video
                 ref={remoteVideoRef}
                 autoPlay
                 playsInline
-                muted
                 onLoadedMetadata={(e) => {
-                  (e.target as HTMLVideoElement).play().catch(() => {})
+                  const el = e.target as HTMLVideoElement
+                  el.play().catch(() => {})
+                  if (el.videoWidth > 0) setHasRemoteVideo(true)
+                }}
+                onPlaying={() => setHasRemoteVideo(true)}
+                onTimeUpdate={(e) => {
+                  const el = e.target as HTMLVideoElement
+                  if (el.videoWidth > 0 && !hasRemoteVideo) setHasRemoteVideo(true)
                 }}
                 className={`absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-300 ${
-                  phase === 'connected' ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                  phase === 'connected' && hasRemoteVideo ? 'opacity-100' : 'opacity-0 pointer-events-none'
                 }`}
               />
+
+              {/* Connected fallback card when video is establishing or peer is audio-only */}
+              {phase === 'connected' && peer && !hasRemoteVideo && (
+                <div className="relative z-10 flex flex-col items-center gap-3 p-6 text-center max-w-xs">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-full flex items-center justify-center font-black text-xl text-amber-400 bg-amber-400/20 border-2 border-amber-400/40 shadow-lg">
+                      {peer.name.slice(0, 2).toUpperCase()}
+                    </div>
+                    <span className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-500 border-2 border-black" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-white">{peer.name}</p>
+                    <p className="text-xs text-gray-400">{peer.school} · {peer.city}</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/70 border border-emerald-500/30 text-[11px] font-semibold text-emerald-300">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                    Audio Terhubung
+                  </div>
+                </div>
+              )}
 
               {/* Unmute prompt if browser blocked audio */}
               {isAudioBlocked && phase === 'connected' && (
@@ -306,9 +362,14 @@ export default function OmegleSection() {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation()
+                    if (remoteVideoRef.current) {
+                      remoteVideoRef.current.muted = false
+                      remoteVideoRef.current.play().catch(() => {})
+                    }
                     if (remoteAudioRef.current) {
                       remoteAudioRef.current.play().then(() => setIsAudioBlocked(false)).catch(() => {})
                     }
+                    setIsAudioBlocked(false)
                   }}
                   className="absolute top-16 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-400 text-gray-950 shadow-xl flex items-center gap-1.5 animate-bounce"
                 >

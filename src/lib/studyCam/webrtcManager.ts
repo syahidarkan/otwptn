@@ -478,14 +478,25 @@ export class StudyCamWebRTC {
     })
     this.roomChannel = roomChannel
 
-    // Forward ICE candidates
+    let isRoomSubscribed = false
+    const pendingOutgoingCandidates: any[] = []
+
+    const sendCandidateSafe = (candidate: any) => {
+      if (!isRoomSubscribed) {
+        pendingOutgoingCandidates.push(candidate)
+        return
+      }
+      roomChannel.send({
+        type: 'broadcast',
+        event: 'ice_candidate',
+        payload: { candidate, fromId: this.myProfile.id },
+      })
+    }
+
+    // Forward ICE candidates with guaranteed queueing
     pc.onicecandidate = event => {
       if (event.candidate) {
-        roomChannel.send({
-          type: 'broadcast',
-          event: 'ice_candidate',
-          payload: { candidate: event.candidate.toJSON(), fromId: this.myProfile.id },
-        })
+        sendCandidateSafe(event.candidate.toJSON())
       }
     }
 
@@ -511,6 +522,8 @@ export class StudyCamWebRTC {
             offerToReceiveVideo: true,
           })
           await pc.setLocalDescription(offer)
+          // Wait 250ms for initial host & STUN candidates to be baked into localDescription
+          await new Promise(r => setTimeout(r, 250))
         }
         if (pc.localDescription) {
           roomChannel.send({
@@ -562,14 +575,16 @@ export class StudyCamWebRTC {
 
           const answer = await pc.createAnswer()
           await pc.setLocalDescription(answer)
+          // Wait 200ms for initial host & STUN candidates to be gathered
+          await new Promise(r => setTimeout(r, 200))
 
           roomChannel.send({
             type: 'broadcast',
             event: 'sdp_answer',
             payload: {
               answer: {
-                type: answer.type,
-                sdp: answer.sdp,
+                type: (pc.localDescription || answer).type,
+                sdp: (pc.localDescription || answer).sdp,
               },
               fromId: this.myProfile.id,
             },
@@ -611,6 +626,15 @@ export class StudyCamWebRTC {
       })
       .subscribe(status => {
         if (status === 'SUBSCRIBED') {
+          isRoomSubscribed = true
+          // Drain any candidates that were generated before room subscription completed
+          while (pendingOutgoingCandidates.length > 0) {
+            const cand = pendingOutgoingCandidates.shift()
+            if (cand) {
+              sendCandidateSafe(cand)
+            }
+          }
+
           if (isInitiator) {
             setTimeout(() => sendOffer(), 300)
             let retries = 0
