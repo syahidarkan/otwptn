@@ -3,50 +3,81 @@
 import { useEffect, useRef } from 'react'
 
 interface HoneyDripProps {
-  /** section separator mode (default) or fullscreen page transition */
   mode?: 'separator' | 'fullscreen'
   className?: string
-  /** height of the separator band in px (separator mode only) */
   height?: number
-  /** called when fullscreen animation completes */
   onComplete?: () => void
 }
 
-// Drip config: x position (%), width (%), max length (%), delay (s)
-const DRIPS = [
-  { x: 3,   w: 3.5, len: 55, delay: 0.0 },
-  { x: 11,  w: 2.5, len: 38, delay: 0.15 },
-  { x: 19,  w: 4.0, len: 70, delay: 0.05 },
-  { x: 29,  w: 2.8, len: 42, delay: 0.25 },
-  { x: 38,  w: 3.2, len: 60, delay: 0.1  },
-  { x: 47,  w: 4.5, len: 80, delay: 0.0  },
-  { x: 57,  w: 2.6, len: 35, delay: 0.3  },
-  { x: 65,  w: 3.8, len: 65, delay: 0.08 },
-  { x: 74,  w: 2.4, len: 48, delay: 0.2  },
-  { x: 82,  w: 3.6, len: 72, delay: 0.12 },
-  { x: 90,  w: 2.9, len: 40, delay: 0.18 },
-  { x: 96,  w: 3.0, len: 55, delay: 0.06 },
-]
+// Realistic honey drip shape: wide stem → neck → bulge → teardrop tip
+// All in a 1200×180 viewBox
+function honeyDripPath(cx: number, hw: number, len: number): string {
+  const nw = hw * 0.60   // neck half-width
+  const ny = len * 0.40  // neck y
+  const bw = hw * 0.82   // bulge half-width
+  const by = len * 0.72  // bulge y
 
-function dripPath(xPct: number, wPct: number, lenPct: number, totalH: number): string {
-  const x0 = xPct
-  const w = wPct
-  const h = lenPct
-  // SVG viewBox is 0 0 100 100 (percent-based coordinates)
-  // Drip shape: rectangle narrows to teardrop at bottom
-  const half = w / 2
-  const neckAt = h * 0.7   // where the drip starts narrowing
-  const tipW = half * 0.35 // width at the very tip
   return [
-    `M ${x0 - half} 0`,
-    `L ${x0 + half} 0`,
-    `L ${x0 + half} ${neckAt}`,
-    `Q ${x0 + half} ${h} ${x0 + tipW} ${h}`,
-    `Q ${x0} ${h + w * 0.6} ${x0 - tipW} ${h}`,
-    `Q ${x0 - half} ${h} ${x0 - half} ${neckAt}`,
-    `Z`,
+    `M ${cx - hw} 0`,
+    `C ${cx - hw} ${ny * 0.3}, ${cx - nw} ${ny * 0.8}, ${cx - nw} ${ny}`,
+    `C ${cx - nw} ${ny + (by - ny) * 0.5}, ${cx - bw} ${by - 8}, ${cx - bw} ${by}`,
+    `C ${cx - bw} ${len - (len - by) * 0.28}, ${cx - hw * 0.14} ${len - 5}, ${cx} ${len}`,
+    `C ${cx + hw * 0.14} ${len - 5}, ${cx + bw} ${len - (len - by) * 0.28}, ${cx + bw} ${by}`,
+    `C ${cx + bw} ${by - 8}, ${cx + nw} ${ny + (by - ny) * 0.5}, ${cx + nw} ${ny}`,
+    `C ${cx + nw} ${ny * 0.8}, ${cx + hw} ${ny * 0.3}, ${cx + hw} 0`,
+    'Z',
   ].join(' ')
 }
+
+// Separator mode drips (% coordinates, viewBox 0 0 100 100)
+const SEP_DRIPS = [
+  { x: 4,  w: 3.0, len: 48, delay: 0.00 },
+  { x: 12, w: 2.2, len: 32, delay: 0.15 },
+  { x: 21, w: 3.8, len: 62, delay: 0.05 },
+  { x: 30, w: 2.6, len: 38, delay: 0.25 },
+  { x: 39, w: 3.2, len: 55, delay: 0.10 },
+  { x: 48, w: 4.2, len: 72, delay: 0.00 },
+  { x: 58, w: 2.4, len: 30, delay: 0.30 },
+  { x: 67, w: 3.6, len: 60, delay: 0.08 },
+  { x: 76, w: 2.8, len: 42, delay: 0.20 },
+  { x: 84, w: 3.4, len: 65, delay: 0.12 },
+  { x: 92, w: 2.5, len: 36, delay: 0.18 },
+  { x: 97, w: 2.8, len: 50, delay: 0.06 },
+]
+
+function sepDripPath(cx: number, hw: number, len: number): string {
+  const nw = hw * 0.60
+  const ny = len * 0.40
+  const bw = hw * 0.82
+  const by = len * 0.72
+  return [
+    `M ${cx - hw} 0`,
+    `C ${cx - hw} ${ny * 0.3}, ${cx - nw} ${ny * 0.8}, ${cx - nw} ${ny}`,
+    `C ${cx - nw} ${ny + (by - ny) * 0.5}, ${cx - bw} ${by - 2}, ${cx - bw} ${by}`,
+    `C ${cx - bw} ${len - (len - by) * 0.28}, ${cx - hw * 0.14} ${len - 1}, ${cx} ${len}`,
+    `C ${cx + hw * 0.14} ${len - 1}, ${cx + bw} ${len - (len - by) * 0.28}, ${cx + bw} ${by}`,
+    `C ${cx + bw} ${by - 2}, ${cx + nw} ${ny + (by - ny) * 0.5}, ${cx + nw} ${ny}`,
+    `C ${cx + nw} ${ny * 0.8}, ${cx + hw} ${ny * 0.3}, ${cx + hw} 0`,
+    'Z',
+  ].join(' ')
+}
+
+// Fullscreen mode drip positions (1200×180 canvas)
+const FULL_DRIPS = [
+  { cx: 65,  hw: 32, len: 128 },
+  { cx: 165, hw: 20, len: 86  },
+  { cx: 258, hw: 40, len: 148 },
+  { cx: 365, hw: 26, len: 95  },
+  { cx: 460, hw: 36, len: 132 },
+  { cx: 558, hw: 18, len: 68  },
+  { cx: 645, hw: 46, len: 158 },
+  { cx: 755, hw: 24, len: 92  },
+  { cx: 848, hw: 38, len: 122 },
+  { cx: 942, hw: 17, len: 62  },
+  { cx: 1032,hw: 42, len: 142 },
+  { cx: 1125,hw: 23, len: 88  },
+  { cx: 1188,hw: 28, len: 110 },
+]
 
 export default function HoneyDrip({ mode = 'separator', className = '', height = 90, onComplete }: HoneyDripProps) {
   if (mode === 'fullscreen') {
@@ -60,17 +91,11 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
       aria-hidden="true"
     >
       <style>{`
-        @keyframes drip-down {
-          from { transform: scaleY(0); transform-origin: top center; opacity: 0.6; }
+        @keyframes sep-drip-down {
+          from { transform: scaleY(0); transform-origin: top center; opacity: 0.5; }
           to   { transform: scaleY(1); transform-origin: top center; opacity: 1; }
         }
-        @keyframes drop-fall {
-          0%   { transform: translateY(0) scale(1); opacity: 1; }
-          80%  { opacity: 0.9; }
-          100% { transform: translateY(28px) scale(0.6); opacity: 0; }
-        }
       `}</style>
-
       <svg
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
@@ -79,39 +104,30 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
         style={{ position: 'absolute', inset: 0, display: 'block' }}
       >
         <defs>
-          <linearGradient id="honey-top-grad" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id="sep-honey-top" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor="#d97706" />
+            <stop offset="50%"  stopColor="#f59e0b" />
+            <stop offset="100%" stopColor="#fbbf24" stopOpacity="0.6" />
+          </linearGradient>
+          <linearGradient id="sep-honey-drip" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%"   stopColor="#f59e0b" />
             <stop offset="60%"  stopColor="#fbbf24" />
-            <stop offset="100%" stopColor="#fcd34d" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#fde68a" stopOpacity="0.4" />
           </linearGradient>
-          <linearGradient id="honey-drip-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="#f59e0b" />
-            <stop offset="70%"  stopColor="#fbbf24" />
-            <stop offset="100%" stopColor="#fde68a" stopOpacity="0.3" />
-          </linearGradient>
-          <filter id="honey-blur">
-            <feGaussianBlur stdDeviation="0.3" />
+          <filter id="sep-blur">
+            <feGaussianBlur stdDeviation="0.25" />
           </filter>
         </defs>
-
-        {/* Top band */}
-        <rect x="0" y="0" width="100" height="14" fill="url(#honey-top-grad)" />
-
-        {/* Shine highlight */}
-        <rect x="0" y="0" width="100" height="2.5" fill="rgba(255,255,255,0.35)" />
-
-        {/* Drips */}
-        {DRIPS.map((drip, i) => (
-          <g key={i} style={{ animationDelay: `${drip.delay}s` }}>
-            <path
-              d={dripPath(drip.x, drip.w, drip.len, 100)}
-              fill="url(#honey-drip-grad)"
-              filter="url(#honey-blur)"
-              style={{
-                animation: `drip-down 1.2s cubic-bezier(0.25,0.46,0.45,0.94) ${drip.delay}s both`,
-              }}
-            />
-          </g>
+        <rect x="0" y="0" width="100" height="16" fill="url(#sep-honey-top)" />
+        <rect x="0" y="0" width="100" height="2.5" fill="rgba(255,255,255,0.3)" />
+        {SEP_DRIPS.map((drip, i) => (
+          <path
+            key={i}
+            d={sepDripPath(drip.x, drip.w, drip.len)}
+            fill="url(#sep-honey-drip)"
+            filter="url(#sep-blur)"
+            style={{ animation: `sep-drip-down 1.3s cubic-bezier(0.25,0.46,0.45,0.94) ${drip.delay}s both` }}
+          />
         ))}
       </svg>
     </div>
@@ -119,83 +135,85 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
 }
 
 /* ─── Fullscreen honey flood transition ─── */
-function HoneyFill({ onComplete }: { onComplete?: () => void }) {
+interface HoneyFillProps {
+  phase?: 'entering' | 'holding' | 'exiting'
+  onComplete?: () => void
+}
+
+export function HoneyFill({ phase = 'entering', onComplete }: HoneyFillProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    // Phase 1: flood in (~800ms), Phase 2: hold (~200ms), Phase 3: drain out (~500ms)
-    const id = setTimeout(() => {
-      onComplete?.()
-    }, 1500)
+    const id = setTimeout(() => onComplete?.(), 1500)
     return () => clearTimeout(id)
   }, [onComplete])
 
+  const isExiting = phase === 'exiting'
+  const bodyHeight = isExiting ? '0px' : '67vh'
+  const bodyTransition = `height ${isExiting ? '0.6s' : '0.9s'} cubic-bezier(0.76,0,0.24,1)`
+  const dripTop = isExiting ? '0px' : '67vh'
+  const dripTransition = `top ${isExiting ? '0.6s' : '0.9s'} cubic-bezier(0.76,0,0.24,1), opacity 0.12s`
+  const dripOpacity = isExiting ? 0 : 1
+
   return (
-    <div
-      ref={ref}
-      className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden"
-      aria-hidden="true"
-    >
-      <style>{`
-        @keyframes honey-flood-in {
-          0%   { clip-path: inset(0 0 100% 0); }
-          100% { clip-path: inset(0 0 0% 0); }
-        }
-        @keyframes honey-flood-out {
-          0%   { clip-path: inset(0 0 0% 0); opacity: 1; }
-          100% { clip-path: inset(100% 0 0% 0); opacity: 0; }
-        }
-        .honey-flood-layer {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(180deg, #f59e0b 0%, #fbbf24 40%, #fcd34d 70%, #fde68a 100%);
-          animation: honey-flood-in 0.65s cubic-bezier(0.76,0,0.24,1) forwards,
-                     honey-flood-out 0.55s cubic-bezier(0.76,0,0.24,1) 1.0s forwards;
-        }
-        .honey-flood-drips {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          height: 120px;
-          background: linear-gradient(180deg, #fde68a 0%, #fde68a 30%, transparent 100%);
-          animation: honey-flood-in 0.65s cubic-bezier(0.76,0,0.24,1) 0.05s forwards,
-                     honey-flood-out 0.55s cubic-bezier(0.76,0,0.24,1) 1.0s forwards;
-        }
-      `}</style>
-      <div className="honey-flood-layer" />
-      {/* SVG drips along the bottom leading edge */}
-      <svg
-        viewBox="0 0 1200 80"
-        preserveAspectRatio="xMidYMid slice"
-        width="100%"
-        height="80"
+    <div ref={ref} className="pointer-events-none select-none" aria-hidden="true">
+      {/* Honey body */}
+      <div
         style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          animation: 'honey-flood-in 0.65s cubic-bezier(0.76,0,0.24,1) forwards, honey-flood-out 0.55s cubic-bezier(0.76,0,0.24,1) 1.0s forwards',
+          position: 'fixed', top: 0, left: 0, right: 0,
+          height: bodyHeight,
+          transition: bodyTransition,
+          background: 'linear-gradient(180deg, #92400e 0%, #d97706 15%, #f59e0b 45%, #fbbf24 72%, #fcd34d 90%, #fde68a 100%)',
+          zIndex: 999997,
+          overflow: 'hidden',
         }}
       >
-        <defs>
-          <linearGradient id="hff-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#fde68a" />
-            <stop offset="100%" stopColor="#fde68a" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        {[40,110,180,260,340,410,490,560,640,720,800,880,950,1030,1110,1180].map((x, i) => {
-          const h = 20 + (i % 5) * 12
-          const w = 14 + (i % 3) * 6
-          return (
-            <ellipse key={i} cx={x} cy={0} rx={w/2} ry={h}
-              fill="#fde68a" fillOpacity="0.9"
+        {/* Inner shine strip */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 6, background: 'rgba(255,255,255,0.18)' }} />
+      </div>
+
+      {/* Drip edge — follows honey body bottom */}
+      <div
+        style={{
+          position: 'fixed',
+          top: dripTop,
+          left: 0, right: 0,
+          height: 180,
+          transition: dripTransition,
+          opacity: dripOpacity,
+          zIndex: 999997,
+          pointerEvents: 'none',
+        }}
+      >
+        <svg
+          viewBox="0 0 1200 180"
+          preserveAspectRatio="xMidYMin meet"
+          width="100%" height="180"
+          style={{ display: 'block' }}
+        >
+          <defs>
+            <linearGradient id="hff-drip-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor="#fcd34d" />
+              <stop offset="50%"  stopColor="#fbbf24" />
+              <stop offset="85%"  stopColor="#f59e0b" />
+              <stop offset="100%" stopColor="#fde68a" stopOpacity="0.5" />
+            </linearGradient>
+            <filter id="hff-blur">
+              <feGaussianBlur stdDeviation="0.6" />
+            </filter>
+          </defs>
+          {/* Fill top gap between drips */}
+          <rect x="0" y="0" width="1200" height="12" fill="#fcd34d" />
+          {FULL_DRIPS.map((drip, i) => (
+            <path
+              key={i}
+              d={honeyDripPath(drip.cx, drip.hw, drip.len)}
+              fill="url(#hff-drip-grad)"
+              filter="url(#hff-blur)"
             />
-          )
-        })}
-      </svg>
+          ))}
+        </svg>
+      </div>
     </div>
   )
 }

@@ -2,17 +2,22 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import HoneyDrip from '@/components/ui/HoneyDrip'
+import { HoneyFill } from '@/components/ui/HoneyDrip'
+
+type HoneyPhase = 'idle' | 'entering' | 'holding' | 'exiting'
 
 export default function GlobalPageLoader() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [showHoney, setShowHoney] = useState(false)
+  const [honeyPhase, setHoneyPhase] = useState<HoneyPhase>('idle')
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const honeyTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const honeyPhaseRef = useRef<HoneyPhase>('idle')
+  honeyPhaseRef.current = honeyPhase
 
-  // Listen to path or query param changes to finish loading
+  // Navigation complete: pathname/params changed
   useEffect(() => {
     if (loading) {
       setProgress(100)
@@ -24,47 +29,54 @@ export default function GlobalPageLoader() {
     }
   }, [pathname, searchParams])
 
+  // When navigation completes, start exiting honey
+  useEffect(() => {
+    const phase = honeyPhaseRef.current
+    if (phase === 'entering' || phase === 'holding') {
+      if (honeyTimerRef.current) clearTimeout(honeyTimerRef.current)
+      setHoneyPhase('exiting')
+      honeyTimerRef.current = setTimeout(() => {
+        setHoneyPhase('idle')
+      }, 700)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, searchParams])
+
   // Listen to link clicks globally
   useEffect(() => {
     function handleAnchorClick(e: MouseEvent) {
       const target = (e.target as HTMLElement).closest('a')
       if (!target) return
-
       const href = target.getAttribute('href')
       if (!href) return
-
-      // Ignore hash links, external links, downloads, mailto, tel, target="_blank"
       if (
         href.startsWith('#') ||
         href.startsWith('mailto:') ||
         href.startsWith('tel:') ||
         target.getAttribute('target') === '_blank' ||
         target.getAttribute('download') !== null
-      ) {
-        return
-      }
+      ) return
 
-      // Check if internal link
-      const isInternal =
-        href.startsWith('/') ||
-        href.startsWith(window.location.origin)
-
+      const isInternal = href.startsWith('/') || href.startsWith(window.location.origin)
       if (!isInternal) return
 
-      // Normalize target path
       try {
         const url = new URL(href, window.location.origin)
-        const currentUrl = new URL(window.location.href)
+        const cur = new URL(window.location.href)
+        if (url.pathname === cur.pathname && url.search === cur.search) return
 
-        // If clicking current page and same query, skip
-        if (url.pathname === currentUrl.pathname && url.search === currentUrl.search) {
-          return
-        }
-
-        // Start smooth top bar progress + honey animation
+        // Start loading + honey entering phase
         setLoading(true)
         setProgress(28)
-        setShowHoney(true)
+
+        if (honeyPhaseRef.current === 'idle') {
+          setHoneyPhase('entering')
+          if (honeyTimerRef.current) clearTimeout(honeyTimerRef.current)
+          // After 900ms still loading → switch to holding
+          honeyTimerRef.current = setTimeout(() => {
+            setHoneyPhase(prev => prev === 'entering' ? 'holding' : prev)
+          }, 900)
+        }
 
         if (timerRef.current) clearInterval(timerRef.current)
         timerRef.current = setInterval(() => {
@@ -77,7 +89,7 @@ export default function GlobalPageLoader() {
           })
         }, 110)
       } catch {
-        // invalid URL, ignore
+        // invalid URL
       }
     }
 
@@ -85,40 +97,41 @@ export default function GlobalPageLoader() {
     return () => {
       document.removeEventListener('click', handleAnchorClick, true)
       if (timerRef.current) clearInterval(timerRef.current)
+      if (honeyTimerRef.current) clearTimeout(honeyTimerRef.current)
     }
   }, [])
-
-  if (!loading && progress === 0 && !showHoney) return null
 
   return (
     <>
       {/* Honey drip fullscreen transition */}
-      {showHoney && (
-        <HoneyDrip
-          mode="fullscreen"
-          onComplete={() => setShowHoney(false)}
+      {honeyPhase !== 'idle' && (
+        <HoneyFill
+          phase={honeyPhase}
+          onComplete={() => {
+            if (honeyPhaseRef.current === 'exiting') setHoneyPhase('idle')
+          }}
         />
       )}
 
       {/* Amber progress bar */}
-      <div
-        aria-hidden="true"
-        className="fixed top-0 left-0 right-0 z-[999999] pointer-events-none transition-opacity duration-300"
-        style={{ opacity: loading || progress > 0 ? 1 : 0 }}
-      >
+      {(loading || progress > 0) && (
         <div
-          className="relative h-[3px] transition-all ease-out"
-          style={{
-            width: `${progress}%`,
-            transitionDuration: progress === 100 ? '250ms' : '280ms',
-            background: 'linear-gradient(90deg, #ffd400 0%, #f59e0b 60%, #ffd400 100%)',
-            boxShadow: '0 0 12px rgba(255, 212, 0, 0.9), 0 0 4px rgba(245, 158, 11, 1)',
-          }}
+          aria-hidden="true"
+          className="fixed top-0 left-0 right-0 z-[999999] pointer-events-none"
         >
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-[0_0_10px_#ffd400,0_0_5px_#f59e0b]" />
-          <div className="absolute inset-x-0 top-full h-1.5 bg-gradient-to-b from-amber-400/30 to-transparent blur-xs pointer-events-none" />
+          <div
+            className="relative h-[3px] transition-all ease-out"
+            style={{
+              width: `${progress}%`,
+              transitionDuration: progress === 100 ? '250ms' : '280ms',
+              background: 'linear-gradient(90deg, #ffd400 0%, #f59e0b 60%, #ffd400 100%)',
+              boxShadow: '0 0 12px rgba(255,212,0,0.9), 0 0 4px rgba(245,158,11,1)',
+            }}
+          >
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-[0_0_10px_#ffd400,0_0_5px_#f59e0b]" />
+          </div>
         </div>
-      </div>
+      )}
     </>
   )
 }
