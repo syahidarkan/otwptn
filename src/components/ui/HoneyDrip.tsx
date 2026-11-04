@@ -89,11 +89,11 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
 
 interface HoneyFillProps { phase: 'entering' | 'holding' | 'exiting' }
 
-// Luma key constants — tune if honey edges look rough
-const LK_B_THRESHOLD = 200  // blue channel above this = white area candidate
-const LK_R_MIN = 225        // red also high = white (not just blue noise)
-const LK_G_MIN = 215        // green also high = white
-const LK_FEATHER = 55       // blue range over which alpha fades (B_THRESHOLD → B_THRESHOLD+FEATHER)
+// Luma key constants — honey max blue is ~130, white bg blue is 255
+const LK_B_THRESHOLD = 150  // blue above this = white candidate
+const LK_R_MIN = 190        // red also high = white (not honey)
+const LK_G_MIN = 180        // green also high = white
+const LK_FEATHER = 105      // feather range for smooth edges
 
 // Canvas draw resolution — lower = faster luma key, higher = sharper honey edges
 const CANVAS_W = 480
@@ -110,7 +110,7 @@ export function HoneyFill({ phase }: HoneyFillProps) {
       const canvas = canvasRef.current
       const vid = videoRef.current
       if (canvas && vid && vid.readyState >= 2) {
-        const ctx = canvas.getContext('2d')
+        const ctx = canvas.getContext('2d', { willReadFrequently: true })
         if (ctx) {
           ctx.clearRect(0, 0, CANVAS_W, CANVAS_H)
           ctx.drawImage(vid, 0, 0, CANVAS_W, CANVAS_H)
