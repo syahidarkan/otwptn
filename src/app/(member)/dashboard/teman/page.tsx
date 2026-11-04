@@ -363,12 +363,11 @@ export default function CariTemanBelajarPage() {
         remoteStreamRef.current = remoteStream
         setPhase('connected')
 
-        // 1. Video playback with immediate fallback so screen NEVER stays black
+        // 1. Video playback with fresh MediaStream so Safari binds hardware video pipeline
         const videoEl = remoteVideoRef.current
         if (videoEl) {
-          if (videoEl.srcObject !== remoteStream) {
-            videoEl.srcObject = remoteStream
-          }
+          videoEl.srcObject = new MediaStream(remoteStream.getTracks())
+          videoEl.muted = false
           videoEl.play().catch(() => {
             console.warn('[StudyCam] Unmuted autoplay blocked by browser policy. Fallback to muted video + tap to unmute.')
             videoEl.muted = true
@@ -380,12 +379,13 @@ export default function CariTemanBelajarPage() {
         // 2. Audio playback via dedicated element
         const audioEl = remoteAudioRef.current
         if (audioEl) {
-          if (audioEl.srcObject !== remoteStream) {
-            audioEl.srcObject = remoteStream
-          }
+          audioEl.srcObject = remoteStream
           audioEl.play().catch(() => {
             setIsAudioBlocked(true)
           })
+        }
+        if (remoteStream.getVideoTracks().length > 0) {
+          setHasRemoteVideo(true)
         }
       },
       onPeerLeft: () => {
@@ -424,16 +424,23 @@ export default function CariTemanBelajarPage() {
       const audioEl = remoteAudioRef.current
 
       if (s) {
-        if (videoEl && videoEl.srcObject !== s) {
+        const vTracks = s.getVideoTracks()
+        if (vTracks.length > 0) {
+          setHasRemoteVideo(true)
+          if (videoEl && (videoEl.videoWidth === 0 || !videoEl.srcObject)) {
+            videoEl.srcObject = new MediaStream(s.getTracks())
+            videoEl.play().catch(() => {})
+          }
+        } else if (videoEl && !videoEl.srcObject) {
           videoEl.srcObject = s
           videoEl.play().catch(() => {})
         }
+
         if (audioEl && audioEl.srcObject !== s) {
           audioEl.srcObject = s
           audioEl.play().catch(() => {})
         }
 
-        const vTracks = s.getVideoTracks()
         if (vTracks.length > 0) {
           const vt = vTracks[0]
           if (vt.readyState === 'live' && !vt.muted) {
@@ -441,7 +448,10 @@ export default function CariTemanBelajarPage() {
           }
           vt.onunmute = () => {
             setHasRemoteVideo(true)
-            videoEl?.play().catch(() => {})
+            if (videoEl) {
+              videoEl.srcObject = new MediaStream(s.getTracks())
+              videoEl.play().catch(() => {})
+            }
           }
         }
       }

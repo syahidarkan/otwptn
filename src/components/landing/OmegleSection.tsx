@@ -99,16 +99,23 @@ export default function OmegleSection() {
       const aEl = remoteAudioRef.current
 
       if (s) {
-        if (vEl && vEl.srcObject !== s) {
+        const vTracks = s.getVideoTracks()
+        if (vTracks.length > 0) {
+          setHasRemoteVideo(true)
+          if (vEl && (vEl.videoWidth === 0 || !vEl.srcObject)) {
+            vEl.srcObject = new MediaStream(s.getTracks())
+            vEl.play().catch(() => {})
+          }
+        } else if (vEl && !vEl.srcObject) {
           vEl.srcObject = s
           vEl.play().catch(() => {})
         }
+
         if (aEl && aEl.srcObject !== s) {
           aEl.srcObject = s
           aEl.play().catch(() => {})
         }
 
-        const vTracks = s.getVideoTracks()
         if (vTracks.length > 0) {
           const vt = vTracks[0]
           if (vt.readyState === 'live' && !vt.muted) {
@@ -116,7 +123,10 @@ export default function OmegleSection() {
           }
           vt.onunmute = () => {
             setHasRemoteVideo(true)
-            vEl?.play().catch(() => {})
+            if (vEl) {
+              vEl.srcObject = new MediaStream(s.getTracks())
+              vEl.play().catch(() => {})
+            }
           }
         }
       }
@@ -173,9 +183,8 @@ export default function OmegleSection() {
         remoteStreamRef.current = remoteStream
         const vEl = remoteVideoRef.current
         if (vEl) {
-          if (vEl.srcObject !== remoteStream) {
-            vEl.srcObject = remoteStream
-          }
+          // Re-wrap in fresh MediaStream so Safari rebuilds media pipeline for both audio + video
+          vEl.srcObject = new MediaStream(remoteStream.getTracks())
           vEl.muted = false
           vEl.play().catch(() => {
             // Autoplay blocked unmuted video, mute & retry so visuals render immediately
@@ -186,9 +195,7 @@ export default function OmegleSection() {
         }
         const aEl = remoteAudioRef.current
         if (aEl) {
-          if (aEl.srcObject !== remoteStream) {
-            aEl.srcObject = remoteStream
-          }
+          aEl.srcObject = remoteStream
           aEl.play().catch(() => {
             setIsAudioBlocked(true)
           })

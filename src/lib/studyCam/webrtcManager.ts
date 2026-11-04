@@ -17,7 +17,7 @@ export interface WebRTCCallbacks {
 }
 
 export const ICE_SERVERS: RTCIceServer[] = [
-  // Google Global STUN servers (IPv4 + IPv6 worldwide coverage)
+  // High-reliability Google Global STUN servers (IPv4 + IPv6 worldwide)
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'stun:stun1.l.google.com:19302' },
   { urls: 'stun:stun2.l.google.com:19302' },
@@ -27,31 +27,6 @@ export const ICE_SERVERS: RTCIceServer[] = [
   { urls: 'stun:stun.cloudflare.com:3478' },
   // Global Twilio STUN
   { urls: 'stun:global.stun.twilio.com:3478' },
-  // Mozilla Global STUN
-  { urls: 'stun:stun.services.mozilla.com:3478' },
-  // OpenRelay Public STUN
-  { urls: 'stun:openrelay.metered.ca:80' },
-  // OpenRelay Free Global TURN (UDP + TCP on 80 & 443 for bypassing strict firewalls, Windows Defender, & Symmetric NAT)
-  {
-    urls: 'turn:openrelay.metered.ca:80',
-    username: 'openrelayproject',
-    credential: 'openrelayproject',
-  },
-  {
-    urls: 'turn:openrelay.metered.ca:443',
-    username: 'openrelayproject',
-    credential: 'openrelayproject',
-  },
-  {
-    urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-    username: 'openrelayproject',
-    credential: 'openrelayproject',
-  },
-  {
-    urls: 'turn:openrelay.metered.ca:80?transport=tcp',
-    username: 'openrelayproject',
-    credential: 'openrelayproject',
-  },
 ]
 
 type MatchmakingState = 'idle' | 'searching' | 'proposing' | 'matched'
@@ -367,11 +342,10 @@ export class StudyCamWebRTC {
       this.disconnectGraceTimer = null
     }
 
-    // Setup RTCPeerConnection with global STUN + TURN servers
+    // Setup RTCPeerConnection with high-speed global STUN
     const pc = new RTCPeerConnection({
       iceServers: ICE_SERVERS,
       bundlePolicy: 'max-bundle',
-      iceCandidatePoolSize: 10,
       rtcpMuxPolicy: 'require',
     })
     this.pc = pc
@@ -417,11 +391,6 @@ export class StudyCamWebRTC {
         if (!this.remoteStream.getTracks().some(t => t.id === event.track.id)) {
           this.remoteStream.addTrack(event.track)
         }
-        event.track.onunmute = () => {
-          if (this.remoteStream) {
-            this.callbacks.onRemoteStream(this.remoteStream)
-          }
-        }
       }
 
       if (event.streams && event.streams[0]) {
@@ -432,7 +401,18 @@ export class StudyCamWebRTC {
         })
       }
 
-      this.callbacks.onRemoteStream(this.remoteStream)
+      // Re-wrap into fresh MediaStream so Safari destroys audio-only pipeline and binds video decoder
+      const streamToDeliver = new MediaStream(this.remoteStream.getTracks())
+      this.callbacks.onRemoteStream(streamToDeliver)
+
+      if (event.track) {
+        event.track.onunmute = () => {
+          if (this.remoteStream) {
+            const fresh = new MediaStream(this.remoteStream.getTracks())
+            this.callbacks.onRemoteStream(fresh)
+          }
+        }
+      }
     }
 
     // ICE connection state listener with auto-restart
@@ -507,7 +487,7 @@ export class StudyCamWebRTC {
     const drainCandidateQueue = async () => {
       while (this.candidateQueue.length > 0) {
         const candidate = this.candidateQueue.shift()
-        if (candidate) {
+        if (candidate && candidate.candidate) {
           try {
             await pc.addIceCandidate(new RTCIceCandidate(candidate))
           } catch (err) {
@@ -614,7 +594,7 @@ export class StudyCamWebRTC {
       })
       .on('broadcast', { event: 'ice_candidate' }, async ({ payload }) => {
         if (payload.fromId === this.myProfile.id) return
-        if (!payload.candidate) return
+        if (!payload.candidate || !payload.candidate.candidate) return
         if (!this.isRemoteDescriptionSet) {
           this.candidateQueue.push(payload.candidate)
         } else {
