@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 import {
   GraduationCap,
   Eraser,
@@ -86,8 +87,9 @@ export default function BenerinKalimatGame({ onExit }: Props) {
 
   if (!currentQ && !isGameOver) {
     return (
-      <div className="w-full max-w-xl mx-auto rounded-3xl bg-[#10141e] p-8 text-center text-white">
-        <p className="text-sm font-semibold">Memuat soal Arena Kuis PBM...</p>
+      <div className="w-full max-w-2xl mx-auto rounded-3xl backdrop-blur-2xl bg-white/85 border border-white/90 p-10 text-center shadow-[0_12px_40px_rgba(0,0,0,0.06)] space-y-3">
+        <div className="w-8 h-8 border-3 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto" />
+        <p className="text-sm font-bold text-gray-700">Memuat bank soal Arena PBM...</p>
       </div>
     )
   }
@@ -103,20 +105,20 @@ export default function BenerinKalimatGame({ onExit }: Props) {
         }))
       }
       return [
-        { text: 'Ganti jadi "amat"', benar: false },
-        { text: 'Ganti jadi "banget"', benar: false },
-        { text: 'Biarkan saja', benar: false },
         { text: 'Hapus kata ini', benar: true, isDelete: true },
+        { text: 'Ganti dengan kata lain', benar: false },
+        { text: 'Biarkan tetap ada', benar: false },
       ]
     }
 
-    // tipe === 'kalimat_ganti' (Gambar 4 style)
-    const kunci = q.kunci
-    const kataSalah = q.kata_salah || ''
+    if (q.opsi_jawaban && q.opsi_jawaban.length > 0) {
+      return q.opsi_jawaban.map(o => ({ text: o.text, benar: o.benar }))
+    }
 
-    // Generate clean plausible distractors
-    const joinedDistractor = kataSalah.replace(/-/g, '').replace(/\s+/g, '')
-    const separatedDistractor = kataSalah.replace(/-/g, ' ')
+    const kunci = q.kunci || 'benar'
+    const kataSalah = q.kata_salah || 'salah'
+    const joinedDistractor = kunci.replace(/\s+/g, '')
+    const separatedDistractor = kunci.split('').join(' ')
 
     const distractor2 =
       joinedDistractor.toLowerCase() !== kunci.toLowerCase()
@@ -129,7 +131,6 @@ export default function BenerinKalimatGame({ onExit }: Props) {
       { text: kataSalah, benar: false },
     ]
 
-    // Distinct and deterministic shuffle per question id
     const unique = options.filter(
       (opt, idx, self) => idx === self.findIndex(o => o.text.toLowerCase() === opt.text.toLowerCase())
     )
@@ -175,7 +176,6 @@ export default function BenerinKalimatGame({ onExit }: Props) {
     setIsGameOver(false)
   }
 
-  // Sentence with highlighted target word
   const renderSentenceWithHighlight = (kalimat: string, targetWord?: string) => {
     if (!targetWord || !kalimat.toLowerCase().includes(targetWord.toLowerCase())) {
       return <span>{kalimat}</span>
@@ -190,7 +190,7 @@ export default function BenerinKalimatGame({ onExit }: Props) {
           regex.test(part) ? (
             <span
               key={idx}
-              className="bg-amber-100 text-amber-900 px-2 py-0.5 rounded-md font-bold mx-0.5"
+              className="bg-amber-300 text-amber-950 px-2 py-0.5 rounded-lg font-black mx-0.5 shadow-xs"
             >
               {part}
             </span>
@@ -202,7 +202,6 @@ export default function BenerinKalimatGame({ onExit }: Props) {
     )
   }
 
-  // Pembahasan sentence with red strikethrough and corrected form
   const renderCorrectionSentences = (q: PbmQuestion) => {
     const target = q.kata_berlebihan || q.kata_salah || ''
     const kalimat = q.kalimat
@@ -219,7 +218,7 @@ export default function BenerinKalimatGame({ onExit }: Props) {
 
     return (
       <div className="space-y-2 text-xs sm:text-sm">
-        <p className="leading-relaxed text-slate-800">
+        <p className="leading-relaxed text-gray-800">
           {parts.map((part, idx) =>
             regex.test(part) ? (
               <del key={idx} className="line-through text-rose-500 font-bold decoration-rose-500 decoration-2 px-0.5">
@@ -232,50 +231,57 @@ export default function BenerinKalimatGame({ onExit }: Props) {
         </p>
 
         <div className="flex items-center gap-2 pt-1 text-emerald-600 font-bold">
-          <ArrowDown size={17} className="stroke-[2.5]" />
-          <p className="text-slate-950 font-bold text-xs sm:text-sm">{corrected}</p>
+          <ArrowDown size={16} className="stroke-[2.5]" />
+          <p className="text-gray-950 font-black text-xs sm:text-sm">{corrected}</p>
         </div>
       </div>
     )
   }
 
-  // Final summary screen
   if (isGameOver) {
     return (
-      <div className="w-full max-w-xl mx-auto rounded-3xl bg-[#10141e] p-6 sm:p-8 text-center text-white shadow-2xl border border-slate-800 space-y-6">
-        <div className="w-16 h-16 rounded-2xl bg-amber-400 text-amber-950 flex items-center justify-center mx-auto shadow-lg">
-          <Trophy size={32} />
+      <div className="w-full max-w-xl mx-auto rounded-3xl backdrop-blur-2xl bg-white/90 border border-white/90 p-8 text-center text-gray-950 shadow-[0_16px_50px_rgba(0,0,0,0.08)] space-y-6">
+        <div className="w-20 h-20 rounded-3xl bg-amber-400/20 border border-amber-400/40 p-2 flex items-center justify-center mx-auto shadow-md">
+          <Image
+            src="/mascot/trophy-graduate.png"
+            alt="Mascot Trophy"
+            width={60}
+            height={60}
+            className="object-contain drop-shadow"
+          />
         </div>
         <div>
-          <h3 className="text-xl font-black text-amber-400">Arena Kuis PBM Selesai!</h3>
-          <p className="text-xs text-slate-400 mt-1">Kamu berhasil menuntaskan 8 soal latihan PBM.</p>
+          <h3 className="text-2xl font-black text-gray-950 tracking-tight">Arena Kuis PBM Selesai!</h3>
+          <p className="text-xs text-gray-600 font-semibold mt-1">
+            Kamu berhasil menyelesaikan sesi latihan perbaikan kalimat PBM.
+          </p>
         </div>
 
-        <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex justify-around">
+        <div className="p-5 rounded-2xl bg-amber-50/80 border border-amber-300 flex items-center justify-around">
           <div>
-            <p className="text-[11px] uppercase tracking-wider text-slate-400">Total Skor</p>
-            <p className="text-2xl font-black text-amber-400 mt-0.5">{score}</p>
+            <span className="text-[11px] font-bold text-amber-800 uppercase block">Total Skor</span>
+            <span className="text-2xl font-black text-gray-950 font-mono">{score}</span>
           </div>
-          <div className="w-px bg-slate-800" />
+          <div className="h-8 w-px bg-amber-200" />
           <div>
-            <p className="text-[11px] uppercase tracking-wider text-slate-400">XP Diperoleh</p>
-            <p className="text-2xl font-black text-emerald-400 mt-0.5">+200 XP</p>
+            <span className="text-[11px] font-bold text-amber-800 uppercase block">Bonus XP</span>
+            <span className="text-2xl font-black text-amber-600 font-mono">+25 XP</span>
           </div>
         </div>
 
         <div className="flex items-center justify-center gap-3 pt-2">
           <button
             onClick={handleRestart}
-            className="px-6 py-3 rounded-full bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs transition-all flex items-center gap-2 cursor-pointer shadow-md"
+            className="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-gray-950 font-black text-xs flex items-center gap-2 shadow-md transition-all cursor-pointer"
           >
             <RotateCcw size={15} /> Main Lagi
           </button>
           {onExit && (
             <button
               onClick={onExit}
-              className="px-6 py-3 rounded-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-all cursor-pointer"
+              className="px-6 py-3 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs transition-all cursor-pointer"
             >
-              Keluar ke Menu
+              Kembali
             </button>
           )}
         </div>
@@ -283,99 +289,108 @@ export default function BenerinKalimatGame({ onExit }: Props) {
     )
   }
 
-  const targetWord = currentQ.kata_berlebihan || currentQ.kata_salah
-  const categoryLabel = `PBM • ${(currentQ.subtopik || currentQ.subjenis || 'Kalimat').toUpperCase()}`
-  const options = getOptions(currentQ)
   const isKalimatHapus = currentQ.tipe === 'kalimat_hapus'
+  const targetWord = currentQ.kata_berlebihan || currentQ.kata_salah || ''
+  const options = getOptions(currentQ)
+  const categoryLabel = currentQ.subtopik || (isKalimatHapus ? 'Kalimat Berlebihan' : 'Ejaan & Tata Bahasa')
 
   return (
-    <div className="w-full max-w-xl mx-auto rounded-3xl bg-[#10141e] p-4 sm:p-6 text-white shadow-2xl border border-slate-800/80 transition-all font-sans">
-      {/* Top Header Card (Gambar 3, 4, 5 style) */}
-      <div className="bg-[#1a202e] border border-slate-700/60 p-3.5 rounded-2xl flex items-center gap-3.5 mb-5 shadow-inner">
-        <div className="w-10 h-10 rounded-xl bg-amber-400 text-amber-950 flex items-center justify-center flex-shrink-0 shadow-sm">
-          <GraduationCap size={22} strokeWidth={2.4} />
+    <div className="w-full max-w-2xl mx-auto rounded-3xl backdrop-blur-2xl bg-white/90 border border-white/90 shadow-[0_12px_40px_rgba(0,0,0,0.06)] p-6 sm:p-8 space-y-6">
+      {/* Header with Otbee Mascot Badge */}
+      <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-amber-400/20 border border-amber-400/30 p-1 flex items-center justify-center flex-shrink-0">
+            <Image
+              src="/mascot/grading-paper.png"
+              alt="Otbee Grading"
+              width={34}
+              height={34}
+              className="object-contain"
+            />
+          </div>
+          <div>
+            <h3 className="text-sm sm:text-base font-black text-gray-950 tracking-tight">
+              {showPembahasan ? 'Layar Pembahasan Solusi' : 'Arena Kuis PBM (Benerin Kalimat)'}
+            </h3>
+            <p className="text-[11px] text-gray-500 font-semibold truncate">
+              {showPembahasan
+                ? 'Analisis kaidah ejaan & alasan pembetulan'
+                : 'Pilih perbaikan kalimat paling efektif sesuai PUEBI'}
+            </p>
+          </div>
         </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-black text-white tracking-tight leading-tight">
-            {showPembahasan ? 'Layar pembahasan' : 'Arena Kuis PPU & PBM'}
-          </h3>
-          <p className="text-[11px] text-slate-400 font-medium truncate mt-0.5">
-            {showPembahasan
-              ? 'Setelah user menjawab soal'
-              : currentQ.subtopik
-              ? `Usulan untuk ${currentQ.subtopik.toLowerCase()}`
-              : 'Perbaikan ejaan & tata bahasa PBM'}
-          </p>
+
+        <div className="flex items-center gap-2">
+          {!showPembahasan && (
+            <span className="px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 font-mono font-black text-xs flex items-center gap-1.5 shadow-2xs">
+              <Clock size={13} className="text-amber-600" />
+              <span>{timeLeft}s</span>
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Progress & Timer Bar (Gambar 3 & 4 style) */}
+      {/* Progress Bar */}
       {!showPembahasan && (
-        <div className="mb-5 space-y-2">
-          <div className="flex items-center justify-between text-xs font-bold">
-            <span className="text-slate-300">
-              Soal <strong className="text-amber-400 font-black">#{currentIdx + 1}</strong> dari {questions.length}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs font-bold text-gray-500">
+            <span>
+              Soal <strong className="text-gray-950 font-black">#{currentIdx + 1}</strong> dari {questions.length}
             </span>
-            <span className="px-2.5 py-0.5 rounded-full bg-slate-900 border border-slate-700 text-amber-300 text-[11px] font-black flex items-center gap-1 shadow-2xs">
-              <Clock size={12} /> {timeLeft}s
-            </span>
+            <span className="font-mono text-gray-700 font-bold">{score} Poin</span>
           </div>
-
-          {/* Yellow Progress Bar */}
-          <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full transition-all duration-300"
-              style={{ width: `${((currentIdx + 1) / questions.length) * 100}%` }}
+          <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full"
+              animate={{ width: `${((currentIdx + 1) / questions.length) * 100}%` }}
+              transition={{ duration: 0.3 }}
             />
           </div>
         </div>
       )}
 
-      {/* Main White Content Card */}
+      {/* Content Question / Solution Card */}
       <AnimatePresence mode="wait">
         {!showPembahasan ? (
-          /* Question Card (Gambar 3 & 4) */
           <motion.div
             key={`q-${currentIdx}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="bg-white rounded-3xl p-5 sm:p-7 text-slate-900 shadow-xl space-y-5 border border-slate-100"
+            className="space-y-5"
           >
-            {/* Category Tag Badge */}
-            <span className="bg-amber-100/90 text-amber-900 font-extrabold text-[10.5px] px-3 py-1 rounded-full uppercase inline-block tracking-wide">
+            <div className="inline-block px-3 py-1 rounded-full bg-amber-100/80 text-amber-900 font-black text-[10.5px] uppercase tracking-wider border border-amber-200">
               {categoryLabel}
-            </span>
+            </div>
 
-            {/* Instruction Prompt */}
-            <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+            <p className="text-xs sm:text-sm text-gray-600 font-semibold leading-relaxed">
               {isKalimatHapus
-                ? 'Kalimat ini punya satu kata yang berlebihan. Pilih kata itu, lalu tentukan perbaikannya:'
-                : 'Perbaiki kata yang salah pada kalimat:'}
+                ? 'Kalimat di bawah ini memiliki kata yang tidak efektif / berlebihan. Tentukan langkah perbaikannya:'
+                : 'Perbaiki kata yang salah eja atau tidak baku pada kalimat di bawah:'}
             </p>
 
-            {/* Sentence with Highlighted Target */}
-            <h4 className="text-base sm:text-lg font-bold text-slate-950 leading-relaxed">
-              {renderSentenceWithHighlight(currentQ.kalimat, targetWord)}
-            </h4>
+            <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/50 border border-amber-200/80">
+              <h4 className="text-base sm:text-lg font-black text-gray-950 leading-relaxed">
+                {renderSentenceWithHighlight(currentQ.kalimat, targetWord)}
+              </h4>
+            </div>
 
             {/* Options layout */}
             {isKalimatHapus ? (
-              /* 2x2 Grid with Dashed Gold Card (Gambar 3) */
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                 {options.map((opt, oIdx) => {
                   if (opt.isDelete) {
                     return (
                       <button
                         key={oIdx}
                         onClick={() => handleSelectOption(opt)}
-                        className="col-span-1 border-2 border-dashed border-amber-400 bg-amber-50/70 hover:bg-amber-100 text-amber-950 rounded-2xl p-4 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 group shadow-xs hover:scale-[1.02]"
+                        className="col-span-1 border-2 border-dashed border-amber-400 bg-amber-50/80 hover:bg-amber-100 text-amber-950 rounded-2xl p-4 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 group shadow-xs hover:scale-[1.02]"
                       >
-                        <Eraser size={18} className="text-amber-700 group-hover:rotate-12 transition-transform" />
+                        <Eraser size={20} className="text-amber-700 group-hover:rotate-12 transition-transform" />
                         <span className="text-xs sm:text-sm font-black leading-tight">Hapus kata ini</span>
-                        <span className="text-[10px] text-amber-800/80 font-medium leading-tight">
-                          kalimat sudah benar tanpa kata ini
+                        <span className="text-[10px] text-amber-800 font-semibold leading-tight">
+                          Kalimat sudah padu & efektif tanpa kata tersebut
                         </span>
                       </button>
                     )
@@ -385,7 +400,7 @@ export default function BenerinKalimatGame({ onExit }: Props) {
                     <button
                       key={oIdx}
                       onClick={() => handleSelectOption(opt)}
-                      className="bg-slate-100 hover:bg-slate-200/90 text-slate-800 font-bold p-4 rounded-2xl text-center text-xs sm:text-sm transition-all cursor-pointer shadow-xs hover:scale-[1.01]"
+                      className="bg-white hover:bg-amber-50/60 border border-gray-200 hover:border-amber-400 text-gray-800 font-black p-4 rounded-2xl text-center text-xs sm:text-sm transition-all cursor-pointer shadow-xs hover:scale-[1.01]"
                     >
                       {opt.text}
                     </button>
@@ -393,13 +408,12 @@ export default function BenerinKalimatGame({ onExit }: Props) {
                 })}
               </div>
             ) : (
-              /* Stacked Options (Gambar 4) */
-              <div className="space-y-2.5 pt-2">
+              <div className="space-y-2.5 pt-1">
                 {options.map((opt, oIdx) => (
                   <button
                     key={oIdx}
                     onClick={() => handleSelectOption(opt)}
-                    className="w-full bg-slate-100 hover:bg-slate-200/90 text-slate-800 font-bold py-3.5 px-4 rounded-2xl text-center text-xs sm:text-sm transition-all cursor-pointer shadow-xs hover:scale-[1.01]"
+                    className="w-full bg-white hover:bg-amber-50/60 border border-gray-200 hover:border-amber-400 text-gray-900 font-black py-3.5 px-4 rounded-2xl text-center text-xs sm:text-sm transition-all cursor-pointer shadow-xs hover:scale-[1.01]"
                   >
                     {opt.text}
                   </button>
@@ -408,69 +422,59 @@ export default function BenerinKalimatGame({ onExit }: Props) {
             )}
           </motion.div>
         ) : (
-          /* Layar Pembahasan (Gambar 5) */
           <motion.div
             key={`review-${currentIdx}`}
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="bg-white rounded-3xl p-5 sm:p-7 text-slate-900 shadow-xl space-y-5 border border-slate-100"
+            className="space-y-5"
           >
-            {/* Header with Title and Result Badge */}
             <div className="flex items-center justify-between gap-3">
-              <h4 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-tight">
+              <h4 className="text-xs sm:text-sm font-black text-gray-900 uppercase tracking-tight">
                 {currentIdx + 1}. {targetWord || 'KATA'}{' '}
-                <span className="text-slate-500 font-bold">
+                <span className="text-gray-500 font-bold">
                   ({isKalimatHapus ? 'KATA BERLEBIH' : 'EJAAN SALAH'})
                 </span>
               </h4>
 
               {isCorrect ? (
-                <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-black flex items-center gap-1 shadow-2xs">
-                  <Check size={13} className="stroke-[3]" /> Benar
+                <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black flex items-center gap-1 shadow-xs">
+                  <Check size={14} className="stroke-[3]" /> Benar (+{Math.max(50, timeLeft * 10)})
                 </span>
               ) : (
-                <span className="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 text-[11px] font-black flex items-center gap-1 shadow-2xs">
-                  <X size={13} className="stroke-[3]" /> Salah
+                <span className="px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-black flex items-center gap-1 shadow-xs">
+                  <X size={14} className="stroke-[3]" /> Kurang Tepat
                 </span>
               )}
             </div>
 
-            {/* Instruction Text */}
-            <p className="text-xs text-slate-600 font-medium leading-relaxed">
-              {isKalimatHapus
-                ? 'Kalimat ini punya satu kata yang berlebihan. Pilih kata itu, lalu tentukan perbaikannya.'
-                : 'Perbaiki kata yang salah pada kalimat.'}
-            </p>
-
-            {/* Gray Solution Box (Gambar 5) */}
-            <div className="bg-slate-50 border border-slate-200/70 rounded-2xl p-4 sm:p-5 space-y-2">
-              <p className="text-[10.5px] font-black uppercase text-slate-500 tracking-wider">
+            <div className="bg-gray-50/90 border border-gray-200/80 rounded-2xl p-4 sm:p-5 space-y-2.5">
+              <p className="text-[10.5px] font-black uppercase text-gray-500 tracking-wider">
                 KUNCI JAWABAN:{' '}
-                <span className="text-slate-800">
-                  {isKalimatHapus ? `HAPUS KATA "${(targetWord || '').toUpperCase()}"` : `GANTI JADI "${currentQ.kunci.toUpperCase()}"`}
+                <span className="text-gray-900 font-black">
+                  {isKalimatHapus
+                    ? `HAPUS KATA "${(targetWord || '').toUpperCase()}"`
+                    : `GANTI JADI "${currentQ.kunci.toUpperCase()}"`}
                 </span>
               </p>
 
               {renderCorrectionSentences(currentQ)}
             </div>
 
-            {/* Section PEMBAHASAN */}
-            <div className="space-y-1 pt-1">
-              <p className="text-[10.5px] font-black uppercase text-slate-400 tracking-wider">
-                PEMBAHASAN
+            <div className="space-y-1.5 p-4 rounded-2xl bg-amber-50/60 border border-amber-200/60">
+              <p className="text-[10.5px] font-black uppercase text-amber-900 tracking-wider">
+                PENJELASAN PUEBI & KAIDAH
               </p>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed italic">
+              <p className="text-xs sm:text-sm text-gray-800 leading-relaxed font-medium">
                 {currentQ.pembahasan}
               </p>
             </div>
 
-            {/* Next Button */}
             <div className="pt-2">
               <button
                 onClick={handleNext}
-                className="w-full py-3.5 rounded-full font-black text-xs sm:text-sm bg-amber-400 hover:bg-amber-300 text-amber-950 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01]"
+                className="w-full py-3.5 rounded-2xl font-black text-xs sm:text-sm bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-gray-950 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01]"
               >
                 <span>{currentIdx < questions.length - 1 ? 'Lanjut ke Soal Berikutnya' : 'Lihat Hasil Akhir'}</span>
                 <ArrowRight size={15} />

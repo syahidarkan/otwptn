@@ -17,7 +17,7 @@ export default function GlobalPageLoader() {
       const t = setTimeout(() => {
         setLoading(false)
         setProgress(0)
-      }, 300)
+      }, 350)
       return () => clearTimeout(t)
     }
   }, [pathname, searchParams])
@@ -59,20 +59,20 @@ export default function GlobalPageLoader() {
           return
         }
 
-        // Start progress
+        // Start smooth top bar progress
         setLoading(true)
-        setProgress(25)
+        setProgress(28)
 
         if (timerRef.current) clearInterval(timerRef.current)
         timerRef.current = setInterval(() => {
           setProgress(prev => {
-            if (prev >= 85) {
+            if (prev >= 88) {
               if (timerRef.current) clearInterval(timerRef.current)
-              return 85
+              return 88
             }
-            return prev + Math.floor(Math.random() * 10) + 6
+            return prev + Math.floor(Math.random() * 8) + 5
           })
-        }, 120)
+        }, 110)
       } catch {
         // invalid URL, ignore
       }
@@ -90,69 +90,26 @@ export default function GlobalPageLoader() {
   return (
     <div
       aria-hidden="true"
-      className="fixed inset-0 z-[99999] pointer-events-none transition-opacity duration-300"
+      className="fixed top-0 left-0 right-0 z-[999999] pointer-events-none transition-opacity duration-300"
       style={{ opacity: loading || progress > 0 ? 1 : 0 }}
     >
-      {/* Top golden progress bar */}
+      {/* Sleek Modern Electric Blue Progress Bar (Requested: Garis Biru Loading di Atas Layar) */}
       <div
-        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 shadow-sm transition-all ease-out z-[100000]"
+        className="relative h-[3.5px] bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 transition-all ease-out"
         style={{
           width: `${progress}%`,
-          transitionDuration: progress === 100 ? '200ms' : '250ms',
-          boxShadow: '0 0 10px rgba(245, 158, 11, 0.7), 0 0 4px rgba(234, 179, 8, 0.9)',
+          transitionDuration: progress === 100 ? '250ms' : '280ms',
+          boxShadow: '0 0 14px rgba(56, 189, 248, 0.9), 0 0 4px rgba(37, 99, 235, 1)',
         }}
-      />
+      >
+        {/* Leading edge luminous dot */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_12px_#38bdf8,0_0_6px_#0284c7]" />
 
-      {/* Centered Modal Popup with Animated Mascot (Exact Reference Style) */}
-      {loading && progress < 100 && (
-        <div className="fixed inset-0 flex items-center justify-center p-4 bg-black/30 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="w-full max-w-[290px] sm:max-w-[320px] rounded-3xl p-6 bg-white border border-gray-100 shadow-2xl text-center space-y-4 animate-in zoom-in-95 duration-200">
-            {/* Animated Circular Aura & Verified Mascot */}
-            <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
-              {/* Outer soft ring pulse */}
-              <div className="absolute inset-0 rounded-full bg-emerald-100/60 animate-ping opacity-40" />
-
-              <div className="w-24 h-24 rounded-full bg-gradient-to-b from-emerald-50 via-white to-amber-50/60 border-2 border-emerald-300 flex items-center justify-center shadow-inner relative overflow-hidden">
-                {/* Floating Mascot with guaranteed working path */}
-                <div className="animate-bounce" style={{ animationDuration: '1.2s' }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/mascot/thumbsup.png"
-                    alt="Otbee Loading"
-                    className="w-16 h-16 object-contain drop-shadow-md select-none pointer-events-none"
-                    onError={e => {
-                      (e.target as HTMLImageElement).src = '/mascot-hd/thumbsup.png'
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Title & Animated Dots */}
-            <div>
-              <div className="flex items-center justify-center gap-1.5 text-base sm:text-lg font-black text-gray-950 tracking-tight">
-                <span>Menyiapkan Ruang Belajar</span>
-                <span className="flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-bounce" style={{ animationDelay: '300ms' }} />
-                </span>
-              </div>
-              <p className="text-xs text-gray-500 font-medium mt-1">
-                Menghubungkan akun dan materi belajarmu...
-              </p>
-            </div>
-
-            {/* Subtle bottom progress line */}
-            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-amber-500 rounded-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+        {/* Ambient bottom glow trail */}
+        <div
+          className="absolute inset-x-0 top-full h-1.5 bg-gradient-to-b from-sky-400/40 to-transparent blur-xs pointer-events-none"
+        />
+      </div>
     </div>
   )
 }

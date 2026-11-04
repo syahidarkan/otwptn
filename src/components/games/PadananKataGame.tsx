@@ -403,11 +403,11 @@ export default function PadananKataGame({
 
   return (
     <div className="w-full max-w-4xl mx-auto my-4 md:my-8 px-4 sm:px-6">
-      <div className="relative rounded-3xl bg-white border border-gray-100 shadow-xl overflow-hidden">
+      <div className="relative rounded-3xl backdrop-blur-2xl bg-white/90 border border-white/90 shadow-[0_12px_40px_rgba(0,0,0,0.06)] overflow-hidden">
         {/* TOP STATUS BAR */}
-        <div className="p-4 sm:p-5 bg-gradient-to-r from-gray-900 via-gray-950 to-gray-900 text-white flex items-center justify-between gap-4 border-b border-gray-800">
+        <div className="p-4 sm:p-5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-200 text-gray-950 flex items-center justify-between gap-4 border-b border-amber-300/40">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-400/20 border border-amber-400/40 p-1 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-white/80 p-1 flex items-center justify-center flex-shrink-0 shadow-xs">
               <Image
                 src="/mascot/thinking-idea.png"
                 alt="otwPTN Mascot"
@@ -418,12 +418,12 @@ export default function PadananKataGame({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-black text-white tracking-tight">Arena Kuis PPU & PBM</h3>
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-400 text-gray-950">
+                <h3 className="text-sm font-black text-gray-950 tracking-tight">Arena Kuis PPU & PBM</h3>
+                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-white text-gray-950 shadow-2xs">
                   {opponentPreset ? 'Duel Study Cam' : mode === 'solo' ? 'Latihan Solo' : mode === 'matching' ? 'Live Match' : 'Battle Room'}
                 </span>
               </div>
-              <p className="text-[11px] text-gray-400">
+              <p className="text-[11px] text-gray-800 font-bold">
                 {opponentPreset
                   ? `Bertarung melawan ${opponentPreset.name}`
                   : mode === 'solo'
@@ -436,7 +436,7 @@ export default function PadananKataGame({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-gray-300 transition-colors"
+              className="p-2 rounded-xl bg-white/60 hover:bg-white text-gray-800 transition-colors cursor-pointer shadow-xs"
               title={soundEnabled ? 'Matikan Suara' : 'Nyalakan Suara'}
               aria-label="Toggle Sound"
             >
@@ -445,7 +445,7 @@ export default function PadananKataGame({
             {onExit && (
               <button
                 onClick={onExit}
-                className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-gray-300 transition-colors"
+                className="px-3 py-1.5 rounded-xl bg-white/60 hover:bg-white text-xs font-black text-gray-900 transition-colors cursor-pointer shadow-xs"
               >
                 Keluar
               </button>
@@ -855,7 +855,7 @@ export default function PadananKataGame({
             </div>
 
             {/* QUESTION CARD (WITH FROZEN & BLUR SABOTAGE OVERLAYS) */}
-            <div className="relative rounded-3xl border border-gray-200 bg-white shadow-sm overflow-hidden min-h-[220px]">
+            <div className="relative rounded-3xl border border-white/90 bg-white/90 backdrop-blur-xl shadow-md overflow-hidden min-h-[220px]">
               {/* SABOTAGE OVERLAY: FREEZE */}
               {isFrozen && (
                 <div className="absolute inset-0 z-30 bg-cyan-950/70 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center text-white animate-pulse">
