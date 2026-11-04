@@ -1,6 +1,21 @@
 import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
 
+// Simple in-memory rate limiter: max 20 requests per IP per minute
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now()
+  const entry = rateLimitMap.get(ip)
+  if (!entry || entry.resetAt < now) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + 60_000 })
+    return true
+  }
+  if (entry.count >= 20) return false
+  entry.count++
+  return true
+}
+
 const SYSTEM_PROMPT = `Kamu adalah Otbee CS, Customer Service AI resmi dari platform OtwPTN (dikelola resmi oleh PT. Lembaga Sains Nasional).
 
 TUGAS UTAMA:
@@ -96,6 +111,12 @@ function generateRuleBasedReply(query: string): string | null {
 
 export async function POST(request: Request) {
   try {
+    const forwarded = request.headers.get('x-forwarded-for')
+    const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown'
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json({ error: 'Terlalu banyak permintaan. Coba lagi dalam 1 menit.' }, { status: 429 })
+    }
+
     const { message, history } = await request.json()
 
     if (!message || typeof message !== 'string') {

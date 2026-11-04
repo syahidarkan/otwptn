@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
 import { Zap, ArrowRight, ShieldCheck, Star } from 'lucide-react'
+import HoneycombBg from '@/components/ui/HoneycombBg'
 
 const WORDS = ['Tes', 'Ujian', 'CBT', 'Pusing!']
 
@@ -113,6 +114,9 @@ export default function HeroSection() {
 
   return (
     <section ref={sectionRef} className="relative overflow-hidden min-h-screen flex items-center pt-20 md:pt-0">
+
+      {/* Honeycomb background texture */}
+      <HoneycombBg opacity={0.18} colorScheme="light" size={30} />
 
       {/* Bee 1 - Kiri (Visible on Mobile/Tablet + Desktop, safe margins below navbar) */}
       <ResponsiveBee

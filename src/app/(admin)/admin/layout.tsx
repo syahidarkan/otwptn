@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard,
   ShieldCheck,
@@ -34,9 +35,11 @@ const navItems = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
+  const [authorized, setAuthorized] = useState(false)
 
   React.useEffect(() => {
     try {
@@ -48,6 +51,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
     } catch {}
   }, [])
+
+  React.useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) {
+        router.replace('/login')
+        return
+      }
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin, role')
+        .eq('id', data.user.id)
+        .single()
+      const isAdmin = profile?.is_admin || profile?.role === 'superadmin' || data.user.email === 'admin@otwptn.id'
+      if (!isAdmin) {
+        router.replace('/dashboard')
+        return
+      }
+      setAuthorized(true)
+    })
+  }, [router])
 
   function toggleDarkMode() {
     const nextDark = !isDark
@@ -69,7 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex items-center justify-between px-5 pt-6 pb-5 flex-shrink-0">
         <Link href="/admin" className="flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="otwptn" style={{ height: 45, width: 'auto' }} className="transition-transform hover:scale-105" />
+          <img src="/logo.png" alt="otwptn" className="logo-adaptive transition-transform hover:scale-105" style={{ height: 45, width: 'auto' }} />
           <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-400 text-amber-950 uppercase tracking-wider">
             Admin
           </span>
@@ -167,6 +191,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </>
   )
 
+  if (!authorized) return null
+
   return (
     <div style={{ background: 'var(--bg-alt)', minHeight: '100vh' }}>
       {/* Mobile Header */}
@@ -176,7 +202,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <Link href="/admin" className="flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="otwptn" style={{ height: 26, width: 'auto' }} />
+          <img src="/logo.png" alt="otwptn" className="logo-adaptive" style={{ height: 26, width: 'auto' }} />
           <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-400 text-amber-950 uppercase">
             Admin
           </span>

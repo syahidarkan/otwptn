@@ -54,7 +54,7 @@ function EcourseContent() {
   const [completed, setCompletedState] = useState<string[]>([])
   const [lockedNotice, setLockedNotice] = useState<string | null>(null)
   const [userTier, setUserTier] = useState<string>('free')
-  const [premiumModalData, setPremiumModalData] = useState<{ title: string; unit: number } | null>(null)
+  const [premiumModalData, setPremiumModalData] = useState<{ title: string; unit: number; stageTitle: string; lessons: ELesson[] } | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -129,6 +129,8 @@ function EcourseContent() {
       setPremiumModalData({
         title: lesson.title,
         unit: stage.id,
+        stageTitle: stage.title,
+        lessons: stage.lessons,
       })
       return
     }
@@ -543,19 +545,28 @@ function EcourseContent() {
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-300 to-amber-500 text-amber-950 flex items-center justify-center mx-auto shadow-md">
               <Crown size={28} className="fill-amber-950" />
             </div>
-            <div>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900">
-                Unit {premiumModalData.unit} · Premium Eksklusif
-              </span>
-              <h3 className="text-base font-black text-gray-950 mt-1.5 leading-snug">
-                {premiumModalData.title}
-              </h3>
-              <p className="text-xs text-gray-600 mt-2 leading-relaxed">
-                Materi mendalam ini, template esai lolos, dan cheatsheet rahasia dikhususkan untuk member Premium & Intensif.
+            <div className="text-left">
+              <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wide text-center mb-1">
+                Unit {premiumModalData.unit} · Khusus Premium
               </p>
+              <h3 className="text-base font-black text-gray-950 leading-snug text-center">
+                {premiumModalData.stageTitle}
+              </h3>
+              <div className="mt-3 space-y-1.5 bg-amber-50 rounded-2xl p-3">
+                <p className="text-[10px] font-bold text-amber-800 uppercase tracking-wide mb-2">Yang kamu dapatkan di unit ini:</p>
+                {premiumModalData.lessons.slice(0, 4).map((l, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <span className="w-4 h-4 rounded-full bg-amber-300 text-amber-950 text-[9px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                    <span className="text-xs text-gray-700 font-medium leading-tight">{l.title}</span>
+                  </div>
+                ))}
+                {premiumModalData.lessons.length > 4 && (
+                  <p className="text-[10px] text-amber-700 font-bold mt-1 pl-6">+{premiumModalData.lessons.length - 4} materi lainnya</p>
+                )}
+              </div>
             </div>
 
-            <div className="pt-2 space-y-2">
+            <div className="pt-1 space-y-2">
               <Link
                 href="/upgrade"
                 className="w-full py-3 rounded-full text-xs font-black btn-brand-primary flex items-center justify-center gap-2 shadow-sm"

@@ -49,7 +49,7 @@ export default function Navbar() {
       >
         <Link href="/" className="flex items-center flex-shrink-0 py-1">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="otwptn" style={{ height: 52, width: 'auto' }} className="transition-transform hover:scale-105" />
+          <img src="/logo.png" alt="otwptn" className="logo-adaptive transition-transform hover:scale-105" style={{ height: 52, width: 'auto' }} />
         </Link>
 
         <div className="hidden md:flex items-center gap-1.5">

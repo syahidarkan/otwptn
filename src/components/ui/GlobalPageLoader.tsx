@@ -93,21 +93,21 @@ export default function GlobalPageLoader() {
       className="fixed top-0 left-0 right-0 z-[999999] pointer-events-none transition-opacity duration-300"
       style={{ opacity: loading || progress > 0 ? 1 : 0 }}
     >
-      {/* Sleek Modern Electric Blue Progress Bar (Requested: Garis Biru Loading di Atas Layar) */}
       <div
-        className="relative h-[3.5px] bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 transition-all ease-out"
+        className="relative h-[3px] transition-all ease-out"
         style={{
           width: `${progress}%`,
           transitionDuration: progress === 100 ? '250ms' : '280ms',
-          boxShadow: '0 0 14px rgba(56, 189, 248, 0.9), 0 0 4px rgba(37, 99, 235, 1)',
+          background: 'linear-gradient(90deg, #ffd400 0%, #f59e0b 60%, #ffd400 100%)',
+          boxShadow: '0 0 12px rgba(255, 212, 0, 0.9), 0 0 4px rgba(245, 158, 11, 1)',
         }}
       >
         {/* Leading edge luminous dot */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_12px_#38bdf8,0_0_6px_#0284c7]" />
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-[0_0_10px_#ffd400,0_0_5px_#f59e0b]" />
 
         {/* Ambient bottom glow trail */}
         <div
-          className="absolute inset-x-0 top-full h-1.5 bg-gradient-to-b from-sky-400/40 to-transparent blur-xs pointer-events-none"
+          className="absolute inset-x-0 top-full h-1.5 bg-gradient-to-b from-amber-400/30 to-transparent blur-xs pointer-events-none"
         />
       </div>
     </div>

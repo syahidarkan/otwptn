@@ -9,7 +9,7 @@ import {
   Compass, FolderLock, Users, MessageCircle, Settings, Menu, X, Target,
   Star, ArrowRight, UserCircle2, BarChart3, Clock, Bookmark, Moon,
   MessageSquare, Download, LogOut, Crown, Bell, HelpCircle, Swords,
-  ChevronDown,
+  ChevronDown, ChevronLeft, ChevronRight,
   Coins,
 } from 'lucide-react'
 import SidebarPromoCard from './SidebarPromoCard'
@@ -97,6 +97,7 @@ export default function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [isDark, setIsDark] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
 
   // Notifications state
   const [notifOpen, setNotifOpen] = useState(false)
@@ -147,6 +148,11 @@ export default function Sidebar() {
         document.documentElement.classList.remove('dark')
         document.documentElement.setAttribute('data-theme', 'light')
       }
+
+      // Restore collapse state
+      const savedCollapsed = localStorage.getItem('sidebar_collapsed') === 'true'
+      setCollapsed(savedCollapsed)
+      document.documentElement.setAttribute('data-sidebar-collapsed', savedCollapsed ? 'true' : 'false')
 
       // Load avatar from localStorage
       const localAvatar = localStorage.getItem('otwptn_user_avatar')
@@ -227,23 +233,34 @@ export default function Sidebar() {
     }
   }
 
+  function toggleCollapse() {
+    const next = !collapsed
+    setCollapsed(next)
+    try { localStorage.setItem('sidebar_collapsed', next ? 'true' : 'false') } catch {}
+    document.documentElement.setAttribute('data-sidebar-collapsed', next ? 'true' : 'false')
+  }
+
   const initial = (name || 'U').trim().charAt(0).toUpperCase()
 
   const content = (
     <>
-      <Link href="/" className="flex items-center gap-2 px-5 pt-6 pb-4 flex-shrink-0">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="otwptn" style={{ height: 45, width: 'auto' }} className="transition-transform hover:scale-105" />
-      </Link>
+      {/* Logo */}
+      <div className={`flex items-center ${collapsed ? 'justify-center px-2 pt-5 pb-3' : 'px-5 pt-6 pb-4'} flex-shrink-0`}>
+        <Link href="/" className="flex items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="otwptn" className="logo-adaptive transition-transform hover:scale-105" style={{ height: collapsed ? 32 : 45, width: 'auto' }} />
+        </Link>
+      </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 flex flex-col gap-2 pb-2" style={{ scrollbarWidth: 'none' }}>
+      <nav className="flex-1 overflow-y-auto px-2 flex flex-col gap-2 pb-2" style={{ scrollbarWidth: 'none' }}>
         {NAV_GROUPS.map((group, gIdx) => (
           <div key={gIdx} className="space-y-0.5">
-            {group.category && (
+            {!collapsed && group.category && (
               <p className="px-3 pt-2.5 pb-1 text-[10px] font-black uppercase tracking-wider text-gray-400 select-none">
                 {group.category}
               </p>
             )}
+            {collapsed && group.category && <div className="pt-2" />}
             {group.items.map(item => {
               const { id, label, href, icon: Icon, children } = item
               const isDirectActive = pathname === href
@@ -257,64 +274,90 @@ export default function Sidebar() {
                       <button
                         id={id}
                         type="button"
-                        onClick={() => toggleExpand(id)}
-                        className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-colors group cursor-pointer text-left"
+                        onClick={() => collapsed ? null : toggleExpand(id)}
+                        title={collapsed ? label : undefined}
+                        className={`w-full flex items-center ${collapsed ? 'justify-center px-0 py-2.5' : 'justify-between gap-3 px-3 py-2'} rounded-xl text-sm font-semibold transition-colors group cursor-pointer text-left`}
                         style={{
                           color: isParentActive ? 'var(--accent-ink)' : 'var(--muted)',
                           background: isParentActive ? 'var(--accent)' : 'transparent',
                         }}
                       >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <Icon size={17} strokeWidth={2.2} className="flex-shrink-0" />
-                          <span className="truncate">{label}</span>
-                        </div>
-                        <div className="p-1 rounded-md text-gray-400 group-hover:text-gray-900 transition-colors">
-                          <ChevronDown
-                            size={14}
-                            className={`transition-transform duration-200 ${isExpanded ? 'rotate-180 text-amber-700' : ''}`}
-                          />
-                        </div>
+                        {collapsed ? (
+                          <Icon size={18} strokeWidth={2.2} className="flex-shrink-0" />
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-3 min-w-0">
+                              <Icon size={17} strokeWidth={2.2} className="flex-shrink-0" />
+                              <span className="truncate">{label}</span>
+                            </div>
+                            <div className="p-1 rounded-md text-gray-400 group-hover:text-gray-900 transition-colors">
+                              <ChevronDown
+                                size={14}
+                                className={`transition-transform duration-200 ${isExpanded ? 'rotate-180 text-amber-700' : ''}`}
+                              />
+                            </div>
+                          </>
+                        )}
                       </button>
                     </div>
                   ) : id === 'nav-mentor' ? (
-                    <Link
-                      id={id}
-                      href={href}
-                      onClick={() => setMobileOpen(false)}
-                      className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-extrabold transition-all border shadow-sm group ${
-                        isParentActive
-                          ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 border-amber-500 shadow-md ring-2 ring-amber-300/60'
-                          : 'bg-gradient-to-r from-amber-50 via-amber-100 to-yellow-100 text-amber-950 border-amber-300/80 hover:border-amber-400 hover:shadow-md'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-6 h-6 rounded-lg bg-amber-400 text-amber-950 flex items-center justify-center flex-shrink-0 shadow-2xs group-hover:scale-110 transition-transform">
+                    collapsed ? (
+                      <Link
+                        id={id}
+                        href={href}
+                        onClick={() => setMobileOpen(false)}
+                        title={label}
+                        className={`flex items-center justify-center py-2.5 rounded-xl text-sm font-extrabold transition-all border shadow-sm ${
+                          isParentActive
+                            ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 border-amber-500 shadow-md ring-2 ring-amber-300/60'
+                            : 'bg-gradient-to-r from-amber-50 via-amber-100 to-yellow-100 text-amber-950 border-amber-300/80 hover:border-amber-400 hover:shadow-md'
+                        }`}
+                      >
+                        <div className="w-6 h-6 rounded-lg bg-amber-400 text-amber-950 flex items-center justify-center flex-shrink-0">
                           <GraduationCap size={15} strokeWidth={2.4} />
                         </div>
-                        <span className="truncate tracking-tight font-black">{label}</span>
-                      </div>
-                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-950 text-amber-300 shadow-2xs">
-                        VIP 1-ON-1
-                      </span>
-                    </Link>
+                      </Link>
+                    ) : (
+                      <Link
+                        id={id}
+                        href={href}
+                        onClick={() => setMobileOpen(false)}
+                        className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-extrabold transition-all border shadow-sm group ${
+                          isParentActive
+                            ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 border-amber-500 shadow-md ring-2 ring-amber-300/60'
+                            : 'bg-gradient-to-r from-amber-50 via-amber-100 to-yellow-100 text-amber-950 border-amber-300/80 hover:border-amber-400 hover:shadow-md'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-6 h-6 rounded-lg bg-amber-400 text-amber-950 flex items-center justify-center flex-shrink-0 shadow-2xs group-hover:scale-110 transition-transform">
+                            <GraduationCap size={15} strokeWidth={2.4} />
+                          </div>
+                          <span className="truncate tracking-tight font-black">{label}</span>
+                        </div>
+                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-950 text-amber-300 shadow-2xs">
+                          VIP 1-ON-1
+                        </span>
+                      </Link>
+                    )
                   ) : (
                     <Link
                       id={id}
                       href={href}
                       onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-colors"
+                      title={collapsed ? label : undefined}
+                      className={`flex items-center ${collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2'} rounded-xl text-sm font-semibold transition-colors`}
                       style={{
                         color: isParentActive ? 'var(--accent-ink)' : 'var(--muted)',
                         background: isParentActive ? 'var(--accent)' : 'transparent',
                       }}
                     >
-                      <Icon size={17} strokeWidth={2.2} />
-                      <span className="truncate">{label}</span>
+                      <Icon size={collapsed ? 18 : 17} strokeWidth={2.2} />
+                      {!collapsed && <span className="truncate">{label}</span>}
                     </Link>
                   )}
 
-                  {/* Sub-menu with vertical tree line (Gambar 2 reference) */}
-                  {children && isExpanded && (
+                  {/* Sub-menu (only shown when expanded and not collapsed) */}
+                  {!collapsed && children && isExpanded && (
                     <div className="ml-5 pl-3 py-1 space-y-1 border-l-2 border-amber-300 dark:border-amber-700/60 animate-in fade-in slide-in-from-top-1 duration-150">
                       {children.map(sub => {
                         const isSubActive =
@@ -346,33 +389,33 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Auto-Sliding 4 Promo Cards (Gambar 1) */}
-      <SidebarPromoCard />
+      {/* Auto-Sliding Promo Cards (hidden when collapsed) */}
+      {!collapsed && <SidebarPromoCard />}
 
-      {/* Premium Pill Button (Gambar 1 style) */}
-      <div className="px-3 pb-2.5 flex-shrink-0">
+      {/* Premium Pill Button */}
+      <div className={`${collapsed ? 'px-2' : 'px-3'} pb-2.5 flex-shrink-0`}>
         <Link
           id="nav-upgrade"
           href="/upgrade"
           onClick={() => setMobileOpen(false)}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-full text-sm font-black transition-all hover:brightness-95 group shadow-2xs"
+          title={collapsed ? 'Premium' : undefined}
+          className={`w-full flex items-center ${collapsed ? 'justify-center py-2.5' : 'gap-3 px-4 py-2.5'} rounded-full text-sm font-black transition-all hover:brightness-95 group shadow-2xs`}
           style={{ background: '#fff9db', color: '#7c5500', border: '1px solid #ffec99' }}
         >
           <Crown size={18} strokeWidth={2.6} className="text-amber-600 fill-amber-400 flex-shrink-0" />
-          <span className="truncate">Premium</span>
+          {!collapsed && <span className="truncate">Premium</span>}
         </Link>
       </div>
 
-      {/* Profile Bar with Notification Bell (Gambar 1 style) */}
-      <div className="px-3 py-2.5 flex-shrink-0 relative" style={{ borderTop: '1px solid var(--border)' }}>
-        <div className="flex items-center justify-between gap-2">
-          {/* Profile Trigger Button */}
-          <button
-            onClick={() => setProfileMenuOpen(p => !p)}
-            className="flex-1 flex items-center gap-2.5 p-1 rounded-2xl hover:bg-gray-100/80 transition-all text-left group min-w-0"
-          >
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden border border-amber-200"
+      {/* Profile Bar with Notification Bell */}
+      <div className={`${collapsed ? 'px-2 py-2.5' : 'px-3 py-2.5'} flex-shrink-0 relative`} style={{ borderTop: '1px solid var(--border)' }}>
+        {collapsed ? (
+          /* Collapsed: avatar + bell stacked */
+          <div className="flex flex-col items-center gap-2">
+            <button
+              onClick={() => setProfileMenuOpen(p => !p)}
+              title={name || 'Profil'}
+              className="w-9 h-9 rounded-full flex items-center justify-center overflow-hidden border border-amber-200 hover:ring-2 hover:ring-amber-300 transition-all"
               style={{ background: '#fef3c7' }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -380,37 +423,69 @@ export default function Sidebar() {
                 src={avatar}
                 alt="Avatar"
                 className="w-full h-full object-contain p-0.5"
-                onError={e => {
-                  ;(e.currentTarget as HTMLImageElement).src = '/logo.png'
-                }}
+                onError={e => { (e.currentTarget as HTMLImageElement).src = '/logo.png' }}
               />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-black truncate text-gray-900 group-hover:text-amber-900 leading-tight">
-                {name || 'Pejuang PTN'}
-              </p>
-              <p className="text-[10px] font-semibold text-gray-400 truncate">
-                {school || '+ Tambahkan sekolah...'}
-              </p>
-            </div>
-          </button>
-
-          {/* Notification Bell with Badge 3 (Gambar 1) */}
-          <div className="relative flex-shrink-0">
-            <button
-              onClick={() => setNotifOpen(prev => !prev)}
-              aria-label="Notifikasi"
-              className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-700 transition-colors cursor-pointer"
-            >
-              <Bell size={18} />
             </button>
-            {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-black flex items-center justify-center shadow-xs">
-                {unreadCount}
-              </span>
-            )}
+            <div className="relative">
+              <button
+                onClick={() => setNotifOpen(prev => !prev)}
+                aria-label="Notifikasi"
+                className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-700 transition-colors cursor-pointer"
+              >
+                <Bell size={16} />
+              </button>
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-black flex items-center justify-center shadow-xs">
+                  {unreadCount}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Expanded: full profile bar */
+          <div className="flex items-center justify-between gap-2">
+            <button
+              onClick={() => setProfileMenuOpen(p => !p)}
+              className="flex-1 flex items-center gap-2.5 p-1 rounded-2xl hover:bg-gray-100/80 transition-all text-left group min-w-0"
+            >
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden border border-amber-200"
+                style={{ background: '#fef3c7' }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={avatar}
+                  alt="Avatar"
+                  className="w-full h-full object-contain p-0.5"
+                  onError={e => { (e.currentTarget as HTMLImageElement).src = '/logo.png' }}
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-black truncate text-gray-900 group-hover:text-amber-900 leading-tight">
+                  {name || 'Pejuang PTN'}
+                </p>
+                <p className="text-[10px] font-semibold text-gray-400 truncate">
+                  {school || '+ Tambahkan sekolah...'}
+                </p>
+              </div>
+            </button>
+
+            <div className="relative flex-shrink-0">
+              <button
+                onClick={() => setNotifOpen(prev => !prev)}
+                aria-label="Notifikasi"
+                className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-700 transition-colors cursor-pointer"
+              >
+                <Bell size={18} />
+              </button>
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-black flex items-center justify-center shadow-xs">
+                  {unreadCount}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Profile Popover Modal / Dropdown */}
         {profileMenuOpen && (
@@ -425,6 +500,7 @@ export default function Sidebar() {
                 boxShadow: '0 20px 48px -8px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)',
                 maxHeight: '80vh',
                 overflowY: 'auto',
+                minWidth: '220px',
               }}
             >
               {/* Header: User Info & Interactive XP Level */}
@@ -596,7 +672,7 @@ export default function Sidebar() {
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14" style={{ background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="otwptn" style={{ height: 39, width: 'auto' }} />
+        <img src="/logo.png" alt="otwptn" className="logo-adaptive" style={{ height: 39, width: 'auto' }} />
         <button onClick={() => setMobileOpen(true)} aria-label="Buka menu" style={{ color: 'var(--fg)' }}>
           <Menu size={22} />
         </button>
@@ -617,10 +693,20 @@ export default function Sidebar() {
 
       {/* Desktop sidebar */}
       <aside
-        className="hidden md:flex md:flex-col fixed top-0 left-0 h-screen w-64 flex-shrink-0 z-30"
+        className={`hidden md:flex md:flex-col fixed top-0 left-0 h-screen flex-shrink-0 z-30 transition-[width] duration-200 ease-in-out ${collapsed ? 'w-16' : 'w-64'}`}
         style={{ background: 'var(--bg)', borderRight: '1px solid var(--border)' }}
       >
         {content}
+
+        {/* Collapse toggle button — fixed to right edge of sidebar */}
+        <button
+          onClick={toggleCollapse}
+          title={collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
+          className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full border flex items-center justify-center shadow-sm hover:shadow-md transition-all bg-white hover:bg-amber-50 z-10"
+          style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}
+        >
+          {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+        </button>
       </aside>
 
       {/* Floating Interactive Notification Popover */}

@@ -63,11 +63,11 @@
 }
 
 *, ::before, ::after {
-  border-color: #f1f1ef;
+  border-color: var(--border);
 }
 
 table, tr, td, th {
-  border-color: #f1f1ef;
+  border-color: var(--border);
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -323,6 +323,59 @@ html.dark [style*="linear-gradient(135deg, #f8fafc"] {
 }
 html.dark .hover-lift span {
   color: #f3f4f6 !important;
+}
+
+/* Logo dark mode swap */
+html.dark:not(:has(.public-light-theme)) img.logo-adaptive[src="/logo.png"] {
+  content: url('/logo-dark.png');
+}
+
+/* Additional dark mode fixes */
+html.dark:not(:has(.public-light-theme)) .bg-gray-50\/60,
+html.dark:not(:has(.public-light-theme)) .bg-gray-50\/50 {
+  background-color: #16171b !important;
+}
+
+html.dark:not(:has(.public-light-theme)) .border-gray-200,
+html.dark:not(:has(.public-light-theme)) .border-gray-200\/80 {
+  border-color: #2c2d33 !important;
+}
+
+html.dark:not(:has(.public-light-theme)) .bg-amber-50,
+html.dark:not(:has(.public-light-theme)) .bg-amber-50\/50,
+html.dark:not(:has(.public-light-theme)) .bg-amber-100\/90,
+html.dark:not(:has(.public-light-theme)) .bg-amber-100 {
+  background-color: rgba(255, 212, 0, 0.1) !important;
+  border-color: rgba(255, 212, 0, 0.2) !important;
+}
+
+html.dark:not(:has(.public-light-theme)) .text-amber-900,
+html.dark:not(:has(.public-light-theme)) .text-amber-950,
+html.dark:not(:has(.public-light-theme)) .text-amber-800 {
+  color: #fbbf24 !important;
+}
+
+html.dark:not(:has(.public-light-theme)) .bg-sky-50,
+html.dark:not(:has(.public-light-theme)) .bg-sky-100 {
+  background-color: rgba(14, 165, 233, 0.1) !important;
+}
+
+html.dark:not(:has(.public-light-theme)) .bg-emerald-50,
+html.dark:not(:has(.public-light-theme)) .bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+html.dark:not(:has(.public-light-theme)) .bg-rose-50 {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+html.dark:not(:has(.public-light-theme)) .text-rose-600 {
+  color: #f87171 !important;
+}
+
+html.dark:not(:has(.public-light-theme)) .hover\:bg-gray-100:hover,
+html.dark:not(:has(.public-light-theme)) .hover\:bg-gray-100\/80:hover {
+  background-color: #2b2d35 !important;
 }
 
 @theme {
@@ -755,5 +808,21 @@ select.input {
     box-shadow: none !important;
     border: none !important;
     background: #ffffff !important;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────
+   Collapsible sidebar — driven by data-sidebar-collapsed on <html>
+   ─────────────────────────────────────────────────────────────── */
+.dashboard-main {
+  margin-left: 0;
+}
+@media (min-width: 768px) {
+  .dashboard-main {
+    margin-left: 16rem; /* w-64 = 256px */
+    transition: margin-left 200ms ease;
+  }
+  html[data-sidebar-collapsed="true"] .dashboard-main {
+    margin-left: 4rem; /* w-16 = 64px */
   }
 }

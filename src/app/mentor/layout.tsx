@@ -42,7 +42,7 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) {
         if (pathname !== '/mentor/auth' && pathname !== '/mentor/apply') {
           router.push('/mentor/auth')
@@ -50,18 +50,23 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
         return
       }
 
-      supabase
+      const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, school_name, avatar_url')
+        .select('full_name, school_name, avatar_url, is_mentor, role, is_admin')
         .eq('id', data.user.id)
         .maybeSingle()
-        .then(({ data: profile }) => {
-          const name = profile?.full_name || data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Mentor Alumni'
-          const uni = profile?.school_name || data.user.user_metadata?.university || 'Alumni PTN Resmi'
-          setMentorName(name)
-          setMentorUni(uni)
-          if (profile?.avatar_url) setMentorAvatar(profile.avatar_url)
-        })
+
+      const isMentor = profile?.is_mentor || profile?.role === 'mentor' || profile?.is_admin || profile?.role === 'superadmin' || data.user.email === 'admin@otwptn.id'
+      if (!isMentor && pathname !== '/mentor/auth' && pathname !== '/mentor/apply') {
+        router.replace('/dashboard')
+        return
+      }
+
+      const name = profile?.full_name || data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Mentor Alumni'
+      const uni = profile?.school_name || data.user.user_metadata?.university || 'Alumni PTN Resmi'
+      setMentorName(name)
+      setMentorUni(uni)
+      if (profile?.avatar_url) setMentorAvatar(profile.avatar_url)
     })
   }, [pathname, router])
 
@@ -81,7 +86,7 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
       <div className="flex items-center justify-between px-5 pt-6 pb-5 flex-shrink-0">
         <Link href="/mentor/dashboard" className="flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="otwptn" style={{ height: 45, width: 'auto' }} className="transition-transform hover:scale-105" />
+          <img src="/logo.png" alt="otwptn" className="logo-adaptive transition-transform hover:scale-105" style={{ height: 45, width: 'auto' }} />
           <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-400 text-amber-950 uppercase tracking-wider">
             Mentor
           </span>
@@ -178,7 +183,7 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
       >
         <Link href="/mentor/dashboard" className="flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="otwptn" style={{ height: 26, width: 'auto' }} />
+          <img src="/logo.png" alt="otwptn" className="logo-adaptive" style={{ height: 26, width: 'auto' }} />
           <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-400 text-amber-950 uppercase">
             Mentor
           </span>

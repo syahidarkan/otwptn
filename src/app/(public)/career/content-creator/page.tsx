@@ -10,19 +10,12 @@ import {
   MapPin,
   Clock,
   DollarSign,
-  Smartphone,
   CheckCircle2,
   ArrowRight,
   Send,
-  HelpCircle,
   Award,
-  Users,
-  Flame,
   ShieldCheck,
-  Star,
-  Play,
 } from 'lucide-react'
-import CardPattern from '@/components/ui/CardPattern'
 
 const QUALIFICATIONS = [
   'Berusia 16 - 24 tahun (Siswa SMA, SMK, Gap Year, atau Mahasiswa aktif).',
@@ -42,8 +35,8 @@ const RESPONSIBILITIES = [
 
 const PERKS = [
   {
-    title: 'Penghasilan Menarik',
-    desc: 'Dapatkan Rp 1.000.000 hingga Rp 10.000.000 per bulan berdasarkan performa video dan pencapaian views.',
+    title: 'Fee Per Video Rp 35.000',
+    desc: 'Dibayar Rp 35.000 per video yang diterima tim. Upload 5–7 video/minggu = Rp 700k–980k/minggu. Tidak ada batas maksimal penghasilan.',
     icon: DollarSign,
   },
   {
@@ -148,8 +141,7 @@ export default function ContentCreatorCareerPage() {
     : '#'
 
   return (
-    <div className="min-h-screen bg-gray-50/60 relative">
-      <CardPattern type="pintarly-doodles" opacity={0.35} />
+    <div className="min-h-screen bg-white relative">
 
       {/* Header Bar */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-100">
@@ -169,13 +161,8 @@ export default function ContentCreatorCareerPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-10 pb-8">
+      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-8">
         <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100/90 text-amber-950 border border-amber-300 text-xs font-black">
-            <Flame size={14} className="text-amber-600 fill-amber-600" />
-            <span>HOT OPPORTUNITY · PART TIME / REMOTE</span>
-          </div>
-
           <h1 className="text-3xl sm:text-5xl font-black text-gray-950 tracking-tight leading-tight">
             Marketing Partner <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600">
@@ -184,7 +171,7 @@ export default function ContentCreatorCareerPage() {
           </h1>
 
           <p className="text-sm sm:text-base text-gray-700 max-w-2xl font-medium leading-relaxed">
-            Hasilkan <strong>Rp 1.000.000 - Rp 10.000.000 per bulan</strong> dari rumah dengan membuat konten video pendek seputar perjuangan masuk PTN impian. Bantu jutaan pejuang kampus sambil bangun personal branding kamu!
+            Dibayar <strong>Rp 35.000 per video</strong> yang diterima tim. Upload 5–7 video/minggu = Rp 700k–980k/minggu dari rumah. Bantu jutaan pejuang PTN sambil bangun personal branding kamu!
           </p>
 
           {/* Quick Metrics Badges */}
@@ -198,8 +185,8 @@ export default function ContentCreatorCareerPage() {
               <p className="text-xs sm:text-sm font-black text-gray-900 mt-0.5">Work From Anywhere</p>
             </div>
             <div className="p-3.5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
-              <span className="text-[10px] uppercase font-bold text-gray-400 block">Rentang Gaji</span>
-              <p className="text-xs sm:text-sm font-black text-emerald-600 mt-0.5">Rp 1jt - Rp 10jt / bln</p>
+              <span className="text-[10px] uppercase font-bold text-gray-400 block">Kompensasi</span>
+              <p className="text-xs sm:text-sm font-black text-emerald-600 mt-0.5">Rp 35.000 / video</p>
             </div>
             <div className="p-3.5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
               <span className="text-[10px] uppercase font-bold text-gray-400 block">Syarat Followers</span>
@@ -292,9 +279,6 @@ export default function ContentCreatorCareerPage() {
         <div className="lg:col-span-5 sticky top-20">
           <div className="p-6 sm:p-8 rounded-3xl bg-white border-2 border-amber-300 shadow-xl space-y-6">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider mb-2">
-                <span>Formulir Pendaftaran Resmi</span>
-              </div>
               <h3 className="text-xl font-black text-gray-950 tracking-tight">
                 Daftar Jadi Marketing Partner
               </h3>
