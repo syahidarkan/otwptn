@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 import { render } from '@react-email/render'
 import type React from 'react'
 import { LEGAL_ENTITY } from '@/lib/constants'
@@ -47,33 +48,27 @@ export async function sendUniversalEmail(options: SendEmailOptions): Promise<{ s
   const { to, subject, html, text } = options
   const recipients = Array.isArray(to) ? to : [to]
   const fromName = 'OtwPTN Indonesia'
-  const fromAddress = process.env.EMAIL_FROM || process.env.GMAIL_USER || 'halo@otwptn.id'
+  const fromAddress = process.env.RESEND_FROM_EMAIL || process.env.EMAIL_FROM || 'onboarding@resend.dev'
 
-  // 1. Prioritas Pertama: RESEND API (Jika ada API Key)
+  // 1. Prioritas Pertama: RESEND SDK (Jika ada API Key)
   if (process.env.RESEND_API_KEY) {
     try {
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: `${fromName} <${fromAddress}>`,
-          to: recipients,
-          subject,
-          html,
-          text: text || html.replace(/<[^>]*>?/gm, ''),
-        }),
+      const resend = new Resend(process.env.RESEND_API_KEY)
+      const sender = fromAddress.includes('<') ? fromAddress : `${fromName} <${fromAddress}>`
+      const { data, error } = await resend.emails.send({
+        from: sender,
+        to: recipients,
+        subject,
+        html,
+        text: text || html.replace(/<[^>]*>?/gm, ''),
       })
 
-      const data = await res.json()
-      if (res.ok) {
+      if (!error && data) {
         return { success: true, provider: 'resend', messageId: data.id }
       }
-      console.warn('Resend API returned error, falling back to Gmail SMTP...', data)
+      console.warn('Resend SDK returned error, falling back to Gmail SMTP...', error)
     } catch (err: any) {
-      console.warn('Resend API failed, trying Gmail SMTP:', err.message)
+      console.warn('Resend SDK failed, trying Gmail SMTP:', err.message)
     }
   }
 
