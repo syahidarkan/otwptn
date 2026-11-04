@@ -113,10 +113,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Gagal membuat payment link', details: mayarData }, { status: 502 })
     }
 
-    // data.link = /pl/{slug} embed URL (broken iframeResizer)
-    // /pay/{id} = standalone payment page (works)
-    const merchantSlug = process.env.MAYAR_MERCHANT_SLUG ?? 'otwptn'
-    const paymentUrl = `https://${merchantSlug}.myr.id/pay/${mayarData.data.id}`
+    // data.link is the full payment page URL returned by Mayar create API
+    // e.g. https://otwptn.myr.id/pl/{slug}  — use it directly, /pay/{uuid} is not a valid format
+    const paymentUrl = mayarData.data.link as string
 
     await supabase.from('orders').update({
       doku_reference: mayarData.data.id,
