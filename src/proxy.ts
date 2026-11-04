@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PROTECTED_PATHS = ['/dashboard', '/onboarding', '/akun']
+const PROTECTED_PATHS = ['/dashboard', '/onboarding', '/akun', '/profil']
 const AUTH_PATHS = ['/login', '/register']
 
 export async function proxy(request: NextRequest) {
@@ -27,31 +27,49 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const pathname = request.nextUrl.pathname
 
-  const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p))
-  const isAuthPage = AUTH_PATHS.some((p) => pathname === p)
+  // Redirect logged-in users away from auth pages
+  if (user && AUTH_PATHS.some(p => pathname === p)) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
 
+  // Redirect unauthenticated users away from protected pages
+  const isProtected = PROTECTED_PATHS.some(p => pathname.startsWith(p))
   if (isProtected && !user) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  if (isAuthPage && user) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+  // Mentor routes — unauthenticated
+  if (!user && pathname.startsWith('/mentor') && pathname !== '/mentor/auth' && pathname !== '/mentor/apply') {
+    return NextResponse.redirect(new URL('/mentor/auth', request.url))
   }
 
-  // Admin protection
-  if (pathname.startsWith('/admin')) {
-    const devAdminCookie = request.cookies.get('otwptn_dev_admin')?.value
-    if (process.env.NODE_ENV === 'development' || devAdminCookie === '1') {
-      return supabaseResponse
-    }
-    if (!user) return NextResponse.redirect(new URL('/login', request.url))
-    const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single()
-    if (!profile?.is_admin) return NextResponse.redirect(new URL('/akses-ditolak', request.url))
+  // Admin RBAC
+  if (user && pathname.startsWith('/admin')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin, role')
+      .eq('id', user.id)
+      .single()
+
+    const isAdmin = profile?.is_admin || profile?.role === 'superadmin' || user.email === 'admin@otwptn.id'
+    if (!isAdmin) return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
+  // Mentor RBAC
+  if (user && pathname.startsWith('/mentor') && pathname !== '/mentor/auth' && pathname !== '/mentor/apply') {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_mentor, role, is_admin')
+      .eq('id', user.id)
+      .single()
+
+    const isMentor = profile?.is_mentor || profile?.role === 'mentor' || profile?.is_admin || profile?.role === 'superadmin' || user.email === 'admin@otwptn.id'
+    if (!isMentor) return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
   return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|icon.svg|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|otf|mp4|pdf)).*)',],
 }
