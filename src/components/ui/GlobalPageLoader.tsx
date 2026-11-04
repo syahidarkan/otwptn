@@ -105,12 +105,7 @@ export default function GlobalPageLoader() {
     <>
       {/* Honey drip fullscreen transition */}
       {honeyPhase !== 'idle' && (
-        <HoneyFill
-          phase={honeyPhase}
-          onComplete={() => {
-            if (honeyPhaseRef.current === 'exiting') setHoneyPhase('idle')
-          }}
-        />
+        <HoneyFill phase={honeyPhase} />
       )}
 
       {/* Amber progress bar */}
