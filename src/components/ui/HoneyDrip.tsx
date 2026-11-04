@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface HoneyDripProps {
   mode?: 'separator' | 'fullscreen'
@@ -10,16 +10,15 @@ interface HoneyDripProps {
 
 interface DripDef { cx: number; hw: number; len: number }
 
-// Bridge height: solid amber band connecting honey body to drip shapes (eliminates gaps at top)
 const BRIDGE_H = 35
 
 function honeyBottomPath(drips: DripDef[], W = 1200, yOffset = 0): string {
   const sorted = [...drips].sort((a, b) => a.cx - b.cx)
   const parts: string[] = [`M 0 ${yOffset}`]
   for (const { cx, hw, len } of sorted) {
-    const nw = hw * 0.38      // tight neck (more teardrop-like)
+    const nw = hw * 0.38
     const ny = yOffset + len * 0.27
-    const bw = hw * 0.92      // belly slightly wider than stem
+    const bw = hw * 0.92
     const by = yOffset + len * 0.65
     const tr = hw * 0.11
     const tipY = yOffset + len
@@ -37,7 +36,17 @@ function honeyBottomPath(drips: DripDef[], W = 1200, yOffset = 0): string {
   return parts.join(' ')
 }
 
-// 12 drips evenly spaced so adjacent stems are ≤4px apart — no visible gaps at bridge level
+const SEP_DRIPS: DripDef[] = [
+  { cx: 4,  hw: 3.5, len: 50 }, { cx: 13, hw: 2.6, len: 34 },
+  { cx: 22, hw: 4.2, len: 65 }, { cx: 32, hw: 3.0, len: 40 },
+  { cx: 41, hw: 3.6, len: 58 }, { cx: 50, hw: 4.8, len: 76 },
+  { cx: 60, hw: 2.8, len: 32 }, { cx: 69, hw: 4.0, len: 63 },
+  { cx: 78, hw: 3.2, len: 44 }, { cx: 87, hw: 3.8, len: 68 },
+  { cx: 94, hw: 2.6, len: 38 }, { cx: 98, hw: 3.0, len: 52 },
+]
+const SEP_BOTTOM_PATH = honeyBottomPath(SEP_DRIPS, 100, 4)
+
+// SVG fallback drips (used when video not available)
 const FULL_DRIPS: DripDef[] = [
   { cx: 54,   hw: 50, len: 128 },
   { cx: 150,  hw: 44, len: 150 },
@@ -53,16 +62,6 @@ const FULL_DRIPS: DripDef[] = [
   { cx: 1150, hw: 48, len: 136 },
 ]
 const FULL_BOTTOM_PATH = honeyBottomPath(FULL_DRIPS, 1200, BRIDGE_H)
-
-const SEP_DRIPS: DripDef[] = [
-  { cx: 4,  hw: 3.5, len: 50 }, { cx: 13, hw: 2.6, len: 34 },
-  { cx: 22, hw: 4.2, len: 65 }, { cx: 32, hw: 3.0, len: 40 },
-  { cx: 41, hw: 3.6, len: 58 }, { cx: 50, hw: 4.8, len: 76 },
-  { cx: 60, hw: 2.8, len: 32 }, { cx: 69, hw: 4.0, len: 63 },
-  { cx: 78, hw: 3.2, len: 44 }, { cx: 87, hw: 3.8, len: 68 },
-  { cx: 94, hw: 2.6, len: 38 }, { cx: 98, hw: 3.0, len: 52 },
-]
-const SEP_BOTTOM_PATH = honeyBottomPath(SEP_DRIPS, 100, 4)
 
 const HONEY_GRADIENT =
   'linear-gradient(180deg,#92400e 0%,#b45309 8%,#d97706 18%,#f59e0b 42%,#fbbf24 68%,#fcd34d 86%,#fde68a 100%)'
@@ -91,27 +90,51 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
 
 interface HoneyFillProps { phase: 'entering' | 'holding' | 'exiting' }
 
+// VIDEO_DRIP_HEIGHT: how tall the video drip area should be below the honey body
+const VIDEO_DRIP_HEIGHT = 420  // px — taller than SVG drip, shows more of the video
+
 export function HoneyFill({ phase }: HoneyFillProps) {
   const [cls, setCls] = useState('')
+  const [videoOk, setVideoOk] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
   useEffect(() => {
-    if (phase === 'entering')     setCls('hf-enter')
-    else if (phase === 'holding') setCls('hf-hold')
-    else if (phase === 'exiting') setCls('hf-exit')
+    if (phase === 'entering') {
+      setCls('hf-enter')
+      videoRef.current?.play().catch(() => null)
+    } else if (phase === 'holding') {
+      setCls('hf-hold')
+    } else if (phase === 'exiting') {
+      setCls('hf-exit')
+      // Pause video when exiting so it doesn't glitch on next enter
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.pause()
+          videoRef.current.currentTime = 0
+        }
+      }, 650)
+    }
   }, [phase])
+
+  const totalH = `calc(67vh + ${VIDEO_DRIP_HEIGHT}px)`
 
   return (
     <>
       {/*
-        Layout:
-          Honey body  = 0 → 67vh (amber gradient)
-          Drip SVG   = 67vh → 67vh+220px
-            - Bridge rect (y 0–35): solid #fde68a → seamless join to honey body, no gaps
-            - Drip path  (y 35–203): amber teardrop shapes, gradient #fde68a→#b45309
+        Honey body    = 0 → 67vh (solid amber CSS gradient)
+        Drip area     = 67vh → 67vh+VIDEO_DRIP_HEIGHT
+          - If honey-drip.mp4 exists: video with mix-blend-mode:multiply
+            (white background → transparent, amber honey → visible drip shapes)
+          - Fallback: SVG drip path
 
-        Clip-path animations:
-          enter: inset bottom 100%→0  → bottom boundary sweeps down (honey flows in top→bottom)
-          hold:  inset 0 0 0 0        → fully visible
-          exit:  inset top 0→100%     → top boundary sweeps up  (page revealed from top first)
+        mix-blend-mode: multiply explanation:
+          white  (#fff)   × page-bg  = page-bg   → background disappears
+          amber  (#f59e0b)× page-bg  = deeper amber → drips stay visible
+
+        clip-path:
+          enter: inset bottom 100→0  (honey flows in top-to-bottom)
+          hold:  inset 0 0 0 0       (fully visible)
+          exit:  inset top 0→100%    (page revealed top-first)
       */}
       <style>{`
         .hf-root{clip-path:inset(0 0 100% 0);}
@@ -127,13 +150,13 @@ export function HoneyFill({ phase }: HoneyFillProps) {
         className={`hf-root${cls ? ' '+cls : ''}`}
         style={{
           position: 'fixed', top: 0, left: 0, right: 0,
-          height: 'calc(67vh + 220px)',
+          height: totalH,
           zIndex: 999997,
           pointerEvents: 'none',
           userSelect: 'none',
         }}
       >
-        {/* Honey body: 0 → 67vh */}
+        {/* Honey body: solid amber, covers top 67vh */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: '67vh',
           background: HONEY_GRADIENT,
@@ -141,33 +164,57 @@ export function HoneyFill({ phase }: HoneyFillProps) {
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 10, background: 'rgba(255,255,255,0.18)' }} />
         </div>
 
-        {/*
-          Drip SVG at 67vh — 220px tall
-          Bridge rect (0–35px): solid amber, eliminates gaps between drip stems
-          Drip path (35–220px): organic teardrop shapes with deep amber gradient
-          Gradient y1=35 (drip tops) → y2=220, so color reads amber not pale at start
-        */}
-        <svg
-          viewBox="0 0 1200 220"
-          preserveAspectRatio="none"
-          width="100%" height={220}
-          style={{ position: 'absolute', top: '67vh', left: 0, right: 0, display: 'block' }}
-        >
-          <defs>
-            <linearGradient id="hff-g" x1="0" y1={BRIDGE_H} x2="0" y2="220" gradientUnits="userSpaceOnUse">
-              <stop offset="0%"   stopColor="#fde68a" />
-              <stop offset="22%"  stopColor="#fbbf24" />
-              <stop offset="50%"  stopColor="#f59e0b" />
-              <stop offset="72%"  stopColor="#d97706" />
-              <stop offset="88%"  stopColor="#b45309" />
-              <stop offset="100%" stopColor="#b45309" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          {/* Bridge: solid amber band that fills all gaps between drip stems */}
-          <rect x="0" y="0" width="1200" height={BRIDGE_H} fill="#fde68a" />
-          {/* Drip shapes hanging from bridge */}
-          <path d={FULL_BOTTOM_PATH} fill="url(#hff-g)" />
-        </svg>
+        {/* Drip area: video preferred, SVG fallback */}
+        <div style={{
+          position: 'absolute', top: '67vh', left: 0, right: 0,
+          height: VIDEO_DRIP_HEIGHT,
+          overflow: 'hidden',
+        }}>
+          {/* Real honey video — place file at /public/honey-drip.mp4 */}
+          <video
+            ref={videoRef}
+            muted
+            playsInline
+            preload="auto"
+            onCanPlay={() => setVideoOk(true)}
+            onError={() => setVideoOk(false)}
+            style={{
+              display: videoOk ? 'block' : 'none',
+              position: 'absolute', top: 0, left: 0,
+              width: '100%', height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'top center',
+              // mix-blend-mode: multiply → white bg becomes transparent, amber honey stays
+              mixBlendMode: 'multiply',
+            }}
+          >
+            <source src="/honey-drip.webm" type="video/webm" />
+            <source src="/honey-drip.mp4"  type="video/mp4" />
+          </video>
+
+          {/* SVG fallback when video not loaded */}
+          {!videoOk && (
+            <svg
+              viewBox="0 0 1200 220"
+              preserveAspectRatio="none"
+              width="100%" height={220}
+              style={{ display: 'block' }}
+            >
+              <defs>
+                <linearGradient id="hff-g" x1="0" y1={BRIDGE_H} x2="0" y2="220" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%"   stopColor="#fde68a" />
+                  <stop offset="22%"  stopColor="#fbbf24" />
+                  <stop offset="50%"  stopColor="#f59e0b" />
+                  <stop offset="72%"  stopColor="#d97706" />
+                  <stop offset="88%"  stopColor="#b45309" />
+                  <stop offset="100%" stopColor="#b45309" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <rect x="0" y="0" width="1200" height={BRIDGE_H} fill="#fde68a" />
+              <path d={FULL_BOTTOM_PATH} fill="url(#hff-g)" />
+            </svg>
+          )}
+        </div>
       </div>
     </>
   )
