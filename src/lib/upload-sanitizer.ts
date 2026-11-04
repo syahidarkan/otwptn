@@ -103,3 +103,4 @@ export async function validateUploadedFile(file: File): Promise<ValidationResult
     detectedType: file.type || ext,
   }
 }
+

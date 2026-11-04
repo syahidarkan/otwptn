@@ -222,6 +222,7 @@ export default function CariTemanBelajarPage() {
   const webrtcRef = useRef<StudyCamWebRTC | null>(null)
   const myId = useRef('user_' + Math.random().toString(36).substring(2, 9))
   const [isAudioBlocked, setIsAudioBlocked] = useState(false)
+  const [hasRemoteVideo, setHasRemoteVideo] = useState(false)
 
   // In-session Chat
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
@@ -356,23 +357,36 @@ export default function CariTemanBelajarPage() {
             time: 'Baru saja',
           },
         ])
+        setPhase('connected')
       },
       onRemoteStream: (remoteStream) => {
         remoteStreamRef.current = remoteStream
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = remoteStream
-          remoteVideoRef.current.muted = false
-          remoteVideoRef.current.play().catch(() => {
-            setIsAudioBlocked(true)
-          })
-        }
-        if (remoteAudioRef.current) {
-          remoteAudioRef.current.srcObject = remoteStream
-          remoteAudioRef.current.play().catch(() => {
-            setIsAudioBlocked(true)
-          })
-        }
         setPhase('connected')
+
+        // 1. Video playback with immediate fallback so screen NEVER stays black
+        const videoEl = remoteVideoRef.current
+        if (videoEl) {
+          if (videoEl.srcObject !== remoteStream) {
+            videoEl.srcObject = remoteStream
+          }
+          videoEl.play().catch(() => {
+            console.warn('[StudyCam] Unmuted autoplay blocked by browser policy. Fallback to muted video + tap to unmute.')
+            videoEl.muted = true
+            videoEl.play().catch(e => console.error('[StudyCam] Failed muted play:', e))
+            setIsAudioBlocked(true)
+          })
+        }
+
+        // 2. Audio playback via dedicated element
+        const audioEl = remoteAudioRef.current
+        if (audioEl) {
+          if (audioEl.srcObject !== remoteStream) {
+            audioEl.srcObject = remoteStream
+          }
+          audioEl.play().catch(() => {
+            setIsAudioBlocked(true)
+          })
+        }
       },
       onPeerLeft: () => {
         if (remoteVideoRef.current) {
@@ -385,9 +399,11 @@ export default function CariTemanBelajarPage() {
         setCurrentPeer(null)
         setPhase('idle')
         setIsAudioBlocked(false)
+        setHasRemoteVideo(false)
       },
       onTimeout: () => {
         setPhase('timeout')
+        setHasRemoteVideo(false)
       },
     })
 
@@ -398,16 +414,23 @@ export default function CariTemanBelajarPage() {
   // Ensure remote stream is mounted and playing once phase switches to connected
   useEffect(() => {
     if (phase === 'connected' && remoteStreamRef.current) {
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = remoteStreamRef.current
-        remoteVideoRef.current.muted = false
-        remoteVideoRef.current.play().catch(() => {
+      const videoEl = remoteVideoRef.current
+      if (videoEl) {
+        if (videoEl.srcObject !== remoteStreamRef.current) {
+          videoEl.srcObject = remoteStreamRef.current
+        }
+        videoEl.play().catch(() => {
+          videoEl.muted = true
+          videoEl.play().catch(() => {})
           setIsAudioBlocked(true)
         })
       }
-      if (remoteAudioRef.current) {
-        remoteAudioRef.current.srcObject = remoteStreamRef.current
-        remoteAudioRef.current.play().catch(() => {
+      const audioEl = remoteAudioRef.current
+      if (audioEl) {
+        if (audioEl.srcObject !== remoteStreamRef.current) {
+          audioEl.srcObject = remoteStreamRef.current
+        }
+        audioEl.play().catch(() => {
           setIsAudioBlocked(true)
         })
       }
@@ -440,6 +463,7 @@ export default function CariTemanBelajarPage() {
     }
     remoteStreamRef.current = null
     setIsAudioBlocked(false)
+    setHasRemoteVideo(false)
     setPhase('idle')
     setCurrentPeer(null)
     setAddedCurrent(false)
@@ -760,15 +784,44 @@ export default function CariTemanBelajarPage() {
                 playsInline
                 onLoadedMetadata={(e) => {
                   const el = e.target as HTMLVideoElement
-                  el.muted = false
                   el.play().catch(() => {
+                    el.muted = true
+                    el.play().catch(() => {})
                     setIsAudioBlocked(true)
                   })
+                  if (el.videoWidth > 0) {
+                    setHasRemoteVideo(true)
+                  }
+                }}
+                onPlaying={(e) => {
+                  const el = e.target as HTMLVideoElement
+                  if (el.videoWidth > 0) {
+                    setHasRemoteVideo(true)
+                  }
                 }}
                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
-                  phase === 'connected' ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none'
+                  phase === 'connected' && hasRemoteVideo ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none'
                 }`}
               />
+
+              {/* Connected Fallback Avatar / Audio Card if camera video is still loading or peer has no webcam */}
+              {phase === 'connected' && !hasRemoteVideo && currentPeer && (
+                <div className="relative z-10 flex flex-col items-center justify-center p-6 text-center animate-in fade-in">
+                  <div className="relative mb-3">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 text-amber-950 font-black text-2xl flex items-center justify-center shadow-lg border-2 border-white/20 animate-pulse">
+                      {currentPeer.name.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-gray-950 flex items-center justify-center">
+                      <Sparkles size={11} className="text-white" />
+                    </div>
+                  </div>
+                  <h4 className="text-base font-black text-white">{currentPeer.name}</h4>
+                  <p className="text-xs text-amber-300 font-bold mt-0.5">{currentPeer.school} · {currentPeer.city}</p>
+                  <span className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/10 text-gray-200 border border-white/10 backdrop-blur-xs">
+                    <Volume2 size={12} className="text-amber-400 animate-pulse" /> Sesi Suara Aktif · Memuat Kamera...
+                  </span>
+                </div>
+              )}
 
               {/* Unmute notification if browser blocked unmuted autoplay */}
               {isAudioBlocked && phase === 'connected' && (
@@ -776,11 +829,14 @@ export default function CariTemanBelajarPage() {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation()
+                    if (remoteVideoRef.current) {
+                      remoteVideoRef.current.muted = false
+                    }
                     if (remoteAudioRef.current) {
                       remoteAudioRef.current.play().then(() => setIsAudioBlocked(false)).catch(() => {})
                     }
                   }}
-                  className="absolute top-20 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full text-xs font-black bg-amber-400 text-gray-950 shadow-2xl flex items-center gap-2 animate-bounce"
+                  className="absolute top-20 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full text-xs font-black bg-amber-400 text-gray-950 shadow-2xl flex items-center gap-2 animate-bounce cursor-pointer"
                 >
                   <Volume2 size={14} /> Ketuk untuk Aktifkan Suara Teman
                 </button>

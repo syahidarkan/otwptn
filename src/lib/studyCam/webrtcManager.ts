@@ -422,7 +422,28 @@ export class StudyCamWebRTC {
         }
         streamToDeliver = this.remoteStream
       }
+
+      // Re-trigger callbacks when additional tracks arrive (e.g. video track after audio track)
+      streamToDeliver.onaddtrack = () => {
+        this.callbacks.onRemoteStream(streamToDeliver)
+      }
+
       this.callbacks.onRemoteStream(streamToDeliver)
+    }
+
+    // ICE connection state listener with auto-restart
+    pc.oniceconnectionstatechange = () => {
+      if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+        if (this.remoteStream && this.remoteStream.getTracks().length > 0) {
+          this.callbacks.onRemoteStream(this.remoteStream)
+        }
+      } else if (pc.iceConnectionState === 'failed') {
+        try {
+          pc.restartIce()
+        } catch (e) {
+          console.warn('[StudyCam WebRTC] restartIce error:', e)
+        }
+      }
     }
 
     // Robust connection state listener: 10s grace period for temporary network jitter
