@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface HoneyDripProps {
   mode?: 'separator' | 'fullscreen'
@@ -46,7 +46,6 @@ const SEP_DRIPS: DripDef[] = [
 ]
 const SEP_BOTTOM_PATH = honeyBottomPath(SEP_DRIPS, 100, 4)
 
-// SVG fallback drips (used when video not available)
 const FULL_DRIPS: DripDef[] = [
   { cx: 54,   hw: 50, len: 128 },
   { cx: 150,  hw: 44, len: 150 },
@@ -90,52 +89,16 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
 
 interface HoneyFillProps { phase: 'entering' | 'holding' | 'exiting' }
 
-// VIDEO_DRIP_HEIGHT: how tall the video drip area should be below the honey body
-const VIDEO_DRIP_HEIGHT = 420  // px — taller than SVG drip, shows more of the video
-
 export function HoneyFill({ phase }: HoneyFillProps) {
   const [cls, setCls] = useState('')
-  const [videoOk, setVideoOk] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
-
   useEffect(() => {
-    if (phase === 'entering') {
-      setCls('hf-enter')
-      videoRef.current?.play().catch(() => null)
-    } else if (phase === 'holding') {
-      setCls('hf-hold')
-    } else if (phase === 'exiting') {
-      setCls('hf-exit')
-      // Pause video when exiting so it doesn't glitch on next enter
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.pause()
-          videoRef.current.currentTime = 0
-        }
-      }, 650)
-    }
+    if (phase === 'entering')     setCls('hf-enter')
+    else if (phase === 'holding') setCls('hf-hold')
+    else if (phase === 'exiting') setCls('hf-exit')
   }, [phase])
-
-  const totalH = `calc(67vh + ${VIDEO_DRIP_HEIGHT}px)`
 
   return (
     <>
-      {/*
-        Honey body    = 0 → 67vh (solid amber CSS gradient)
-        Drip area     = 67vh → 67vh+VIDEO_DRIP_HEIGHT
-          - If honey-drip.mp4 exists: video with mix-blend-mode:multiply
-            (white background → transparent, amber honey → visible drip shapes)
-          - Fallback: SVG drip path
-
-        mix-blend-mode: multiply explanation:
-          white  (#fff)   × page-bg  = page-bg   → background disappears
-          amber  (#f59e0b)× page-bg  = deeper amber → drips stay visible
-
-        clip-path:
-          enter: inset bottom 100→0  (honey flows in top-to-bottom)
-          hold:  inset 0 0 0 0       (fully visible)
-          exit:  inset top 0→100%    (page revealed top-first)
-      */}
       <style>{`
         .hf-root{clip-path:inset(0 0 100% 0);}
         .hf-root.hf-enter{animation:hf-in 1.0s cubic-bezier(0.42,0,0.1,1) forwards;}
@@ -150,13 +113,13 @@ export function HoneyFill({ phase }: HoneyFillProps) {
         className={`hf-root${cls ? ' '+cls : ''}`}
         style={{
           position: 'fixed', top: 0, left: 0, right: 0,
-          height: totalH,
+          height: 'calc(67vh + 220px)',
           zIndex: 999997,
           pointerEvents: 'none',
           userSelect: 'none',
         }}
       >
-        {/* Honey body: solid amber, covers top 67vh */}
+        {/* Honey body: 0–67vh */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: '67vh',
           background: HONEY_GRADIENT,
@@ -164,57 +127,26 @@ export function HoneyFill({ phase }: HoneyFillProps) {
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 10, background: 'rgba(255,255,255,0.18)' }} />
         </div>
 
-        {/* Drip area: video preferred, SVG fallback */}
-        <div style={{
-          position: 'absolute', top: '67vh', left: 0, right: 0,
-          height: VIDEO_DRIP_HEIGHT,
-          overflow: 'hidden',
-        }}>
-          {/* Real honey video — place file at /public/honey-drip.mp4 */}
-          <video
-            ref={videoRef}
-            muted
-            playsInline
-            preload="auto"
-            onCanPlay={() => setVideoOk(true)}
-            onError={() => setVideoOk(false)}
-            style={{
-              display: videoOk ? 'block' : 'none',
-              position: 'absolute', top: 0, left: 0,
-              width: '100%', height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'top center',
-              // mix-blend-mode: multiply → white bg becomes transparent, amber honey stays
-              mixBlendMode: 'multiply',
-            }}
-          >
-            <source src="/honey-drip.webm" type="video/webm" />
-            <source src="/honey-drip.mp4"  type="video/mp4" />
-          </video>
-
-          {/* SVG fallback when video not loaded */}
-          {!videoOk && (
-            <svg
-              viewBox="0 0 1200 220"
-              preserveAspectRatio="none"
-              width="100%" height={220}
-              style={{ display: 'block' }}
-            >
-              <defs>
-                <linearGradient id="hff-g" x1="0" y1={BRIDGE_H} x2="0" y2="220" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%"   stopColor="#fde68a" />
-                  <stop offset="22%"  stopColor="#fbbf24" />
-                  <stop offset="50%"  stopColor="#f59e0b" />
-                  <stop offset="72%"  stopColor="#d97706" />
-                  <stop offset="88%"  stopColor="#b45309" />
-                  <stop offset="100%" stopColor="#b45309" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <rect x="0" y="0" width="1200" height={BRIDGE_H} fill="#fde68a" />
-              <path d={FULL_BOTTOM_PATH} fill="url(#hff-g)" />
-            </svg>
-          )}
-        </div>
+        {/* SVG drip shapes at 67vh */}
+        <svg
+          viewBox="0 0 1200 220"
+          preserveAspectRatio="none"
+          width="100%" height={220}
+          style={{ position: 'absolute', top: '67vh', left: 0, right: 0, display: 'block' }}
+        >
+          <defs>
+            <linearGradient id="hff-g" x1="0" y1={BRIDGE_H} x2="0" y2="220" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"   stopColor="#fde68a" />
+              <stop offset="22%"  stopColor="#fbbf24" />
+              <stop offset="50%"  stopColor="#f59e0b" />
+              <stop offset="72%"  stopColor="#d97706" />
+              <stop offset="88%"  stopColor="#b45309" />
+              <stop offset="100%" stopColor="#b45309" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="1200" height={BRIDGE_H} fill="#fde68a" />
+          <path d={FULL_BOTTOM_PATH} fill="url(#hff-g)" />
+        </svg>
       </div>
     </>
   )
