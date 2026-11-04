@@ -6,11 +6,11 @@ import { MascotBee } from './MascotBeeModel'
 import { Sparkles, X, MessageSquare, RotateCcw, Volume2, ChevronUp } from 'lucide-react'
 
 const TIPS = [
-  'Nilai rapor semester 1-5 kamu adalah aset paling berharga di SNBP! 🐝',
-  'Pilihlah sertifikat yang linier dengan jurusan impianmu biar poinnya maksimal! ✨',
-  'Esai motivasi jangan pakai klise "sejak kecil saya bercita-cita", ceritakan aksi nyatamu! 📝',
-  'Yuk cek peluang kelulusanmu dengan Kalkulator Rapor AI otwptn! 🎯',
-  'Butuh bimbingan privat 1-on-1? Ada mentor alumni UI, ITB, & UGM siap bantu! 🎓',
+  'Nilai rapor semester 1-5 kamu adalah aset paling berharga di SNBP!',
+  'Pilihlah sertifikat yang linier dengan jurusan impianmu agar poinnya maksimal!',
+  'Esai motivasi jangan pakai kalimat klise, ceritakan aksi nyata dan kontribusimu!',
+  'Yuk cek peluang kelulusanmu dengan Kalkulator Rapor AI otwptn!',
+  'Butuh bimbingan privat 1-on-1? Ada mentor alumni UI, ITB, & UGM siap mendampingi!',
 ]
 
 interface InteractiveOtbee3DProps {
@@ -225,7 +225,7 @@ export default function InteractiveOtbee3D({
           {/* Header */}
           <div className="px-4 py-3 bg-gradient-to-r from-amber-300 via-amber-200 to-amber-100 flex items-center justify-between border-b border-amber-200">
             <div className="flex items-center gap-2">
-              <span className="text-base">🐝</span>
+              <Sparkles size={15} className="text-amber-800 fill-amber-700" />
               <span className="text-xs font-black text-amber-950 tracking-wide">
                 Otbee 3D Companion
               </span>
@@ -283,8 +283,8 @@ export default function InteractiveOtbee3D({
           onClick={() => setIsOpen(true)}
           className="group relative flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-white/95 hover:bg-white text-gray-900 shadow-xl border border-amber-300 hover:border-amber-400 hover:scale-105 active:scale-95 transition-all duration-200"
         >
-          <div className="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center text-sm shadow-inner group-hover:rotate-12 transition-transform">
-            🐝
+          <div className="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center text-sm shadow-inner group-hover:rotate-12 transition-transform text-amber-950">
+            <Sparkles size={16} className="fill-amber-950" />
           </div>
           <div className="flex flex-col text-left">
             <span className="text-xs font-black text-gray-900 leading-tight flex items-center gap-1">

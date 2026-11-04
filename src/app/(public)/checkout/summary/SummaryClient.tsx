@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   CheckCircle2,
+  Check,
   Download,
   ArrowRight,
   ShieldCheck,
@@ -156,7 +157,9 @@ export default function SummaryClient({
               </h4>
               <p className="text-gray-600"><span className="font-medium text-gray-400">Email:</span> arvel.valerian@gmail.com</p>
               <p className="text-gray-600"><span className="font-medium text-gray-400">WhatsApp:</span> 0812-8716-2819</p>
-              <p className="text-emerald-600 font-semibold mt-1">✓ Notifikasi & Invoice telah terkirim via Email</p>
+              <p className="inline-flex items-center gap-1 text-emerald-600 font-semibold mt-1">
+                <Check size={13} className="text-emerald-600" /> Notifikasi & Invoice telah terkirim via Email
+              </p>
             </div>
           </div>
 

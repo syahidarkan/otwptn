@@ -21,6 +21,7 @@ import {
   X,
   Trash2,
   CheckCircle2,
+  Lock,
 } from 'lucide-react'
 import { LEGAL_ENTITY } from '@/lib/constants'
 
@@ -256,8 +257,8 @@ export default function ProductDetailClient({ id = "nectar", initialCartOpen = f
                   <span className="text-2xl sm:text-3xl font-black text-gray-900">
                     {product.price}
                   </span>
-                  <span className="text-xs font-semibold text-emerald-600 block mt-0.5">
-                    ✓ Sekali Bayar · Tanpa Biaya Tersembunyi
+                  <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1 mt-0.5">
+                    <Check size={12} /> Sekali Bayar · Tanpa Biaya Tersembunyi
                   </span>
                 </div>
                 <div className="text-right">
@@ -319,8 +320,9 @@ export default function ProductDetailClient({ id = "nectar", initialCartOpen = f
                   Proceed to Checkout (Beli Sekarang) →
                 </Link>
 
-                <p className="text-center text-[11px] text-gray-500 font-medium">
-                  🔒 Pembayaran instan aman dan terenkripsi melalui <strong>Midtrans Payment Gateway</strong>
+                <p className="text-center text-[11px] text-gray-500 font-medium flex items-center justify-center gap-1">
+                  <Lock size={12} className="text-gray-400" />
+                  <span>Pembayaran instan aman dan terenkripsi melalui <strong>Midtrans Payment Gateway</strong></span>
                 </p>
               </div>
 

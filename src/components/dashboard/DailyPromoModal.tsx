@@ -153,7 +153,7 @@ export default function DailyPromoModal() {
 
   const handleMintaOrtu = () => {
     const parentMsg = encodeURIComponent(
-      `Halo Ayah / Bunda! 🌟\n\nAku lagi giat persiapan seleksi masuk PTN impian lewat jalur non-tes (SNBP & Mandiri Prestasi) di otwptn.\n\nBiar persiapanku makin mantap dan peluang lolosnya makin tinggi, aku mau minta tolong dibayarin ${currentTier.name} (${currentTier.price}) ya! 🙏\n\nDetail paket & pembayarannya bisa langsung dibuka di sini:\nhttps://otwptn.com/checkout/${currentTier.id}\n\nMakasih banyak ya Ayah/Bunda! ❤️`
+      `Halo Ayah / Bunda!\n\nAku lagi giat persiapan seleksi masuk PTN impian lewat jalur non-tes (SNBP & Mandiri Prestasi) di otwptn.\n\nBiar persiapanku makin mantap dan peluang lolosnya makin tinggi, aku mau minta tolong dibayarin ${currentTier.name} (${currentTier.price}) ya!\n\nDetail paket & pembayarannya bisa langsung dibuka di sini:\nhttps://otwptn.com/checkout/${currentTier.id}\n\nMakasih banyak ya Ayah/Bunda!`
     )
     window.open(`https://wa.me/?text=${parentMsg}`, '_blank')
     handleDismiss()

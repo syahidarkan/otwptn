@@ -176,7 +176,7 @@ export default function AmbassadorDashboardPage() {
       videoUrl: '/promo-demos/atur-strategi.webp',
       previewImg: '/promo-demos/atur-strategi.png',
       desc: 'Screen recording penyusunan strategi prioritas jurusan SNBP, analisis passing grade dan pemetaan saingan sekolah.',
-      caption: `Jangan asal pilih jurusan! Susun strategi SNBP & seleksi mandiri berbasis data di otwptn. Kode referral: "${referralCode}" ➔ ${referralUrl}`,
+      caption: `Jangan asal pilih jurusan! Susun strategi SNBP & seleksi mandiri berbasis data di otwptn. Kode referral: "${referralCode}" -> ${referralUrl}`,
     },
     {
       id: 'demo-ecourse',
@@ -789,11 +789,11 @@ export default function AmbassadorDashboardPage() {
         <div className="space-y-3">
           <div className="flex items-center gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
             {[
-              { id: 'Semua', label: '🌟 Semua Paket' },
-              { id: 'Nectar', label: '🍯 Nectar (Review)' },
-              { id: 'Honeycomb', label: '🐝 Honeycomb (Reguler)' },
-              { id: 'Queen Bee', label: '👑 Queen Bee (VIP)' },
-              { id: 'Akun Premium', label: '⚡ Akun Premium' },
+              { id: 'Semua', label: 'Semua Paket' },
+              { id: 'Nectar', label: 'Nectar (Review)' },
+              { id: 'Honeycomb', label: 'Honeycomb (Reguler)' },
+              { id: 'Queen Bee', label: 'Queen Bee (VIP)' },
+              { id: 'Akun Premium', label: 'Akun Premium' },
             ].map(cat => (
               <button
                 key={cat.id}

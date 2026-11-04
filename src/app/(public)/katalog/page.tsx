@@ -278,10 +278,10 @@ export default function KatalogPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4 text-xs font-bold text-gray-700">
-            <span>✓ QRIS Terverifikasi</span>
-            <span>✓ Virtual Account Otomatis</span>
-            <span>✓ Invoice Resmi</span>
+          <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-gray-700">
+            <span className="flex items-center gap-1"><Check size={13} className="text-emerald-600" /> QRIS Terverifikasi</span>
+            <span className="flex items-center gap-1"><Check size={13} className="text-emerald-600" /> Virtual Account Otomatis</span>
+            <span className="flex items-center gap-1"><Check size={13} className="text-emerald-600" /> Invoice Resmi</span>
           </div>
         </div>
 

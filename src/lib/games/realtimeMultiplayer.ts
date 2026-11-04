@@ -20,7 +20,7 @@ export const POWER_UP_CARDS: PowerUpCard[] = [
     category: 'Sabotase Layar',
     desc: 'Bekukan layar musuh 3.5 detik, tombol terkunci!',
     tag: 'Kunci 3.5s',
-    icon: '❄️',
+    icon: 'Freeze',
     mascot: '/mascot/confused.png',
   },
   {
@@ -29,7 +29,7 @@ export const POWER_UP_CARDS: PowerUpCard[] = [
     category: 'Gangguan Tinta',
     desc: 'Kabut tinta pekat menutupi soal di layar lawan!',
     tag: 'Tinta 3.5s',
-    icon: '🌫️',
+    icon: 'Blur',
     mascot: '/mascot/glasses-writing-desk.png',
   },
   {
@@ -38,7 +38,7 @@ export const POWER_UP_CARDS: PowerUpCard[] = [
     category: 'Pencuri Poin',
     desc: 'Curi 60 poin lawan seketika ke skormu!',
     tag: '+60 Poin',
-    icon: '🥷',
+    icon: 'Steal',
     mascot: '/mascot/coin-bag.png',
   },
   {
@@ -47,7 +47,7 @@ export const POWER_UP_CARDS: PowerUpCard[] = [
     category: 'Proteksi Kebal',
     desc: 'Tangkal 1 serangan kartu sabotase musuh berikutnya!',
     tag: 'Kebal 1x',
-    icon: '🛡️',
+    icon: 'Shield',
     mascot: '/mascot/thumbsup.png',
   },
   {
@@ -56,7 +56,7 @@ export const POWER_UP_CARDS: PowerUpCard[] = [
     category: 'Bantuan Kuis',
     desc: 'Hapus 2 opsi jawaban yang salah dari layarmu!',
     tag: 'Hapus 2 Opsi',
-    icon: '✂️',
+    icon: '50:50',
     mascot: '/mascot/check-paper-happy.png',
   },
   {
@@ -65,7 +65,7 @@ export const POWER_UP_CARDS: PowerUpCard[] = [
     category: 'Pengali Skor',
     desc: 'Poin untuk soal nomor ini berlipat ganda 200%!',
     tag: 'Poin 2X Lipat',
-    icon: '⚡',
+    icon: '2X Poin',
     mascot: '/mascot/star-sparkle.png',
   },
 ]

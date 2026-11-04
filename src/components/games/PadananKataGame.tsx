@@ -186,7 +186,7 @@ export default function PadananKataGame({
         onAttacked: ({ powerUp, attackerName }) => {
           if (hasShield) {
             setHasShield(false)
-            setAttackNotice(`🛡️ Perisaimu menepis serangan ${powerUp} dari ${attackerName}!`)
+            setAttackNotice(`[Perisai] Perisaimu menepis serangan ${powerUp} dari ${attackerName}!`)
             setTimeout(() => setAttackNotice(null), 3000)
             return
           }
@@ -194,17 +194,17 @@ export default function PadananKataGame({
           if (powerUp === 'freeze') {
             setIsFrozen(true)
             if (soundEnabled) playFreezeSound()
-            setAttackNotice(`❄️ ${attackerName} membekukan layarmu selama 3.5 detik!`)
+            setAttackNotice(`[Layar Beku] ${attackerName} membekukan layarmu selama 3.5 detik!`)
             setTimeout(() => setIsFrozen(false), 3500)
             setTimeout(() => setAttackNotice(null), 3500)
           } else if (powerUp === 'blur') {
             setIsBlurred(true)
-            setAttackNotice(`🌫️ ${attackerName} menyemprotkan kabut tinta ke layarmu!`)
+            setAttackNotice(`[Kabut Tinta] ${attackerName} menyemprotkan kabut tinta ke layarmu!`)
             setTimeout(() => setIsBlurred(false), 3500)
             setTimeout(() => setAttackNotice(null), 3500)
           } else if (powerUp === 'steal') {
             setScore(prev => Math.max(0, prev - 1))
-            setAttackNotice(`🥷 ${attackerName} mencuri 1 poin dari skormu!`)
+            setAttackNotice(`[Sabotase Poin] ${attackerName} mencuri 1 poin dari skormu!`)
             setTimeout(() => setAttackNotice(null), 3000)
           }
         },
@@ -661,7 +661,7 @@ export default function PadananKataGame({
                           : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
                       }`}
                     >
-                      🎲 Acak Campuran
+                      Acak Campuran
                     </button>
                   </div>
                 </div>
@@ -811,7 +811,7 @@ export default function PadananKataGame({
                   </div>
                   <div className="text-right">
                     <span className="text-lg sm:text-xl font-black text-gray-950 font-mono">{score}</span>
-                    {hasShield && <span className="text-[9px] text-emerald-700 font-black block">🛡️ Kebal</span>}
+                    {hasShield && <span className="text-[9px] text-emerald-700 font-black block">Perisai Kebal</span>}
                   </div>
                 </div>
 
@@ -868,7 +868,7 @@ export default function PadananKataGame({
                       className="object-contain animate-bounce"
                     />
                   </div>
-                  <h4 className="text-lg font-black text-cyan-200">❄️ Layar Dibekukan!</h4>
+                  <h4 className="text-lg font-black text-cyan-200">Layar Dibekukan!</h4>
                   <p className="text-xs text-cyan-100 max-w-xs mt-0.5">
                     Tombol terkunci sementara selama 3.5 detik akibat kartu sabotase lawan!
                   </p>
@@ -879,7 +879,7 @@ export default function PadananKataGame({
               {isBlurred && (
                 <div className="absolute inset-0 z-20 backdrop-blur-md bg-purple-950/40 flex items-center justify-center">
                   <div className="p-3 rounded-2xl bg-black/70 text-purple-200 text-xs font-black shadow-lg">
-                    🌫️ Efek Kaca Buram Aktif!
+                    Efek Kaca Buram Aktif!
                   </div>
                 </div>
               )}
@@ -892,7 +892,7 @@ export default function PadananKataGame({
                   </span>
                   {isDoubleScore && (
                     <span className="text-[11px] font-black text-yellow-900 bg-yellow-300 px-3 py-1 rounded-full animate-bounce">
-                      ⚡ 2X Poin Aktif!
+                      2X Poin Aktif
                     </span>
                   )}
                 </div>
@@ -1052,12 +1052,12 @@ export default function PadananKataGame({
             <div className="space-y-2">
               <h3 className="text-2xl sm:text-3xl font-black text-gray-950">
                 {mode === 'solo'
-                  ? 'Sesi Latihan Selesai! 🎉'
+                  ? 'Sesi Latihan Selesai!'
                   : score > opponentScore
-                  ? 'Kemenangan Telak! 🏆'
+                  ? 'Kemenangan Telak!'
                   : score === opponentScore
-                  ? 'Hasil Seri! 🤝'
-                  : 'Pertarungan Sengit! ⚔️'}
+                  ? 'Hasil Seri!'
+                  : 'Pertarungan Sengit!'}
               </h3>
               <p className="text-xs sm:text-sm text-gray-600 max-w-md mx-auto">
                 {mode === 'solo'
@@ -1143,11 +1143,11 @@ export default function PadananKataGame({
                         </span>
                         {isCorrect ? (
                           <span className="text-emerald-600 font-black flex items-center gap-1">
-                            ✓ Benar
+                            <CheckCircle2 size={13} className="text-emerald-600" /> Benar
                           </span>
                         ) : (
                           <span className="text-rose-500 font-black flex items-center gap-1">
-                            ✗ Salah / Waktu Habis
+                            <XCircle size={13} className="text-rose-500" /> Salah / Waktu Habis
                           </span>
                         )}
                       </div>

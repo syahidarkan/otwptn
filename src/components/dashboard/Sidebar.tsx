@@ -10,6 +10,7 @@ import {
   Star, ArrowRight, UserCircle2, BarChart3, Clock, Bookmark, Moon,
   MessageSquare, Download, LogOut, Crown, Bell, HelpCircle, Swords,
   ChevronDown,
+  Coins,
 } from 'lucide-react'
 import SidebarPromoCard from './SidebarPromoCard'
 import NotificationPopover from './NotificationPopover'
@@ -473,8 +474,8 @@ export default function Sidebar() {
                 title="Buka Misi Koin Otbee"
               >
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-amber-200 text-amber-900 flex items-center justify-center text-xs font-bold">
-                    🪙
+                  <div className="w-6 h-6 rounded-full bg-amber-200 text-amber-900 flex items-center justify-center">
+                    <Coins size={13} className="text-amber-800" />
                   </div>
                   <span className="text-sm font-extrabold text-gray-900">{coins} Koin</span>
                 </div>

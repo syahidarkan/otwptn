@@ -188,7 +188,7 @@ function KomunitasPostPreview() {
           <div className="text-xs" style={{ color: 'var(--muted)' }}>2 jam lalu</div>
         </div>
       </div>
-      <p className="text-xs leading-relaxed text-fg mb-3">Alhamdulillah diterima PPKB UI Kedokteran! Makasih buat yang udah bantu review essay 🎉</p>
+      <p className="text-xs leading-relaxed text-fg mb-3">Alhamdulillah diterima PPKB UI Kedokteran! Makasih buat yang sudah bantu review essay.</p>
       <div className="flex items-center gap-4 text-xs" style={{ color: 'var(--muted)' }}>
         <span className="flex items-center gap-1"><Heart size={13} /> 128</span>
         <span className="flex items-center gap-1"><MessageCircle size={13} /> 24</span>

@@ -30,6 +30,7 @@ import {
   ThumbsUp,
   Phone,
   Zap,
+  X,
 } from 'lucide-react'
 import { LEGAL_ENTITY } from '@/lib/constants'
 import { autoAssignBatchMentees, type MenteeMatchProfile, type MentorMatchProfile } from '@/lib/mentor-matching'
@@ -335,7 +336,7 @@ export default function SuperAdminMentorsPage() {
       body: JSON.stringify({ action: 'approve', application_id: id }),
     })
     setMentors(prev => prev.map(m => m.id === id ? { ...m, status: 'approved' } : m))
-    setNotification('✓ Mentor berhasil diapprove! Akses dashboard & pembagian mentee aktif.')
+    setNotification('Mentor berhasil diapprove! Akses dashboard & pembagian mentee aktif.')
     setInspectMentor(null)
     setTimeout(() => setNotification(null), 4000)
   }
@@ -347,7 +348,7 @@ export default function SuperAdminMentorsPage() {
       body: JSON.stringify({ action: 'reject', application_id: id }),
     })
     setMentors(prev => prev.map(m => m.id === id ? { ...m, status: 'rejected' } : m))
-    setNotification('✕ Pengajuan mentor ditolak.')
+    setNotification('Pengajuan mentor ditolak.')
     setInspectMentor(null)
     setTimeout(() => setNotification(null), 4000)
   }
@@ -479,7 +480,7 @@ export default function SuperAdminMentorsPage() {
 
     const assignedIds = new Set(assigned.map(a => a.menteeId))
     setUnassignedList(prev => prev.filter(u => !assignedIds.has(u.id)))
-    setNotification(`⚡ Sukses! ${assigned.length} Mentee berhasil di-assign otomatis ke mentor terbaik berdasarkan kecocokan jalur & jurusan!`)
+    setNotification(`Sukses! ${assigned.length} Mentee berhasil di-assign otomatis ke mentor terbaik berdasarkan kecocokan jalur & jurusan!`)
     setTimeout(() => setNotification(null), 5000)
   }
 
@@ -496,7 +497,7 @@ export default function SuperAdminMentorsPage() {
       body: JSON.stringify({ action: 'mark_payout', mentor_id: mentorId }),
     })
     setMentors(prev => prev.map(m => m.id === mentorId ? { ...m, payoutStatus: 'completed' } : m))
-    setNotification('✓ Status transfer honorarium berhasil diperbarui menjadi SELESAI!')
+    setNotification('Status transfer honorarium berhasil diperbarui menjadi SELESAI!')
     setTimeout(() => setNotification(null), 4000)
   }
 
@@ -586,7 +587,7 @@ export default function SuperAdminMentorsPage() {
           <span className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" /> {notification}
           </span>
-          <button onClick={() => setNotification(null)} className="text-white/80 hover:text-white cursor-pointer">✕</button>
+          <button onClick={() => setNotification(null)} className="text-white/80 hover:text-white cursor-pointer"><X size={14} /></button>
         </div>
       )}
 
@@ -624,7 +625,7 @@ export default function SuperAdminMentorsPage() {
             <div className="divide-y divide-gray-100/70">
               {unassignedList.length === 0 ? (
                 <div className="py-6 text-center text-xs text-gray-400 font-semibold">
-                  ✓ Semua antrean mentee telah berhasil ter-assign ke mentor alumni masing-masing.
+                  Semua antrean mentee telah berhasil ter-assign ke mentor alumni masing-masing.
                 </div>
               ) : (
                 unassignedList.map(mentee => (
@@ -739,7 +740,7 @@ export default function SuperAdminMentorsPage() {
                           Lihat LOA & Portofolio
                         </button>
                         {mentor.essayUrl && (
-                          <span className="text-[10px] text-emerald-600 font-medium block">✓ Esai Terlampir</span>
+                          <span className="text-[10px] text-emerald-600 font-medium block">Esai Terlampir</span>
                         )}
                       </td>
                       <td className="p-4">
@@ -926,7 +927,7 @@ export default function SuperAdminMentorsPage() {
                                 <MessageCircle className="w-3.5 h-3.5" />
                                 <div>
                                   <span className="font-bold block">Grup WA 3 Pihak</span>
-                                  <span className="text-[10px]">{mentee.waGroupStatus === 'active' ? 'Sudah Aktif ✓' : 'Belum Dibuat ✕'}</span>
+                                  <span className="text-[10px]">{mentee.waGroupStatus === 'active' ? 'Sudah Aktif' : 'Belum Dibuat'}</span>
                                 </div>
                               </div>
 
@@ -938,7 +939,7 @@ export default function SuperAdminMentorsPage() {
                                 <Video className="w-3.5 h-3.5" />
                                 <div>
                                   <span className="font-bold block">Mentoring Zoom</span>
-                                  <span className="text-[10px]">{mentee.zoomStatus === 'done' ? 'Terlaksana (60m) ✓' : mentee.zoomStatus === 'scheduled' ? 'Terjadwal' : 'Menunggu Booking'}</span>
+                                  <span className="text-[10px]">{mentee.zoomStatus === 'done' ? 'Terlaksana (60m)' : mentee.zoomStatus === 'scheduled' ? 'Terjadwal' : 'Menunggu Booking'}</span>
                                 </div>
                               </div>
 
@@ -949,7 +950,7 @@ export default function SuperAdminMentorsPage() {
                                 <FileEdit className="w-3.5 h-3.5" />
                                 <div>
                                   <span className="font-bold block">Review Esai</span>
-                                  <span className="text-[10px]">{mentee.essayStatus === 'done' ? 'Draf Direvisi ✓' : 'Dalam Proses'}</span>
+                                  <span className="text-[10px]">{mentee.essayStatus === 'done' ? 'Draf Direvisi' : 'Dalam Proses'}</span>
                                 </div>
                               </div>
 
@@ -960,7 +961,7 @@ export default function SuperAdminMentorsPage() {
                                 <Award className="w-3.5 h-3.5" />
                                 <div>
                                   <span className="font-bold block">Portofolio</span>
-                                  <span className="text-[10px]">{mentee.portfolioStatus === 'validated' ? 'Tervalidasi ✓' : 'Menunggu File'}</span>
+                                  <span className="text-[10px]">{mentee.portfolioStatus === 'validated' ? 'Tervalidasi' : 'Menunggu File'}</span>
                                 </div>
                               </div>
                             </div>
@@ -969,7 +970,7 @@ export default function SuperAdminMentorsPage() {
                             {mentee.menteeReview && (
                               <div className="p-2.5 rounded-xl bg-amber-50/70 text-xs flex items-center gap-2 text-amber-950 font-medium">
                                 <ThumbsUp className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                                <span><strong>Review Mentee ({mentee.menteeRating}★):</strong> &ldquo;{mentee.menteeReview}&rdquo;</span>
+                                <span><strong>Review Mentee (Rating {mentee.menteeRating}/5):</strong> &ldquo;{mentee.menteeReview}&rdquo;</span>
                               </div>
                             )}
                           </div>
@@ -1111,7 +1112,7 @@ export default function SuperAdminMentorsPage() {
                 <p className="text-xs text-gray-500 font-medium">Periksa keabsahan bukti Letter of Acceptance (LOA) & portofolio prestasi.</p>
               </div>
               <button onClick={() => setInspectMentor(null)} className="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-gray-200 cursor-pointer border-0">
-                ✕
+                <X size={16} />
               </button>
             </div>
 
@@ -1178,7 +1179,7 @@ export default function SuperAdminMentorsPage() {
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
               <h3 className="text-lg font-black text-gray-950">Penugasan Mentee ke Mentor Alumni</h3>
               <button onClick={() => setAssignMenteeModal(null)} className="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-gray-200 cursor-pointer border-0">
-                ✕
+                <X size={16} />
               </button>
             </div>
 

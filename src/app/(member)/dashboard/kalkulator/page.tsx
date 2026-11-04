@@ -20,6 +20,9 @@ import {
   CheckCircle2,
   School,
   GraduationCap,
+  FlaskConical,
+  BookOpen,
+  Wrench,
 } from 'lucide-react'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
 import SearchInput from '@/components/ui/SearchInput'
@@ -170,9 +173,10 @@ function ResultPanel({
                 {result.strengths.map((s, i) => (
                   <div
                     key={i}
-                    className="text-xs p-3 rounded-2xl bg-emerald-50 text-emerald-900 font-semibold leading-relaxed"
+                    className="text-xs p-3 rounded-2xl bg-emerald-50 text-emerald-900 font-semibold leading-relaxed flex items-start gap-2"
                   >
-                    ✓ {s}
+                    <CheckCircle2 size={14} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <span>{s}</span>
                   </div>
                 ))}
               </div>
@@ -208,9 +212,10 @@ function ResultPanel({
                 {result.tips.map((s, i) => (
                   <div
                     key={i}
-                    className="text-xs p-3 rounded-2xl bg-amber-50/70 text-amber-950 font-medium leading-relaxed"
+                    className="text-xs p-3 rounded-2xl bg-amber-50/70 text-amber-950 font-medium leading-relaxed flex items-start gap-2"
                   >
-                    💡 {s}
+                    <Lightbulb size={14} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                    <span>{s}</span>
                   </div>
                 ))}
               </div>
@@ -726,24 +731,28 @@ export default function KalkulatorPage() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
               {[
-                { id: 'ipa', label: '🧪 MIPA / IPA' },
-                { id: 'ips', label: '📚 IPS / Soshum' },
-                { id: 'merdeka', label: '⚡ Kurikulum Merdeka' },
-                { id: 'kejuruan', label: '🛠️ SMK / Kejuruan' },
-              ].map(j => (
-                <button
-                  key={j.id}
-                  type="button"
-                  onClick={() => setJurusanSma(j.id as any)}
-                  className={`py-3 px-3 rounded-2xl text-xs font-black transition-all border ${
-                    jurusanSma === j.id
-                      ? 'bg-amber-400 text-amber-950 border-amber-400 shadow-xs'
-                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-                  }`}
-                >
-                  {j.label}
-                </button>
-              ))}
+                { id: 'ipa', label: 'MIPA / IPA', icon: FlaskConical },
+                { id: 'ips', label: 'IPS / Soshum', icon: BookOpen },
+                { id: 'merdeka', label: 'Kurikulum Merdeka', icon: Sparkles },
+                { id: 'kejuruan', label: 'SMK / Kejuruan', icon: Wrench },
+              ].map(j => {
+                const Icon = j.icon
+                return (
+                  <button
+                    key={j.id}
+                    type="button"
+                    onClick={() => setJurusanSma(j.id as any)}
+                    className={`py-3 px-3 rounded-2xl text-xs font-black transition-all border flex items-center justify-center gap-1.5 ${
+                      jurusanSma === j.id
+                        ? 'bg-amber-400 text-amber-950 border-amber-400 shadow-xs'
+                        : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Icon size={14} className="flex-shrink-0" />
+                    <span>{j.label}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
 

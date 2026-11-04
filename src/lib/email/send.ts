@@ -130,7 +130,7 @@ export async function sendPaymentSuccessEmail({
       </div>
 
       <div style="background: #fefce8; padding: 20px; border-radius: 16px; margin-bottom: 20px;">
-        <h2 style="color: #713f12; font-size: 18px; margin: 0 0 8px 0;">🎉 Pembayaran Berhasil Dikonfirmasi!</h2>
+        <h2 style="color: #713f12; font-size: 18px; margin: 0 0 8px 0;">Pembayaran Berhasil Dikonfirmasi</h2>
         <p style="color: #854d0e; font-size: 14px; margin: 0; line-height: 1.6;">
           Halo <strong>${name}</strong>, selamat bergabung di <strong>Paket ${packageName}</strong>. Akunmu sekarang sudah aktif dengan akses penuh ke seluruh modul, AI tools, dan mentoring alumni.
         </p>
@@ -196,7 +196,7 @@ export async function sendMentorAssignedEmail({
 }) {
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background: #ffffff; border-radius: 20px;">
-      <h2 style="color: #111827; font-size: 20px;">Halo ${menteeName}! Kakak Mentormu Telah Siap 🎓</h2>
+      <h2 style="color: #111827; font-size: 20px;">Halo ${menteeName}! Kakak Mentormu Telah Siap</h2>
       <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">
         Kabar gembira! Kamu telah di-assign dengan kakak mentor alumni resmi dari <strong>${mentorCampus}</strong>:
       </p>
@@ -239,7 +239,7 @@ export async function sendMentorPayoutEmail({
 }) {
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background: #ffffff; border-radius: 20px;">
-      <h2 style="color: #111827; font-size: 20px;">Honorarium Mentoring Telah Ditransfer 💸</h2>
+      <h2 style="color: #111827; font-size: 20px;">Honorarium Mentoring Telah Ditransfer</h2>
       <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">
         Halo <strong>${mentorName}</strong>, honorarium mentoring kamu sebesar <strong>Rp ${amount.toLocaleString('id-ID')}</strong> telah berhasil ditransfer oleh tim keuangan <strong>${LEGAL_ENTITY.name}</strong> ke rekening tujuan:
       </p>

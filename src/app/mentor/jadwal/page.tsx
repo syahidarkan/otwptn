@@ -11,6 +11,9 @@ import {
   Trash2,
   Save,
   Check,
+  Target,
+  CalendarX,
+  Lightbulb,
 } from 'lucide-react'
 
 interface BookingSlot {
@@ -114,14 +117,14 @@ export default function MentorJadwalPage() {
                     <div>
                       <h4 className="text-xs font-black text-gray-900">{b.menteeName}</h4>
                       <p className="text-[11px] text-gray-400 font-medium">{b.school}</p>
-                      <span className="text-[10px] font-bold text-amber-800 bg-amber-100/70 px-2 py-0.2 rounded-full">
-                        🎯 {b.targetPtn}
+                      <span className="text-[10px] font-bold text-amber-800 bg-amber-100/70 px-2 py-0.2 rounded-full flex items-center gap-1">
+                        <Target size={11} className="text-amber-700" /> {b.targetPtn}
                       </span>
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-black text-emerald-700 bg-emerald-100/70 px-2.5 py-0.5 rounded-full">
-                    ✓ {b.status}
+                  <span className="text-[10px] font-black text-emerald-700 bg-emerald-100/70 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                    <Check size={11} className="text-emerald-700" /> {b.status}
                   </span>
                 </div>
 
@@ -198,10 +201,10 @@ export default function MentorJadwalPage() {
                 key={idx}
                 className="flex items-center justify-between p-3 rounded-2xl bg-rose-50/70 border border-rose-100 text-xs font-bold text-rose-900"
               >
-                <span>🚫 {date}</span>
+                <span className="flex items-center gap-1.5"><CalendarX size={13} className="text-rose-600" /> {date}</span>
                 <button
                   onClick={() => handleRemoveBlackout(idx)}
-                  className="text-rose-500 hover:text-rose-700 p-1"
+                  className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -209,8 +212,9 @@ export default function MentorJadwalPage() {
             ))}
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-gray-50 text-[11px] text-gray-500 font-medium leading-relaxed">
-            💡 <strong>Tips Mentor:</strong> Usahakan untuk mengupdate jadwal berhalangan minimal 2 hari sebelumnya agar mentee dapat mengatur waktu bimbingan dengan nyaman.
+          <div className="p-3.5 rounded-2xl bg-gray-50 text-[11px] text-gray-500 font-medium leading-relaxed flex items-start gap-1.5">
+            <Lightbulb size={13} className="text-amber-600 flex-shrink-0 mt-0.5" />
+            <span><strong>Tips Mentor:</strong> Usahakan untuk mengupdate jadwal berhalangan minimal 2 hari sebelumnya agar mentee dapat mengatur waktu bimbingan dengan nyaman.</span>
           </div>
         </div>
       </div>

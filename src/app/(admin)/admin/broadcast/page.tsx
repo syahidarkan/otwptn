@@ -21,28 +21,28 @@ interface BroadcastRecord {
 
 const PRESET_TEMPLATES = [
   {
-    title: '⏳ Pengingat Deadline SNBP 2025 Tinggal 3 Hari!',
+    title: 'Pengingat Deadline SNBP Tinggal 3 Hari!',
     channel: 'in_app' as const,
     target: 'all',
     message: 'Halo Pejuang PTN! Jangan sampai kelewatan simpan permanen akun dan finalisasi pilihan prodi SNBP kamu. Segera cek rasio peluang di Kalkulator Peluang OtwPTN sekarang!',
     cta_url: '/dashboard/kalkulator',
   },
   {
-    title: '🎓 Bimbingan 1-on-1 Bersama Mentor UI & UGM Dibuka',
+    title: 'Bimbingan 1-on-1 Bersama Mentor UI & UGM Dibuka',
     channel: 'in_app' as const,
     target: 'queen_bee',
     message: 'Khusus siswa Queen Bee VIP: Jadwal mentoring privat minggu ini telah dirilis oleh kakak mentor alumni. Silakan booking sesi bimbingan Zoom kamu sebelum slot penuh!',
     cta_url: '/dashboard/mentor',
   },
   {
-    title: '🤖 Bonus 5.000 Kredit Otbee AI Tambahan!',
+    title: 'Bonus 5.000 Kredit Otbee AI Tambahan!',
     channel: 'in_app' as const,
     target: 'paid',
     message: 'Kabar gembira! Kredit AI Otbee kamu sudah ditambah 5.000 kredit untuk generate soal dan review essay motivasimu sampai hari H.',
     cta_url: '/dashboard/otbee',
   },
   {
-    title: '💰 Pencairan Komisi Student Ambassador Periode Ini',
+    title: 'Pencairan Komisi Student Ambassador Periode Ini',
     channel: 'whatsapp' as const,
     target: 'ambassador',
     message: 'Halo Sobat Ambassador OtwPTN! Penarikan komisi tunai kamu sudah kami verifikasi dan diproses transfer ke rekening/e-wallet terdaftar. Cek bukti transfer di dashboard.',
@@ -196,7 +196,7 @@ export default function AdminBroadcastPage() {
 
 
   const handleCopyWA = () => {
-    const formatted = `*${title}*\n\n${message}\n\n👉 Buka tautan berikut: https://otwptn.com${ctaUrl || '/dashboard'}`
+    const formatted = `*${title}*\n\n${message}\n\nBuka tautan berikut: https://otwptn.com${ctaUrl || '/dashboard'}`
     navigator.clipboard.writeText(formatted)
     setCopiedWA(true)
     setTimeout(() => setCopiedWA(false), 2000)
@@ -549,14 +549,15 @@ export default function AdminBroadcastPage() {
                   {message || 'Isi pesan teks yang rapi dan siap di-forward ke grup siswa atau broadcast WA...'}
                 </p>
                 <p className="mt-3 text-emerald-800 font-bold">
-                  👉 Buka tautan berikut: https://otwptn.com{ctaUrl || '/dashboard'}
+                  Buka tautan berikut: https://otwptn.com{ctaUrl || '/dashboard'}
                 </p>
               </div>
             </div>
           )}
 
-          <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/50 text-[11px] text-amber-900 font-medium">
-            💡 <strong>Info:</strong> Notifikasi in-app akan langsung menambahkan badge merah pada lonceng di pojok kiri bawah dashboard siswa secara real-time.
+          <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/50 text-[11px] text-amber-900 font-medium flex items-center gap-2">
+            <Info size={14} className="text-amber-700 shrink-0" />
+            <span><strong>Info:</strong> Notifikasi in-app akan langsung menambahkan badge merah pada lonceng di pojok kiri bawah dashboard siswa secara real-time.</span>
           </div>
         </div>
       </div>
@@ -607,8 +608,8 @@ export default function AdminBroadcastPage() {
                     {item.sent_at}
                   </td>
                   <td className="py-3.5 px-4">
-                    <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-black text-[10px]">
-                      ✓ Terkirim
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-black text-[10px]">
+                      <Check size={11} className="text-emerald-700" /> Terkirim
                     </span>
                   </td>
                 </tr>

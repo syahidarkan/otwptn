@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { Mail } from 'lucide-react'
 
 const COLS = [
   {
@@ -125,8 +126,9 @@ export default function Footer() {
               <p className="text-sm leading-relaxed mb-2" style={{ color: '#ffffff', fontWeight: 600, maxWidth: 220, textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
                 Platform persiapan masuk PTN jalur non-tes - essay, prestasi, dan strategi personal.
               </p>
-              <div className="mb-4 text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.85)' }}>
-                ✉️ <a href="mailto:otwptn.com@gmail.com" className="hover:underline text-amber-300">otwptn.com@gmail.com</a>
+              <div className="mb-4 text-xs font-semibold flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                <Mail size={13} className="text-amber-300" />
+                <a href="mailto:otwptn.com@gmail.com" className="hover:underline text-amber-300">otwptn.com@gmail.com</a>
               </div>
               {/* Social icons */}
               <div className="flex items-center gap-3 mb-5">

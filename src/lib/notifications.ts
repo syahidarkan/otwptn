@@ -26,8 +26,8 @@ const BASE_SYSTEM_NOTIFICATIONS: Omit<NotificationItem, 'isUnread'>[] = [
   // 1. Core Feature Update: Kalkulator Peluang 2026
   {
     id: 'upd-kalkulator-2026',
-    title: '📊 Kalkulator Peluang 2026 Siap Digunakan',
-    message: 'Hitung peluang lolosmu di prodi impian berdasarkan nilai rapor semester 1–5, mapel pendukung, dan sertifikat kurasi Puspresnas.',
+    title: 'Kalkulator Peluang 2026 Siap Digunakan',
+    message: 'Hitung peluang lolosmu di prodi impian berdasarkan nilai rapor semester 1-5, mapel pendukung, dan sertifikat kurasi Puspresnas.',
     timeText: '10 menit lalu',
     createdAt: Date.now() - 10 * 60 * 1000,
     href: '/dashboard/kalkulator',
@@ -40,7 +40,7 @@ const BASE_SYSTEM_NOTIFICATIONS: Omit<NotificationItem, 'isUnread'>[] = [
   // 2. Official Admin Broadcast: Sinkronisasi Rapor
   {
     id: 'bc-snbp-2026-sync',
-    title: '📢 Broadcast Admin: Panduan Finalisasi Rapor SNBP 2026',
+    title: 'Broadcast Admin: Panduan Finalisasi Rapor SNBP 2026',
     message: 'Peringatan resmi: Pastikan periksa nilai rata-rata dan mapel pendukung sebelum finalisasi PDSS di sekolah masing-masing.',
     timeText: '30 menit lalu',
     createdAt: Date.now() - 30 * 60 * 1000,
@@ -54,7 +54,7 @@ const BASE_SYSTEM_NOTIFICATIONS: Omit<NotificationItem, 'isUnread'>[] = [
   // 3. New Article: 5 Kesalahan Fatal Essay
   {
     id: 'art-5-kesalahan-essay',
-    title: '✍️ Artikel Baru: 5 Kesalahan Fatal Esai Masuk PTN',
+    title: 'Artikel Baru: 5 Kesalahan Fatal Esai Masuk PTN',
     message: 'Reviewer mengungkapkan 78% esai ditolak karena pembuka klise & kurang riset jurusan. Baca panduan menulis hook yang kuat.',
     timeText: '2 jam lalu',
     createdAt: Date.now() - 2 * 3600 * 1000,
@@ -68,7 +68,7 @@ const BASE_SYSTEM_NOTIFICATIONS: Omit<NotificationItem, 'isUnread'>[] = [
   // 4. Feature Update: AI Review Essay 2.0
   {
     id: 'upd-essay-ai-2',
-    title: '✨ Fitur Baru: AI Review Essay 2.0 dengan Feedback 4D',
+    title: 'Fitur Baru: AI Review Essay 2.0 dengan Feedback 4D',
     message: 'Cek personal statement dan essay motivasimu langsung dengan AI. Dapatkan skor struktur, originalitas ide, dan koreksi tata bahasa.',
     timeText: '5 jam lalu',
     createdAt: Date.now() - 5 * 3600 * 1000,
@@ -82,7 +82,7 @@ const BASE_SYSTEM_NOTIFICATIONS: Omit<NotificationItem, 'isUnread'>[] = [
   // 5. New Article: Apa itu SNBP 2026
   {
     id: 'art-apa-itu-snbp',
-    title: '📖 Artikel Baru: Apa itu SNBP 2026? Aturan & Syarat Resmi',
+    title: 'Artikel Baru: Apa itu SNBP 2026? Aturan & Syarat Resmi',
     message: 'Penjelasan resmi skema 50% nilai rapor, 50% mapel pendukung prodi, dan aturan kuota siswa eligible per akreditasi sekolah.',
     timeText: 'Kemarin',
     createdAt: Date.now() - 24 * 3600 * 1000,
@@ -96,7 +96,7 @@ const BASE_SYSTEM_NOTIFICATIONS: Omit<NotificationItem, 'isUnread'>[] = [
   // 6. Broadcast: Mentoring 1-on-1 Alumni UI ITB UGM
   {
     id: 'bc-mentoring-alumni',
-    title: '🎓 Broadcast Admin: Jadwal Mentoring Privat Alumni Dibuka',
+    title: 'Broadcast Admin: Jadwal Mentoring Privat Alumni Dibuka',
     message: 'Slot bimbingan 1-on-1 via Zoom bersama mentor alumni UI, ITB, dan UGM telah tersedia. Booking sesimu sekarang.',
     timeText: 'Kemarin',
     createdAt: Date.now() - 28 * 3600 * 1000,
@@ -110,7 +110,7 @@ const BASE_SYSTEM_NOTIFICATIONS: Omit<NotificationItem, 'isUnread'>[] = [
   // 7. Feature Update: Teman Belajar Virtual
   {
     id: 'upd-teman-belajar',
-    title: '👥 Fitur Baru: Cari Teman Belajar & Peer Review Rapor',
+    title: 'Fitur Baru: Cari Teman Belajar & Peer Review Rapor',
     message: 'Temukan partner belajar se-Indonesia dengan target kampus yang sama untuk sharing strategi dan bedah berkas tanpa login rumit.',
     timeText: '2 hari lalu',
     createdAt: Date.now() - 48 * 3600 * 1000,
@@ -124,7 +124,7 @@ const BASE_SYSTEM_NOTIFICATIONS: Omit<NotificationItem, 'isUnread'>[] = [
   // 8. New Article: Kupas Tuntas Personal Statement PPKB UI
   {
     id: 'art-ppkb-ui',
-    title: '🏛️ Artikel Baru: Kupas Tuntas Personal Statement PPKB UI',
+    title: 'Artikel Baru: Kupas Tuntas Personal Statement PPKB UI',
     message: 'Format, struktur, dan contoh kalimat pembuka esai motivasi yang disukai reviewer Universitas Indonesia jalur PPKB.',
     timeText: '3 hari lalu',
     createdAt: Date.now() - 72 * 3600 * 1000,
@@ -138,7 +138,7 @@ const BASE_SYSTEM_NOTIFICATIONS: Omit<NotificationItem, 'isUnread'>[] = [
   // 9. Feature Update: Otbee AI Chat 24/7
   {
     id: 'upd-otbee-chat',
-    title: '🤖 Tanya Otbee AI: Konsultasi Jalur Mandiri & Rapor Kapan Saja',
+    title: 'Tanya Otbee AI: Konsultasi Jalur Mandiri & Rapor Kapan Saja',
     message: 'Otbee siap menjawab seputar keketatan prodi, syarat sertifikat Puspresnas, dan rekomendasi alternatif PTN.',
     timeText: '4 hari lalu',
     createdAt: Date.now() - 96 * 3600 * 1000,
@@ -162,7 +162,7 @@ function getDynamicArticleNotifications(): Omit<NotificationItem, 'isUnread'>[] 
 
   return ARTICLES.filter(a => !coveredSlugs.has(a.slug)).map((art, idx) => ({
     id: `art-${art.slug}`,
-    title: `📖 Artikel: ${art.title}`,
+    title: `Artikel: ${art.title}`,
     message: art.excerpt,
     timeText: art.date || `${idx + 3} hari lalu`,
     createdAt: Date.now() - (idx + 3) * 86400 * 1000,
@@ -261,7 +261,7 @@ export function addAdminBroadcast(params: {
 
   const newBroadcast: Omit<NotificationItem, 'isUnread'> = {
     id: `bc-${Date.now()}`,
-    title: params.title.startsWith('📢') ? params.title : `📢 ${params.title}`,
+    title: params.title,
     message: params.message,
     timeText: 'Baru saja',
     createdAt: Date.now(),

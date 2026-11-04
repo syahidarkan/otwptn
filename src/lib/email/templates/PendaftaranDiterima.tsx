@@ -30,7 +30,7 @@ export default function PendaftaranDiterima({ full_name, category, tier, total_p
         <Container style={{ maxWidth: '560px', margin: '0 auto', padding: '0 20px 40px' }}>
           <Section style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '40px', marginTop: '24px' }}>
             <Heading style={{ fontSize: '24px', color: '#111111', margin: '0 0 8px' }}>
-              Pendaftaran Diterima! 🎉
+              Pendaftaran Diterima
             </Heading>
             <Text style={{ color: '#888888', marginTop: '0' }}>Halo, {full_name}!</Text>
 

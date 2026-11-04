@@ -32,6 +32,7 @@ import {
   List,
   Heading1,
   ShieldAlert,
+  BarChart3,
 } from 'lucide-react'
 import { LEGAL_ENTITY } from '@/lib/constants'
 
@@ -457,7 +458,7 @@ export default function MentorDashboardPage() {
                   : 'bg-white text-gray-700 hover:bg-gray-100 shadow-2xs'
               }`}
             >
-              {pkg === 'Semua' ? '🌟 Semua Paket' : `Paket ${pkg}`}
+              {pkg === 'Semua' ? 'Semua Paket' : `Paket ${pkg}`}
             </button>
           ))}
         </div>
@@ -683,7 +684,10 @@ export default function MentorDashboardPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {/* Nilai Rapor */}
                     <div className="p-5 rounded-2xl bg-gray-50 space-y-2">
-                      <span className="font-black text-gray-900 block">📊 Ringkasan Audit Nilai Rapor:</span>
+                      <span className="font-black text-gray-900 flex items-center gap-1.5">
+                        <BarChart3 size={14} className="text-amber-700" />
+                        <span>Ringkasan Audit Nilai Rapor:</span>
+                      </span>
                       <p className="text-gray-700 leading-relaxed font-medium">
                         {activeMentee.raporSummary}
                       </p>
@@ -691,7 +695,10 @@ export default function MentorDashboardPage() {
 
                     {/* Sertifikat */}
                     <div className="p-5 rounded-2xl bg-gray-50 space-y-2">
-                      <span className="font-black text-gray-900 block">🏆 Kurasi Sertifikat Prestasi ({activeMentee.certificates.length}):</span>
+                      <span className="font-black text-gray-900 flex items-center gap-1.5">
+                        <Award size={14} className="text-amber-700" />
+                        <span>Kurasi Sertifikat Prestasi ({activeMentee.certificates.length}):</span>
+                      </span>
                       <div className="space-y-2">
                         {activeMentee.certificates.map((cert, ci) => (
                           <div key={ci} className="p-2.5 rounded-xl bg-white shadow-2xs flex items-center justify-between">
@@ -854,8 +861,9 @@ export default function MentorDashboardPage() {
                   </div>
 
                   {vipSaved && (
-                    <p className="text-xs text-emerald-700 font-bold">
-                      ✓ Analisis rekomendasi berhasil disimpan dan terkirim ke dashboard mentee!
+                    <p className="text-xs text-emerald-700 font-bold flex items-center gap-1.5">
+                      <Check size={13} />
+                      <span>Analisis rekomendasi berhasil disimpan dan terkirim ke dashboard mentee!</span>
                     </p>
                   )}
 
@@ -922,8 +930,9 @@ export default function MentorDashboardPage() {
                     </div>
 
                     {linkSaved && (
-                      <p className="text-xs text-emerald-600 font-bold">
-                        ✓ Tautan grup WhatsApp dan Zoom berhasil diperbarui!
+                      <p className="text-xs text-emerald-600 font-bold flex items-center gap-1.5">
+                        <Check size={13} />
+                        <span>Tautan grup WhatsApp dan Zoom berhasil diperbarui!</span>
                       </p>
                     )}
                   </div>

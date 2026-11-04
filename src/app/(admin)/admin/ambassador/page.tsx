@@ -296,8 +296,8 @@ export default function AdminAmbassadorPage() {
                         {formatRupiah(amb.pendingWithdraw)}
                       </span>
                     ) : (
-                      <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full text-[10px] font-bold">
-                        ✓ Lunas
+                      <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                        <Check size={11} className="text-emerald-700" /> Lunas
                       </span>
                     )}
                   </td>

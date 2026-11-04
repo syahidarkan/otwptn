@@ -265,7 +265,7 @@ export default function SpotlightTour() {
             {stepIdx === 0
               ? 'Ayo mulai'
               : stepIdx === TOUR_STEPS.length - 1
-              ? 'Selesai! 🎉'
+              ? 'Selesai'
               : 'Lanjut'}
           </button>
 

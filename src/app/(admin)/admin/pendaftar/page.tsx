@@ -7,7 +7,7 @@ import { MENTORS, WA_GROUPS } from '@/lib/constants'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
-import { Search, ExternalLink } from 'lucide-react'
+import { Search, ExternalLink, Check, X } from 'lucide-react'
 
 const TIER_LABEL: Record<string, string> = {
   dokumen: 'Nectar (Dokumen)',
@@ -358,10 +358,10 @@ export default function AdminPendaftarPage() {
                     disabled={!waLink}
                     fullWidth
                   >
-                    ✓ Konfirmasi
+                    <span className="inline-flex items-center justify-center gap-1.5"><Check size={14} /> Konfirmasi</span>
                   </Button>
                   <Button onClick={() => handleAction('reject')} variant="danger" loading={loading} fullWidth>
-                    ✗ Tolak
+                    <span className="inline-flex items-center justify-center gap-1.5"><X size={14} /> Tolak</span>
                   </Button>
                 </div>
               </>

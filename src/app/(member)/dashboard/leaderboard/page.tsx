@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
+import { Trophy, Crown, Target, Flame } from 'lucide-react'
 
 type LeaderboardEntry = {
   rank: number
@@ -56,7 +57,9 @@ export default function LeaderboardPage() {
         </div>
       ) : entries.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
-          <p className="text-4xl mb-4">🏆</p>
+          <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-4 shadow-xs">
+            <Trophy size={32} />
+          </div>
           <p className="font-bold text-gray-600">Belum ada data untuk periode ini</p>
           <p className="text-sm mt-1">Mulai review esai atau kalkulator untuk masuk leaderboard!</p>
         </div>
@@ -128,7 +131,13 @@ function PodiumCard({ entry, size, order }: { entry: LeaderboardEntry; size: 'sm
   return (
     <div className={`${isLarge ? 'p-8 scale-105 border-2 border-amber-300 shadow-xl bg-gradient-to-b from-amber-50 to-white' : 'p-6 shadow-md bg-white'} rounded-3xl text-center flex flex-col items-center ${order}`}>
       <div className={`${isLarge ? 'w-10 h-10 bg-amber-400 text-amber-950 text-sm' : 'w-8 h-8 bg-slate-100 text-slate-700 text-xs'} rounded-full font-black flex items-center justify-center mb-3 shadow-md`}>
-        {isLarge ? `👑 #1` : `#${entry.rank}`}
+        {isLarge ? (
+          <span className="flex items-center gap-1">
+            <Crown size={14} className="fill-amber-950" /> 1
+          </span>
+        ) : (
+          `#${entry.rank}`
+        )}
       </div>
       <Avatar src={entry.avatar} name={entry.name} size={isLarge ? 20 : 16} />
       <h3 className={`${isLarge ? 'text-base' : 'text-sm'} font-black text-gray-900 mt-3`}>{entry.name}</h3>
@@ -157,11 +166,17 @@ function EntryRow({ entry }: { entry: LeaderboardEntry }) {
             </span>
           )}
         </div>
-        <p className="text-[11px] text-amber-700 font-bold truncate mt-0.5">🎯 {entry.targetPTN}</p>
+        <p className="text-[11px] text-amber-700 font-bold truncate mt-0.5 flex items-center gap-1">
+          <Target size={11} className="flex-shrink-0" />
+          <span>{entry.targetPTN}</span>
+        </p>
       </div>
       <div className="text-right flex-shrink-0">
         <span className="text-xs font-black text-gray-900 block">{entry.xp} XP</span>
-        <span className="text-[10px] font-bold text-gray-400">🔥 {entry.streak} Hari</span>
+        <span className="text-[10px] font-bold text-gray-400 flex items-center justify-end gap-1">
+          <Flame size={11} className="text-amber-500 fill-amber-500" />
+          <span>{entry.streak} Hari</span>
+        </span>
       </div>
     </div>
   )

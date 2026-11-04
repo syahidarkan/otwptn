@@ -19,8 +19,8 @@ export function getAiClient(task: 'default' | 'fast' | 'complex' = 'default'): A
         apiKey: activeKey,
         baseURL: 'https://api.groq.com/openai/v1',
       }),
-      // qwen/qwen3.8-27b provides 131k context, instant response (<100ms), native Indonesian syntax, and robust JSON mode
-      model: 'qwen/qwen3.8-27b',
+      // openai/gpt-oss-120b & 20b provide large context, instant responses, and robust JSON generation without 1k OTPM limits
+      model: task === 'fast' ? 'openai/gpt-oss-20b' : 'openai/gpt-oss-120b',
       isGroq: true,
     }
   }

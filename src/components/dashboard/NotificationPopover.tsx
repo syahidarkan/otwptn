@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import {
   Bell, GraduationCap, FileCheck2, Sparkles, Compass, Check,
   X, ExternalLink, ChevronRight, CheckCheck, Megaphone, Newspaper,
-  Calculator, Users, Bot
+  Calculator, Users, Bot, BookOpen
 } from 'lucide-react'
 import {
   getAllNotifications,
@@ -177,7 +177,7 @@ export default function NotificationPopover({
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200/80'
             }`}
           >
-            📢 Broadcast
+            <Megaphone size={12} /> Broadcast
           </button>
           <button
             type="button"
@@ -188,7 +188,7 @@ export default function NotificationPopover({
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200/80'
             }`}
           >
-            📖 Artikel
+            <BookOpen size={12} /> Artikel
           </button>
           <button
             type="button"
@@ -199,7 +199,7 @@ export default function NotificationPopover({
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200/80'
             }`}
           >
-            ✨ Update
+            <Sparkles size={12} /> Update
           </button>
         </div>
 

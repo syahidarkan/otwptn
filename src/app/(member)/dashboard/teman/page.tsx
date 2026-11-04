@@ -29,6 +29,7 @@ import {
   Volume2,
   VolumeX,
   Swords,
+  Target,
 } from 'lucide-react'
 
 interface PeerProfile {
@@ -473,7 +474,7 @@ export default function CariTemanBelajarPage() {
           {
             id: `reply-${Date.now()}`,
             sender: 'peer',
-            text: 'Semangat ya! Lanjut fokus belajar lagi 💪',
+            text: 'Semangat ya! Lanjut fokus belajar lagi!',
             time: 'Baru saja',
           },
         ])
@@ -847,9 +848,10 @@ export default function CariTemanBelajarPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleStartSearch}
-                      className="btn-brand-primary text-xs !py-2.5 !px-5"
+                      className="btn-brand-primary text-xs !py-2.5 !px-5 flex items-center gap-1.5"
                     >
-                      Coba Cari Lagi 🔄
+                      <RotateCcw size={13} />
+                      <span>Coba Cari Lagi</span>
                     </button>
                     <button
                       onClick={handleStop}
@@ -913,8 +915,9 @@ export default function CariTemanBelajarPage() {
                     <div className="bg-black/60 backdrop-blur-md p-3 rounded-2xl flex items-center justify-between gap-3">
                       <div>
                         <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="text-[11px] font-black text-amber-400">
-                            🎯 {currentPeer.targetPTN} - {currentPeer.targetMajor}
+                          <span className="text-[11px] font-black text-amber-400 flex items-center gap-1">
+                            <Target size={12} className="text-amber-400" />
+                            <span>{currentPeer.targetPTN} - {currentPeer.targetMajor}</span>
                           </span>
                         </div>
                         <p className="text-[11px] text-slate-200 truncate max-w-xs font-medium">

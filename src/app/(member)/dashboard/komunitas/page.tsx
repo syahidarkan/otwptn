@@ -27,6 +27,8 @@ import {
   Crown,
   Link as LinkIcon,
   CheckCircle2,
+  Target,
+  Lightbulb,
 } from 'lucide-react'
 
 interface CircleItem {
@@ -530,8 +532,8 @@ export default function KomunitasPage() {
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-              <span className="text-[11px] text-gray-400 font-medium">
-                💡 Cuitanmu akan dilihat oleh seluruh pejuang PTN di dashboard.
+              <span className="text-[11px] text-gray-400 font-medium flex items-center gap-1">
+                <Lightbulb size={12} className="text-amber-500" /> Cuitanmu akan dilihat oleh seluruh pejuang PTN di dashboard.
               </span>
               <button
                 onClick={handlePostCuitan}
@@ -555,7 +557,7 @@ export default function KomunitasPage() {
                     : 'bg-white text-gray-600 hover:bg-gray-100 shadow-2xs'
                 }`}
               >
-                {f === 'Semua' ? '🌟 Semua Cuitan' : `# ${f}`}
+                {f === 'Semua' ? 'Semua Cuitan' : `# ${f}`}
               </button>
             ))}
           </div>
@@ -577,8 +579,8 @@ export default function KomunitasPage() {
                         <span className="text-xs font-black text-gray-900">{post.author}</span>
                         <span className="text-[11px] text-gray-400">{post.handle}</span>
                       </div>
-                      <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.2 rounded-full">
-                        🎯 {post.targetPTN}
+                      <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.2 rounded-full flex items-center gap-1">
+                        <Target size={11} /> {post.targetPTN}
                       </span>
                     </div>
                   </div>
@@ -916,8 +918,9 @@ export default function KomunitasPage() {
                 <h4 className="text-[10px] font-black uppercase text-gray-400 tracking-wider">
                   Target Kampus Utama
                 </h4>
-                <p className="text-xs font-black text-amber-900">
-                  🎯 {activeCircle.ptnTarget}
+                <p className="text-xs font-black text-amber-900 flex items-center gap-1.5">
+                  <Target size={13} className="text-amber-700" />
+                  <span>{activeCircle.ptnTarget}</span>
                 </p>
               </div>
 

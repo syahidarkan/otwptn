@@ -23,6 +23,7 @@ import {
   UploadCloud,
   Download,
   HardDrive,
+  Check,
 } from 'lucide-react'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
 import {
@@ -477,13 +478,20 @@ export default function DokumenPage() {
 
                           <button
                             onClick={() => toggle(j.id, doc)}
-                            className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer ${
+                            className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
                               done
                                 ? 'bg-emerald-100 text-emerald-800'
                                 : 'bg-gray-100 hover:bg-amber-100 text-gray-700'
                             }`}
                           >
-                            {done ? 'Selesai ✓' : 'Tandai Siap'}
+                            {done ? (
+                              <>
+                                <Check size={12} />
+                                <span>Selesai</span>
+                              </>
+                            ) : (
+                              'Tandai Siap'
+                            )}
                           </button>
                         </div>
                       </div>
@@ -573,8 +581,9 @@ export default function DokumenPage() {
                       <HardDrive size={13} /> Berkas dipilih: {modalFileName}
                     </p>
                   )}
-                  <p className="text-[10px] text-gray-400 mt-2 font-normal">
-                    🔒 Berkas disimpan di memori browser perangkat ini (IndexedDB). Tidak memakan kuota server dan privasi Anda terjaga.
+                  <p className="text-[10px] text-gray-400 mt-2 font-normal flex items-center justify-center gap-1">
+                    <ShieldCheck size={12} className="text-gray-400 flex-shrink-0" />
+                    <span>Berkas disimpan di memori browser perangkat ini (IndexedDB). Tidak memakan kuota server dan privasi Anda terjaga.</span>
                   </p>
                 </div>
               </div>

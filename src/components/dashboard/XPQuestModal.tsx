@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   X, Star, Flame, Award, CheckCircle2, ArrowRight,
-  Gift, Zap
+  Gift, Zap, Check
 } from 'lucide-react'
 
 interface QuestItem {
@@ -124,9 +124,9 @@ export default function XPQuestModal({
     if (nextXP >= 100) {
       nextLevel += 1
       nextXP = nextXP - 100
-      setCelebrationMsg(`🎉 SELAMAT! Kamu naik ke Level ${nextLevel}: Pejuang Tangguh PTN!`)
+      setCelebrationMsg(`SELAMAT! Kamu naik ke Level ${nextLevel}: Pejuang Tangguh PTN!`)
     } else {
-      setCelebrationMsg(`✨ Klaim Berhasil! +${q.rewardXP} XP & +${q.rewardCoins} Koin!`)
+      setCelebrationMsg(`Klaim Berhasil! +${q.rewardXP} XP & +${q.rewardCoins} Koin!`)
     }
 
     const updatedQuests = quests.map(item =>
@@ -286,8 +286,8 @@ export default function XPQuestModal({
                   </div>
 
                   {quest.isClaimed ? (
-                    <span className="px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-zinc-700 text-gray-500 dark:text-zinc-300 font-bold text-xs">
-                      Selesai ✓
+                    <span className="px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-zinc-700 text-gray-500 dark:text-zinc-300 font-bold text-xs flex items-center gap-1">
+                      <Check size={12} /> Selesai
                     </span>
                   ) : quest.isCompleted ? (
                     <button

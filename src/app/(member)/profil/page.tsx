@@ -26,6 +26,13 @@ import {
   Building,
   Loader2,
   BookOpen,
+  Target,
+  AlertCircle,
+  Train,
+  Building2,
+  Lightbulb,
+  RotateCcw,
+  Compass,
 } from 'lucide-react'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
 import SearchablePicker from '@/components/ui/SearchablePicker'
@@ -375,8 +382,9 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
           <p className="text-xs text-gray-500 font-medium">
             {form.school || 'Belum mengisi sekolah'} · {form.email}
           </p>
-          <p className="text-[11px] text-amber-800 font-bold mt-1">
-            🎯 Target: {form.target_ptn_1} ({form.target_prodi_1})
+          <p className="text-[11px] text-amber-800 font-bold mt-1 flex items-center gap-1">
+            <Target size={13} className="text-amber-700 flex-shrink-0" />
+            <span>Target: {form.target_ptn_1} ({form.target_prodi_1})</span>
           </p>
         </div>
 
@@ -540,8 +548,9 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
                   Pilih dari direktori lengkap 85+ PTN dan 120+ Program Studi di seluruh Indonesia.
                 </p>
               </div>
-              <span className="text-[11px] font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full self-start sm:self-auto">
-                ⚡ Otomatis Memperbarui AI Insight
+              <span className="text-[11px] font-bold text-amber-900 bg-amber-100 px-3 py-1 rounded-full self-start sm:self-auto flex items-center gap-1.5 shadow-2xs">
+                <Sparkles size={12} className="text-amber-600 fill-amber-500" />
+                <span>Otomatis Memperbarui AI Insight</span>
               </span>
             </div>
 
@@ -622,15 +631,27 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
               </p>
             </div>
           ) : insightError ? (
-            <div className="p-8 rounded-3xl bg-red-50 border border-red-200 shadow-sm flex items-start gap-4">
-              <div className="w-10 h-10 rounded-2xl bg-red-100 flex items-center justify-center flex-shrink-0">
-                <span className="text-red-600 font-black text-lg">✕</span>
+            <div className="p-7 rounded-3xl bg-amber-50/90 border border-amber-300 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-200 text-amber-900 flex items-center justify-center flex-shrink-0">
+                  <AlertCircle size={20} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-gray-950">Gagal Memuat AI Insight</h4>
+                  <p className="text-xs text-gray-700 mt-0.5 font-medium leading-relaxed">{insightError}</p>
+                </div>
               </div>
-              <div>
-                <h4 className="text-sm font-black text-red-900">Program Studi Tidak Ditemukan</h4>
-                <p className="text-xs text-red-700 mt-1 font-medium leading-relaxed">{insightError}</p>
-                <p className="text-xs text-red-500 mt-2">Pastikan nama jurusan dan PTN sesuai dengan data resmi PDDikti / Diktiristek. Contoh yang benar: &quot;Teknik Informatika&quot; di &quot;Institut Teknologi Bandung&quot;.</p>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (form.target_ptn_1 && form.target_prodi_1) {
+                    fetchCampusInsight(form.target_ptn_1, form.target_prodi_1)
+                  }
+                }}
+                className="px-5 py-2.5 rounded-full text-xs font-black bg-amber-400 hover:bg-amber-300 text-gray-950 shadow-xs flex items-center gap-1.5 transition-all self-end sm:self-auto cursor-pointer flex-shrink-0"
+              >
+                <RotateCcw size={13} /> Coba Muat Ulang
+              </button>
             </div>
           ) : (
             <>
@@ -713,28 +734,40 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 text-xs">
                     <div className="p-4 rounded-2xl bg-gray-50 space-y-1">
-                      <span className="font-black text-gray-900 block">📍 Lokasi & Hunian Mahasiswa</span>
+                      <span className="font-black text-gray-900 flex items-center gap-1.5">
+                        <MapPin size={14} className="text-amber-600" />
+                        <span>Lokasi & Hunian Mahasiswa</span>
+                      </span>
                       <p className="text-gray-600 leading-relaxed font-medium">
                         {campusInsight?.lingkungan?.lokasi || `Area kampus ${form.target_ptn_1} dengan lingkungan kos mahasiswa terjangkau.`}
                       </p>
                     </div>
 
                     <div className="p-4 rounded-2xl bg-gray-50 space-y-1">
-                      <span className="font-black text-gray-900 block">🚆 Transportasi</span>
+                      <span className="font-black text-gray-900 flex items-center gap-1.5">
+                        <Train size={14} className="text-blue-600" />
+                        <span>Transportasi</span>
+                      </span>
                       <p className="text-gray-600 leading-relaxed font-medium">
                         {campusInsight?.lingkungan?.transportasi || 'Akses mudah dengan transportasi umum lokal dan shuttle transportasi kampus.'}
                       </p>
                     </div>
 
                     <div className="p-4 rounded-2xl bg-gray-50 space-y-1">
-                      <span className="font-black text-gray-900 block">🏛️ Fasilitas Utama</span>
+                      <span className="font-black text-gray-900 flex items-center gap-1.5">
+                        <Building2 size={14} className="text-purple-600" />
+                        <span>Fasilitas Utama</span>
+                      </span>
                       <p className="text-gray-600 leading-relaxed font-medium">
                         {campusInsight?.lingkungan?.fasilitas || 'Perpustakaan digital, laboratorium komputasi terpadu, dan fasilitas olahraga.'}
                       </p>
                     </div>
 
                     <div className="p-4 rounded-2xl bg-gray-50 space-y-1">
-                      <span className="font-black text-gray-900 block">🌳 Suasana & Kultur Belajar</span>
+                      <span className="font-black text-gray-900 flex items-center gap-1.5">
+                        <Compass size={14} className="text-emerald-600" />
+                        <span>Suasana & Kultur Belajar</span>
+                      </span>
                       <p className="text-gray-600 leading-relaxed font-medium">
                         {campusInsight?.lingkungan?.suasana || 'Ekosistem belajar kolaboratif dengan ragam komunitas dan organisasi keilmuan aktif.'}
                       </p>
@@ -848,7 +881,10 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
                   </p>
 
                   <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/60 text-xs text-amber-950 font-medium leading-relaxed">
-                    <p className="font-bold text-amber-900 mb-1">💡 Strategi Rekomendasi Konsultan OTWPTN:</p>
+                    <p className="font-bold text-amber-900 mb-1 flex items-center gap-1.5">
+                      <Lightbulb size={14} className="text-amber-600 flex-shrink-0" />
+                      <span>Strategi Rekomendasi Konsultan OTWPTN:</span>
+                    </p>
                     {campusInsight?.tips_lolos?.strategi_khusus ||
                       `Gunakan fitur Kalkulator Peluang dan Essay AI Review di platform OTWPTN untuk memverifikasi kesiapan berkas sebelum pendaftaran dibuka.`}
                   </div>
@@ -933,8 +969,8 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
                 </div>
                 <span className="text-[11px] font-black text-gray-800 line-clamp-1">{av.label}</span>
                 {form.avatar === av.src ? (
-                  <span className="text-[9px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-                    ✓ Terpilih
+                  <span className="text-[9px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <CheckCircle2 size={10} /> Terpilih
                   </span>
                 ) : (
                   <span className="text-[9px] font-bold text-gray-400">

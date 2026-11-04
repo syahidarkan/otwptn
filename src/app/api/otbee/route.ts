@@ -5,7 +5,7 @@ const TIER_OTBEE_LIMIT: Record<string, number | null> = {
   free: 5, web_premium: null, review: null, dokumen: null, menyeluruh: null, intensif: null,
 }
 
-const SYSTEM_PROMPT = `Kamu adalah Otbee 🐝, AI konsultan PTN non-tes dan pendamping belajar resmi otwptn (PT. Lembaga Sains Nasional).
+const SYSTEM_PROMPT = `Kamu adalah Otbee, AI konsultan PTN non-tes dan pendamping belajar resmi otwptn (PT. Lembaga Sains Nasional).
 
 MISI UTAMA:
 Membantu siswa pejuang PTN mempersiapkan jalur prestasi & non-tes dengan strategi teruji, data valid, dan mental juara.

@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import gsap from 'gsap'
-import { ArrowLeft, Check, Flame, Sparkles, Plus, Minus, Lock, Star, X, ChevronDown, Trash2, Upload, Loader2 } from 'lucide-react'
+import { ArrowLeft, Check, Flame, Sparkles, Plus, Minus, Lock, Star, X, ChevronDown, Trash2, Upload, Loader2, AlertCircle } from 'lucide-react'
 import ParticleField from './_components/ParticleField'
 import HoldButton from './_components/HoldButton'
 import GrowthCurve from './_components/GrowthCurve'
@@ -1180,7 +1180,11 @@ export default function OnboardingPage() {
                         className="w-full text-left px-3.5 py-2.5 rounded-xl text-sm transition-colors"
                         style={{ background: bg, border, color: 'var(--fg)' }}>
                         <span className="font-semibold mr-1 text-[11px]" style={{ color: 'var(--muted)' }}>{s.id + 1}.</span> {s.text}
-                        {essayRevealed && isIssue && <p className="text-[11px] mt-1 font-semibold" style={{ color: '#b91c1c' }}>⚠ {ESSAY_ISSUES[s.id]}</p>}
+                        {essayRevealed && isIssue && (
+                          <p className="inline-flex items-center gap-1 text-[11px] mt-1 font-semibold" style={{ color: '#b91c1c' }}>
+                            <AlertCircle size={12} className="text-red-600 shrink-0" /> {ESSAY_ISSUES[s.id]}
+                          </p>
+                        )}
                         {essayRevealed && !isIssue && <p className="text-[11px] mt-1 font-semibold" style={{ color: '#166534' }}>Kalimat ini sudah cukup baik.</p>}
                       </button>
                     )
@@ -1598,7 +1602,7 @@ export default function OnboardingPage() {
                 </motion.div>
                 <p className="text-base font-bold mb-1" style={{ color: 'var(--fg)' }}>Yeay, rencanamu siap!</p>
                 <p className="text-sm mb-2" style={{ color: 'var(--muted)' }}>Selamat berjuang meraih <b>{jalurInfo?.label || 'jalur non-tes'}</b> impianmu!</p>
-                <p className="text-xs mb-6" style={{ color: 'var(--muted)' }}>OtBee siap menemanimu dari sekarang sampai diterima. 💛🐝</p>
+                <p className="text-xs mb-6" style={{ color: 'var(--muted)' }}>OtBee siap menemanimu dari sekarang sampai diterima.</p>
                 <button
                   type="button"
                   onClick={handleGoToDashboard}
@@ -1627,7 +1631,7 @@ export default function OnboardingPage() {
                     className="text-xs text-center mt-3 font-medium animate-pulse"
                     style={{ color: 'var(--muted)' }}
                   >
-                    Sedang menghubungkan ke akunmu, tunggu sebentar ya... 🚀
+                    Sedang menghubungkan ke akunmu, tunggu sebentar ya...
                   </motion.p>
                 )}
               </div>
@@ -1678,7 +1682,7 @@ export default function OnboardingPage() {
               Rencanamu Siap Diluncurkan!
             </h3>
             <p className="text-xs text-gray-600 mb-6 font-medium leading-relaxed">
-              Sedang menghubungkan ke akunmu dan menyusun materi personal. Sebentar lagi kamu akan masuk ke Dashboard. 🚀
+              Sedang menghubungkan ke akunmu dan menyusun materi personal. Sebentar lagi kamu akan masuk ke Dashboard.
             </p>
             {/* Animated Loading Bar */}
             <div className="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden shadow-inner mb-3">

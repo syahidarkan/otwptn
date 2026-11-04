@@ -8,6 +8,7 @@ import {
   UploadCloud,
   FileText,
   CheckCircle2,
+  Check,
   BookOpen,
   School,
   Sparkles,
@@ -242,7 +243,7 @@ export default function MentorApplyPage() {
                   Bukti Letter of Acceptance (LOA) / Bukti Kelulusan PTN <span className="text-rose-500">*Wajib</span>
                 </label>
                 {loaFile && (
-                  <span className="text-[11px] font-bold text-emerald-700">✓ {loaFile.name}</span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700"><Check size={12} /> {loaFile.name}</span>
                 )}
               </div>
               <p className="text-[11px] text-gray-500">
@@ -264,7 +265,7 @@ export default function MentorApplyPage() {
                   Draf Esai Motivasi / Motivation Letter Pribadi <span className="text-gray-400 font-medium">(Opsional)</span>
                 </label>
                 {essayFile && (
-                  <span className="text-[11px] font-bold text-emerald-700">✓ {essayFile.name}</span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700"><Check size={12} /> {essayFile.name}</span>
                 )}
               </div>
               <p className="text-[11px] text-gray-500">
@@ -286,7 +287,7 @@ export default function MentorApplyPage() {
                   Sertifikat Prestasi / Kejuaraan <span className="text-gray-400 font-medium">(Opsional)</span>
                 </label>
                 {certFile && (
-                  <span className="text-[11px] font-bold text-emerald-700">✓ {certFile.name}</span>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700"><Check size={12} /> {certFile.name}</span>
                 )}
               </div>
               <p className="text-[11px] text-gray-500">

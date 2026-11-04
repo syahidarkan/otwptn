@@ -198,7 +198,6 @@ export default function MentorAlumniPage() {
   const [tier, setTier] = useState<string>('free')
   const [isAdmin, setIsAdmin] = useState(false)
   const [, setLoading] = useState(true)
-  const [demoUnlocked, setDemoUnlocked] = useState(false)
   const [mentoringRecord, setMentoringRecord] = useState<MentoringRecord | null>(null)
   const [activeTab, setActiveTab] = useState<'workspace' | 'profile-rapor' | 'booking'>('workspace')
 
@@ -271,15 +270,14 @@ export default function MentorAlumniPage() {
         } else {
           setComments(makeInitialComments('Mentor Kamu'))
         }
-        setDemoUnlocked(true)
       }
 
       setLoading(false)
     })
   }, [supabase])
 
-  const isUnlocked = demoUnlocked || isAdmin || (tier !== 'free' && tier !== '')
-  const isRealPremium = isAdmin || (tier !== 'free' && tier !== '')
+  const isUnlocked = isAdmin || (tier !== 'free' && tier !== '')
+  const isRealPremium = isUnlocked
 
   function handleFormat(tag: string) {
     setEssayContent(prev => prev + `\n[${tag}] Bagian yang ditandai...`)
@@ -339,40 +337,26 @@ export default function MentorAlumniPage() {
 
   return (
     <div className="w-full px-6 md:px-8 py-8 md:py-10 space-y-10">
-      {/* Top Mode Bar */}
-      <div className="p-4 rounded-3xl bg-white shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs flex-shrink-0">
-            <Sparkles size={18} />
-          </div>
-          <div>
-            <span className="text-xs font-black text-gray-900 block">
-              Program Mentorship 1-on-1 Alumni Top PTN
-            </span>
-            <span className="text-[11px] text-gray-500 font-medium">
-              {isRealPremium
-                ? mentoringRecord
+      {/* Top Status Bar for Real Premium User */}
+      {isRealPremium && (
+        <div className="p-4 rounded-3xl bg-white shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs flex-shrink-0">
+              <Sparkles size={18} />
+            </div>
+            <div>
+              <span className="text-xs font-black text-gray-900 block">
+                Program Mentorship 1-on-1 Alumni Top PTN
+              </span>
+              <span className="text-[11px] text-gray-500 font-medium">
+                {mentoringRecord
                   ? `Portal VIP Aktif · Mentor: ${mentoringRecord.mentor_name ?? 'Kak Alumni otwptn'}`
-                  : 'Portal VIP Aktif · Mentor sedang diproses admin'
-                : 'Mode Preview - Simulasi Kurikulum & Profil Mentor'}
-            </span>
+                  : 'Portal VIP Aktif · Mentor sedang diproses admin'}
+              </span>
+            </div>
           </div>
         </div>
-        {!isRealPremium && (
-          <button
-            onClick={() => setDemoUnlocked(!demoUnlocked)}
-            className="btn-brand-primary px-5 py-2.5 rounded-full text-xs font-black shadow-xs flex items-center gap-2"
-          >
-            {isUnlocked ? (
-              'Tutup Simulasi'
-            ) : (
-              <>
-                <ShieldCheck size={14} /> Coba Simulasi VIP
-              </>
-            )}
-          </button>
-        )}
-      </div>
+      )}
 
       {!isUnlocked ? (
         /* =========================================================================
@@ -425,12 +409,6 @@ export default function MentorAlumniPage() {
                   >
                     Amankan Kuota Mentorship Sekarang <ArrowRight size={15} />
                   </Link>
-                  <button
-                    onClick={() => { setDemoUnlocked(true); if (comments.length === 0) setComments(makeInitialComments('Kak Alumni otwptn')) }}
-                    className="px-6 py-3.5 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors flex items-center gap-2"
-                  >
-                    <ShieldCheck size={15} className="text-amber-600" /> Coba Simulasi Portal VIP
-                  </button>
                 </div>
               </div>
 
@@ -467,8 +445,9 @@ export default function MentorAlumniPage() {
                   Semua yang kamu dapatkan selama masa bimbingan intensif hingga pengumuman seleksi.
                 </p>
               </div>
-              <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-3.5 py-1.5 rounded-full self-start sm:self-auto">
-                ✓ Garansi Review Tak Terbatas
+              <span className="text-xs font-black text-emerald-700 bg-emerald-50 px-3.5 py-1.5 rounded-full self-start sm:self-auto flex items-center gap-1.5">
+                <Check size={13} className="text-emerald-700" />
+                <span>Garansi Review Tak Terbatas</span>
               </span>
             </div>
 
@@ -720,8 +699,8 @@ export default function MentorAlumniPage() {
                     <div className="space-y-1.5 text-[11px] pt-1 border-t border-gray-200/50">
                       <div className="flex items-center justify-between">
                         <span className="text-gray-500">Jalur Masuk:</span>
-                        <span className="font-bold text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-full text-[10px]">
-                          ✓ {m.track}
+                        <span className="font-bold text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-full text-[10px] flex items-center gap-1">
+                          <Check size={10} /> {m.track}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -804,8 +783,8 @@ export default function MentorAlumniPage() {
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-black text-gray-900">{t.mentee}</p>
                       <p className="text-[11px] text-gray-400 font-medium">{t.school}</p>
-                      <span className="inline-block text-[10px] font-bold text-amber-900 bg-amber-50 px-2 py-0.5 rounded-full mt-1">
-                        🎓 {t.admitted}
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-900 bg-amber-50 px-2 py-0.5 rounded-full mt-1">
+                        <GraduationCap size={12} className="text-amber-700" /> {t.admitted}
                       </span>
                     </div>
                   </div>
@@ -1200,7 +1179,9 @@ export default function MentorAlumniPage() {
                         Profil Sekolah & Posisi Eligible Kamu
                       </h3>
                     </div>
-                    <span className="text-xs font-bold text-emerald-600">✓ Data Tersinkronisasi</span>
+                    <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
+                      <Check size={13} /> Data Tersinkronisasi
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1336,7 +1317,9 @@ export default function MentorAlumniPage() {
                           <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 bg-amber-100/60 px-2 py-0.5 rounded-full">
                             {cert.level}
                           </span>
-                          <span className="text-[10px] font-bold text-emerald-600">✓ {cert.status}</span>
+                          <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
+                            <Check size={11} /> {cert.status}
+                          </span>
                         </div>
                         <p className="text-xs font-bold text-gray-900">{cert.name}</p>
                       </div>
@@ -1492,8 +1475,8 @@ export default function MentorAlumniPage() {
                 className="w-14 h-14 rounded-2xl object-cover shadow-xs"
               />
               <div>
-                <span className="text-[10px] font-black text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full">
-                  ✓ Alumni Terverifikasi
+                <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full">
+                  <Check size={11} className="text-amber-700" /> Alumni Terverifikasi
                 </span>
                 <h3 className="text-base font-black text-gray-950 mt-1">{selectedMentorModal.name}</h3>
                 <p className="text-xs font-bold text-amber-900">{selectedMentorModal.univ}</p>

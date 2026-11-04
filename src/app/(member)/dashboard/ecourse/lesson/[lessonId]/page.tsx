@@ -14,6 +14,7 @@ import {
   ArrowRight,
   BookOpen,
   Share2,
+  Video,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { EJALUR_LIST, type ELesson, type EStage, type EJalur } from '@/lib/ecourseData'
@@ -262,7 +263,10 @@ export default function LessonDetailPage({ params }: { params: Promise<{ lessonI
                 </div>
                 {foundLesson.videoCredit && (
                   <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-xs text-amber-950">
-                    <span className="font-black">📺 Referensi Video:</span>
+                    <span className="font-black flex items-center gap-1.5">
+                      <Video size={13} className="text-amber-700" />
+                      <span>Referensi Video:</span>
+                    </span>
                     <span className="font-semibold text-amber-900">{foundLesson.videoCredit}</span>
                   </div>
                 )}
@@ -302,8 +306,15 @@ export default function LessonDetailPage({ params }: { params: Promise<{ lessonI
                   className="w-full sm:w-auto px-6 py-3 rounded-2xl btn-brand-primary text-xs font-black shadow-sm flex items-center gap-2 justify-center"
                 >
                   <div className="text-right">
-                    <span className="text-[10px] text-amber-900/80 block font-bold">
-                      {nextLesson.isPremium && userTier === 'free' ? '🔒 Materi Berikutnya (Premium)' : 'Materi Berikutnya'}
+                    <span className="text-[10px] text-amber-900/80 block font-bold flex items-center justify-end gap-1">
+                      {nextLesson.isPremium && userTier === 'free' ? (
+                        <>
+                          <Lock size={10} />
+                          <span>Materi Berikutnya (Premium)</span>
+                        </>
+                      ) : (
+                        'Materi Berikutnya'
+                      )}
                     </span>
                     <span className="truncate max-w-[200px] block">{nextLesson.title}</span>
                   </div>

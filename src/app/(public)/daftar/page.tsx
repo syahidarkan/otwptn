@@ -6,7 +6,7 @@ import { formatRupiah } from '@/lib/utils'
 import type { JalurCategory, PackageTier } from '@/types'
 import Button from '@/components/ui/Button'
 import FileUpload from '@/components/ui/FileUpload'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, Check, Lightbulb } from 'lucide-react'
 
 const TOTAL_STEPS = 6
 
@@ -22,7 +22,7 @@ function StepBar({ current }: { current: number }) {
               n === current ? 'bg-brand-yellow text-brand-black' :
               'bg-brand-gray-2 text-brand-muted'
             }`}>
-              {n < current ? '✓' : n}
+              {n < current ? <Check size={14} /> : n}
             </div>
             {n < TOTAL_STEPS && (
               <div className={`flex-1 h-1 mx-1 rounded ${n < current ? 'bg-brand-black' : 'bg-brand-gray-2'}`} />
@@ -265,8 +265,9 @@ export default function DaftarPage() {
               <p className="text-sm text-brand-muted mb-1">
                 Tambah jalur <strong>sesama kategori {CATEGORY_LABEL[form.category]}</strong> - +<strong>Rp 50.000</strong> per jalur.
               </p>
-              <p className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-lg mb-5">
-                💡 Mau jalur dari kategori berbeda? Beli sebagai paket terpisah setelah ini selesai.
+              <p className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-lg mb-5 flex items-center gap-1.5">
+                <Lightbulb size={13} className="text-amber-700 flex-shrink-0" />
+                <span>Mau jalur dari kategori berbeda? Beli sebagai paket terpisah setelah ini selesai.</span>
               </p>
 
               <div className="flex flex-col gap-4 max-h-80 overflow-y-auto pr-2">
