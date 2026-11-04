@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface HoneyDripProps {
   mode?: 'separator' | 'fullscreen'
@@ -92,6 +92,32 @@ interface HoneyFillProps { phase: 'entering' | 'holding' | 'exiting' }
 export function HoneyFill({ phase }: HoneyFillProps) {
   const [cls, setCls] = useState('')
   const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const rafRef = useRef<number>(0)
+
+  const startDrawing = useCallback(() => {
+    const draw = () => {
+      const canvas = canvasRef.current
+      const vid = videoRef.current
+      if (canvas && vid && vid.readyState >= 2) {
+        const ctx = canvas.getContext('2d')
+        if (ctx) ctx.drawImage(vid, 0, 0, canvas.width, canvas.height)
+      }
+      rafRef.current = requestAnimationFrame(draw)
+    }
+    cancelAnimationFrame(rafRef.current)
+    rafRef.current = requestAnimationFrame(draw)
+  }, [])
+
+  // Set canvas bitmap size to viewport on mount
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (canvas) {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [])
 
   useEffect(() => {
     const vid = videoRef.current
@@ -100,13 +126,13 @@ export function HoneyFill({ phase }: HoneyFillProps) {
     if (phase === 'entering') {
       setCls('hf-enter')
       vid.currentTime = 0
-      vid.play().catch(() => null)
+      vid.play().then(startDrawing).catch(startDrawing)
     } else if (phase === 'holding') {
       setCls('hf-hold')
     } else if (phase === 'exiting') {
       setCls('hf-exit')
     }
-  }, [phase])
+  }, [phase, startDrawing])
 
   return (
     <>
@@ -114,9 +140,13 @@ export function HoneyFill({ phase }: HoneyFillProps) {
         .hf-root{clip-path:inset(0 0 100% 0);}
         .hf-root.hf-enter{animation:hf-in 1.0s cubic-bezier(0.42,0,0.1,1) forwards;}
         .hf-root.hf-hold{clip-path:inset(0 0 0 0)!important;animation:none!important;}
-        .hf-root.hf-exit{clip-path:inset(0 0 0 0);animation:hf-out 0.65s cubic-bezier(0.76,0,0.24,1) forwards;}
+        .hf-root.hf-exit{clip-path:inset(0 0 0 0);animation:hf-out 0.7s ease-in forwards;}
         @keyframes hf-in {from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
-        @keyframes hf-out{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(100% 0 0 0)}}
+        @keyframes hf-out{
+          0%{clip-path:inset(0 0 0 0);opacity:1}
+          70%{clip-path:inset(60% 0 0 0);opacity:1}
+          100%{clip-path:inset(100% 0 0 0);opacity:0}
+        }
       `}</style>
 
       <div
@@ -129,22 +159,23 @@ export function HoneyFill({ phase }: HoneyFillProps) {
           userSelect: 'none',
         }}
       >
+        {/* Video hidden — only used for frame decoding */}
         <video
           ref={videoRef}
-          muted
-          playsInline
-          autoPlay
-          preload="auto"
-          style={{
-            position: 'absolute', inset: 0,
-            width: '100%', height: '100%',
-            objectFit: 'cover',
-            display: 'block',
-            mixBlendMode: 'multiply',
-          }}
+          muted playsInline preload="auto" loop
+          style={{ display: 'none' }}
         >
           <source src="/honey-splash.mp4" type="video/mp4" />
         </video>
+        {/* Canvas renders frames — mix-blend-mode works in Safari on canvas */}
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            mixBlendMode: 'multiply',
+          }}
+        />
       </div>
     </>
   )
