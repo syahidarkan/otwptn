@@ -826,3 +826,97 @@ select.input {
     margin-left: 4rem; /* w-16 = 64px */
   }
 }
+
+/* ───────────────────────────────────────────────────────────────
+   Dark Mode — additional overrides for amber/colored backgrounds
+   ─────────────────────────────────────────────────────────────── */
+
+/* Amber/yellow light backgrounds */
+html.dark:not(:has(.public-light-theme)) .bg-amber-50,
+html.dark:not(:has(.public-light-theme)) .bg-yellow-50 {
+  background-color: #2a1f07 !important;
+}
+html.dark:not(:has(.public-light-theme)) .bg-amber-100,
+html.dark:not(:has(.public-light-theme)) .bg-yellow-100 {
+  background-color: #33270a !important;
+}
+html.dark:not(:has(.public-light-theme)) .bg-sky-50 {
+  background-color: #0a1929 !important;
+}
+html.dark:not(:has(.public-light-theme)) .bg-sky-100 {
+  background-color: #0d2137 !important;
+}
+html.dark:not(:has(.public-light-theme)) .bg-emerald-50,
+html.dark:not(:has(.public-light-theme)) .bg-green-50 {
+  background-color: #071a0f !important;
+}
+html.dark:not(:has(.public-light-theme)) .bg-rose-50,
+html.dark:not(:has(.public-light-theme)) .bg-red-50,
+html.dark:not(:has(.public-light-theme)) .bg-pink-50 {
+  background-color: #1a0a0d !important;
+}
+html.dark:not(:has(.public-light-theme)) .bg-purple-50,
+html.dark:not(:has(.public-light-theme)) .bg-violet-50 {
+  background-color: #140f24 !important;
+}
+html.dark:not(:has(.public-light-theme)) .bg-orange-50 {
+  background-color: #1f1108 !important;
+}
+
+/* Text color overrides for colored text in dark mode */
+html.dark:not(:has(.public-light-theme)) .text-gray-950 {
+  color: #f9fafb !important;
+}
+html.dark:not(:has(.public-light-theme)) .text-amber-900,
+html.dark:not(:has(.public-light-theme)) .text-amber-950 {
+  color: #fde68a !important;
+}
+html.dark:not(:has(.public-light-theme)) .text-sky-800,
+html.dark:not(:has(.public-light-theme)) .text-sky-900 {
+  color: #7dd3fc !important;
+}
+html.dark:not(:has(.public-light-theme)) .text-emerald-800,
+html.dark:not(:has(.public-light-theme)) .text-emerald-900 {
+  color: #6ee7b7 !important;
+}
+html.dark:not(:has(.public-light-theme)) .text-rose-800,
+html.dark:not(:has(.public-light-theme)) .text-rose-900 {
+  color: #fda4af !important;
+}
+
+/* Explicit hardcoded white/light backgrounds in cards */
+html.dark:not(:has(.public-light-theme)) [style*="background: white"],
+html.dark:not(:has(.public-light-theme)) [style*="background: #fff"],
+html.dark:not(:has(.public-light-theme)) [style*="background-color: white"],
+html.dark:not(:has(.public-light-theme)) [style*="background-color: #ffffff"],
+html.dark:not(:has(.public-light-theme)) [style*="background:#fff"],
+html.dark:not(:has(.public-light-theme)) [style*="background: #ffffff"] {
+  background-color: #1c1d22 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Border color inline overrides */
+html.dark:not(:has(.public-light-theme)) [style*="border-color: #e9e9e7"],
+html.dark:not(:has(.public-light-theme)) [style*="borderColor: #e9e9e7"],
+html.dark:not(:has(.public-light-theme)) [style*="border: 1px solid #f"] {
+  border-color: #2c2d33 !important;
+}
+
+/* Rounded white pop-up menus (profile dropdown, etc) */
+html.dark:not(:has(.public-light-theme)) .rounded-3xl.bg-white,
+html.dark:not(:has(.public-light-theme)) .rounded-2xl.bg-white,
+html.dark:not(:has(.public-light-theme)) .rounded-xl.bg-white {
+  background-color: #1c1d22 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Profile menu hover states */
+html.dark:not(:has(.public-light-theme)) .hover\:bg-gray-50:hover {
+  background-color: #23252b !important;
+}
+html.dark:not(:has(.public-light-theme)) .hover\:bg-amber-50:hover {
+  background-color: #2a1f07 !important;
+}
+html.dark:not(:has(.public-light-theme)) .hover\:bg-rose-50:hover {
+  background-color: #1a0a0d !important;
+}

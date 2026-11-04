@@ -1,17 +1,17 @@
 'use client'
 
+import { useMemo } from 'react'
+
 interface HoneycombBgProps {
   opacity?: number
   className?: string
   colorScheme?: 'amber' | 'dark' | 'light'
   size?: number
+  animated?: boolean
 }
 
-// Flat-top regular hexagon grid (R = corner-to-center radius)
-// Pattern cell: width = 3R, height = R*√3
-// Two hexes per cell: at (R, R*√3/2) and at (2.5R, 0) & (2.5R, R*√3)
 function hexPoints(cx: number, cy: number, R: number): string {
-  const a = R * Math.cos(Math.PI / 6)
+  const a = R * Math.cos(Math.PI / 6) // = R * √3/2
   const b = R * 0.5
   return [
     `${cx + R},${cy}`,
@@ -28,38 +28,55 @@ export default function HoneycombBg({
   className = '',
   colorScheme = 'amber',
   size = 28,
+  animated = true,
 }: HoneycombBgProps) {
-  const uid = 'hc'
-
   const palettes = {
     amber: {
-      fill1: '#fbbf24',
-      fill2: '#f59e0b',
-      fill3: '#fcd34d',
-      stroke: '#d97706',
-      shadow: 'rgba(146,64,14,0.3)',
+      fills: ['#fbbf24', '#f59e0b', '#fcd34d', '#fde68a', '#f97316'],
+      shadow: 'rgba(146,64,14,0.25)',
     },
     dark: {
-      fill1: '#27272a',
-      fill2: '#18181b',
-      fill3: '#3f3f46',
-      stroke: '#52525b',
+      fills: ['#27272a', '#18181b', '#3f3f46', '#52525b', '#2d2d30'],
       shadow: 'rgba(0,0,0,0.5)',
     },
     light: {
-      fill1: '#fef3c7',
-      fill2: '#fde68a',
-      fill3: '#fffbeb',
-      stroke: '#fcd34d',
-      shadow: 'rgba(245,158,11,0.15)',
+      fills: ['#fef3c7', '#fde68a', '#fffbeb', '#fef9c3', '#fef08a'],
+      shadow: 'rgba(245,158,11,0.12)',
     },
   }
 
   const p = palettes[colorScheme]
   const R = size
-  const A = R * Math.cos(Math.PI / 6) // = R * √3/2
-  const pw = 3 * R
-  const ph = 2 * A
+  const A = R * Math.cos(Math.PI / 6) // apothem = R * √3/2
+
+  // Generate individual hex centers for a large area (covers up to ~2200×1400px)
+  const hexagons = useMemo(() => {
+    const list: { cx: number; cy: number; fill: string; delay: number; key: string }[] = []
+    const colStep = 1.5 * R
+    const rowStep = 2 * A
+    const maxX = 2400
+    const maxY = 1500
+
+    const cols = Math.ceil(maxX / colStep) + 2
+    const rows = Math.ceil(maxY / rowStep) + 2
+
+    for (let col = 0; col < cols; col++) {
+      for (let row = 0; row < rows; row++) {
+        const isOddCol = col % 2 === 1
+        const cx = col * colStep + R - colStep
+        const cy = row * rowStep + (isOddCol ? A : 0) + A - rowStep
+
+        // Staggered delay: diagonal wave from top-left
+        const waveDist = (col * 0.7 + row * 1.1)
+        const delay = (waveDist % 8) * 0.09
+
+        // Vary fill color based on position for depth
+        const fillIndex = (col * 3 + row * 2) % p.fills.length
+        list.push({ cx, cy, fill: p.fills[fillIndex], delay, key: `${col}-${row}` })
+      }
+    }
+    return list
+  }, [R, A, p.fills])
 
   return (
     <div
@@ -67,56 +84,45 @@ export default function HoneycombBg({
       style={{ opacity }}
       aria-hidden="true"
     >
-      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <style>{`
+        @keyframes hc-appear {
+          0% { opacity: 0; transform: scale(0.75); }
+          70% { opacity: 1; transform: scale(1.04); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes hc-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.75; }
+        }
+      `}</style>
+      <svg
+        width="100%"
+        height="100%"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+      >
         <defs>
-          {/* 3D top-lit gradient */}
-          <radialGradient id={`${uid}-g1`} cx="40%" cy="30%" r="65%">
-            <stop offset="0%" stopColor={p.fill3} />
-            <stop offset="50%" stopColor={p.fill1} />
-            <stop offset="100%" stopColor={p.fill2} />
-          </radialGradient>
-          <radialGradient id={`${uid}-g2`} cx="45%" cy="35%" r="60%">
-            <stop offset="0%" stopColor={p.fill1} />
-            <stop offset="60%" stopColor={p.fill2} />
-            <stop offset="100%" stopColor={p.stroke} />
-          </radialGradient>
-          <filter id={`${uid}-sh`}>
-            <feDropShadow dx="0" dy="2.5" stdDeviation="1.5" floodColor={p.shadow} />
+          <filter id="hc-shadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="1.5" stdDeviation="1" floodColor={p.shadow} />
           </filter>
-
-          {/* One tile: width=3R, height=2A — contains 2 partial hexes */}
-          <pattern
-            id={`${uid}-pat`}
-            x="0" y="0"
-            width={pw} height={ph}
-            patternUnits="userSpaceOnUse"
-          >
-            {/* Hex A — center column */}
-            <polygon
-              points={hexPoints(R, A, R - 1)}
-              fill={`url(#${uid}-g1)`}
-              stroke={p.stroke}
-              strokeWidth="0.8"
-              filter={`url(#${uid}-sh)`}
-            />
-            {/* Hex B — right edge (tiles left too) */}
-            <polygon
-              points={hexPoints(2.5 * R, 0, R - 1)}
-              fill={`url(#${uid}-g2)`}
-              stroke={p.stroke}
-              strokeWidth="0.8"
-              filter={`url(#${uid}-sh)`}
-            />
-            <polygon
-              points={hexPoints(2.5 * R, ph, R - 1)}
-              fill={`url(#${uid}-g2)`}
-              stroke={p.stroke}
-              strokeWidth="0.8"
-              filter={`url(#${uid}-sh)`}
-            />
-          </pattern>
+          <radialGradient id="hc-vignette" cx="50%" cy="50%" r="70%">
+            <stop offset="0%" stopColor="white" stopOpacity="0" />
+            <stop offset="100%" stopColor="white" stopOpacity="0.3" />
+          </radialGradient>
         </defs>
-        <rect width="100%" height="100%" fill={`url(#${uid}-pat)`} />
+
+        {hexagons.map(({ cx, cy, fill, delay, key }) => (
+          <polygon
+            key={key}
+            points={hexPoints(cx, cy, R * 0.94)}
+            fill={fill}
+            filter="url(#hc-shadow)"
+            style={animated ? {
+              animation: `hc-appear 0.55s cubic-bezier(0.34,1.56,0.64,1) ${delay}s both`,
+              transformOrigin: `${cx}px ${cy}px`,
+            } : undefined}
+          />
+        ))}
       </svg>
     </div>
   )

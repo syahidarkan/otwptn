@@ -143,23 +143,6 @@ export default function ContentCreatorCareerPage() {
   return (
     <div className="min-h-screen bg-white relative">
 
-      {/* Header Bar */}
-      <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
-          <Link
-            href="/career"
-            className="inline-flex items-center gap-1.5 text-xs font-extrabold text-gray-700 hover:text-gray-950 transition-colors"
-          >
-            <ChevronLeft size={16} />
-            <span>Semua Lowongan Karier</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[11px] font-bold text-emerald-700">Pendaftaran Terbuka</span>
-          </div>
-        </div>
-      </header>
-
       {/* Hero Section */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-8">
         <div className="space-y-4">

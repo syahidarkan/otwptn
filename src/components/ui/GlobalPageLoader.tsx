@@ -2,12 +2,14 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import HoneyDrip from '@/components/ui/HoneyDrip'
 
 export default function GlobalPageLoader() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [showHoney, setShowHoney] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   // Listen to path or query param changes to finish loading
@@ -59,9 +61,10 @@ export default function GlobalPageLoader() {
           return
         }
 
-        // Start smooth top bar progress
+        // Start smooth top bar progress + honey animation
         setLoading(true)
         setProgress(28)
+        setShowHoney(true)
 
         if (timerRef.current) clearInterval(timerRef.current)
         timerRef.current = setInterval(() => {
@@ -85,31 +88,37 @@ export default function GlobalPageLoader() {
     }
   }, [])
 
-  if (!loading && progress === 0) return null
+  if (!loading && progress === 0 && !showHoney) return null
 
   return (
-    <div
-      aria-hidden="true"
-      className="fixed top-0 left-0 right-0 z-[999999] pointer-events-none transition-opacity duration-300"
-      style={{ opacity: loading || progress > 0 ? 1 : 0 }}
-    >
-      <div
-        className="relative h-[3px] transition-all ease-out"
-        style={{
-          width: `${progress}%`,
-          transitionDuration: progress === 100 ? '250ms' : '280ms',
-          background: 'linear-gradient(90deg, #ffd400 0%, #f59e0b 60%, #ffd400 100%)',
-          boxShadow: '0 0 12px rgba(255, 212, 0, 0.9), 0 0 4px rgba(245, 158, 11, 1)',
-        }}
-      >
-        {/* Leading edge luminous dot */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-[0_0_10px_#ffd400,0_0_5px_#f59e0b]" />
-
-        {/* Ambient bottom glow trail */}
-        <div
-          className="absolute inset-x-0 top-full h-1.5 bg-gradient-to-b from-amber-400/30 to-transparent blur-xs pointer-events-none"
+    <>
+      {/* Honey drip fullscreen transition */}
+      {showHoney && (
+        <HoneyDrip
+          mode="fullscreen"
+          onComplete={() => setShowHoney(false)}
         />
+      )}
+
+      {/* Amber progress bar */}
+      <div
+        aria-hidden="true"
+        className="fixed top-0 left-0 right-0 z-[999999] pointer-events-none transition-opacity duration-300"
+        style={{ opacity: loading || progress > 0 ? 1 : 0 }}
+      >
+        <div
+          className="relative h-[3px] transition-all ease-out"
+          style={{
+            width: `${progress}%`,
+            transitionDuration: progress === 100 ? '250ms' : '280ms',
+            background: 'linear-gradient(90deg, #ffd400 0%, #f59e0b 60%, #ffd400 100%)',
+            boxShadow: '0 0 12px rgba(255, 212, 0, 0.9), 0 0 4px rgba(245, 158, 11, 1)',
+          }}
+        >
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-[0_0_10px_#ffd400,0_0_5px_#f59e0b]" />
+          <div className="absolute inset-x-0 top-full h-1.5 bg-gradient-to-b from-amber-400/30 to-transparent blur-xs pointer-events-none" />
+        </div>
       </div>
-    </div>
+    </>
   )
 }

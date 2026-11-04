@@ -6,10 +6,10 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import {
   Home, FileCheck2, Calculator, Sparkles, PlayCircle, GraduationCap,
-  Compass, FolderLock, Users, MessageCircle, Settings, Menu, X, Target,
-  Star, ArrowRight, UserCircle2, BarChart3, Clock, Bookmark, Moon,
-  MessageSquare, Download, LogOut, Crown, Bell, HelpCircle, Swords,
-  ChevronDown, ChevronLeft, ChevronRight,
+  Compass, FolderLock, Users, MessageCircle, Menu, X, Target,
+  Star, ArrowRight, UserCircle2, BarChart3, Moon,
+  MessageSquare, LogOut, Crown, Bell, HelpCircle, Swords,
+  ChevronDown, PanelLeftClose, PanelLeftOpen,
   Coins,
 } from 'lucide-react'
 import SidebarPromoCard from './SidebarPromoCard'
@@ -244,12 +244,25 @@ export default function Sidebar() {
 
   const content = (
     <>
-      {/* Logo */}
-      <div className={`flex items-center ${collapsed ? 'justify-center px-2 pt-5 pb-3' : 'px-5 pt-6 pb-4'} flex-shrink-0`}>
-        <Link href="/" className="flex items-center gap-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="otwptn" className="logo-adaptive transition-transform hover:scale-105" style={{ height: collapsed ? 32 : 45, width: 'auto' }} />
+      {/* Logo + Collapse Toggle */}
+      <div className={`flex items-center ${collapsed ? 'flex-col gap-2 px-2 pt-5 pb-3' : 'justify-between px-4 pt-5 pb-4'} flex-shrink-0`}>
+        <Link href="/" className="flex items-center">
+          {collapsed ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src="/favicon.png" alt="otwptn" className="transition-transform hover:scale-105" style={{ width: 32, height: 32 }} />
+          ) : (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src="/logo.png" alt="otwptn" className="logo-adaptive transition-transform hover:scale-105" style={{ height: 40, width: 'auto' }} />
+          )}
         </Link>
+        <button
+          onClick={toggleCollapse}
+          title={collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
+          className="flex items-center justify-center w-7 h-7 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors flex-shrink-0"
+          style={{ color: 'var(--muted)' }}
+        >
+          {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+        </button>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 flex flex-col gap-2 pb-2" style={{ scrollbarWidth: 'none' }}>
@@ -697,16 +710,6 @@ export default function Sidebar() {
         style={{ background: 'var(--bg)', borderRight: '1px solid var(--border)' }}
       >
         {content}
-
-        {/* Collapse toggle button — fixed to right edge of sidebar */}
-        <button
-          onClick={toggleCollapse}
-          title={collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
-          className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full border flex items-center justify-center shadow-sm hover:shadow-md transition-all bg-white hover:bg-amber-50 z-10"
-          style={{ borderColor: 'var(--border)', color: 'var(--muted)' }}
-        >
-          {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
-        </button>
       </aside>
 
       {/* Floating Interactive Notification Popover */}
