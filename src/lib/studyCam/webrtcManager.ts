@@ -401,15 +401,13 @@ export class StudyCamWebRTC {
         })
       }
 
-      // Re-wrap into fresh MediaStream so Safari destroys audio-only pipeline and binds video decoder
-      const streamToDeliver = new MediaStream(this.remoteStream.getTracks())
-      this.callbacks.onRemoteStream(streamToDeliver)
+      // Deliver remote stream to consumer without recreating MediaStream instance unnecessarily
+      this.callbacks.onRemoteStream(this.remoteStream)
 
       if (event.track) {
         event.track.onunmute = () => {
           if (this.remoteStream) {
-            const fresh = new MediaStream(this.remoteStream.getTracks())
-            this.callbacks.onRemoteStream(fresh)
+            this.callbacks.onRemoteStream(this.remoteStream)
           }
         }
       }

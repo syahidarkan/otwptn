@@ -102,18 +102,26 @@ export default function OmegleSection() {
         const vTracks = s.getVideoTracks()
         if (vTracks.length > 0) {
           setHasRemoteVideo(true)
-          if (vEl && (vEl.videoWidth === 0 || !vEl.srcObject)) {
-            vEl.srcObject = new MediaStream(s.getTracks())
+          if (vEl) {
+            if (vEl.srcObject !== s) {
+              vEl.srcObject = s
+            }
+            if (vEl.paused) {
+              vEl.play().catch(() => {})
+            }
+          }
+        } else if (vEl && vEl.srcObject !== s) {
+          vEl.srcObject = s
+          if (vEl.paused) {
             vEl.play().catch(() => {})
           }
-        } else if (vEl && !vEl.srcObject) {
-          vEl.srcObject = s
-          vEl.play().catch(() => {})
         }
 
         if (aEl && aEl.srcObject !== s) {
           aEl.srcObject = s
-          aEl.play().catch(() => {})
+          if (aEl.paused) {
+            aEl.play().catch(() => {})
+          }
         }
 
         if (vTracks.length > 0) {
@@ -123,8 +131,7 @@ export default function OmegleSection() {
           }
           vt.onunmute = () => {
             setHasRemoteVideo(true)
-            if (vEl) {
-              vEl.srcObject = new MediaStream(s.getTracks())
+            if (vEl && vEl.paused) {
               vEl.play().catch(() => {})
             }
           }
@@ -182,9 +189,8 @@ export default function OmegleSection() {
       onRemoteStream: (remoteStream) => {
         remoteStreamRef.current = remoteStream
         const vEl = remoteVideoRef.current
-        if (vEl) {
-          // Re-wrap in fresh MediaStream so Safari rebuilds media pipeline for both audio + video
-          vEl.srcObject = new MediaStream(remoteStream.getTracks())
+        if (vEl && vEl.srcObject !== remoteStream) {
+          vEl.srcObject = remoteStream
           vEl.muted = false
           vEl.play().catch(() => {
             // Autoplay blocked unmuted video, mute & retry so visuals render immediately
@@ -194,7 +200,7 @@ export default function OmegleSection() {
           })
         }
         const aEl = remoteAudioRef.current
-        if (aEl) {
+        if (aEl && aEl.srcObject !== remoteStream) {
           aEl.srcObject = remoteStream
           aEl.play().catch(() => {
             setIsAudioBlocked(true)
