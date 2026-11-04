@@ -72,7 +72,7 @@ export default function PendaftaranDiterima({ full_name, category, tier, total_p
           </Section>
 
           <Text style={{ color: '#888888', fontSize: '12px', textAlign: 'center', marginTop: '24px' }}>
-            otwptn.vercel.app - Platform Bimbingan Jalur Non-Test PTN
+            otwptn.com - Platform Bimbingan Jalur Non-Test PTN
           </Text>
         </Container>
       </Body>

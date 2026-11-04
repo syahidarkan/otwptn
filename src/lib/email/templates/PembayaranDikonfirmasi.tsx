@@ -76,7 +76,7 @@ export default function PembayaranDikonfirmasi({ full_name, wa_group_link, is_re
                 </Text>
                 <Text style={{ color: '#1A1A1A', lineHeight: '1.8', margin: 0 }}>
                   1. Gabung ke Grup WhatsApp ALL dan Grup kategorimu<br />
-                  2. Login ke otwptn.vercel.app<br />
+                  2. Login ke otwptn.com<br />
                   3. Akses e-course dan mulai bimbingan
                 </Text>
                 <Section style={{ textAlign: 'center', margin: '24px 0 12px' }}>
@@ -133,7 +133,7 @@ export default function PembayaranDikonfirmasi({ full_name, wa_group_link, is_re
           </Section>
 
           <Text style={{ color: '#888888', fontSize: '12px', textAlign: 'center', marginTop: '24px' }}>
-            otwptn.vercel.app - Platform Bimbingan Jalur Non-Test PTN
+            otwptn.com - Platform Bimbingan Jalur Non-Test PTN
           </Text>
         </Container>
       </Body>

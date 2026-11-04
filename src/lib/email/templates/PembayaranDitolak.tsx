@@ -47,12 +47,12 @@ export default function PembayaranDitolak({ full_name, notes }: Props) {
 
             <Text style={{ color: '#1A1A1A', lineHeight: '1.7' }}>
               Silakan hubungi kami via WhatsApp atau email jika ada pertanyaan, atau
-              daftar ulang di <strong>otwptn.vercel.app/daftar</strong> dengan bukti pembayaran yang benar.
+              daftar ulang di <strong>otwptn.com/daftar</strong> dengan bukti pembayaran yang benar.
             </Text>
           </Section>
 
           <Text style={{ color: '#888888', fontSize: '12px', textAlign: 'center', marginTop: '24px' }}>
-            otwptn.vercel.app - Platform Bimbingan Jalur Non-Test PTN
+            otwptn.com - Platform Bimbingan Jalur Non-Test PTN
           </Text>
         </Container>
       </Body>

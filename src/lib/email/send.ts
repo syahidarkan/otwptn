@@ -153,7 +153,7 @@ export async function sendPaymentSuccessEmail({
       </table>
 
       <div style="text-align: center; margin: 30px 0;">
-        <a href="https://otwptn.id/dashboard" style="background: #ffd400; color: #111827; text-decoration: none; padding: 14px 32px; border-radius: 999px; font-weight: 800; font-size: 14px; display: inline-block;">
+        <a href="https://otwptn.com/dashboard" style="background: #ffd400; color: #111827; text-decoration: none; padding: 14px 32px; border-radius: 999px; font-weight: 800; font-size: 14px; display: inline-block;">
           Masuk ke Dashboard Siswa →
         </a>
       </div>
