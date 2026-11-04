@@ -99,7 +99,7 @@ export function HoneyFill({ phase }: HoneyFillProps) {
 
     if (phase === 'entering') {
       setCls('hf-enter')
-      vid.currentTime = 7
+      vid.currentTime = 1
       vid.play().catch(() => null)
     } else if (phase === 'holding') {
       setCls('hf-hold')
@@ -129,9 +129,10 @@ export function HoneyFill({ phase }: HoneyFillProps) {
           zIndex: 999997,
           pointerEvents: 'none',
           userSelect: 'none',
-          background: '#f59e0b',
+          isolation: 'isolate',
         }}
       >
+        <div style={{ position: 'absolute', inset: 0, background: '#f59e0b' }} />
         <video
           ref={videoRef}
           muted
@@ -143,6 +144,7 @@ export function HoneyFill({ phase }: HoneyFillProps) {
             width: '100%', height: '100%',
             objectFit: 'cover',
             display: 'block',
+            mixBlendMode: 'multiply',
           }}
         >
           <source src="/honey-splash.mp4" type="video/mp4" />

@@ -16,6 +16,7 @@ export default function GlobalPageLoader() {
   const honeyTimerRef = useRef<NodeJS.Timeout | null>(null)
   const honeyPhaseRef = useRef<HoneyPhase>('idle')
   honeyPhaseRef.current = honeyPhase
+  const enterStartRef = useRef<number>(0)
 
   // Navigation complete: pathname/params changed
   useEffect(() => {
@@ -30,14 +31,20 @@ export default function GlobalPageLoader() {
   }, [pathname, searchParams])
 
   // When navigation completes, start exiting honey
+  // If still entering, wait for enter to finish first (avoids snap to full orange)
   useEffect(() => {
     const phase = honeyPhaseRef.current
     if (phase === 'entering' || phase === 'holding') {
       if (honeyTimerRef.current) clearTimeout(honeyTimerRef.current)
-      setHoneyPhase('exiting')
+      const ENTER_DURATION = 1000
+      const elapsed = Date.now() - enterStartRef.current
+      const remaining = phase === 'entering' ? Math.max(0, ENTER_DURATION - elapsed) : 0
       honeyTimerRef.current = setTimeout(() => {
-        setHoneyPhase('idle')
-      }, 700)
+        setHoneyPhase('exiting')
+        honeyTimerRef.current = setTimeout(() => {
+          setHoneyPhase('idle')
+        }, 700)
+      }, remaining)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, searchParams])
@@ -70,6 +77,7 @@ export default function GlobalPageLoader() {
         setProgress(28)
 
         if (honeyPhaseRef.current === 'idle') {
+          enterStartRef.current = Date.now()
           setHoneyPhase('entering')
           if (honeyTimerRef.current) clearTimeout(honeyTimerRef.current)
           // After 900ms still loading → switch to holding
