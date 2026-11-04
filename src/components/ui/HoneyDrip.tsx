@@ -99,7 +99,7 @@ export function HoneyFill({ phase }: HoneyFillProps) {
 
     if (phase === 'entering') {
       setCls('hf-enter')
-      vid.currentTime = 0
+      vid.currentTime = 7
       vid.play().catch(() => null)
     } else if (phase === 'holding') {
       setCls('hf-hold')
@@ -129,11 +129,9 @@ export function HoneyFill({ phase }: HoneyFillProps) {
           zIndex: 999997,
           pointerEvents: 'none',
           userSelect: 'none',
-          isolation: 'isolate',
+          background: '#f59e0b',
         }}
       >
-        {/* Amber backdrop — white video areas blend to amber via multiply */}
-        <div style={{ position: 'absolute', inset: 0, background: '#f59e0b' }} />
         <video
           ref={videoRef}
           muted
@@ -144,9 +142,7 @@ export function HoneyFill({ phase }: HoneyFillProps) {
             position: 'absolute', inset: 0,
             width: '100%', height: '100%',
             objectFit: 'cover',
-            objectPosition: 'top center',
             display: 'block',
-            mixBlendMode: 'multiply',
           }}
         >
           <source src="/honey-splash.mp4" type="video/mp4" />
