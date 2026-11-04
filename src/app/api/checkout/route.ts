@@ -34,7 +34,8 @@ export async function POST(request: Request) {
     .limit(1)
     .single()
 
-  if (existingOrder?.payment_url) {
+  // Only reuse if the stored URL uses the correct Mayar /pl/ format
+  if (existingOrder?.payment_url && existingOrder.payment_url.includes('/pl/')) {
     return NextResponse.json({
       payment_method,
       payment_url: existingOrder.payment_url,
