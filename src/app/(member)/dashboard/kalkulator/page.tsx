@@ -23,7 +23,11 @@ import {
   FlaskConical,
   BookOpen,
   Wrench,
+  Share2,
+  RotateCcw,
+  Save,
 } from 'lucide-react'
+import ShareStoryModal from '@/components/social/ShareStoryModal'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
 import SearchInput from '@/components/ui/SearchInput'
 import Select from '@/components/ui/Select'
@@ -97,11 +101,13 @@ function ResultPanel({
   loading,
   quotaError,
   error,
+  onOpenShare,
 }: {
   result: KalkulatorResult | null
   loading: boolean
   quotaError: boolean
   error: string | null
+  onOpenShare?: () => void
 }) {
   return (
     <div className="p-6 rounded-3xl bg-white shadow-md sticky top-6">
@@ -162,6 +168,16 @@ function ResultPanel({
               </h3>
             </div>
           </div>
+
+          {/* Viral Loop: Share ke Story */}
+          {onOpenShare && (
+            <button
+              onClick={onOpenShare}
+              className="w-full py-3 px-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs flex items-center justify-center gap-2 cursor-pointer shadow-xs transition-transform active:scale-[0.99]"
+            >
+              <Share2 size={15} /> Pamer Skor ke Instagram / TikTok Story
+            </button>
+          )}
 
           {/* Strengths */}
           {result.strengths?.length > 0 && (
@@ -286,6 +302,80 @@ export default function KalkulatorPage() {
   )
   const [openSemester, setOpenSemester] = useState<number>(1)
   const [certificates, setCertificates] = useState<Certificate[]>([])
+  const [showStoryModal, setShowStoryModal] = useState(false)
+  const [lastSaved, setLastSaved] = useState<string | null>(null)
+
+  // 1. Pulihkan draf tersimpan dari localStorage saat halaman pertama dimuat
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('otwptn_kalkulator_draft_v1')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (parsed.semesters && Array.isArray(parsed.semesters) && parsed.semesters.length > 0) {
+          setSemesters(parsed.semesters)
+        }
+        if (parsed.jurusanSma) setJurusanSma(parsed.jurusanSma)
+        if (parsed.isEligible !== undefined) setIsEligible(parsed.isEligible)
+        if (parsed.eligibleRank) setEligibleRank(parsed.eligibleRank)
+        if (parsed.schoolQuota) setSchoolQuota(parsed.schoolQuota)
+        if (parsed.schoolAccreditation) setSchoolAccreditation(parsed.schoolAccreditation)
+        if (parsed.pilihan1Ptn) setPilihan1Ptn(parsed.pilihan1Ptn)
+        if (parsed.pilihan1Prodi) setPilihan1Prodi(parsed.pilihan1Prodi)
+        if (parsed.pilihan2Ptn) setPilihan2Ptn(parsed.pilihan2Ptn)
+        if (parsed.pilihan2Prodi) setPilihan2Prodi(parsed.pilihan2Prodi)
+        if (parsed.certificates && Array.isArray(parsed.certificates)) setCertificates(parsed.certificates)
+        if (parsed.savedAt) setLastSaved(`Draf dipulihkan (${parsed.savedAt})`)
+      }
+    } catch (e) {
+      console.warn('Gagal memulihkan draf nilai rapor:', e)
+    }
+  }, [])
+
+  // 2. Autosave berkala ke localStorage agar input siswa tidak hilang
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        const timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+        const payload = {
+          semesters,
+          jurusanSma,
+          isEligible,
+          eligibleRank,
+          schoolQuota,
+          schoolAccreditation,
+          pilihan1Ptn,
+          pilihan1Prodi,
+          pilihan2Ptn,
+          pilihan2Prodi,
+          certificates,
+          savedAt: timeStr,
+        }
+        localStorage.setItem('otwptn_kalkulator_draft_v1', JSON.stringify(payload))
+        setLastSaved(`Otomatis tersimpan (${timeStr})`)
+      } catch (e) {
+        // quota browser
+      }
+    }, 1200)
+
+    return () => clearTimeout(timer)
+  }, [semesters, jurusanSma, isEligible, eligibleRank, schoolQuota, schoolAccreditation, pilihan1Ptn, pilihan1Prodi, pilihan2Ptn, pilihan2Prodi, certificates])
+
+  const handleResetForm = () => {
+    if (confirm('Kosongkan semua nilai rapor dan reset formulir kalkulator?')) {
+      localStorage.removeItem('otwptn_kalkulator_draft_v1')
+      setSemesters(Array.from({ length: 5 }, (_, i) => ({ semester: i + 1, subjects: [] })))
+      setCertificates([])
+      setEligibleRank('')
+      setSchoolQuota('')
+      setSchoolAccreditation('')
+      setPilihan1Ptn('')
+      setPilihan1Prodi('')
+      setPilihan2Ptn('')
+      setPilihan2Prodi('')
+      setResult(null)
+      setLastSaved(null)
+    }
+  }
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -534,15 +624,29 @@ export default function KalkulatorPage() {
         mascot="/fitur/kalkulator-peluang.png"
         badgeText="AI Analysis"
       >
-        <button
-          onClick={() => {
-            setPicking(true)
-            setResult(null)
-          }}
-          className="btn-brand-primary px-5 py-2.5 rounded-full text-xs font-black shadow-md flex items-center gap-2"
-        >
-          Ganti Jalur Seleksi
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {lastSaved && (
+            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/50">
+              <CheckCircle2 size={12} className="text-emerald-600" /> {lastSaved}
+            </span>
+          )}
+          <button
+            onClick={handleResetForm}
+            className="px-3 py-1.5 rounded-full text-[11px] font-bold text-gray-500 hover:text-rose-600 bg-gray-100 hover:bg-rose-50 transition-colors flex items-center gap-1 cursor-pointer"
+            title="Reset form & bersihkan draf"
+          >
+            <RotateCcw size={11} /> Reset
+          </button>
+          <button
+            onClick={() => {
+              setPicking(true)
+              setResult(null)
+            }}
+            className="btn-brand-primary px-5 py-2.5 rounded-full text-xs font-black shadow-md flex items-center gap-2"
+          >
+            Ganti Jalur Seleksi
+          </button>
+        </div>
       </FeatureHeader>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -939,8 +1043,21 @@ export default function KalkulatorPage() {
           loading={loading}
           quotaError={!!quotaError}
           error={null}
+          onOpenShare={() => setShowStoryModal(true)}
         />
       </div>
+
+      {/* Modal Viral Share ke Instagram / TikTok Story */}
+      {result && (
+        <ShareStoryModal
+          isOpen={showStoryModal}
+          onClose={() => setShowStoryModal(false)}
+          score={result.score}
+          targetUniv={pilihan1Ptn || selectedJalur.ptn || 'Universitas Indonesia'}
+          targetMajor={pilihan1Prodi || selectedJalur.name || 'Program Studi Pilihan'}
+          recommendation={result.recommendation}
+        />
+      )}
     </div>
   )
 }
