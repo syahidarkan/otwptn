@@ -90,15 +90,24 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
 interface HoneyFillProps {
   phase: 'entering' | 'exiting'
   onComplete: () => void
+  onFullyCovered?: () => void
 }
 
 const CANVAS_W = 1280
 const CANVAS_H = 720
 
-export function HoneyFill({ phase, onComplete }: HoneyFillProps) {
+// Sample points (x, y) spread across canvas to detect full honey coverage
+const COVERAGE_POINTS = [
+  [64, 36], [640, 36], [1216, 36],
+  [64, 360], [640, 360], [1216, 360],
+  [64, 684], [640, 684], [1216, 684],
+]
+
+export function HoneyFill({ phase, onComplete, onFullyCovered }: HoneyFillProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rafRef = useRef<number>(0)
+  const coveredRef = useRef(false)
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -108,7 +117,12 @@ export function HoneyFill({ phase, onComplete }: HoneyFillProps) {
     return () => cancelAnimationFrame(rafRef.current)
   }, [])
 
-  const startDrawing = useCallback(() => {
+  // Reset coverage flag when phase resets to entering
+  useEffect(() => {
+    if (phase === 'entering') coveredRef.current = false
+  }, [phase])
+
+  const startDrawing = useCallback((onCovered?: () => void) => {
     // Cache context once — avoids per-frame lookup overhead
     const ctx = canvasRef.current?.getContext('2d', { willReadFrequently: true })
     if (!ctx) return
@@ -127,6 +141,18 @@ export function HoneyFill({ phase, onComplete }: HoneyFillProps) {
           }
         }
         ctx.putImageData(imgData, 0, 0)
+
+        // Detect full coverage: all sample points have high alpha (honey is there)
+        if (!coveredRef.current && onCovered) {
+          const allCovered = COVERAGE_POINTS.every(([x, y]) => {
+            const idx = (y * CANVAS_W + x) * 4
+            return d[idx + 3] > 200
+          })
+          if (allCovered) {
+            coveredRef.current = true
+            onCovered()
+          }
+        }
       }
       rafRef.current = requestAnimationFrame(draw)
     }
@@ -142,14 +168,15 @@ export function HoneyFill({ phase, onComplete }: HoneyFillProps) {
     if (phase === 'entering') {
       vid.currentTime = 0
       vid.playbackRate = 1
-      vid.play().then(startDrawing).catch(startDrawing)
+      const go = () => startDrawing(onFullyCovered)
+      vid.play().then(go).catch(go)
     } else if (phase === 'exiting') {
       // Loading done — speed up remaining video to finish in ~0.8s
       const remaining = (vid.duration || 10) - vid.currentTime
       if (remaining <= 0.05) { onComplete(); return }
       vid.playbackRate = Math.min(8, Math.max(1, remaining / 0.8))
     }
-  }, [phase, startDrawing, onComplete])
+  }, [phase, startDrawing, onComplete, onFullyCovered])
 
   // When video ends → signal parent to unmount
   useEffect(() => {

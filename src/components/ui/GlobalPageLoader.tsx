@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { useEffect, useState, useRef, useCallback } from 'react'
+import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 import { HoneyFill } from '@/components/ui/HoneyDrip'
 
 type HoneyPhase = 'idle' | 'entering' | 'exiting'
@@ -9,38 +9,39 @@ type HoneyPhase = 'idle' | 'entering' | 'exiting'
 export default function GlobalPageLoader() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [honeyPhase, setHoneyPhase] = useState<HoneyPhase>('idle')
   const timerRef = useRef<NodeJS.Timeout | null>(null)
-  const honeyTimerRef = useRef<NodeJS.Timeout | null>(null)
   const honeyPhaseRef = useRef<HoneyPhase>('idle')
   honeyPhaseRef.current = honeyPhase
-  const enterStartRef = useRef<number>(0)
+  // href waiting to be navigated — held until honey fully covers screen
+  const pendingHrefRef = useRef<string | null>(null)
 
-  // Navigation complete: pathname/params changed
+  // When pathname changes: navigation completed → switch honey to exiting
   useEffect(() => {
+    if (honeyPhaseRef.current === 'entering') {
+      setHoneyPhase('exiting')
+    }
     if (loading) {
       setProgress(100)
-      const t = setTimeout(() => {
-        setLoading(false)
-        setProgress(0)
-      }, 350)
+      const t = setTimeout(() => { setLoading(false); setProgress(0) }, 350)
       return () => clearTimeout(t)
-    }
-  }, [pathname, searchParams])
-
-  // When navigation completes → switch to exiting; HoneyFill calls onComplete → idle
-  useEffect(() => {
-    const phase = honeyPhaseRef.current
-    if (phase === 'entering') {
-      if (honeyTimerRef.current) clearTimeout(honeyTimerRef.current)
-      setHoneyPhase('exiting')
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, searchParams])
 
-  // Listen to link clicks globally
+  // Called by HoneyFill when canvas is fully covered by honey
+  const handleFullyCovered = useCallback(() => {
+    const href = pendingHrefRef.current
+    if (href) {
+      pendingHrefRef.current = null
+      router.push(href)
+    }
+  }, [router])
+
+  // Listen to link clicks globally — intercept and defer navigation
   useEffect(() => {
     function handleAnchorClick(e: MouseEvent) {
       const target = (e.target as HTMLElement).closest('a')
@@ -63,27 +64,29 @@ export default function GlobalPageLoader() {
         const cur = new URL(window.location.href)
         if (url.pathname === cur.pathname && url.search === cur.search) return
 
-        // Start loading + honey entering phase
+        // Block Next.js Link handler from navigating immediately
+        e.preventDefault()
+        e.stopPropagation()
+
+        // Store href — navigation fires when honey fully covers screen
+        pendingHrefRef.current = href
+
         setLoading(true)
         setProgress(28)
 
         if (honeyPhaseRef.current === 'idle') {
-          enterStartRef.current = Date.now()
           setHoneyPhase('entering')
         }
 
         if (timerRef.current) clearInterval(timerRef.current)
         timerRef.current = setInterval(() => {
           setProgress(prev => {
-            if (prev >= 88) {
-              if (timerRef.current) clearInterval(timerRef.current)
-              return 88
-            }
+            if (prev >= 88) { if (timerRef.current) clearInterval(timerRef.current); return 88 }
             return prev + Math.floor(Math.random() * 8) + 5
           })
         }, 110)
       } catch {
-        // invalid URL
+        // invalid URL — let browser handle
       }
     }
 
@@ -91,7 +94,6 @@ export default function GlobalPageLoader() {
     return () => {
       document.removeEventListener('click', handleAnchorClick, true)
       if (timerRef.current) clearInterval(timerRef.current)
-      if (honeyTimerRef.current) clearTimeout(honeyTimerRef.current)
     }
   }, [])
 
@@ -102,6 +104,7 @@ export default function GlobalPageLoader() {
         <HoneyFill
           phase={honeyPhase as 'entering' | 'exiting'}
           onComplete={() => setHoneyPhase('idle')}
+          onFullyCovered={handleFullyCovered}
         />
       )}
 
