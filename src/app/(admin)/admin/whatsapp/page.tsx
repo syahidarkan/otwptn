@@ -2,27 +2,16 @@
 
 import { useState, useEffect, useRef } from 'react'
 import {
-  MessageCircle,
-  Send,
-  RefreshCw,
-  Wifi,
-  WifiOff,
-  LogOut,
-  Loader2,
-  Phone,
-  CheckCircle2,
-  AlertCircle,
-  ServerCrash,
-  Smartphone,
+  Send, RefreshCw, Loader2, Phone, CheckCircle2,
+  AlertCircle, ServerCrash, Smartphone, LogOut,
+  WifiOff, Wifi, Search, MessageCircle, ChevronDown,
 } from 'lucide-react'
-import Image from 'next/image'
 
 interface WAState {
   status: 'server_not_running' | 'disconnected' | 'connecting' | 'qr' | 'connected' | 'reconnecting'
   qr?: string
   phone?: string
   messageCount?: number
-  message?: string
 }
 
 interface WAMessage {
@@ -31,30 +20,73 @@ interface WAMessage {
   fromName?: string
   text: string
   timestamp: number
-  isOutgoing?: boolean
+  isMe?: boolean
+  isGroup?: boolean
+  groupName?: string
+}
+
+type Conversation = {
+  jid: string
+  name: string
+  messages: WAMessage[]
+  unread: number
+  lastMsg: WAMessage | null
+}
+
+function groupConversations(messages: WAMessage[]): Conversation[] {
+  const map = new Map<string, Conversation>()
+  for (const msg of messages) {
+    const jid = msg.isGroup ? (msg.groupName || msg.from) : msg.from
+    const name = msg.isGroup ? (msg.groupName || msg.from) : (msg.fromName || msg.from)
+    if (!map.has(jid)) map.set(jid, { jid, name, messages: [], unread: 0, lastMsg: null })
+    const conv = map.get(jid)!
+    conv.messages.push(msg)
+    conv.lastMsg = msg
+    if (!msg.isMe) conv.unread++
+  }
+  return Array.from(map.values()).sort((a, b) =>
+    (b.lastMsg?.timestamp ?? 0) - (a.lastMsg?.timestamp ?? 0)
+  )
+}
+
+function timeLabel(ts: number) {
+  const d = new Date(ts)
+  const now = new Date()
+  const isToday = d.toDateString() === now.toDateString()
+  return isToday
+    ? d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+    : d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })
 }
 
 export default function WhatsAppAdminPage() {
   const [state, setState] = useState<WAState>({ status: 'disconnected' })
   const [messages, setMessages] = useState<WAMessage[]>([])
-  const [sendTo, setSendTo] = useState('')
+  const [activeJid, setActiveJid] = useState<string | null>(null)
   const [sendText, setSendText] = useState('')
   const [sending, setSending] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
+  const [search, setSearch] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const eventSourceRef = useRef<EventSource | null>(null)
   const msgEndRef = useRef<HTMLDivElement>(null)
+  const eventSourceRef = useRef<EventSource | null>(null)
 
   useEffect(() => {
     fetchStatus()
     fetchMessages()
     connectSSE()
-    return () => { eventSourceRef.current?.close() }
+    return () => eventSourceRef.current?.close()
   }, [])
 
   useEffect(() => {
     msgEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  }, [activeJid, messages])
+
+  const conversations = groupConversations(messages)
+  const filteredConvs = conversations.filter(c =>
+    c.name.toLowerCase().includes(search.toLowerCase()) ||
+    c.jid.includes(search)
+  )
+  const activeConv = conversations.find(c => c.jid === activeJid)
 
   async function fetchStatus() {
     try {
@@ -76,245 +108,293 @@ export default function WhatsAppAdminPage() {
     eventSourceRef.current?.close()
     const es = new EventSource('/api/wa-admin/events')
     eventSourceRef.current = es
-
-    es.addEventListener('state', (e) => {
-      try { setState(JSON.parse(e.data)) } catch {}
-    })
-    es.addEventListener('message', (e) => {
+    es.addEventListener('state', e => { try { setState(JSON.parse(e.data)) } catch {} })
+    es.addEventListener('message', e => {
       try {
-        const msg = JSON.parse(e.data)
-        setMessages(prev => [...prev.slice(-199), msg])
+        const msg: WAMessage = JSON.parse(e.data)
+        setMessages(prev => [msg, ...prev.slice(0, 199)])
       } catch {}
     })
-    es.onerror = () => { es.close() }
+    es.onerror = () => es.close()
   }
 
   async function doAction(action: string) {
-    setActionLoading(true)
-    setError(null)
+    setActionLoading(true); setError(null)
     try {
       const res = await fetch('/api/wa-admin/status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action }),
       })
       const data = await res.json()
       if (!data.ok) setError(data.error || 'Gagal')
-      else {
-        await fetchStatus()
-        connectSSE()
-      }
-    } catch (e) {
-      setError('Request gagal')
-    } finally {
-      setActionLoading(false)
-    }
+      else { await fetchStatus(); connectSSE() }
+    } catch { setError('Request gagal') }
+    finally { setActionLoading(false) }
   }
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault()
-    if (!sendTo.trim() || !sendText.trim()) return
-    setSending(true)
-    setError(null)
+    if (!activeJid || !sendText.trim()) return
+    setSending(true); setError(null)
     try {
       const res = await fetch('/api/wa-admin/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: sendTo.trim(), text: sendText.trim() }),
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: activeJid, text: sendText.trim() }),
       })
       const data = await res.json()
       if (!data.ok) setError(data.error || 'Gagal kirim')
-      else setSendText('')
-    } catch {
-      setError('Request gagal')
-    } finally {
-      setSending(false)
-    }
+      else {
+        // Optimistic update
+        const outMsg: WAMessage = {
+          id: Date.now().toString(), from: state.phone || 'me',
+          text: sendText.trim(), timestamp: Date.now(), isMe: true,
+        }
+        setMessages(prev => [outMsg, ...prev])
+        setSendText('')
+      }
+    } catch { setError('Request gagal') }
+    finally { setSending(false) }
   }
 
-  const statusConfig = {
-    server_not_running: { label: 'Server tidak aktif', color: 'text-red-600', bg: 'bg-red-50', icon: ServerCrash },
-    disconnected: { label: 'Belum terhubung', color: 'text-gray-500', bg: 'bg-gray-50', icon: WifiOff },
-    connecting: { label: 'Menghubungkan...', color: 'text-blue-600', bg: 'bg-blue-50', icon: Loader2 },
-    reconnecting: { label: 'Menyambungkan ulang...', color: 'text-orange-600', bg: 'bg-orange-50', icon: Loader2 },
-    qr: { label: 'Scan QR', color: 'text-purple-600', bg: 'bg-purple-50', icon: Smartphone },
-    connected: { label: 'Terhubung', color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle2 },
-  }
+  const isConnected = state.status === 'connected'
+  const isQR = state.status === 'qr'
+  const isNotRunning = state.status === 'server_not_running'
+  const isLoading = state.status === 'connecting' || state.status === 'reconnecting'
 
-  const st = statusConfig[state.status] || statusConfig.disconnected
-  const StatusIcon = st.icon
-
-  return (
-    <div className="p-6 md:p-8 space-y-6 max-w-5xl mx-auto">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-2xl bg-green-100 flex items-center justify-center">
-          <MessageCircle size={20} className="text-green-600" />
+  // ── QR / Not Connected overlay ────────────────────────────────────────────
+  if (isNotRunning) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center space-y-3 max-w-sm">
+          <ServerCrash size={40} className="text-red-400 mx-auto" />
+          <p className="font-bold text-gray-800">WA Service belum aktif</p>
+          <p className="text-sm text-gray-500">Set <code className="bg-gray-100 px-1 rounded">WA_SERVICE_URL</code> di Vercel env.</p>
         </div>
-        <div>
-          <h1 className="text-xl font-black text-gray-900">WhatsApp Admin</h1>
-          <p className="text-xs text-gray-500">Kelola pesan WhatsApp OTWPTN dari satu dashboard</p>
+      </div>
+    )
+  }
+
+  if (!isConnected) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#f0f2f5]">
+        <div className="bg-white rounded-3xl shadow-xl p-8 max-w-sm w-full text-center space-y-5">
+          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+            <MessageCircle size={30} className="text-green-600" />
+          </div>
+          <div>
+            <h2 className="text-lg font-black text-gray-900">WhatsApp Admin</h2>
+            <p className="text-sm text-gray-500 mt-1">Hubungkan WhatsApp untuk mulai</p>
+          </div>
+
+          {isQR && state.qr ? (
+            <div className="space-y-3">
+              <div className="rounded-2xl border-2 border-green-200 overflow-hidden p-2 inline-block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={state.qr} alt="QR Code" className="w-52 h-52 object-contain" />
+              </div>
+              <p className="text-xs text-gray-500">
+                Buka WhatsApp di HP → <strong>Perangkat Tertaut</strong> → <strong>Tautkan Perangkat</strong>
+              </p>
+            </div>
+          ) : isLoading ? (
+            <div className="flex items-center justify-center gap-2 text-blue-600 py-4">
+              <Loader2 size={20} className="animate-spin" />
+              <span className="text-sm font-medium">Menghubungkan...</span>
+            </div>
+          ) : (
+            <div className="text-gray-400 py-4">
+              <WifiOff size={32} className="mx-auto mb-2" />
+              <p className="text-sm">Belum terhubung ke WhatsApp</p>
+            </div>
+          )}
+
+          <div className="flex gap-2 justify-center">
+            {!isLoading && !isQR && (
+              <button
+                onClick={() => doAction('connect')}
+                disabled={actionLoading}
+                className="px-5 py-2.5 rounded-full bg-green-600 text-white text-sm font-bold hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+              >
+                {actionLoading ? <Loader2 size={14} className="animate-spin" /> : <Wifi size={14} />}
+                Hubungkan
+              </button>
+            )}
+            <button
+              onClick={() => { fetchStatus(); connectSSE() }}
+              className="px-4 py-2.5 rounded-full border text-gray-600 text-sm font-bold hover:bg-gray-50 flex items-center gap-1"
+            >
+              <RefreshCw size={14} /> Refresh
+            </button>
+          </div>
+
+          {error && <p className="text-xs text-red-600">{error}</p>}
+        </div>
+      </div>
+    )
+  }
+
+  // ── WhatsApp Web layout ──────────────────────────────────────────────────
+  return (
+    <div className="flex h-screen overflow-hidden" style={{ background: '#f0f2f5' }}>
+
+      {/* Left sidebar — conversation list */}
+      <div className="w-80 flex-shrink-0 flex flex-col bg-white border-r border-gray-200">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 bg-[#f0f2f5]">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+              <Phone size={14} className="text-white" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-gray-800">{state.phone}</p>
+              <p className="text-[10px] text-green-600 font-semibold">● Online</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => { if (confirm('Logout WA? Harus scan QR lagi.')) doAction('logout') }}
+              title="Logout"
+              className="w-8 h-8 rounded-full hover:bg-gray-200 flex items-center justify-center text-gray-600"
+            >
+              <LogOut size={15} />
+            </button>
+            <button
+              onClick={() => { fetchStatus(); fetchMessages(); connectSSE() }}
+              title="Refresh"
+              className="w-8 h-8 rounded-full hover:bg-gray-200 flex items-center justify-center text-gray-600"
+            >
+              <RefreshCw size={15} />
+            </button>
+          </div>
+        </div>
+
+        {/* Search */}
+        <div className="px-3 py-2 bg-white border-b border-gray-100">
+          <div className="flex items-center gap-2 bg-[#f0f2f5] rounded-full px-3 py-1.5">
+            <Search size={14} className="text-gray-400" />
+            <input
+              type="text"
+              placeholder="Cari atau mulai chat baru"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="flex-1 bg-transparent text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Conversations */}
+        <div className="flex-1 overflow-y-auto">
+          {filteredConvs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
+              <MessageCircle size={28} />
+              <p className="text-xs">{messages.length === 0 ? 'Belum ada pesan masuk' : 'Tidak ditemukan'}</p>
+            </div>
+          ) : (
+            filteredConvs.map(conv => (
+              <button
+                key={conv.jid}
+                onClick={() => setActiveJid(conv.jid)}
+                className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-left ${activeJid === conv.jid ? 'bg-gray-100' : ''}`}
+              >
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-green-700">
+                  {(conv.name[0] || '?').toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-sm font-semibold text-gray-900 truncate">{conv.name}</span>
+                    {conv.lastMsg && (
+                      <span className="text-[10px] text-gray-400 flex-shrink-0 ml-1">
+                        {timeLabel(conv.lastMsg.timestamp)}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 truncate">
+                    {conv.lastMsg?.isMe && <span className="text-green-600">Kamu: </span>}
+                    {conv.lastMsg?.text}
+                  </p>
+                </div>
+                {conv.unread > 0 && (
+                  <span className="w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                    {conv.unread}
+                  </span>
+                )}
+              </button>
+            ))
+          )}
         </div>
       </div>
 
-      {/* Server not running notice */}
-      {state.status === 'server_not_running' && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 flex gap-3">
-          <AlertCircle size={18} className="text-red-500 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-red-800 space-y-1">
-            <p className="font-bold">Custom server belum berjalan</p>
-            <p className="text-xs text-red-700">
-              WhatsApp Web (Baileys) butuh proses yang hidup terus-menerus — tidak kompatibel dengan Vercel serverless.
-              Jalankan di Railway/VPS dengan:
-            </p>
-            <code className="block bg-red-100 rounded-lg px-3 py-2 text-xs font-mono mt-1">
-              npm run start:wa
-            </code>
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: status + QR */}
-        <div className="space-y-4">
-          {/* Status card */}
-          <div className={`rounded-2xl border p-4 ${st.bg}`}>
-            <div className="flex items-center gap-2 mb-3">
-              <StatusIcon size={16} className={`${st.color} ${state.status === 'connecting' || state.status === 'reconnecting' ? 'animate-spin' : ''}`} />
-              <span className={`text-sm font-bold ${st.color}`}>{st.label}</span>
-            </div>
-            {state.phone && (
-              <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-3">
-                <Phone size={12} />
-                <span>{state.phone}</span>
+      {/* Right — chat window */}
+      <div className="flex-1 flex flex-col">
+        {activeConv ? (
+          <>
+            {/* Chat header */}
+            <div className="flex items-center gap-3 px-4 py-3 bg-[#f0f2f5] border-b border-gray-200">
+              <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center text-sm font-bold text-green-700">
+                {(activeConv.name[0] || '?').toUpperCase()}
               </div>
-            )}
-            {state.messageCount !== undefined && (
-              <p className="text-xs text-gray-500 mb-3">{state.messageCount} pesan tersimpan</p>
-            )}
-
-            <div className="flex gap-2 flex-wrap">
-              {state.status === 'disconnected' && (
-                <button
-                  onClick={() => doAction('connect')}
-                  disabled={actionLoading}
-                  className="px-3 py-1.5 rounded-full bg-green-600 text-white text-xs font-bold hover:bg-green-700 disabled:opacity-50 flex items-center gap-1"
-                >
-                  {actionLoading ? <Loader2 size={12} className="animate-spin" /> : <Wifi size={12} />}
-                  Hubungkan
-                </button>
-              )}
-              {(state.status === 'connected' || state.status === 'qr' || state.status === 'connecting') && (
-                <button
-                  onClick={() => doAction('disconnect')}
-                  disabled={actionLoading}
-                  className="px-3 py-1.5 rounded-full bg-gray-200 text-gray-700 text-xs font-bold hover:bg-gray-300 disabled:opacity-50 flex items-center gap-1"
-                >
-                  {actionLoading ? <Loader2 size={12} className="animate-spin" /> : <WifiOff size={12} />}
-                  Putuskan
-                </button>
-              )}
-              {state.status === 'connected' && (
-                <button
-                  onClick={() => { if (confirm('Logout WA? Harus scan QR lagi.')) doAction('logout') }}
-                  disabled={actionLoading}
-                  className="px-3 py-1.5 rounded-full bg-red-100 text-red-700 text-xs font-bold hover:bg-red-200 disabled:opacity-50 flex items-center gap-1"
-                >
-                  <LogOut size={12} /> Logout
-                </button>
-              )}
-              <button
-                onClick={() => { fetchStatus(); fetchMessages() }}
-                className="px-3 py-1.5 rounded-full bg-white border text-gray-600 text-xs font-bold hover:bg-gray-50 flex items-center gap-1"
-              >
-                <RefreshCw size={12} /> Refresh
-              </button>
-            </div>
-          </div>
-
-          {/* QR Code */}
-          {state.status === 'qr' && state.qr && (
-            <div className="rounded-2xl border border-purple-200 bg-white p-4 text-center space-y-2">
-              <p className="text-xs font-bold text-purple-700">Scan dengan WhatsApp di HP kamu</p>
-              <div className="relative w-48 h-48 mx-auto rounded-xl overflow-hidden border">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={state.qr} alt="QR Code WhatsApp" className="w-full h-full object-contain" />
+              <div>
+                <p className="text-sm font-bold text-gray-900">{activeConv.name}</p>
+                <p className="text-[11px] text-gray-500">{activeConv.jid}</p>
               </div>
-              <p className="text-[10px] text-gray-500">
-                Buka WA → Perangkat Tertaut → Tautkan Perangkat
-              </p>
             </div>
-          )}
-        </div>
 
-        {/* Right: messages + send */}
-        <div className="lg:col-span-2 space-y-4">
-          {/* Messages list */}
-          <div className="rounded-2xl border bg-white overflow-hidden flex flex-col" style={{ height: '380px' }}>
-            <div className="px-4 py-3 border-b flex items-center justify-between">
-              <span className="text-sm font-bold text-gray-700">Pesan Masuk</span>
-              <span className="text-xs text-gray-400">{messages.length} pesan</span>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {messages.length === 0 ? (
-                <div className="h-full flex items-center justify-center">
-                  <p className="text-xs text-gray-400 text-center">
-                    {state.status === 'connected' ? 'Belum ada pesan masuk' : 'Hubungkan WA untuk mulai menerima pesan'}
-                  </p>
-                </div>
-              ) : (
-                messages.map((msg) => (
-                  <div key={msg.id} className={`flex ${msg.isOutgoing ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${msg.isOutgoing ? 'bg-green-100 text-green-900' : 'bg-gray-100 text-gray-800'}`}>
-                      {!msg.isOutgoing && (
-                        <p className="text-[10px] font-bold text-gray-500 mb-0.5">{msg.fromName || msg.from}</p>
-                      )}
-                      <p>{msg.text}</p>
-                      <p className="text-[9px] text-gray-400 mt-0.5 text-right">
-                        {new Date(msg.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
+            {/* Messages */}
+            <div
+              className="flex-1 overflow-y-auto px-4 py-4 space-y-1"
+              style={{ background: '#efeae2', backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' fill='%23e5ddd5' opacity='0.3'/%3E%3C/svg%3E\")" }}
+            >
+              {[...activeConv.messages].reverse().map(msg => (
+                <div key={msg.id} className={`flex ${msg.isMe ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[65%] rounded-2xl px-3 py-2 shadow-xs text-sm ${msg.isMe ? 'bg-[#d9fdd3] text-gray-800 rounded-br-sm' : 'bg-white text-gray-800 rounded-bl-sm'}`}>
+                    {!msg.isMe && msg.fromName && (
+                      <p className="text-[10px] font-bold text-green-600 mb-0.5">{msg.fromName}</p>
+                    )}
+                    <p className="leading-snug">{msg.text}</p>
+                    <p className="text-[9px] text-gray-400 text-right mt-0.5">
+                      {timeLabel(msg.timestamp)}
+                    </p>
                   </div>
-                ))
-              )}
+                </div>
+              ))}
               <div ref={msgEndRef} />
             </div>
-          </div>
 
-          {/* Send form */}
-          <form onSubmit={handleSend} className="rounded-2xl border bg-white p-4 space-y-3">
-            <p className="text-xs font-bold text-gray-700">Kirim Pesan</p>
-            <input
-              type="text"
-              placeholder="Nomor tujuan (628xxx)"
-              value={sendTo}
-              onChange={e => setSendTo(e.target.value)}
-              className="w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
-            />
-            <div className="flex gap-2">
+            {/* Send bar */}
+            <form onSubmit={handleSend} className="flex items-center gap-2 px-4 py-3 bg-[#f0f2f5] border-t border-gray-200">
               <input
                 type="text"
-                placeholder="Pesan..."
+                placeholder="Ketik pesan"
                 value={sendText}
                 onChange={e => setSendText(e.target.value)}
-                className="flex-1 border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+                className="flex-1 bg-white rounded-full px-4 py-2.5 text-sm focus:outline-none shadow-xs"
               />
               <button
                 type="submit"
-                disabled={sending || state.status !== 'connected'}
-                className="px-4 py-2 rounded-xl bg-green-600 text-white text-sm font-bold hover:bg-green-700 disabled:opacity-50 flex items-center gap-1"
+                disabled={sending || !sendText.trim()}
+                className="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center hover:bg-green-700 disabled:opacity-50 flex-shrink-0"
               >
-                {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-                Kirim
+                {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
               </button>
+            </form>
+            {error && <p className="px-4 pb-2 text-xs text-red-600">{error}</p>}
+          </>
+        ) : (
+          /* No chat selected */
+          <div className="flex-1 flex flex-col items-center justify-center gap-4" style={{ background: '#f0f2f5' }}>
+            <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
+              <MessageCircle size={36} className="text-gray-400" />
             </div>
-          </form>
-
-          {error && (
-            <div className="rounded-xl bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700 flex items-center gap-2">
-              <AlertCircle size={14} /> {error}
+            <div className="text-center">
+              <p className="text-xl font-bold text-gray-700">WhatsApp Admin</p>
+              <p className="text-sm text-gray-400 mt-1">Pilih chat di kiri untuk mulai balas</p>
             </div>
-          )}
-        </div>
+            <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 px-3 py-1.5 rounded-full">
+              <CheckCircle2 size={13} />
+              Terhubung sebagai {state.phone}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

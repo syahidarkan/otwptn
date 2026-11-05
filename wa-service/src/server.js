@@ -37,6 +37,14 @@ const {
   makeCacheableSignalKeyStore,
 } = await import('@whiskeysockets/baileys')
 
+// Silent logger — Baileys requires a pino-compatible logger object
+const logger = {
+  level: 'silent',
+  trace: () => {}, debug: () => {}, info: () => {},
+  warn: () => {}, error: () => {}, fatal: () => {},
+  child: () => logger,
+}
+
 // ── WA Manager ────────────────────────────────────────────────────────────────
 class WAManager extends EventEmitter {
   constructor() {
@@ -68,12 +76,12 @@ class WAManager extends EventEmitter {
         version,
         auth: {
           creds: authState.creds,
-          keys: makeCacheableSignalKeyStore(authState.keys, undefined),
+          keys: makeCacheableSignalKeyStore(authState.keys, logger),
         },
         printQRInTerminal: true,
         markOnlineOnConnect: false,
         syncFullHistory: false,
-        logger: undefined,
+        logger,
       })
 
       this.sock.ev.on('creds.update', saveCreds)
