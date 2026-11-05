@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/client'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
+import { TurnstileWidget } from '@/components/ui/TurnstileWidget'
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState('')
@@ -17,15 +18,29 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const router = useRouter()
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
     if (password.length < 8) { setError('Password minimal 8 karakter.'); return }
+    if (!turnstileToken) { setError('Selesaikan verifikasi dulu.'); return }
     setLoading(true); setError(null)
+
+    const verify = await fetch('/api/verify-turnstile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: turnstileToken }),
+    })
+    if (!verify.ok) {
+      setError('Verifikasi gagal, coba lagi.')
+      setLoading(false)
+      setTurnstileToken(null)
+      return
+    }
+
     const { data, error: err } = await createClient().auth.signUp({ email, password, options: { data: { full_name: fullName } } })
-    if (err) { setError(err.message); setLoading(false); return }
-    // If email confirmation is disabled, session is returned immediately
+    if (err) { setError(err.message); setLoading(false); setTurnstileToken(null); return }
     if (data.session) {
       router.push('/onboarding')
       return
@@ -92,8 +107,12 @@ export default function RegisterPage() {
             <label className="block text-xs font-semibold text-fg mb-1">Password</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="Min. 8 karakter" className="input" />
           </div>
+          <TurnstileWidget
+            onSuccess={setTurnstileToken}
+            onExpire={() => setTurnstileToken(null)}
+          />
           {error && <div className="text-xs px-3 py-2 rounded-lg" style={{ background: '#fee2e2', color: '#b91c1c' }}>{error}</div>}
-          <button type="submit" disabled={loading} className="btn btn-dark w-full py-3 text-sm disabled:opacity-40">{loading ? 'Membuat akun...' : 'Buat Akun Gratis'}</button>
+          <button type="submit" disabled={loading || !turnstileToken} className="btn btn-dark w-full py-3 text-sm disabled:opacity-40">{loading ? 'Membuat akun...' : 'Buat Akun Gratis'}</button>
         </form>
 
         <p className="text-xs mt-5" style={{ color: 'var(--muted)' }}>Sudah punya akun? <Link href="/login" className="font-bold text-fg hover:underline">Masuk</Link></p>

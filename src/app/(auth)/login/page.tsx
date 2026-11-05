@@ -6,22 +6,39 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
+import { TurnstileWidget } from '@/components/ui/TurnstileWidget'
 
 function LoginForm({ initialError = null }: { initialError?: string | null }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(initialError)
   const [loading, setLoading] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const router = useRouter()
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
+    if (!turnstileToken) { setError('Selesaikan verifikasi dulu.'); return }
     setLoading(true)
     setError(null)
+
+    const verify = await fetch('/api/verify-turnstile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: turnstileToken }),
+    })
+    if (!verify.ok) {
+      setError('Verifikasi gagal, coba lagi.')
+      setLoading(false)
+      setTurnstileToken(null)
+      return
+    }
+
     const { error: err } = await createClient().auth.signInWithPassword({ email, password })
     if (err) {
       setError('Email atau password salah.')
       setLoading(false)
+      setTurnstileToken(null)
       return
     }
     router.refresh()
@@ -131,6 +148,10 @@ function LoginForm({ initialError = null }: { initialError?: string | null }) {
               className="input"
             />
           </div>
+          <TurnstileWidget
+            onSuccess={setTurnstileToken}
+            onExpire={() => setTurnstileToken(null)}
+          />
           {error && (
             <div
               className="text-xs px-3 py-2 rounded-lg leading-relaxed"
@@ -141,7 +162,7 @@ function LoginForm({ initialError = null }: { initialError?: string | null }) {
           )}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !turnstileToken}
             className="btn btn-dark w-full py-3 text-sm disabled:opacity-40 cursor-pointer"
           >
             {loading ? 'Masuk...' : 'Masuk'}
