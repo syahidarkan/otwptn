@@ -20,6 +20,7 @@ import {
   GraduationCap,
   Sparkles,
   Moon,
+  MessageCircle,
 } from 'lucide-react'
 
 const navItems = [
@@ -31,6 +32,7 @@ const navItems = [
   { href: '/admin/broadcast', label: 'Broadcast & Notifikasi', icon: Megaphone },
   { href: '/admin/paket', label: 'Manajemen 4 Paket', icon: Package },
   { href: '/admin/jalur', label: 'Direktori Jalur Masuk PTN', icon: MapPin },
+  { href: '/admin/whatsapp', label: 'WhatsApp Admin', icon: MessageCircle },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

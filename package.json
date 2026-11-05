@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:wa": "tsx server.ts",
     "build": "next build",
     "start": "next start",
+    "start:wa": "node --require ts-node/register server.ts",
     "lint": "eslint"
   },
   "dependencies": {
@@ -22,6 +24,7 @@
     "@tiptap/starter-kit": "^3.32.0",
     "@types/nodemailer": "^8.0.0",
     "@types/three": "^0.186.0",
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
     "clsx": "^2.1.1",
     "framer-motion": "^14.6.0",
     "gsap": "^3.15.0",
@@ -29,6 +32,7 @@
     "next": "16.2.3",
     "nodemailer": "^8.0.5",
     "openai": "^7.43.0",
+    "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-email": "^5.2.10",
@@ -41,16 +45,21 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.3",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   },
   "allowScripts": {
     "esbuild@0.27.3": true,
     "sharp@0.34.5": true,
-    "unrs-resolver@1.11.1": true
+    "unrs-resolver@1.11.1": true,
+    "@whiskeysockets/baileys@7.0.0-rc14": true,
+    "protobufjs@7.6.6": true,
+    "esbuild@0.28.2": true
   }
 }

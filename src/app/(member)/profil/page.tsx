@@ -73,6 +73,7 @@ export default function ProfilPage() {
   const [avatarToast, setAvatarToast] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'biodata' | 'target' | 'avatar' | 'security'>('biodata')
+  const [userTier, setUserTier] = useState<string>('free')
 
   // Edit target modal
   const [isEditingTarget, setIsEditingTarget] = useState(false)
@@ -204,6 +205,7 @@ export default function ProfilPage() {
         .maybeSingle()
         .then(({ data: profile }) => {
           if (profile) {
+            setUserTier(profile.tier || 'free')
             const targetPtns = (profile.target_ptns as string[]) || []
             const targetMajors = (profile.target_majors as string[]) || []
             setForm(prev => {
@@ -378,6 +380,19 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-900 flex items-center gap-1">
               <ShieldCheck size={12} className="text-amber-700" /> Siswa Aktif
             </span>
+            {userTier && userTier !== 'free' && (
+              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1 ${
+                userTier === 'queen_bee' ? 'bg-purple-100 text-purple-800 border border-purple-200' :
+                userTier === 'honeycomb' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                'bg-yellow-100 text-yellow-800 border border-yellow-200'
+              }`}>
+                <Sparkles size={11} />
+                {userTier === 'queen_bee' ? 'Paket Queen Bee' :
+                 userTier === 'honeycomb' ? 'Paket Honeycomb' :
+                 userTier === 'nectar' ? 'Paket Nectar' :
+                 `Paket ${userTier.charAt(0).toUpperCase() + userTier.slice(1)}`}
+              </span>
+            )}
           </div>
           <p className="text-xs text-gray-500 font-medium">
             {form.school || 'Belum mengisi sekolah'} · {form.email}

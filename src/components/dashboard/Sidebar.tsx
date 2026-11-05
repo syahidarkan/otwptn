@@ -474,9 +474,20 @@ export default function Sidebar() {
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-black truncate text-gray-900 group-hover:text-amber-900 leading-tight">
-                  {name || 'Pejuang PTN'}
-                </p>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs font-black truncate text-gray-900 group-hover:text-amber-900 leading-tight">
+                    {name || 'Pejuang PTN'}
+                  </p>
+                  {tier && tier !== 'free' && (
+                    <span className={`flex-shrink-0 text-[8px] font-black px-1.5 py-0.5 rounded-full leading-none ${
+                      tier === 'queen_bee' ? 'bg-purple-100 text-purple-700' :
+                      tier === 'honeycomb' ? 'bg-blue-100 text-blue-700' :
+                      'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {tier === 'queen_bee' ? 'QB' : tier === 'honeycomb' ? 'HC' : tier === 'nectar' ? 'NCT' : tier.toUpperCase()}
+                    </span>
+                  )}
+                </div>
                 <p className="text-[10px] font-semibold text-gray-400 truncate">
                   {school || '+ Tambahkan sekolah...'}
                 </p>
