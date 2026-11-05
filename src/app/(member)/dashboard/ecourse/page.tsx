@@ -16,7 +16,6 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { EJALUR_LIST, type ELesson, type EStage } from '@/lib/ecourseData'
-import CardPattern from '@/components/ui/CardPattern'
 
 const STORAGE_KEY = 'ecourse_v2_completed'
 
@@ -154,9 +153,6 @@ function EcourseContent() {
 
   return (
     <div className="w-full min-h-screen relative bg-white">
-      {/* Pintarly Playful Canvas Background */}
-      <CardPattern type="pintarly-doodles" opacity={0.45} />
-
       {/* Main Container */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Top Jalur Switcher Pill */}

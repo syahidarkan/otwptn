@@ -480,11 +480,15 @@ export default function Sidebar() {
                   </p>
                   {tier && tier !== 'free' && (
                     <span className={`flex-shrink-0 text-[8px] font-black px-1.5 py-0.5 rounded-full leading-none ${
-                      tier === 'queen_bee' ? 'bg-purple-100 text-purple-700' :
-                      tier === 'honeycomb' ? 'bg-blue-100 text-blue-700' :
+                      tier === 'menyeluruh' ? 'bg-purple-100 text-purple-700' :
+                      tier === 'dokumen' ? 'bg-blue-100 text-blue-700' :
+                      tier === 'review' ? 'bg-amber-100 text-amber-700' :
                       'bg-yellow-100 text-yellow-700'
                     }`}>
-                      {tier === 'queen_bee' ? 'QB' : tier === 'honeycomb' ? 'HC' : tier === 'nectar' ? 'NCT' : tier.toUpperCase()}
+                      {tier === 'menyeluruh' ? 'QUEEN BEE' :
+                       tier === 'dokumen' ? 'HONEYCOMB' :
+                       tier === 'review' ? 'NECTAR' :
+                       tier === 'web_premium' ? 'PREMIUM' : tier.toUpperCase()}
                     </span>
                   )}
                 </div>
