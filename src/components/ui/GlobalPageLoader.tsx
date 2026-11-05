@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { HoneyFill } from '@/components/ui/HoneyDrip'
 
-type HoneyPhase = 'idle' | 'entering' | 'holding' | 'exiting'
+type HoneyPhase = 'idle' | 'entering' | 'exiting'
 
 export default function GlobalPageLoader() {
   const pathname = usePathname()
@@ -30,21 +30,12 @@ export default function GlobalPageLoader() {
     }
   }, [pathname, searchParams])
 
-  // When navigation completes, start exiting honey
-  // If still entering, wait for enter to finish first (avoids snap to full orange)
+  // When navigation completes → switch to exiting; HoneyFill calls onComplete → idle
   useEffect(() => {
     const phase = honeyPhaseRef.current
-    if (phase === 'entering' || phase === 'holding') {
+    if (phase === 'entering') {
       if (honeyTimerRef.current) clearTimeout(honeyTimerRef.current)
-      const ENTER_DURATION = 1000
-      const elapsed = Date.now() - enterStartRef.current
-      const remaining = phase === 'entering' ? Math.max(0, ENTER_DURATION - elapsed) : 0
-      honeyTimerRef.current = setTimeout(() => {
-        setHoneyPhase('exiting')
-        honeyTimerRef.current = setTimeout(() => {
-          setHoneyPhase('idle')
-        }, 700)
-      }, remaining)
+      setHoneyPhase('exiting')
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, searchParams])
@@ -79,11 +70,6 @@ export default function GlobalPageLoader() {
         if (honeyPhaseRef.current === 'idle') {
           enterStartRef.current = Date.now()
           setHoneyPhase('entering')
-          if (honeyTimerRef.current) clearTimeout(honeyTimerRef.current)
-          // After 900ms still loading → switch to holding
-          honeyTimerRef.current = setTimeout(() => {
-            setHoneyPhase(prev => prev === 'entering' ? 'holding' : prev)
-          }, 900)
         }
 
         if (timerRef.current) clearInterval(timerRef.current)
@@ -113,7 +99,10 @@ export default function GlobalPageLoader() {
     <>
       {/* Honey drip fullscreen transition */}
       {honeyPhase !== 'idle' && (
-        <HoneyFill phase={honeyPhase} />
+        <HoneyFill
+          phase={honeyPhase as 'entering' | 'exiting'}
+          onComplete={() => setHoneyPhase('idle')}
+        />
       )}
 
       {/* Amber progress bar */}

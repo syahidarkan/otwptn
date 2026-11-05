@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface HoneyDripProps {
   mode?: 'separator' | 'fullscreen'
@@ -87,65 +87,114 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
   )
 }
 
-interface HoneyFillProps { phase: 'entering' | 'holding' | 'exiting' }
+interface HoneyFillProps {
+  phase: 'entering' | 'exiting'
+  onComplete: () => void
+}
 
-export function HoneyFill({ phase }: HoneyFillProps) {
-  const [cls, setCls] = useState('')
+const CANVAS_W = 480
+const CANVAS_H = 270
+
+export function HoneyFill({ phase, onComplete }: HoneyFillProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const rafRef = useRef<number>(0)
+  // true = Safari (no WebM alpha support) → use canvas luma key
+  const needsLumaKey = useRef<boolean>(false)
 
+  // Detect WebM vp9 alpha support on mount
+  useEffect(() => {
+    const t = document.createElement('video')
+    needsLumaKey.current = !t.canPlayType('video/webm; codecs="vp9"')
+    if (canvasRef.current) {
+      canvasRef.current.width = CANVAS_W
+      canvasRef.current.height = CANVAS_H
+    }
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [])
+
+  const startDrawing = useCallback(() => {
+    const draw = () => {
+      const canvas = canvasRef.current
+      const vid = videoRef.current
+      if (canvas && vid && vid.readyState >= 2) {
+        const ctx = canvas.getContext('2d', { willReadFrequently: true })
+        if (ctx) {
+          ctx.clearRect(0, 0, CANVAS_W, CANVAS_H)
+          ctx.drawImage(vid, 0, 0, CANVAS_W, CANVAS_H)
+          if (needsLumaKey.current) {
+            const imgData = ctx.getImageData(0, 0, CANVAS_W, CANVAS_H)
+            const d = imgData.data
+            for (let i = 0; i < d.length; i += 4) {
+              const b = d[i + 2]
+              if (b > 150 && d[i] > 190 && d[i + 1] > 180) {
+                d[i + 3] = Math.round(Math.max(0, 1 - (b - 150) / 105) * 255)
+              }
+            }
+            ctx.putImageData(imgData, 0, 0)
+          }
+        }
+      }
+      rafRef.current = requestAnimationFrame(draw)
+    }
+    cancelAnimationFrame(rafRef.current)
+    rafRef.current = requestAnimationFrame(draw)
+  }, [])
+
+  // Start / speed-up video based on phase
   useEffect(() => {
     const vid = videoRef.current
     if (!vid) return
+
     if (phase === 'entering') {
-      setCls('hf-enter')
       vid.currentTime = 0
-      vid.play().catch(() => null)
-    } else if (phase === 'holding') {
-      setCls('hf-hold')
+      vid.playbackRate = 1
+      vid.play().then(startDrawing).catch(startDrawing)
     } else if (phase === 'exiting') {
-      setCls('hf-exit')
+      // Loading done — speed up remaining video to finish in ~0.8s
+      const remaining = (vid.duration || 10) - vid.currentTime
+      if (remaining <= 0.05) { onComplete(); return }
+      vid.playbackRate = Math.min(8, Math.max(1, remaining / 0.8))
     }
-  }, [phase])
+  }, [phase, startDrawing, onComplete])
+
+  // When video ends → signal parent to unmount
+  useEffect(() => {
+    const vid = videoRef.current
+    if (!vid) return
+    const handleEnded = () => { cancelAnimationFrame(rafRef.current); onComplete() }
+    vid.addEventListener('ended', handleEnded)
+    return () => vid.removeEventListener('ended', handleEnded)
+  }, [onComplete])
 
   return (
-    <>
-      <style>{`
-        .hf-root{clip-path:inset(0 0 100% 0);}
-        .hf-root.hf-enter{animation:hf-in 1.0s cubic-bezier(0.42,0,0.1,1) forwards;}
-        .hf-root.hf-hold{clip-path:inset(0 0 0 0)!important;animation:none!important;}
-        .hf-root.hf-exit{clip-path:inset(0 0 0 0);animation:hf-out 0.7s ease-in forwards;}
-        @keyframes hf-in {from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
-        @keyframes hf-out{
-          0%{clip-path:inset(0 0 0 0);opacity:1}
-          70%{clip-path:inset(60% 0 0 0);opacity:1}
-          100%{clip-path:inset(100% 0 0 0);opacity:0}
-        }
-      `}</style>
-
-      <div
-        aria-hidden="true"
-        className={`hf-root${cls ? ' '+cls : ''}`}
-        style={{
-          position: 'fixed', inset: 0,
-          zIndex: 999997,
-          pointerEvents: 'none',
-          userSelect: 'none',
-        }}
+    <div
+      aria-hidden="true"
+      style={{
+        position: 'fixed', inset: 0,
+        zIndex: 999997,
+        pointerEvents: 'none',
+        userSelect: 'none',
+      }}
+    >
+      {/* Hidden video for frame source (both paths) */}
+      <video
+        ref={videoRef}
+        muted playsInline preload="auto"
+        style={{ display: 'none' }}
       >
-        {/* WebM alpha for Chrome/Firefox, HEVC alpha for Safari — both have transparent bg */}
-        <video
-          ref={videoRef}
-          muted playsInline preload="auto"
-          style={{
-            position: 'absolute', inset: 0,
-            width: '100%', height: '100%',
-            objectFit: 'cover',
-          }}
-        >
-          <source src="/honey-fill.webm" type="video/webm" />
-          <source src="/honey-fill.mp4" type="video/mp4" />
-        </video>
-      </div>
-    </>
+        <source src="/honey-fill.webm" type="video/webm" />
+        <source src="/honey-splash.mp4" type="video/mp4" />
+      </video>
+
+      {/* Canvas renders frames — WebM alpha direct, MP4 via luma key */}
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute', inset: 0,
+          width: '100%', height: '100%',
+        }}
+      />
+    </div>
   )
 }
