@@ -1,24 +1,32 @@
 import express from 'express'
 import cors from 'cors'
-import { createRequire } from 'module'
 import path from 'path'
 import fs from 'fs'
 import { EventEmitter } from 'events'
 import { fileURLToPath } from 'url'
-import { Boom } from '@hapi/boom'
+import { createClient } from '@supabase/supabase-js'
+import { useSupabaseAuthState, clearSupabaseSession } from './supabaseAuth.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// ── Config ───────────────────────────────────────────────────────────────────
+// ── Config ────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3001
 const SERVICE_TOKEN = process.env.WA_SERVICE_TOKEN || ''
-const SESSION_DIR = path.join(process.cwd(), 'wa-session')
-const MESSAGES_FILE = path.join(SESSION_DIR, 'recent-messages.json')
+const SUPABASE_URL = process.env.SUPABASE_URL
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+  console.error('[WA Service] SUPABASE_URL and SUPABASE_SERVICE_KEY are required')
+  process.exit(1)
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+
+// Messages stored in memory (not critical to persist)
 const MAX_MESSAGES = 200
+let recentMessages = []
 
-fs.mkdirSync(SESSION_DIR, { recursive: true })
-
-// ── WA Manager ───────────────────────────────────────────────────────────────
+// ── Baileys ───────────────────────────────────────────────────────────────────
 let QRCode = null
 try { QRCode = (await import('qrcode')).default } catch {}
 
@@ -27,9 +35,9 @@ const {
   DisconnectReason,
   fetchLatestBaileysVersion,
   makeCacheableSignalKeyStore,
-  useMultiFileAuthState,
 } = await import('@whiskeysockets/baileys')
 
+// ── WA Manager ────────────────────────────────────────────────────────────────
 class WAManager extends EventEmitter {
   constructor() {
     super()
@@ -37,11 +45,10 @@ class WAManager extends EventEmitter {
     this.state = { status: 'disconnected', messages: [] }
     this.retryCount = 0
     this.connecting = false
-    this._loadMessages()
   }
 
   getState() {
-    return { ...this.state, messages: [...this.state.messages] }
+    return { ...this.state, messages: [...recentMessages] }
   }
 
   _setState(partial) {
@@ -49,26 +56,12 @@ class WAManager extends EventEmitter {
     this.emit('state', this.getState())
   }
 
-  _loadMessages() {
-    try {
-      if (fs.existsSync(MESSAGES_FILE)) {
-        this.state.messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf8'))
-      }
-    } catch {}
-  }
-
-  _saveMessages() {
-    try {
-      fs.writeFileSync(MESSAGES_FILE, JSON.stringify(this.state.messages.slice(-MAX_MESSAGES)))
-    } catch {}
-  }
-
   async connect() {
     if (this.connecting) return
     this.connecting = true
 
     try {
-      const { state: authState, saveCreds } = await useMultiFileAuthState(SESSION_DIR)
+      const { state: authState, saveCreds } = await useSupabaseAuthState(supabase)
       const { version } = await fetchLatestBaileysVersion()
 
       this.sock = makeWASocket({
@@ -124,7 +117,7 @@ class WAManager extends EventEmitter {
             console.log(`[WA] Retry ${this.retryCount} in ${delay}ms`)
             setTimeout(() => this.connect(), delay)
           } else if (statusCode === DisconnectReason.loggedOut) {
-            this.clearSession()
+            await clearSupabaseSession(supabase)
           }
         }
       })
@@ -157,8 +150,7 @@ class WAManager extends EventEmitter {
             groupName,
           }
 
-          this.state.messages = [waMsg, ...this.state.messages].slice(0, MAX_MESSAGES)
-          this._saveMessages()
+          recentMessages = [waMsg, ...recentMessages].slice(0, MAX_MESSAGES)
           this.emit('message', waMsg)
           this.emit('state', this.getState())
         }
@@ -189,22 +181,14 @@ class WAManager extends EventEmitter {
     this._setState({ status: 'disconnected', qr: undefined })
   }
 
-  clearSession() {
+  async clearSession() {
     this.disconnect()
-    try {
-      for (const f of fs.readdirSync(SESSION_DIR)) {
-        if (f !== 'recent-messages.json') {
-          fs.rmSync(path.join(SESSION_DIR, f), { recursive: true, force: true })
-        }
-      }
-    } catch {}
+    await clearSupabaseSession(supabase)
     this.retryCount = 0
-    console.log('[WA] Session cleared')
   }
 }
 
 const mgr = new WAManager()
-// Auto-connect on startup (resumes session if creds exist)
 mgr.connect()
 
 // ── Express ───────────────────────────────────────────────────────────────────
@@ -212,18 +196,16 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
-// Auth middleware — skip if no token configured
 function auth(req, res, next) {
   if (!SERVICE_TOKEN) return next()
-  const token = req.headers['x-service-token']
-  if (token !== SERVICE_TOKEN) return res.status(401).json({ error: 'Unauthorized' })
+  if (req.headers['x-service-token'] !== SERVICE_TOKEN) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
   next()
 }
 
-// Health check (no auth needed — Railway uses this)
 app.get('/health', (_, res) => res.json({ ok: true, status: mgr.getState().status }))
 
-// Status
 app.get('/status', auth, (_, res) => {
   const s = mgr.getState()
   res.json({ status: s.status, qr: s.qr, phone: s.phone, messageCount: s.messages.length })
@@ -233,11 +215,10 @@ app.post('/status', auth, async (req, res) => {
   const { action } = req.body
   if (action === 'connect') { await mgr.connect(); return res.json({ ok: true }) }
   if (action === 'disconnect') { mgr.disconnect(); return res.json({ ok: true }) }
-  if (action === 'logout') { mgr.clearSession(); return res.json({ ok: true }) }
+  if (action === 'logout') { await mgr.clearSession(); return res.json({ ok: true }) }
   res.status(400).json({ error: 'Unknown action' })
 })
 
-// Messages
 app.get('/messages', auth, (_, res) => {
   res.json({ messages: mgr.getState().messages })
 })
@@ -249,28 +230,23 @@ app.post('/messages', auth, async (req, res) => {
   res.json({ ok })
 })
 
-// SSE events — real-time state + message updates
 app.get('/events', auth, (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream')
   res.setHeader('Cache-Control', 'no-cache')
   res.setHeader('Connection', 'keep-alive')
   res.flushHeaders()
 
-  const send = (event, data) => {
-    res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
-  }
+  const send = (event, data) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
 
-  // Send initial state
   const s = mgr.getState()
   send('state', { status: s.status, qr: s.qr, phone: s.phone })
 
-  const onState = (s) => send('state', { status: s.status, qr: s.qr, phone: s.phone })
-  const onMsg = (msg) => send('message', msg)
+  const onState = s => send('state', { status: s.status, qr: s.qr, phone: s.phone })
+  const onMsg = msg => send('message', msg)
 
   mgr.on('state', onState)
   mgr.on('message', onMsg)
 
-  // Keep-alive ping every 20s
   const ping = setInterval(() => res.write(': ping\n\n'), 20000)
 
   req.on('close', () => {
@@ -282,5 +258,6 @@ app.get('/events', auth, (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`[WA Service] Running on port ${PORT}`)
-  console.log(`[WA Service] Token auth: ${SERVICE_TOKEN ? 'enabled' : 'DISABLED (set WA_SERVICE_TOKEN)'}`)
+  console.log(`[WA Service] Supabase: ${SUPABASE_URL}`)
+  console.log(`[WA Service] Token auth: ${SERVICE_TOKEN ? 'enabled' : 'DISABLED'}`)
 })
