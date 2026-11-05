@@ -6,35 +6,36 @@ import { HoneyFill } from '@/components/ui/HoneyDrip'
 
 type HoneyPhase = 'idle' | 'entering' | 'exiting'
 
+// Show honey only if loading takes longer than this (prefetched routes are ~50ms, skip them)
+const HONEY_THRESHOLD_MS = 300
+
 export default function GlobalPageLoader() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const [loading, setLoading] = useState(false)
-  const [progress, setProgress] = useState(0)
   const [honeyPhase, setHoneyPhase] = useState<HoneyPhase>('idle')
   const [exitTarget, setExitTarget] = useState<number | undefined>()
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
   const honeyPhaseRef = useRef<HoneyPhase>('idle')
   honeyPhaseRef.current = honeyPhase
   const enterStartRef = useRef<number>(0)
+  const navDoneRef = useRef(false)
+  const delayTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Navigation complete → switch to exiting; speed adapts to actual load time
+  // Navigation complete
   useEffect(() => {
+    navDoneRef.current = true
+    const elapsed = Date.now() - enterStartRef.current
+
     if (honeyPhaseRef.current === 'entering') {
-      const elapsed = Date.now() - enterStartRef.current
-      // Target: finish remaining animation in same time as loading took, min 0.5s
+      // Honey is showing — speed up to finish in same time as loading took, min 0.5s
       setExitTarget(Math.max(0.5, elapsed / 1000))
       setHoneyPhase('exiting')
-    }
-    if (loading) {
-      setProgress(100)
-      const t = setTimeout(() => { setLoading(false); setProgress(0) }, 350)
-      return () => clearTimeout(t)
+    } else {
+      // Navigation completed before honey threshold fired — cancel and stay idle
+      if (delayTimerRef.current) clearTimeout(delayTimerRef.current)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, searchParams])
 
-  // Listen to link clicks globally — start honey animation, let Next.js navigate normally
   useEffect(() => {
     function handleAnchorClick(e: MouseEvent) {
       const target = (e.target as HTMLElement).closest('a')
@@ -58,21 +59,16 @@ export default function GlobalPageLoader() {
         if (url.pathname === cur.pathname && url.search === cur.search) return
 
         enterStartRef.current = Date.now()
+        navDoneRef.current = false
         setExitTarget(undefined)
-        setLoading(true)
-        setProgress(28)
 
-        if (honeyPhaseRef.current === 'idle') {
-          setHoneyPhase('entering')
-        }
-
-        if (timerRef.current) clearInterval(timerRef.current)
-        timerRef.current = setInterval(() => {
-          setProgress(prev => {
-            if (prev >= 88) { if (timerRef.current) clearInterval(timerRef.current); return 88 }
-            return prev + Math.floor(Math.random() * 8) + 5
-          })
-        }, 110)
+        if (delayTimerRef.current) clearTimeout(delayTimerRef.current)
+        // Start honey only if still loading after threshold
+        delayTimerRef.current = setTimeout(() => {
+          if (!navDoneRef.current && honeyPhaseRef.current === 'idle') {
+            setHoneyPhase('entering')
+          }
+        }, HONEY_THRESHOLD_MS)
       } catch {
         // invalid URL
       }
@@ -81,38 +77,15 @@ export default function GlobalPageLoader() {
     document.addEventListener('click', handleAnchorClick, true)
     return () => {
       document.removeEventListener('click', handleAnchorClick, true)
-      if (timerRef.current) clearInterval(timerRef.current)
+      if (delayTimerRef.current) clearTimeout(delayTimerRef.current)
     }
   }, [])
 
-  return (
-    <>
-      {honeyPhase !== 'idle' && (
-        <HoneyFill
-          phase={honeyPhase as 'entering' | 'exiting'}
-          onComplete={() => setHoneyPhase('idle')}
-          exitTarget={exitTarget}
-        />
-      )}
-
-      {(loading || progress > 0) && (
-        <div
-          aria-hidden="true"
-          className="fixed top-0 left-0 right-0 z-[999999] pointer-events-none"
-        >
-          <div
-            className="relative h-[3px] transition-all ease-out"
-            style={{
-              width: `${progress}%`,
-              transitionDuration: progress === 100 ? '250ms' : '280ms',
-              background: 'linear-gradient(90deg, #ffd400 0%, #f59e0b 60%, #ffd400 100%)',
-              boxShadow: '0 0 12px rgba(255,212,0,0.9), 0 0 4px rgba(245,158,11,1)',
-            }}
-          >
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-[0_0_10px_#ffd400,0_0_5px_#f59e0b]" />
-          </div>
-        </div>
-      )}
-    </>
-  )
+  return honeyPhase !== 'idle' ? (
+    <HoneyFill
+      phase={honeyPhase as 'entering' | 'exiting'}
+      onComplete={() => setHoneyPhase('idle')}
+      exitTarget={exitTarget}
+    />
+  ) : null
 }

@@ -116,6 +116,8 @@ export function HoneyFill({ phase, onComplete, exitTarget }: HoneyFillProps) {
   const startDrawing = useCallback(() => {
     const ctx = canvasRef.current?.getContext('2d', { willReadFrequently: true })
     if (!ctx) return
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
     const draw = () => {
       const vid = videoRef.current
       if (vid && vid.readyState >= 2) {
