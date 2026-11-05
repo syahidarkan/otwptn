@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, useRef, useCallback } from 'react'
-import { usePathname, useSearchParams, useRouter } from 'next/navigation'
+import { useEffect, useState, useRef } from 'react'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { HoneyFill } from '@/components/ui/HoneyDrip'
 
 type HoneyPhase = 'idle' | 'entering' | 'exiting'
@@ -9,19 +9,21 @@ type HoneyPhase = 'idle' | 'entering' | 'exiting'
 export default function GlobalPageLoader() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [honeyPhase, setHoneyPhase] = useState<HoneyPhase>('idle')
+  const [exitTarget, setExitTarget] = useState<number | undefined>()
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const honeyPhaseRef = useRef<HoneyPhase>('idle')
   honeyPhaseRef.current = honeyPhase
-  // href waiting to be navigated — held until honey fully covers screen
-  const pendingHrefRef = useRef<string | null>(null)
+  const enterStartRef = useRef<number>(0)
 
-  // When pathname changes: navigation completed → switch honey to exiting
+  // Navigation complete → switch to exiting; speed adapts to actual load time
   useEffect(() => {
     if (honeyPhaseRef.current === 'entering') {
+      const elapsed = Date.now() - enterStartRef.current
+      // Target: finish remaining animation in same time as loading took, min 0.5s
+      setExitTarget(Math.max(0.5, elapsed / 1000))
       setHoneyPhase('exiting')
     }
     if (loading) {
@@ -32,16 +34,7 @@ export default function GlobalPageLoader() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, searchParams])
 
-  // Called by HoneyFill when canvas is fully covered by honey
-  const handleFullyCovered = useCallback(() => {
-    const href = pendingHrefRef.current
-    if (href) {
-      pendingHrefRef.current = null
-      router.push(href)
-    }
-  }, [router])
-
-  // Listen to link clicks globally — intercept and defer navigation
+  // Listen to link clicks globally — start honey animation, let Next.js navigate normally
   useEffect(() => {
     function handleAnchorClick(e: MouseEvent) {
       const target = (e.target as HTMLElement).closest('a')
@@ -64,13 +57,8 @@ export default function GlobalPageLoader() {
         const cur = new URL(window.location.href)
         if (url.pathname === cur.pathname && url.search === cur.search) return
 
-        // Block Next.js Link handler from navigating immediately
-        e.preventDefault()
-        e.stopPropagation()
-
-        // Store href — navigation fires when honey fully covers screen
-        pendingHrefRef.current = href
-
+        enterStartRef.current = Date.now()
+        setExitTarget(undefined)
         setLoading(true)
         setProgress(28)
 
@@ -86,7 +74,7 @@ export default function GlobalPageLoader() {
           })
         }, 110)
       } catch {
-        // invalid URL — let browser handle
+        // invalid URL
       }
     }
 
@@ -99,16 +87,14 @@ export default function GlobalPageLoader() {
 
   return (
     <>
-      {/* Honey drip fullscreen transition */}
       {honeyPhase !== 'idle' && (
         <HoneyFill
           phase={honeyPhase as 'entering' | 'exiting'}
           onComplete={() => setHoneyPhase('idle')}
-          onFullyCovered={handleFullyCovered}
+          exitTarget={exitTarget}
         />
       )}
 
-      {/* Amber progress bar */}
       {(loading || progress > 0) && (
         <div
           aria-hidden="true"

@@ -90,27 +90,18 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
 interface HoneyFillProps {
   phase: 'entering' | 'exiting'
   onComplete: () => void
-  onFullyCovered?: () => void
+  /** target seconds for exit animation; derived from actual load time */
+  exitTarget?: number
 }
 
 const CANVAS_W = 1280
 const CANVAS_H = 720
 
-// Sample points (x, y) spread across canvas to detect full honey coverage
-const COVERAGE_POINTS = [
-  [64, 36], [640, 36], [1216, 36],
-  [64, 360], [640, 360], [1216, 360],
-  [64, 684], [640, 684], [1216, 684],
-]
 
-export function HoneyFill({ phase, onComplete, onFullyCovered }: HoneyFillProps) {
+export function HoneyFill({ phase, onComplete, exitTarget }: HoneyFillProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rafRef = useRef<number>(0)
-  const coveredRef = useRef(false)
-  // Keep latest callbacks in refs — prevents phase effect from re-running when function identity changes
-  const onFullyCoveredRef = useRef(onFullyCovered)
-  onFullyCoveredRef.current = onFullyCovered
   const onCompleteRef = useRef(onComplete)
   onCompleteRef.current = onComplete
 
@@ -122,13 +113,7 @@ export function HoneyFill({ phase, onComplete, onFullyCovered }: HoneyFillProps)
     return () => cancelAnimationFrame(rafRef.current)
   }, [])
 
-  // Reset coverage flag when phase resets to entering
-  useEffect(() => {
-    if (phase === 'entering') coveredRef.current = false
-  }, [phase])
-
   const startDrawing = useCallback(() => {
-    // Cache context once — avoids per-frame lookup overhead
     const ctx = canvasRef.current?.getContext('2d', { willReadFrequently: true })
     if (!ctx) return
     const draw = () => {
@@ -136,7 +121,6 @@ export function HoneyFill({ phase, onComplete, onFullyCovered }: HoneyFillProps)
       if (vid && vid.readyState >= 2) {
         ctx.clearRect(0, 0, CANVAS_W, CANVAS_H)
         ctx.drawImage(vid, 0, 0, CANVAS_W, CANVAS_H)
-        // Always apply luma key — safe for both WebM alpha and plain MP4
         const imgData = ctx.getImageData(0, 0, CANVAS_W, CANVAS_H)
         const d = imgData.data
         for (let i = 0; i < d.length; i += 4) {
@@ -146,18 +130,6 @@ export function HoneyFill({ phase, onComplete, onFullyCovered }: HoneyFillProps)
           }
         }
         ctx.putImageData(imgData, 0, 0)
-
-        // Detect full coverage: all sample points have high alpha (honey is there)
-        if (!coveredRef.current) {
-          const allCovered = COVERAGE_POINTS.every(([x, y]) => {
-            const idx = (y * CANVAS_W + x) * 4
-            return d[idx + 3] > 200
-          })
-          if (allCovered) {
-            coveredRef.current = true
-            onFullyCoveredRef.current?.()
-          }
-        }
       }
       rafRef.current = requestAnimationFrame(draw)
     }
@@ -175,12 +147,13 @@ export function HoneyFill({ phase, onComplete, onFullyCovered }: HoneyFillProps)
       vid.playbackRate = 1
       vid.play().then(startDrawing).catch(startDrawing)
     } else if (phase === 'exiting') {
-      // Loading done — speed up remaining video to finish in ~0.8s
       const remaining = (vid.duration || 10) - vid.currentTime
       if (remaining <= 0.05) { onCompleteRef.current(); return }
-      vid.playbackRate = Math.min(8, Math.max(1, remaining / 0.8))
+      // Speed up to finish in exitTarget seconds (matches actual load time, min 0.5s)
+      const target = exitTarget ?? 0.8
+      vid.playbackRate = Math.min(8, Math.max(1, remaining / target))
     }
-  }, [phase, startDrawing])
+  }, [phase, startDrawing, exitTarget])
 
   // When video ends → signal parent to unmount
   useEffect(() => {
