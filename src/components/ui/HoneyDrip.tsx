@@ -181,7 +181,7 @@ export function HoneyFill({ phase, onComplete, onFullyCovered }: HoneyFillProps)
     if (phase === 'entering') {
       coveredRef.current = false
       vid.currentTime = 0
-      vid.playbackRate = 3  // enter at 3x: covers in ~1.7s, smooth enough to look good
+      vid.playbackRate = 5  // enter at 5x: covers in ~1s
       vid.play().then(startDrawing).catch(startDrawing)
     } else if (phase === 'exiting') {
       // Resume from paused full-cover position and drain quickly

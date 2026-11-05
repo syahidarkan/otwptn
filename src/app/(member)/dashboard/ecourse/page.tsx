@@ -54,6 +54,7 @@ function EcourseContent() {
   const [completed, setCompletedState] = useState<string[]>([])
   const [lockedNotice, setLockedNotice] = useState<string | null>(null)
   const [userTier, setUserTier] = useState<string>('free')
+  const [isAdmin, setIsAdmin] = useState(false)
   const [premiumModalData, setPremiumModalData] = useState<{ title: string; unit: number; stageTitle: string; lessons: ELesson[] } | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -66,11 +67,12 @@ function EcourseContent() {
       if (!data.user) return
       supabase
         .from('profiles')
-        .select('tier')
+        .select('tier, is_admin')
         .eq('id', data.user.id)
         .maybeSingle()
         .then(({ data: profile }) => {
           if (profile?.tier) setUserTier(profile.tier)
+          if (profile?.is_admin) setIsAdmin(true)
         })
     })
   }, [])
@@ -125,7 +127,7 @@ function EcourseContent() {
   }
 
   function handleNodeClick(lesson: ELesson, stage: EStage) {
-    if (lesson.isPremium && userTier === 'free') {
+    if (lesson.isPremium && userTier === 'free' && !isAdmin) {
       setPremiumModalData({
         title: lesson.title,
         unit: stage.id,

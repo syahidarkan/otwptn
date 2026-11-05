@@ -18,7 +18,6 @@ import {
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { EJALUR_LIST, type ELesson, type EStage, type EJalur } from '@/lib/ecourseData'
-import CardPattern from '@/components/ui/CardPattern'
 
 const STORAGE_KEY = 'ecourse_v2_completed'
 
@@ -42,6 +41,7 @@ export default function LessonDetailPage({ params }: { params: Promise<{ lessonI
   const router = useRouter()
 
   const [userTier, setUserTier] = useState<string>('free')
+  const [isAdmin, setIsAdmin] = useState(false)
   const [completed, setCompletedState] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -79,11 +79,12 @@ export default function LessonDetailPage({ params }: { params: Promise<{ lessonI
       }
       supabase
         .from('profiles')
-        .select('tier')
+        .select('tier, is_admin')
         .eq('id', data.user.id)
         .maybeSingle()
         .then(({ data: profile }) => {
           if (profile?.tier) setUserTier(profile.tier)
+          if (profile?.is_admin) setIsAdmin(true)
           setLoading(false)
         })
     })
@@ -119,15 +120,12 @@ export default function LessonDetailPage({ params }: { params: Promise<{ lessonI
     )
   }
 
-  const isLocked = foundLesson.isPremium && userTier === 'free'
+  const isLocked = !loading && foundLesson.isPremium && userTier === 'free' && !isAdmin
   const backHref = `/dashboard/ecourse?cat=${foundJalur.id}`
   const isDone = completed.includes(foundLesson.id)
 
   return (
     <div className="w-full min-h-screen bg-gray-50/50 relative pb-28">
-      {/* Background canvas */}
-      <CardPattern type="pintarly-doodles" opacity={0.3} />
-
       {/* Top Sticky Header */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-2xs">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">

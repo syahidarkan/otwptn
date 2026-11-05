@@ -15,6 +15,7 @@ export default function GlobalPageLoader() {
   // Both must be true before exit starts
   const coveredRef = useRef(false)
   const navDoneRef = useRef(false)
+  const maxTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Navigation done: if honey already covering → exit; else mark and wait for cover
   useEffect(() => {
@@ -55,7 +56,14 @@ export default function GlobalPageLoader() {
 
         coveredRef.current = false
         navDoneRef.current = false
-        if (honeyPhaseRef.current === 'idle') setHoneyPhase('entering')
+        if (honeyPhaseRef.current === 'idle') {
+          setHoneyPhase('entering')
+          // Safety net: force exit after 2.5s even if coverage detection fails
+          if (maxTimerRef.current) clearTimeout(maxTimerRef.current)
+          maxTimerRef.current = setTimeout(() => {
+            if (honeyPhaseRef.current !== 'idle') setHoneyPhase('idle')
+          }, 2500)
+        }
       } catch {
         // invalid URL
       }
