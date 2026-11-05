@@ -268,4 +268,15 @@ app.listen(PORT, () => {
   console.log(`[WA Service] Running on port ${PORT}`)
   console.log(`[WA Service] Supabase: ${SUPABASE_URL}`)
   console.log(`[WA Service] Token auth: ${SERVICE_TOKEN ? 'enabled' : 'DISABLED'}`)
+
+  // Self-ping every 10 min to prevent Render free tier spin-down
+  const SELF_URL = process.env.SELF_URL
+  if (SELF_URL) {
+    setInterval(async () => {
+      try {
+        await fetch(`${SELF_URL}/health`)
+      } catch {}
+    }, 10 * 60 * 1000)
+    console.log(`[WA Service] Self-ping enabled: ${SELF_URL}/health`)
+  }
 })
