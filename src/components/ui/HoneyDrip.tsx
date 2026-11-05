@@ -168,7 +168,6 @@ export function HoneyFill({ phase, onComplete }: HoneyFillProps) {
         zIndex: 999997,
         pointerEvents: 'none',
         userSelect: 'none',
-        background: '#f59e0b',  // amber shows through canvas transparent pixels
       }}
     >
       <video
