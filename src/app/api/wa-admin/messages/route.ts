@@ -1,38 +1,53 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-function getWAManager() {
-  try { return global.__waManager ?? null } catch { return null }
+const WA_URL = process.env.WA_SERVICE_URL
+const WA_TOKEN = process.env.WA_SERVICE_TOKEN
+
+function waHeaders(): Record<string, string> {
+  return WA_TOKEN ? { 'x-service-token': WA_TOKEN } : {}
+}
+
+async function checkAdmin() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single()
+  if (!profile?.is_admin) return null
+  return user
 }
 
 export async function GET() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await checkAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single()
-  if (!profile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  if (!WA_URL) return NextResponse.json({ messages: [] })
 
-  const mgr = getWAManager()
-  if (!mgr) return NextResponse.json({ messages: [], error: 'WA service not running' })
-
-  return NextResponse.json({ messages: mgr.getState().messages })
+  try {
+    const res = await fetch(`${WA_URL}/messages`, { headers: waHeaders(), cache: 'no-store' })
+    const data = await res.json()
+    return NextResponse.json(data)
+  } catch {
+    return NextResponse.json({ messages: [], error: 'Railway WA service tidak bisa dihubungi' })
+  }
 }
 
 export async function POST(request: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await checkAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single()
-  if (!profile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-
-  const mgr = getWAManager()
-  if (!mgr) return NextResponse.json({ error: 'WA service not running' }, { status: 503 })
+  if (!WA_URL) return NextResponse.json({ error: 'WA_SERVICE_URL tidak dikonfigurasi' }, { status: 503 })
 
   const { to, text } = await request.json()
   if (!to || !text) return NextResponse.json({ error: 'Missing to or text' }, { status: 400 })
 
-  const ok = await mgr.sendMessage(to, text)
-  return NextResponse.json({ ok })
+  try {
+    const res = await fetch(`${WA_URL}/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...waHeaders() },
+      body: JSON.stringify({ to, text }),
+    })
+    const data = await res.json()
+    return NextResponse.json(data)
+  } catch {
+    return NextResponse.json({ error: 'Railway WA service tidak bisa dihubungi' }, { status: 503 })
+  }
 }

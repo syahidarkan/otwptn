@@ -1,0 +1,16 @@
+{
+  "name": "otwptn-wa-service",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "@hapi/boom": "^10.0.1",
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "qrcode": "^1.5.4"
+  }
+}

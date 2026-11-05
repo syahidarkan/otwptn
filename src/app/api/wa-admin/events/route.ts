@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-// Server-Sent Events endpoint for real-time WA updates
+const WA_URL = process.env.WA_SERVICE_URL
+const WA_TOKEN = process.env.WA_SERVICE_TOKEN
+
 export async function GET() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -10,50 +12,42 @@ export async function GET() {
   const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single()
   if (!profile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  let mgr: ReturnType<typeof import('@/lib/wa/waManager').getWAManager> | null = null
-  try { mgr = global.__waManager ?? null } catch {}
-
-  const encoder = new TextEncoder()
-  const stream = new ReadableStream({
-    start(controller) {
-      const send = (event: string, data: unknown) => {
-        controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`))
-      }
-
-      // Send initial state
-      if (mgr) {
-        const s = mgr.getState()
-        send('state', { status: s.status, qr: s.qr, phone: s.phone })
-      } else {
-        send('state', { status: 'server_not_running' })
+  if (!WA_URL) {
+    // No Railway configured — send one state event then close
+    const encoder = new TextEncoder()
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(`event: state\ndata: ${JSON.stringify({ status: 'server_not_running' })}\n\n`))
         controller.close()
-        return
-      }
+      },
+    })
+    return new Response(stream, {
+      headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },
+    })
+  }
 
-      const onState = (s: ReturnType<typeof mgr.getState>) => {
-        try { send('state', { status: s.status, qr: s.qr, phone: s.phone }) } catch {}
-      }
-      const onMessage = (msg: unknown) => {
-        try { send('message', msg) } catch {}
-      }
+  // Proxy SSE from Railway WA service
+  const headers: Record<string, string> = { Accept: 'text/event-stream' }
+  if (WA_TOKEN) headers['x-service-token'] = WA_TOKEN
 
-      mgr!.on('state', onState)
-      mgr!.on('message', onMessage)
+  let upstream: Response
+  try {
+    upstream = await fetch(`${WA_URL}/events`, { headers, cache: 'no-store' })
+  } catch {
+    const encoder = new TextEncoder()
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(`event: state\ndata: ${JSON.stringify({ status: 'server_not_running' })}\n\n`))
+        controller.close()
+      },
+    })
+    return new Response(stream, {
+      headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },
+    })
+  }
 
-      // Keep-alive ping every 15s
-      const ping = setInterval(() => {
-        try { controller.enqueue(encoder.encode(': ping\n\n')) } catch { clearInterval(ping) }
-      }, 15000)
-
-      return () => {
-        mgr!.off('state', onState)
-        mgr!.off('message', onMessage)
-        clearInterval(ping)
-      }
-    },
-  })
-
-  return new Response(stream, {
+  // Pass upstream SSE body straight through to the browser
+  return new Response(upstream.body, {
     headers: {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
