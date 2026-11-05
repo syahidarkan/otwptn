@@ -24,14 +24,14 @@ export async function getCurrentUserContext(): Promise<UserContext | null> {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('id, full_name, role, tier, is_mentor, is_admin')
+      .select('id, full_name, role, tier, is_admin')
       .eq('id', user.id)
       .single()
 
     let role: UserRole = 'member'
     if (profile?.is_admin || profile?.role === 'superadmin' || user.email === 'admin@otwptn.id') {
       role = 'superadmin'
-    } else if (profile?.is_mentor || profile?.role === 'mentor') {
+    } else if (profile?.role === 'mentor') {
       role = 'mentor'
     }
 
@@ -41,7 +41,7 @@ export async function getCurrentUserContext(): Promise<UserContext | null> {
       fullName: profile?.full_name || user.user_metadata?.full_name || 'Pejuang PTN',
       role,
       tier: (profile?.tier as UserTier) || 'free',
-      isApprovedMentor: !!profile?.is_mentor,
+      isApprovedMentor: profile?.role === 'mentor',
     }
   } catch (err) {
     console.error('Error in getCurrentUserContext:', err)

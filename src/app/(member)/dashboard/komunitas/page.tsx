@@ -262,6 +262,7 @@ const INITIAL_CUITAN: CuitanPost[] = [
 export default function KomunitasPage() {
   const supabase = createClient()
   const [tier, setTier] = useState<string>('free')
+  const [myProfile, setMyProfile] = useState<{ name: string; avatar: string; targetPTN: string } | null>(null)
   const [mainView, setMainView] = useState<'feed' | 'circle'>('feed')
 
   // Circle Navigation States
@@ -274,7 +275,8 @@ export default function KomunitasPage() {
   const [messagesMap, setMessagesMap] = useState<Record<string, MessageItem[]>>(INITIAL_MESSAGES)
 
   // Cuitan Social Feed State
-  const [cuitanList, setCuitanList] = useState<CuitanPost[]>(INITIAL_CUITAN)
+  const [cuitanList, setCuitanList] = useState<CuitanPost[]>([])
+  const [cuitanFetchDone, setCuitanFetchDone] = useState(false)
   const [newCuitanText, setNewCuitanText] = useState('')
   const [cuitanFilter, setCuitanFilter] = useState<'Semua' | 'SNBP' | 'Esai' | 'Mentor'>('Semua')
   const [cuitanLoading, setCuitanLoading] = useState(false)
@@ -287,16 +289,19 @@ export default function KomunitasPage() {
   const [newCirclePtn, setNewCirclePtn] = useState('')
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) return
-      supabase
+      const { data: profile } = await supabase
         .from('profiles')
-        .select('tier')
+        .select('tier, full_name, avatar_url, target_ptns')
         .eq('id', data.user.id)
         .single()
-        .then(({ data: profile }) => {
-          if (profile?.tier) setTier(profile.tier)
-        })
+      if (profile?.tier) setTier(profile.tier)
+      setMyProfile({
+        name: profile?.full_name || data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Pejuang PTN',
+        avatar: profile?.avatar_url ?? '',
+        targetPTN: (profile?.target_ptns as string[] | null)?.[0] ?? '—',
+      })
     })
   }, [supabase])
 
@@ -334,8 +339,9 @@ export default function KomunitasPage() {
           })
           setCuitanList(mapped)
         }
+        setCuitanFetchDone(true)
       })
-      .catch(() => {})
+      .catch(() => { setCuitanFetchDone(true) })
   }, [])
 
   const isPremiumUser = tier !== 'free' && tier !== ''
@@ -356,14 +362,17 @@ export default function KomunitasPage() {
       if (res.ok && data.post) {
         const p = data.post
         const prof = p.profiles
-        const name = prof?.full_name ?? 'Kamu'
+        // Prefer cached myProfile if the join returned null (e.g. RLS or missing profile row)
+        const name = prof?.full_name ?? myProfile?.name ?? 'Kamu'
+        const avatar = prof?.avatar_url ?? myProfile?.avatar ?? ''
+        const targetPTN = (prof?.target_ptns as string[] | undefined)?.[0] ?? myProfile?.targetPTN ?? '—'
         const handle = '@' + name.toLowerCase().replace(/\s+/g, '').slice(0, 10)
         const newPost: CuitanPost = {
           id: p.id,
           author: name,
           handle,
-          avatar: prof?.avatar_url ?? '',
-          targetPTN: prof?.target_ptns?.[0] ?? '—',
+          avatar,
+          targetPTN,
           time: 'Baru saja',
           content: p.content,
           likes: 0,
@@ -564,16 +573,28 @@ export default function KomunitasPage() {
 
           {/* Cuitan Posts List */}
           <div className="space-y-4">
+            {!cuitanFetchDone && (
+              <div className="p-8 text-center text-xs text-gray-400 animate-pulse">Memuat postingan...</div>
+            )}
+            {cuitanFetchDone && cuitanList.length === 0 && (
+              <div className="p-8 text-center text-xs text-gray-400">Belum ada postingan. Jadilah yang pertama!</div>
+            )}
             {cuitanList.map(post => (
               <div key={post.id} className="p-6 rounded-3xl bg-white shadow-md space-y-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={post.avatar}
-                      alt=""
-                      className="w-10 h-10 rounded-full object-cover shadow-2xs"
-                    />
+                    {post.avatar ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={post.avatar}
+                        alt=""
+                        className="w-10 h-10 rounded-full object-cover shadow-2xs"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-amber-400 text-amber-950 font-black text-sm flex items-center justify-center shadow-2xs flex-shrink-0">
+                        {post.author.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
                     <div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-xs font-black text-gray-900">{post.author}</span>

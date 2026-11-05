@@ -24,10 +24,14 @@ export async function POST(request: Request) {
   }
 
   const data = body.data ?? {}
-  const transactionStatus = data.transactionStatus as string | undefined
-  const productId = data.productId as string | undefined
+  // Mayar webhook: data.status is boolean (true = paid), data.productId is the payment link ID
+  const statusRaw = data.status
+  const isPaid = statusRaw === true || statusRaw === 'paid' || (data.transactionStatus as string) === 'paid'
+  const productId = (data.productId ?? data.linkId ?? data.id) as string | undefined
 
-  if (transactionStatus !== 'paid' || !productId) {
+  console.log('[mayar-webhook] event data:', JSON.stringify({ status: statusRaw, productId, event: body.event }))
+
+  if (!isPaid || !productId) {
     return NextResponse.json({ ok: true, skipped: true })
   }
 

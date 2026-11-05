@@ -59,11 +59,11 @@ export async function proxy(request: NextRequest) {
   if (user && pathname.startsWith('/mentor') && pathname !== '/mentor/auth' && pathname !== '/mentor/apply') {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('is_mentor, role, is_admin')
+      .select('role, is_admin')
       .eq('id', user.id)
       .single()
 
-    const isMentor = profile?.is_mentor || profile?.role === 'mentor' || profile?.is_admin || profile?.role === 'superadmin' || user.email === 'admin@otwptn.id'
+    const isMentor = profile?.role === 'mentor' || profile?.is_admin || profile?.role === 'superadmin' || profile?.role === 'admin' || user.email === 'admin@otwptn.id'
     if (!isMentor) return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
