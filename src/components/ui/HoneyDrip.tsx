@@ -99,13 +99,8 @@ export function HoneyFill({ phase, onComplete }: HoneyFillProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rafRef = useRef<number>(0)
-  // true = Safari (no WebM alpha support) → use canvas luma key
-  const needsLumaKey = useRef<boolean>(false)
 
-  // Detect WebM vp9 alpha support on mount
   useEffect(() => {
-    const t = document.createElement('video')
-    needsLumaKey.current = !t.canPlayType('video/webm; codecs="vp9"')
     if (canvasRef.current) {
       canvasRef.current.width = CANVAS_W
       canvasRef.current.height = CANVAS_H
@@ -114,26 +109,24 @@ export function HoneyFill({ phase, onComplete }: HoneyFillProps) {
   }, [])
 
   const startDrawing = useCallback(() => {
+    // Cache context once — avoids per-frame lookup overhead
+    const ctx = canvasRef.current?.getContext('2d', { willReadFrequently: true })
+    if (!ctx) return
     const draw = () => {
-      const canvas = canvasRef.current
       const vid = videoRef.current
-      if (canvas && vid && vid.readyState >= 2) {
-        const ctx = canvas.getContext('2d', { willReadFrequently: true })
-        if (ctx) {
-          ctx.clearRect(0, 0, CANVAS_W, CANVAS_H)
-          ctx.drawImage(vid, 0, 0, CANVAS_W, CANVAS_H)
-          if (needsLumaKey.current) {
-            const imgData = ctx.getImageData(0, 0, CANVAS_W, CANVAS_H)
-            const d = imgData.data
-            for (let i = 0; i < d.length; i += 4) {
-              const b = d[i + 2]
-              if (b > 150 && d[i] > 190 && d[i + 1] > 180) {
-                d[i + 3] = Math.round(Math.max(0, 1 - (b - 150) / 105) * 255)
-              }
-            }
-            ctx.putImageData(imgData, 0, 0)
+      if (vid && vid.readyState >= 2) {
+        ctx.clearRect(0, 0, CANVAS_W, CANVAS_H)
+        ctx.drawImage(vid, 0, 0, CANVAS_W, CANVAS_H)
+        // Always apply luma key — safe for both WebM alpha and plain MP4
+        const imgData = ctx.getImageData(0, 0, CANVAS_W, CANVAS_H)
+        const d = imgData.data
+        for (let i = 0; i < d.length; i += 4) {
+          const b = d[i + 2]
+          if (b > 150 && d[i] > 190 && d[i + 1] > 180) {
+            d[i + 3] = Math.round(Math.max(0, 1 - (b - 150) / 105) * 255)
           }
         }
+        ctx.putImageData(imgData, 0, 0)
       }
       rafRef.current = requestAnimationFrame(draw)
     }
@@ -175,9 +168,9 @@ export function HoneyFill({ phase, onComplete }: HoneyFillProps) {
         zIndex: 999997,
         pointerEvents: 'none',
         userSelect: 'none',
+        background: '#f59e0b',  // amber shows through canvas transparent pixels
       }}
     >
-      {/* Hidden video for frame source (both paths) */}
       <video
         ref={videoRef}
         muted playsInline preload="auto"
@@ -186,16 +179,9 @@ export function HoneyFill({ phase, onComplete }: HoneyFillProps) {
         <source src="/honey-fill.webm" type="video/webm" />
         <source src="/honey-splash.mp4" type="video/mp4" />
       </video>
-
-      {/* Amber base so honey-gap areas show amber not white page */}
-      <div style={{ position: 'absolute', inset: 0, background: '#f59e0b' }} />
-      {/* Canvas renders frames — WebM alpha direct, MP4 via luma key */}
       <canvas
         ref={canvasRef}
-        style={{
-          position: 'absolute', inset: 0,
-          width: '100%', height: '100%',
-        }}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
       />
     </div>
   )
