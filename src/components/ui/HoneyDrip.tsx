@@ -90,20 +90,28 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
 interface HoneyFillProps {
   phase: 'entering' | 'exiting'
   onComplete: () => void
-  /** target seconds for exit animation; derived from actual load time */
-  exitTarget?: number
+  onFullyCovered?: () => void
 }
 
 const CANVAS_W = 1280
 const CANVAS_H = 720
 
+// 9-point grid to detect when honey fully covers the canvas
+const COVERAGE_POINTS: [number, number][] = [
+  [64, 36],   [640, 36],   [1216, 36],
+  [64, 360],  [640, 360],  [1216, 360],
+  [64, 684],  [640, 684],  [1216, 684],
+]
 
-export function HoneyFill({ phase, onComplete, exitTarget }: HoneyFillProps) {
+export function HoneyFill({ phase, onComplete, onFullyCovered }: HoneyFillProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rafRef = useRef<number>(0)
+  const coveredRef = useRef(false)
   const onCompleteRef = useRef(onComplete)
   onCompleteRef.current = onComplete
+  const onFullyCoveredRef = useRef(onFullyCovered)
+  onFullyCoveredRef.current = onFullyCovered
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -132,6 +140,16 @@ export function HoneyFill({ phase, onComplete, exitTarget }: HoneyFillProps) {
           }
         }
         ctx.putImageData(imgData, 0, 0)
+
+        // Detect full honey coverage; pause video and notify parent
+        if (!coveredRef.current) {
+          const allCovered = COVERAGE_POINTS.every(([x, y]) => d[(y * CANVAS_W + x) * 4 + 3] > 200)
+          if (allCovered) {
+            coveredRef.current = true
+            vid.pause()
+            onFullyCoveredRef.current?.()
+          }
+        }
       }
       rafRef.current = requestAnimationFrame(draw)
     }
@@ -139,25 +157,24 @@ export function HoneyFill({ phase, onComplete, exitTarget }: HoneyFillProps) {
     rafRef.current = requestAnimationFrame(draw)
   }, [])
 
-  // Start / speed-up video based on phase
   useEffect(() => {
     const vid = videoRef.current
     if (!vid) return
 
     if (phase === 'entering') {
+      coveredRef.current = false
       vid.currentTime = 0
-      vid.playbackRate = 1
+      vid.playbackRate = 8  // enter fast: cover screen in ~0.6s regardless of load time
       vid.play().then(startDrawing).catch(startDrawing)
     } else if (phase === 'exiting') {
+      // Resume from paused full-cover position and drain quickly
       const remaining = (vid.duration || 10) - vid.currentTime
       if (remaining <= 0.05) { onCompleteRef.current(); return }
-      // Speed up to finish in exitTarget seconds (matches actual load time, min 0.5s)
-      const target = exitTarget ?? 0.8
-      vid.playbackRate = Math.min(8, Math.max(1, remaining / target))
+      vid.playbackRate = Math.min(8, remaining / 0.5)  // finish exit in ~0.5s
+      vid.play()
     }
-  }, [phase, startDrawing, exitTarget])
+  }, [phase, startDrawing])
 
-  // When video ends → signal parent to unmount
   useEffect(() => {
     const vid = videoRef.current
     if (!vid) return
