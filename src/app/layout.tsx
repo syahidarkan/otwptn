@@ -5,6 +5,7 @@ import { LEGAL_ENTITY } from '@/lib/constants'
 import ThemeHydrator from '@/components/ThemeHydrator'
 import CustomerServiceWidget from '@/components/chat/CustomerServiceWidget'
 import GlobalPageLoader from '@/components/ui/GlobalPageLoader'
+import AdminSwitcher from '@/components/ui/AdminSwitcher'
 import { Suspense } from 'react'
 
 const outfit = Outfit({
@@ -283,6 +284,7 @@ export default function RootLayout({
         </Suspense>
         <ThemeHydrator />
         {children}
+        <AdminSwitcher />
         <CustomerServiceWidget />
       </body>
     </html>

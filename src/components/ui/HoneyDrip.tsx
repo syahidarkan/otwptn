@@ -93,14 +93,16 @@ interface HoneyFillProps {
   onFullyCovered?: () => void
 }
 
-const CANVAS_W = 1280
-const CANVAS_H = 720
+// Lower internal resolution for processing — display is CSS-scaled to fullscreen.
+// 480×270 = 7× fewer pixels than 1280×720, same aspect ratio, visually identical for large honey shapes.
+const CANVAS_W = 480
+const CANVAS_H = 270
 
 // 9-point grid to detect when honey fully covers the canvas
 const COVERAGE_POINTS: [number, number][] = [
-  [64, 36],   [640, 36],   [1216, 36],
-  [64, 360],  [640, 360],  [1216, 360],
-  [64, 684],  [640, 684],  [1216, 684],
+  [24, 14],   [240, 14],   [456, 14],
+  [24, 135],  [240, 135],  [456, 135],
+  [24, 256],  [240, 256],  [456, 256],
 ]
 
 export function HoneyFill({ phase, onComplete, onFullyCovered }: HoneyFillProps) {
@@ -126,6 +128,9 @@ export function HoneyFill({ phase, onComplete, onFullyCovered }: HoneyFillProps)
     if (!ctx) return
     ctx.imageSmoothingEnabled = true
     ctx.imageSmoothingQuality = 'high'
+    let nativeAlphaChecked = false
+    let useLumaKey = true  // assume needed until proven otherwise
+
     const draw = () => {
       const vid = videoRef.current
       if (vid && vid.readyState >= 2) {
@@ -133,17 +138,29 @@ export function HoneyFill({ phase, onComplete, onFullyCovered }: HoneyFillProps)
         ctx.drawImage(vid, 0, 0, CANVAS_W, CANVAS_H)
         const imgData = ctx.getImageData(0, 0, CANVAS_W, CANVAS_H)
         const d = imgData.data
-        for (let i = 0; i < d.length; i += 4) {
-          const b = d[i + 2]
-          if (b > 150 && d[i] > 190 && d[i + 1] > 180) {
-            d[i + 3] = Math.round(Math.max(0, 1 - (b - 150) / 105) * 255)
-          }
+
+        // On first real frame, check if native WebM alpha is working
+        // (top-left pixel should be transparent at t≈0 since honey hasn't appeared yet)
+        if (!nativeAlphaChecked && vid.currentTime > 0.05) {
+          nativeAlphaChecked = true
+          useLumaKey = d[3] > 200  // if already transparent → native alpha works, skip luma key
         }
-        ctx.putImageData(imgData, 0, 0)
+
+        if (useLumaKey) {
+          for (let i = 0; i < d.length; i += 4) {
+            const b = d[i + 2]
+            if (b > 150 && d[i] > 190 && d[i + 1] > 180) {
+              d[i + 3] = Math.round(Math.max(0, 1 - (b - 150) / 105) * 255)
+            }
+          }
+          ctx.putImageData(imgData, 0, 0)
+        }
 
         // Detect full honey coverage; pause video and notify parent
         if (!coveredRef.current) {
-          const allCovered = COVERAGE_POINTS.every(([x, y]) => d[(y * CANVAS_W + x) * 4 + 3] > 200)
+          // Re-read after potential luma key modification
+          const check = useLumaKey ? d : ctx.getImageData(0, 0, CANVAS_W, CANVAS_H).data
+          const allCovered = COVERAGE_POINTS.every(([x, y]) => check[(y * CANVAS_W + x) * 4 + 3] > 200)
           if (allCovered) {
             coveredRef.current = true
             vid.pause()
@@ -164,7 +181,7 @@ export function HoneyFill({ phase, onComplete, onFullyCovered }: HoneyFillProps)
     if (phase === 'entering') {
       coveredRef.current = false
       vid.currentTime = 0
-      vid.playbackRate = 8  // enter fast: cover screen in ~0.6s regardless of load time
+      vid.playbackRate = 3  // enter at 3x: covers in ~1.7s, smooth enough to look good
       vid.play().then(startDrawing).catch(startDrawing)
     } else if (phase === 'exiting') {
       // Resume from paused full-cover position and drain quickly
