@@ -92,8 +92,8 @@ interface HoneyFillProps {
   onComplete: () => void
 }
 
-const CANVAS_W = 480
-const CANVAS_H = 270
+const CANVAS_W = 1280
+const CANVAS_H = 720
 
 export function HoneyFill({ phase, onComplete }: HoneyFillProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -187,6 +187,8 @@ export function HoneyFill({ phase, onComplete }: HoneyFillProps) {
         <source src="/honey-splash.mp4" type="video/mp4" />
       </video>
 
+      {/* Amber base so honey-gap areas show amber not white page */}
+      <div style={{ position: 'absolute', inset: 0, background: '#f59e0b' }} />
       {/* Canvas renders frames — WebM alpha direct, MP4 via luma key */}
       <canvas
         ref={canvasRef}
