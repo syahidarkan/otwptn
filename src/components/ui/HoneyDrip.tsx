@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface HoneyDripProps {
   mode?: 'separator' | 'fullscreen'
@@ -89,74 +89,23 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
 
 interface HoneyFillProps { phase: 'entering' | 'holding' | 'exiting' }
 
-// Luma key constants — honey max blue is ~130, white bg blue is 255
-const LK_B_THRESHOLD = 150  // blue above this = white candidate
-const LK_R_MIN = 190        // red also high = white (not honey)
-const LK_G_MIN = 180        // green also high = white
-const LK_FEATHER = 105      // feather range for smooth edges
-
-// Canvas draw resolution — lower = faster luma key, higher = sharper honey edges
-const CANVAS_W = 480
-const CANVAS_H = 270
-
 export function HoneyFill({ phase }: HoneyFillProps) {
   const [cls, setCls] = useState('')
   const videoRef = useRef<HTMLVideoElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const rafRef = useRef<number>(0)
-
-  const startDrawing = useCallback(() => {
-    const draw = () => {
-      const canvas = canvasRef.current
-      const vid = videoRef.current
-      if (canvas && vid && vid.readyState >= 2) {
-        const ctx = canvas.getContext('2d', { willReadFrequently: true })
-        if (ctx) {
-          ctx.clearRect(0, 0, CANVAS_W, CANVAS_H)
-          ctx.drawImage(vid, 0, 0, CANVAS_W, CANVAS_H)
-          // Luma key: remove white background pixels
-          const imgData = ctx.getImageData(0, 0, CANVAS_W, CANVAS_H)
-          const d = imgData.data
-          for (let i = 0; i < d.length; i += 4) {
-            const b = d[i + 2]
-            if (b > LK_B_THRESHOLD && d[i] > LK_R_MIN && d[i + 1] > LK_G_MIN) {
-              // Alpha: 255 at threshold, 0 at threshold+feather
-              const alpha = Math.max(0, 1 - (b - LK_B_THRESHOLD) / LK_FEATHER)
-              d[i + 3] = Math.round(alpha * 255)
-            }
-          }
-          ctx.putImageData(imgData, 0, 0)
-        }
-      }
-      rafRef.current = requestAnimationFrame(draw)
-    }
-    cancelAnimationFrame(rafRef.current)
-    rafRef.current = requestAnimationFrame(draw)
-  }, [])
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (canvas) {
-      canvas.width = CANVAS_W
-      canvas.height = CANVAS_H
-    }
-    return () => cancelAnimationFrame(rafRef.current)
-  }, [])
 
   useEffect(() => {
     const vid = videoRef.current
     if (!vid) return
-
     if (phase === 'entering') {
       setCls('hf-enter')
       vid.currentTime = 0
-      vid.play().then(startDrawing).catch(startDrawing)
+      vid.play().catch(() => null)
     } else if (phase === 'holding') {
       setCls('hf-hold')
     } else if (phase === 'exiting') {
       setCls('hf-exit')
     }
-  }, [phase, startDrawing])
+  }, [phase])
 
   return (
     <>
@@ -183,21 +132,19 @@ export function HoneyFill({ phase }: HoneyFillProps) {
           userSelect: 'none',
         }}
       >
+        {/* WebM alpha for Chrome/Firefox, HEVC alpha for Safari — both have transparent bg */}
         <video
           ref={videoRef}
-          muted playsInline preload="auto" loop
-          style={{ display: 'none' }}
-        >
-          <source src="/honey-splash.mp4" type="video/mp4" />
-        </video>
-        {/* Real per-pixel alpha via luma key — no blend mode needed */}
-        <canvas
-          ref={canvasRef}
+          muted playsInline preload="auto"
           style={{
             position: 'absolute', inset: 0,
             width: '100%', height: '100%',
+            objectFit: 'cover',
           }}
-        />
+        >
+          <source src="/honey-fill.webm" type="video/webm" />
+          <source src="/honey-fill.mp4" type="video/mp4" />
+        </video>
       </div>
     </>
   )
