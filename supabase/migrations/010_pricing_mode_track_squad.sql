@@ -1,6 +1,7 @@
 -- Migration 010: Pricing v2 (Mode x Track x Tier), Squad grouping, auto mentor matching
 
--- 1. Orders: mode/track/squad + mentor_id (admin previously only had mentor_name text)
+-- 1. Squads table (created first, but its RLS policies reference orders.squad_group_id,
+--    so those are added further below — after orders gets that column).
 create table if not exists squads (
   id           uuid primary key default gen_random_uuid(),
   track        text not null check (track in ('essay', 'prestasi', 'hybrid')),
@@ -15,23 +16,35 @@ create table if not exists squads (
 
 alter table squads enable row level security;
 
-create policy "Members can view own squad"
-  on squads for select using (
-    exists (select 1 from orders o where o.squad_group_id = squads.id and o.user_id = auth.uid())
-  );
-
-create policy "Admins can manage all squads"
-  on squads for all using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.is_admin = true)
-  );
-
+-- 2. Orders: mode/track/squad + mentor_id (admin previously only had mentor_name text)
 alter table orders
   add column if not exists mode            text not null default 'individu' check (mode in ('individu', 'squad')),
   add column if not exists track           text not null default 'essay' check (track in ('essay', 'prestasi', 'hybrid')),
   add column if not exists squad_group_id  uuid references squads(id) on delete set null,
   add column if not exists mentor_id       uuid references profiles(id) on delete set null;
 
--- 2. Mentoring: link back to squad + mentor capacity on profiles for auto-matching load balance
+-- 3. Squads RLS policies (need orders.squad_group_id to exist, hence placed after step 2)
+do $$ begin
+  if not exists (
+    select 1 from pg_policies where tablename = 'squads' and policyname = 'Members can view own squad'
+  ) then
+    execute 'create policy "Members can view own squad" on squads for select using (
+      exists (select 1 from orders o where o.squad_group_id = squads.id and o.user_id = auth.uid())
+    )';
+  end if;
+end $$;
+
+do $$ begin
+  if not exists (
+    select 1 from pg_policies where tablename = 'squads' and policyname = 'Admins can manage all squads'
+  ) then
+    execute 'create policy "Admins can manage all squads" on squads for all using (
+      exists (select 1 from profiles p where p.id = auth.uid() and p.is_admin = true)
+    )';
+  end if;
+end $$;
+
+-- 4. Mentoring: link back to squad + mentor capacity on profiles for auto-matching load balance
 alter table mentoring
   add column if not exists squad_group_id uuid references squads(id) on delete set null;
 
@@ -46,5 +59,5 @@ end $$;
 alter table profiles
   add column if not exists mentor_capacity int not null default 5;
 
--- 3. mentor_applications.track already exists (001/007) and is used as the auto-match specialty filter.
+-- 5. mentor_applications.track already exists (001/007) and is used as the auto-match specialty filter.
 --    A NULL track on an approved mentor application means "generalist" — eligible for any track.
