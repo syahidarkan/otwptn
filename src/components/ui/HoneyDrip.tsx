@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef } from 'react'
+import { forwardRef, useEffect, useRef } from 'react'
 
 interface HoneyDripProps {
   mode?: 'separator' | 'fullscreen'
@@ -87,8 +87,288 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
 export const HONEY_DRIP_H = 170
 const HONEY_VB_H = BRIDGE_H + 168
 
-export const HoneyOverlay = forwardRef<HTMLDivElement, { videoRef?: React.RefObject<HTMLVideoElement | null> }>(
+export const HoneyOverlay = forwardRef<HTMLDivElement, { videoRef?: React.Ref<HTMLVideoElement | null> }>(
   function HoneyOverlay({ videoRef }, ref) {
+    const internalVideoRef = useRef<HTMLVideoElement | null>(null)
+    const canvasRef = useRef<HTMLCanvasElement | null>(null)
+
+    useEffect(() => {
+      const video = internalVideoRef.current
+      const canvas = canvasRef.current
+      if (!video || !canvas) return
+
+      let gl: WebGLRenderingContext | null = null
+      let program: WebGLProgram | null = null
+      let texture: WebGLTexture | null = null
+      let buffer: WebGLBuffer | null = null
+      let uScaleLoc: WebGLUniformLocation | null = null
+      let uOffsetLoc: WebGLUniformLocation | null = null
+      let rafId = 0
+      let rvfcId = 0
+      let isDrawing = false
+
+      try {
+        gl = (canvas.getContext('webgl', {
+          alpha: true,
+          premultipliedAlpha: true,
+          antialias: true,
+        }) || canvas.getContext('experimental-webgl', {
+          alpha: true,
+          premultipliedAlpha: true,
+        })) as WebGLRenderingContext | null
+      } catch {
+        gl = null
+      }
+
+      if (gl) {
+        const vsSource = `
+          attribute vec2 a_pos;
+          varying vec2 v_uv;
+          uniform vec2 u_scale;
+          uniform vec2 u_offset;
+          void main() {
+            gl_Position = vec4(a_pos, 0.0, 1.0);
+            vec2 uv = (a_pos + 1.0) * 0.5;
+            uv.y = 1.0 - uv.y;
+            v_uv = uv * u_scale + u_offset;
+          }
+        `
+        const fsSource = `
+          precision mediump float;
+          uniform sampler2D u_tex;
+          varying vec2 v_uv;
+          void main() {
+            if (v_uv.x < 0.0 || v_uv.x > 1.0 || v_uv.y < 0.0 || v_uv.y > 1.0) {
+              gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+              return;
+            }
+            vec4 c = texture2D(u_tex, v_uv);
+            float minC = min(min(c.r, c.g), c.b);
+            float t = clamp((minC - 0.75) / (0.92 - 0.75), 0.0, 1.0);
+            float a = 1.0 - (t * t * (3.0 - 2.0 * t));
+            if (a <= 0.002) {
+              gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+              return;
+            }
+            vec3 unblended = clamp((c.rgb - vec3(1.0 - a)) / max(a, 0.04), 0.0, 1.0);
+            gl_FragColor = vec4(unblended * a, a);
+          }
+        `
+
+        const createShader = (glCtx: WebGLRenderingContext, type: number, source: string) => {
+          const s = glCtx.createShader(type)
+          if (!s) return null
+          glCtx.shaderSource(s, source)
+          glCtx.compileShader(s)
+          if (!glCtx.getShaderParameter(s, glCtx.COMPILE_STATUS)) {
+            glCtx.deleteShader(s)
+            return null
+          }
+          return s
+        }
+
+        const vs = createShader(gl, gl.VERTEX_SHADER, vsSource)
+        const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource)
+        if (vs && fs) {
+          program = gl.createProgram()
+          if (program) {
+            gl.attachShader(program, vs)
+            gl.attachShader(program, fs)
+            gl.linkProgram(program)
+            if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
+              gl.useProgram(program)
+              uScaleLoc = gl.getUniformLocation(program, 'u_scale')
+              uOffsetLoc = gl.getUniformLocation(program, 'u_offset')
+              const aPosLoc = gl.getAttribLocation(program, 'a_pos')
+
+              buffer = gl.createBuffer()
+              gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+              const vertices = new Float32Array([
+                -1, -1,
+                 1, -1,
+                -1,  1,
+                 1,  1,
+              ])
+              gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)
+              gl.enableVertexAttribArray(aPosLoc)
+              gl.vertexAttribPointer(aPosLoc, 2, gl.FLOAT, false, 0, 0)
+
+              texture = gl.createTexture()
+              gl.bindTexture(gl.TEXTURE_2D, texture)
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+
+              gl.enable(gl.BLEND)
+              gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+            }
+          }
+        }
+      }
+
+      function drawCurrentFrame() {
+        if (!video || !canvas) return
+        if (video.readyState < 2) return
+
+        const dpr = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 2)
+        const displayW = Math.floor(canvas.clientWidth * dpr)
+        const displayH = Math.floor(canvas.clientHeight * dpr)
+
+        if (displayW <= 0 || displayH <= 0) return
+
+        if (canvas.width !== displayW || canvas.height !== displayH) {
+          canvas.width = displayW
+          canvas.height = displayH
+        }
+
+        if (gl && program && texture) {
+          gl.viewport(0, 0, canvas.width, canvas.height)
+          gl.useProgram(program)
+
+          const vw = video.videoWidth || 1280
+          const vh = video.videoHeight || 720
+          const videoAspect = vw / vh
+          const canvasAspect = canvas.width / canvas.height
+
+          let scaleX = 1
+          let scaleY = 1
+          let offsetX = 0
+          let offsetY = 0
+
+          if (canvasAspect > videoAspect) {
+            scaleX = 1
+            scaleY = videoAspect / canvasAspect
+            offsetX = 0
+            offsetY = 0
+          } else {
+            scaleX = canvasAspect / videoAspect
+            scaleY = 1
+            offsetX = (1.0 - scaleX) * 0.5
+            offsetY = 0
+          }
+
+          if (uScaleLoc) gl.uniform2f(uScaleLoc, scaleX, scaleY)
+          if (uOffsetLoc) gl.uniform2f(uOffsetLoc, offsetX, offsetY)
+
+          gl.bindTexture(gl.TEXTURE_2D, texture)
+          try {
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video)
+            gl.clearColor(0, 0, 0, 0)
+            gl.clear(gl.COLOR_BUFFER_BIT)
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+          } catch {}
+        } else {
+          const ctx = canvas.getContext('2d')
+          if (ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            const vw = video.videoWidth || 1280
+            const vh = video.videoHeight || 720
+            const videoAspect = vw / vh
+            const canvasAspect = canvas.width / canvas.height
+            let dw = canvas.width
+            let dh = canvas.height
+            let dx = 0
+            let dy = 0
+            if (canvasAspect > videoAspect) {
+              dh = dw / videoAspect
+            } else {
+              dw = dh * videoAspect
+              dx = (canvas.width - dw) / 2
+            }
+            ctx.drawImage(video, dx, dy, dw, dh)
+            try {
+              const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+              const data = imgData.data
+              for (let i = 0; i < data.length; i += 4) {
+                const r = data[i]
+                const g = data[i + 1]
+                const b = data[i + 2]
+                const minC = Math.min(r, g, b)
+                if (minC > 235) {
+                  data[i + 3] = 0
+                } else if (minC > 195) {
+                  const a = (235 - minC) / 40
+                  data[i + 3] = Math.round(data[i + 3] * a)
+                }
+              }
+              ctx.putImageData(imgData, 0, 0)
+            } catch {}
+          }
+        }
+      }
+
+      function scheduleNextFrame() {
+        if (!isDrawing) return
+        if ('requestVideoFrameCallback' in HTMLVideoElement.prototype && video) {
+          // Cast to any for requestVideoFrameCallback support
+          const v = video as unknown as { requestVideoFrameCallback?: (cb: () => void) => number }
+          if (typeof v.requestVideoFrameCallback === 'function') {
+            rvfcId = v.requestVideoFrameCallback(() => {
+              drawCurrentFrame()
+              scheduleNextFrame()
+            })
+            return
+          }
+        }
+        rafId = requestAnimationFrame(() => {
+          drawCurrentFrame()
+          scheduleNextFrame()
+        })
+      }
+
+      function startLoop() {
+        if (isDrawing) return
+        isDrawing = true
+        drawCurrentFrame()
+        scheduleNextFrame()
+      }
+
+      function stopLoop() {
+        isDrawing = false
+        if (rafId) {
+          cancelAnimationFrame(rafId)
+          rafId = 0
+        }
+        if (rvfcId && video) {
+          const v = video as unknown as { cancelVideoFrameCallback?: (id: number) => void }
+          if (typeof v.cancelVideoFrameCallback === 'function') {
+            try { v.cancelVideoFrameCallback(rvfcId) } catch {}
+          }
+          rvfcId = 0
+        }
+        if (gl) {
+          gl.clearColor(0, 0, 0, 0)
+          gl.clear(gl.COLOR_BUFFER_BIT)
+        } else {
+          const ctx = canvas?.getContext('2d')
+          if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height)
+        }
+      }
+
+      video.addEventListener('play', startLoop)
+      video.addEventListener('playing', startLoop)
+      video.addEventListener('pause', stopLoop)
+      video.addEventListener('ended', stopLoop)
+      video.addEventListener('seeked', drawCurrentFrame)
+
+      if (!video.paused && !video.ended) {
+        startLoop()
+      }
+
+      return () => {
+        stopLoop()
+        video.removeEventListener('play', startLoop)
+        video.removeEventListener('playing', startLoop)
+        video.removeEventListener('pause', stopLoop)
+        video.removeEventListener('ended', stopLoop)
+        video.removeEventListener('seeked', drawCurrentFrame)
+        if (gl && buffer) gl.deleteBuffer(buffer)
+        if (gl && texture) gl.deleteTexture(texture)
+        if (gl && program) gl.deleteProgram(program)
+      }
+    }, [])
+
     return (
       <div
         ref={ref}
@@ -106,16 +386,31 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, { videoRef?: React.RefObj
         }}
       >
         <video
-          ref={videoRef}
+          ref={(node) => {
+            internalVideoRef.current = node
+            if (!videoRef) return
+            if (typeof videoRef === 'function') {
+              videoRef(node)
+            } else if ('current' in videoRef) {
+              ;(videoRef as React.MutableRefObject<HTMLVideoElement | null>).current = node
+            }
+          }}
           src="/honey-splash-fix.mp4"
           playsInline
           muted
           preload="auto"
+          crossOrigin="anonymous"
+          style={{ display: 'none' }}
+        />
+        <canvas
+          ref={canvasRef}
           style={{
+            position: 'absolute',
+            inset: 0,
             width: '100%',
             height: '100%',
-            objectFit: 'cover',
-            mixBlendMode: 'multiply',
+            display: 'block',
+            pointerEvents: 'none',
           }}
         />
       </div>

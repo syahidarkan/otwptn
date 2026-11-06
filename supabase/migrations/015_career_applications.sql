@@ -29,3 +29,4 @@ create policy "Admins can view and manage career applications"
 create policy "Service role can manage career applications"
   on career_applications for all
   using (auth.role() = 'service_role');
+
