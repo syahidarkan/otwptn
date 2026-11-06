@@ -68,7 +68,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         .select('is_admin, role')
         .eq('id', data.user.id)
         .single()
-      const isAdmin = profile?.is_admin || profile?.role === 'superadmin' || data.user.email === 'admin@otwptn.id'
+      const isAdmin = profile?.is_admin || profile?.role === 'superadmin'
       if (!isAdmin) {
         router.replace('/dashboard')
         return

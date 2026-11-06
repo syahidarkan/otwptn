@@ -114,6 +114,7 @@ export interface JalurStatic {
   ptn: string
   category: JalurCategory | 'snbp'
   closed?: boolean
+  isInter?: boolean
 }
 
 export interface PricingMap {

@@ -90,14 +90,14 @@ export async function POST(request: Request) {
         zoom_sessions_used: 0,
         revision_count_total: cfg.revisions,
         revision_count_used: 0,
-      }, { onConflict: 'user_id' })
+      }, { onConflict: 'order_id' })
 
       await sendEmail({
         to: profile.email,
         subject: 'Pembayaran Dikonfirmasi - Selamat Bergabung di otwptn!',
         react: createElement(PembayaranDikonfirmasi, {
           full_name: profile.full_name,
-          wa_group_link: wa_group_link ?? 'https://wa.me/6285156667221',
+          wa_group_link: wa_group_link ?? 'https://wa.me/6285121659182',
           is_review: is_review ?? false,
           mentor_name: mentor_name ?? null,
         }),

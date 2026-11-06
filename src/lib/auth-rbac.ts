@@ -29,7 +29,7 @@ export async function getCurrentUserContext(): Promise<UserContext | null> {
       .single()
 
     let role: UserRole = 'member'
-    if (profile?.is_admin || profile?.role === 'superadmin' || user.email === 'admin@otwptn.id') {
+    if (profile?.is_admin || profile?.role === 'superadmin') {
       role = 'superadmin'
     } else if (profile?.role === 'mentor') {
       role = 'mentor'

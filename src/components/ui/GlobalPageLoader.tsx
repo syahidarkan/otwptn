@@ -23,20 +23,34 @@ export default function GlobalPageLoader() {
   const routeKeyRef = useRef(routeKey)
   routeKeyRef.current = routeKey
   const capTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const thresholdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Reveal only once the new route has committed AND painted.
   useEffect(() => {
     if (phaseRef.current !== 'waiting' || routeKey === startKeyRef.current) return
-    // Allow paint then smoothly fade out video overlay
-    let r2 = 0
-    const r1 = requestAnimationFrame(() => {
-      r2 = requestAnimationFrame(() => reveal())
-    })
-    const t = setTimeout(() => reveal(), 120)
-    return () => {
-      cancelAnimationFrame(r1)
-      cancelAnimationFrame(r2)
-      clearTimeout(t)
+    if (thresholdTimerRef.current) {
+      clearTimeout(thresholdTimerRef.current)
+      thresholdTimerRef.current = null
+    }
+
+    // If overlay was shown, speed up playback slightly and fade out smoothly
+    if (elRef.current && elRef.current.style.opacity === '1') {
+      if (videoRef.current) {
+        try { videoRef.current.playbackRate = 1.4 } catch {}
+      }
+      let r2 = 0
+      const r1 = requestAnimationFrame(() => {
+        r2 = requestAnimationFrame(() => reveal())
+      })
+      const t = setTimeout(() => reveal(), 100)
+      return () => {
+        cancelAnimationFrame(r1)
+        cancelAnimationFrame(r2)
+        clearTimeout(t)
+      }
+    } else {
+      // Loaded faster than 180ms threshold - finish without flash
+      finish()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeKey])
@@ -46,14 +60,16 @@ export default function GlobalPageLoader() {
     if (!el || phaseRef.current === 'revealing' || phaseRef.current === 'idle') return
     phaseRef.current = 'revealing'
     el.style.opacity = '0'
-    setTimeout(finish, 320)
+    setTimeout(finish, 260)
   }
 
   function finish() {
-    const el = elRef.current
+    if (thresholdTimerRef.current) clearTimeout(thresholdTimerRef.current)
+    thresholdTimerRef.current = null
     if (capTimerRef.current) clearTimeout(capTimerRef.current)
     capTimerRef.current = null
     pendingHrefRef.current = null
+    const el = elRef.current
     if (el) {
       el.style.visibility = 'hidden'
       el.style.opacity = '0'
@@ -61,6 +77,7 @@ export default function GlobalPageLoader() {
     if (videoRef.current) {
       try {
         videoRef.current.pause()
+        videoRef.current.playbackRate = 1.0
         videoRef.current.currentTime = 0
       } catch {}
     }
@@ -85,15 +102,21 @@ export default function GlobalPageLoader() {
     phaseRef.current = 'covering'
     router.prefetch(href)
 
-    el.style.visibility = 'visible'
-    el.style.opacity = '1'
-
-    if (videoRef.current) {
-      try {
-        videoRef.current.currentTime = 0
-        videoRef.current.play().catch(() => {})
-      } catch {}
-    }
+    // Only display video if navigation takes longer than 180ms
+    if (thresholdTimerRef.current) clearTimeout(thresholdTimerRef.current)
+    thresholdTimerRef.current = setTimeout(() => {
+      if (phaseRef.current === 'waiting' && elRef.current) {
+        elRef.current.style.visibility = 'visible'
+        elRef.current.style.opacity = '1'
+        if (videoRef.current) {
+          try {
+            videoRef.current.currentTime = 0
+            videoRef.current.playbackRate = 1.0
+            videoRef.current.play().catch(() => {})
+          } catch {}
+        }
+      }
+    }, 180)
 
     phaseRef.current = 'waiting'
     startNav()

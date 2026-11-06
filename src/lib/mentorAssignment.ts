@@ -8,7 +8,7 @@ interface MentorCandidate {
 }
 
 // Auto-matching: eligible = approved mentor application whose track matches the requested
-// track (or is NULL — a generalist, or 'hybrid' — handles everything), with current active
+// track (or is NULL - a generalist, or 'hybrid' - handles everything), with current active
 // mentee load below their configured capacity. Picks the least-loaded eligible mentor
 // (simple load balancing, no manual admin step required).
 export async function findAvailableMentor(
@@ -20,9 +20,15 @@ export async function findAvailableMentor(
     .select('user_id, full_name, track')
     .eq('status', 'approved')
 
-  const eligible = ((candidates ?? []) as MentorCandidate[]).filter(
-    c => !c.track || c.track === track || c.track === 'hybrid',
-  )
+  const eligible = ((candidates ?? []) as MentorCandidate[]).filter(c => {
+    if (!c.track) return true
+    const t = c.track.toLowerCase().trim()
+    if (t === track || t === 'hybrid') return true
+    if (track === 'essay' && (t.includes('essay') || t.includes('ppkb') || t.includes('talent') || t.includes('iup') || t.includes('sbm'))) return true
+    if (track === 'prestasi' && (t.includes('prestasi') || t.includes('snbp') || t.includes('pbub') || t.includes('sjp') || t.includes('osis') || t.includes('olimpiade') || t.includes('juara'))) return true
+    if (track === 'hybrid' && (t.includes('hybrid') || (t.includes('essay') && t.includes('prestasi')))) return true
+    return false
+  })
   if (!eligible.length) return null
 
   const mentorIds = eligible.map(c => c.user_id)
@@ -104,7 +110,7 @@ export async function autoAssignIndividuMentor(
 }
 
 // Runs for a Squad order right after payment. Squad members only get a mentor once all 3
-// seats are paid — one mentor is matched for the whole group and assigned to every paid
+// seats are paid - one mentor is matched for the whole group and assigned to every paid
 // member's order/mentoring row in one go.
 export async function handleSquadPayment(
   supabase: SupabaseClient,
@@ -124,7 +130,7 @@ export async function handleSquadPayment(
   if (squad.status === 'active') {
     // Squad already has a mentor (a later member joining an already-full/active squad,
     // which shouldn't normally happen since /api/checkout blocks joining a full squad, but
-    // stay defensive) — just attach them to the existing mentor.
+    // stay defensive) - just attach them to the existing mentor.
     if (squad.mentor_id) {
       await assignMentorToOrder(supabase, order, { mentor_id: squad.mentor_id, mentor_name: squad.mentor_name })
     }

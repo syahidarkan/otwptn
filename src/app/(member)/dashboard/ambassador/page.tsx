@@ -891,7 +891,7 @@ export default function AmbassadorDashboardPage() {
       {/* 5. TAUTAN FOOTER (PERSIS PINTARLY) */}
       <div className="rounded-3xl bg-white shadow-md divide-y divide-gray-100 overflow-hidden">
         <a
-          href="https://wa.me/6285156667221?text=Halo+Kak%2C+saya+ingin+bergabung+grup+Student+Ambassador+OTWPTN"
+          href="https://wa.me/6285121659182?text=Halo+Kak%2C+saya+ingin+bergabung+grup+Student+Ambassador+OTWPTN"
           target="_blank"
           rel="noopener noreferrer"
           className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"

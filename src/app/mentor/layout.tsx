@@ -56,7 +56,7 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
         .eq('id', data.user.id)
         .maybeSingle()
 
-      const isMentor = profile?.role === 'mentor' || profile?.is_admin || profile?.role === 'superadmin' || profile?.role === 'admin' || data.user.email === 'admin@otwptn.id'
+      const isMentor = profile?.role === 'mentor' || profile?.is_admin || profile?.role === 'superadmin' || profile?.role === 'admin'
       if (!isMentor && pathname !== '/mentor/auth' && pathname !== '/mentor/apply') {
         router.replace('/dashboard')
         return

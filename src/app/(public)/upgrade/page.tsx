@@ -19,7 +19,7 @@ import {
   Gift,
   ArrowRight,
 } from 'lucide-react'
-import { LEGAL_ENTITY } from '@/lib/constants'
+import { LEGAL_ENTITY, JALUR_LIST } from '@/lib/constants'
 import { createClient } from '@/lib/supabase/client'
 import {
   MODES,
@@ -32,6 +32,8 @@ import {
   TIER_POPULAR,
   FEATURES,
   getPrice,
+  getAddonPrice,
+  getInterSurcharge,
   formatIDR,
   type Mode,
   type Track,
@@ -63,6 +65,8 @@ export default function UpgradePage() {
   const [squadInviteCode, setSquadInviteCode] = useState('')
 
   const [selection, setSelection] = useState<Selection | null>(null)
+  const [mainJalur, setMainJalur] = useState<string>('')
+  const [addonJalurs, setAddonJalurs] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [userInfo, setUserInfo] = useState<{ name: string; email: string } | null>(null)
@@ -106,6 +110,8 @@ export default function UpgradePage() {
           referral_code: selection.mode === 'individu' && referralCode.trim() ? referralCode.trim() : undefined,
           squad_action: selection.mode === 'squad' ? squadAction : undefined,
           squad_invite_code: selection.mode === 'squad' && squadAction === 'join' ? squadInviteCode.trim() : undefined,
+          main_jalur: mainJalur || undefined,
+          addon_jalurs: selection.tier !== 'web_premium' ? addonJalurs : [],
         }),
       })
       const data = await res.json()
@@ -132,6 +138,30 @@ export default function UpgradePage() {
     selection?.mode === 'individu' && referralCode.trim() && selectedPrice?.referralAmount
       ? selectedPrice.referralAmount
       : selectedPrice?.amount
+
+  const availableMainJalurs = selection
+    ? JALUR_LIST.filter(j => {
+        if (selection.track === 'essay') return j.category === 'essay_only' || j.category === 'snbp'
+        if (selection.track === 'prestasi') return j.category === 'prestasi_only'
+        if (selection.track === 'hybrid') return j.category === 'hybrid'
+        return true
+      })
+    : []
+
+  const selectedMainJalurObj = JALUR_LIST.find(j => j.id === mainJalur)
+  const isInterMain = selectedMainJalurObj?.isInter && selection?.tier !== 'web_premium'
+  const interSurcharge = isInterMain ? getInterSurcharge(selection!.tier) : 0
+
+  const addonTotal = selection && selection.tier !== 'web_premium'
+    ? addonJalurs.reduce((sum, id) => {
+        const j = JALUR_LIST.find(x => x.id === id)
+        if (!j) return sum
+        const t: Track = j.category === 'hybrid' ? 'hybrid' : (j.category === 'prestasi_only' ? 'prestasi' : 'essay')
+        return sum + getAddonPrice(t, j.isInter)
+      }, 0)
+    : 0
+
+  const selectedTotalToPay = (selectedFinalAmount ?? (selectedPrice?.amount ?? 0)) + interSurcharge + addonTotal
 
   return (
     <div className="min-h-screen bg-[#fcfcfb] pt-24 md:pt-28 pb-16 px-4 sm:px-6 lg:px-8">
@@ -320,6 +350,14 @@ export default function UpgradePage() {
                   onClick={() => {
                     setSelection({ tier, mode, track })
                     setError('')
+                    const jalursForTrack = JALUR_LIST.filter(j => {
+                      if (track === 'essay') return j.category === 'essay_only' || j.category === 'snbp'
+                      if (track === 'prestasi') return j.category === 'prestasi_only'
+                      if (track === 'hybrid') return j.category === 'hybrid'
+                      return true
+                    })
+                    setMainJalur(jalursForTrack[0]?.id ?? '')
+                    setAddonJalurs([])
                   }}
                   className={`w-full py-3.5 rounded-full text-xs font-extrabold transition-all shadow-md ${
                     isPopular ? 'btn-brand-primary' : 'bg-gray-900 text-white hover:bg-black'
@@ -330,6 +368,63 @@ export default function UpgradePage() {
               </div>
             )
           })}
+        </div>
+
+        {/* Comparison Table */}
+        <div className="mt-16 mb-12">
+          <div className="text-center mb-8">
+            <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">Tabel Perbandingan Fitur &amp; Benefit</h3>
+            <p className="text-xs text-gray-500">Bandingkan seluruh fasilitas dari Akun Gratis hingga pendampingan intensif Royal Jelly.</p>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-xs">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="py-3.5 px-4 font-bold text-gray-700 min-w-[200px]">Fitur &amp; Fasilitas</th>
+                  <th className="py-3.5 px-3 font-bold text-gray-600 text-center">Gratis</th>
+                  <th className="py-3.5 px-3 font-bold text-gray-900 text-center bg-amber-50/50">Akun Premium</th>
+                  <th className="py-3.5 px-3 font-bold text-gray-900 text-center">Nectar</th>
+                  <th className="py-3.5 px-3 font-bold text-gray-900 text-center">Honeycomb</th>
+                  <th className="py-3.5 px-3 font-bold text-amber-950 text-center bg-amber-100/60">Royal Jelly</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-gray-600 font-medium">
+                {[
+                  { feat: 'Chat Konsultan Otbee AI', free: '3x / 2 hari', web: 'Unlimited', nectar: 'Unlimited', honey: 'Unlimited', royal: 'Unlimited' },
+                  { feat: 'Essay AI Review & Scoring', free: '1x / minggu', web: 'Unlimited', nectar: 'Unlimited', honey: 'Unlimited', royal: 'Unlimited' },
+                  { feat: 'Kalkulator Peluang SNBP & Mandiri', free: '1x / minggu', web: 'Unlimited', nectar: 'Unlimited', honey: 'Unlimited', royal: 'Unlimited' },
+                  { feat: 'Atur Strategi Rekomendasi Prodi', free: '✕', web: '✓ Lengkap', nectar: '✓ Lengkap', honey: '✓ Lengkap', royal: '✓ Lengkap' },
+                  { feat: 'Akses 100% Modul Materi & Video', free: 'Preview', web: '✓ 110 Lesson', nectar: '✓ 110 Lesson', honey: '✓ 110 Lesson', royal: '✓ 110 Lesson' },
+                  { feat: 'Akses Komunitas & Buat Study Circle', free: 'Join Saja', web: '✓ Buat Circle', nectar: '✓ Buat Circle', honey: '✓ Buat Circle', royal: '✓ Buat Circle' },
+                  { feat: 'Review Esai/Prestasi Mentor Alumni', free: '✕', web: '✕', nectar: '2x Putaran Revisi', honey: '5x Putaran Revisi', royal: 'Unlimited Revisi' },
+                  { feat: 'Sesi Privat Zoom/Meet 1-on-1 (45m)', free: '✕', web: '✕', nectar: '✕', honey: '2x Sesi Privat', royal: 'Unlimited Prioritas' },
+                  { feat: 'Grup WhatsApp Eksklusif Mentor', free: '✕', web: '✕', nectar: '✕', honey: '✓ Termasuk', royal: '✓ Termasuk' },
+                  { feat: 'Rapor & Kelengkapan Profil (Scan OCR + Linieritas Mentor)', free: '✕', web: '✕', nectar: '✕', honey: '✕', royal: '✓ Eksklusif' },
+                  { feat: 'Simulasi Wawancara & Bimbingan Dokumen', free: '✕', web: '✕', nectar: '✕', honey: '✕', royal: '✓ Termasuk' },
+                  { feat: 'Exclusive Trip Campus Tour ke UI', free: '✕', web: '✕', nectar: '✕', honey: '✕', royal: '✓ Termasuk' },
+                ].map((row, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50/70 transition-colors">
+                    <td className="py-3 px-4 font-semibold text-gray-800">{row.feat}</td>
+                    <td className="py-3 px-3 text-center text-gray-400">{row.free}</td>
+                    <td className="py-3 px-3 text-center font-bold text-amber-900 bg-amber-50/30">{row.web}</td>
+                    <td className="py-3 px-3 text-center text-gray-700">{row.nectar}</td>
+                    <td className="py-3 px-3 text-center text-gray-700">{row.honey}</td>
+                    <td className="py-3 px-3 text-center font-bold text-amber-950 bg-amber-50/60">{row.royal}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4 text-center">
+            <Link
+              href="/syarat-paket"
+              className="text-xs font-bold text-amber-700 hover:text-amber-800 hover:underline inline-flex items-center gap-1.5"
+            >
+              Baca Peraturan &amp; Ketentuan Detail Setiap Paket &rarr;
+            </Link>
+          </div>
         </div>
 
         {/* Legal Footer Info */}
@@ -390,6 +485,86 @@ export default function UpgradePage() {
                 </div>
               )}
 
+              {/* Jalur PTN Utama */}
+              <div className="rounded-2xl bg-gray-50 p-4 space-y-2">
+                <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">
+                  Jalur PTN Utama Kamu
+                </p>
+                <div className="relative">
+                  <select
+                    value={mainJalur}
+                    onChange={e => {
+                      const newJalur = e.target.value
+                      setMainJalur(newJalur)
+                      setAddonJalurs(prev => prev.filter(id => id !== newJalur))
+                    }}
+                    className="w-full text-xs font-bold bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-amber-400"
+                  >
+                    {availableMainJalurs.map(j => (
+                      <option key={j.id} value={j.id}>
+                        {j.name} - {j.ptn} {j.isInter ? '⭐ [Internasional/IUP]' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {isInterMain && (
+                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[11px] font-semibold text-amber-900">
+                    <span>⭐ Program Kelas Internasional / IUP dikenakan penyesuaian kurikulum &amp; standar bahasa inggris (+{formatIDR(interSurcharge)}).</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Addon Jalurs (Hanya untuk paket bermentor) */}
+              {selection.tier !== 'web_premium' && (
+                <div className="rounded-2xl bg-gray-50 p-4 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-gray-400">
+                      Tambah Jalur Pilihan Lain (Add-On)
+                    </p>
+                    <span className="text-[10px] text-gray-400 font-semibold">Opsional</span>
+                  </div>
+                  <p className="text-[11px] text-gray-500 leading-snug">
+                    Ingin mentor alumni juga mereview dan membedah berkasmu di jalur PTN lainnya? Kuota bimbingan berlaku kumulatif untuk semua jalur yang kamu pilih.
+                  </p>
+                  <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+                    {JALUR_LIST.filter(j => j.id !== mainJalur && j.id !== 'snbp').map(j => {
+                      const isSelected = addonJalurs.includes(j.id)
+                      const t: Track = j.category === 'hybrid' ? 'hybrid' : (j.category === 'prestasi_only' ? 'prestasi' : 'essay')
+                      const cost = getAddonPrice(t, j.isInter)
+                      return (
+                        <label
+                          key={j.id}
+                          className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition-colors ${
+                            isSelected
+                              ? 'bg-amber-50 border-amber-300 text-amber-950 font-bold'
+                              : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-100/70'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={e => {
+                                if (e.target.checked) setAddonJalurs(prev => [...prev, j.id])
+                                else setAddonJalurs(prev => prev.filter(x => x !== j.id))
+                              }}
+                              className="rounded border-gray-300 text-amber-600 focus:ring-amber-500 h-4 w-4"
+                            />
+                            <div>
+                              <span>{j.name}</span>
+                              <span className="text-[10px] block text-gray-400 font-medium">{j.ptn}</span>
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-extrabold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-full">
+                            +{formatIDR(cost)}
+                          </span>
+                        </label>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* What you get */}
               <div className="rounded-2xl bg-amber-50 border border-amber-100 p-4">
                 <p className="text-[10px] font-black uppercase tracking-wider text-amber-700 mb-3">Yang Kamu Dapatkan</p>
@@ -443,9 +618,21 @@ export default function UpgradePage() {
                       <span>- {formatIDR(selectedPrice.amount - selectedFinalAmount!)}</span>
                     </div>
                   )}
+                  {interSurcharge > 0 && (
+                    <div className="flex justify-between text-amber-800 font-semibold">
+                      <span>Surcharge Jalur Utama Internasional/IUP</span>
+                      <span>+ {formatIDR(interSurcharge)}</span>
+                    </div>
+                  )}
+                  {addonTotal > 0 && (
+                    <div className="flex justify-between text-amber-800 font-semibold">
+                      <span>Add-on ({addonJalurs.length} Jalur Tambahan)</span>
+                      <span>+ {formatIDR(addonTotal)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-extrabold text-gray-900 pt-2 border-t border-gray-200 text-sm">
                     <span>Total yang dibayar</span>
-                    <span className="text-amber-700">{formatIDR(selectedFinalAmount!)}</span>
+                    <span className="text-amber-700">{formatIDR(selectedTotalToPay)}</span>
                   </div>
                 </div>
               </div>

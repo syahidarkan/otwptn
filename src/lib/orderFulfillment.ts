@@ -31,9 +31,22 @@ export async function claimOrderPaid(db: SupabaseClient, orderId: string): Promi
 // Everything that must happen once a payment is confirmed (shared by all payment webhooks).
 export async function fulfillPaidOrder(db: SupabaseClient, order: PaidOrder): Promise<void> {
   // Never downgrade: buying Web Premium after Reguler must not wipe the higher tier.
-  const { data: current } = await db.from('profiles').select('tier').eq('id', order.user_id).maybeSingle()
+  const { data: current } = await db.from('profiles').select('tier, tier_expires_at').eq('id', order.user_id).maybeSingle()
   if ((TIER_RANK[order.tier] ?? 0) >= (TIER_RANK[current?.tier ?? 'free'] ?? 0)) {
-    await db.from('profiles').update({ tier: order.tier }).eq('id', order.user_id)
+    const daysByTier: Record<string, number> = {
+      web_premium: 150, // 5 bulan
+      review: 45,       // 1.5 bulan
+      dokumen: 75,      // 2.5 bulan
+      menyeluruh: 90,   // 3 bulan
+      intensif: 90,     // 3 bulan
+    }
+    const days = daysByTier[order.tier] ?? 90
+    const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
+
+    await db.from('profiles').update({
+      tier: order.tier,
+      tier_expires_at: expiresAt,
+    }).eq('id', order.user_id)
   }
 
   await creditAmbassadorCommission(db, order)

@@ -75,7 +75,6 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: 'nav-kalkulator', label: 'Kalkulator Peluang', href: '/dashboard/kalkulator', icon: Calculator },
       { id: 'nav-strategi', label: 'Atur Strategi', href: '/dashboard/strategi', icon: Target },
-      { id: 'nav-rapor-profil', label: 'Rapor & Profil (Royal Jelly)', href: '/dashboard/rapor-profil', icon: FileCheck2 },
       { id: 'nav-mentor', label: 'Mentor Alumni', href: '/dashboard/mentor', icon: GraduationCap },
       { id: 'nav-tracking', label: 'Tracking Jalur & Dokumen', href: '/dashboard/tracking-jalur', icon: Compass },
     ],

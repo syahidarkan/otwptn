@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-const WA_URL = process.env.WA_SERVICE_URL
+const WA_URL = process.env.WA_SERVICE_URL || 'https://otwptn.onrender.com'
 const WA_TOKEN = process.env.WA_SERVICE_TOKEN
 
 function waHeaders(): Record<string, string> {
@@ -27,7 +27,7 @@ export async function GET() {
     const data = await res.json()
     return NextResponse.json(data)
   } catch {
-    return NextResponse.json({ messages: [], error: 'Railway WA service tidak bisa dihubungi' })
+    return NextResponse.json({ messages: [], error: 'WA service tidak bisa dihubungi' })
   }
 }
 
@@ -48,6 +48,6 @@ export async function POST(request: Request) {
     const data = await res.json()
     return NextResponse.json(data)
   } catch {
-    return NextResponse.json({ error: 'Railway WA service tidak bisa dihubungi' }, { status: 503 })
+    return NextResponse.json({ error: 'WA service tidak bisa dihubungi' }, { status: 503 })
   }
 }

@@ -101,8 +101,8 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, { videoRef?: React.RefObj
           userSelect: 'none',
           visibility: 'hidden',
           opacity: 0,
-          transition: 'opacity 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-          background: 'rgba(0, 0, 0, 0.2)',
+          transition: 'opacity 220ms cubic-bezier(0.4, 0, 0.2, 1)',
+          background: 'transparent',
         }}
       >
         <video
@@ -115,6 +115,7 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, { videoRef?: React.RefObj
             width: '100%',
             height: '100%',
             objectFit: 'cover',
+            mixBlendMode: 'multiply',
           }}
         />
       </div>

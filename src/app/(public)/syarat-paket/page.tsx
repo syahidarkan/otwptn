@@ -58,15 +58,20 @@ export default function SyaratPaketPage() {
 
             <div className="p-5 rounded-2xl bg-white border border-gray-200/80 space-y-2">
               <span className="text-xs font-black text-sky-900 bg-sky-50 px-2.5 py-0.5 rounded-full inline-block">
-                Mode Squad (Circle)
+                Mode Squad (Circle) - Lebih Hemat Ber-3
               </span>
-              <h3 className="text-sm font-bold text-gray-900">Kelompok Belajar (Harga Spesial)</h3>
+              <h3 className="text-sm font-bold text-gray-900">Kelompok Belajar 3 Orang (Harga Spesial)</h3>
               <p className="text-xs text-gray-600 leading-relaxed">
-                Ditujukan untuk kamu yang mendaftar bersama teman satu sekolah atau tim belajar. Setiap anggota mendapatkan akun masing-masing dengan benefit paket yang dipilih. Biaya per orang menjadi jauh lebih hemat karena sistem bundling kelompok.
+                Ajak 2 teman seperjuangan untuk dibimbing oleh 1 mentor alumni yang sama. Biaya per orang menjadi jauh lebih hemat (misal: Royal Jelly Individu Rp 399.000 vs Squad Rp 249.000/orang, hemat hingga Rp 150.000 per siswa!). Setiap anggota tetap memiliki akun pribadi dengan akses penuh ke materi dan fitur platform.
               </p>
-              <p className="text-[11px] text-gray-400 font-medium pt-1">
-                Ketua squad menerima link undangan khusus setelah pembayaran selesai untuk dibagikan ke anggota tim.
-              </p>
+              <div className="p-3 rounded-xl bg-sky-50/70 border border-sky-100 text-[11px] text-sky-900 space-y-1">
+                <p className="font-bold">Alur Pendaftaran Squad:</p>
+                <ol className="list-decimal pl-4 space-y-0.5 text-sky-800">
+                  <li>Ketua Squad memilih opsi &ldquo;Bikin Squad Baru&rdquo; di halaman checkout.</li>
+                  <li>Setelah pembayaran berhasil, sistem menerbitkan 6 karakter Kode Undangan Unik.</li>
+                  <li>Kedua teman lainnya memilih opsi &ldquo;Gabung Squad Teman&rdquo; dan memasukkan kode undangan tersebut.</li>
+                </ol>
+              </div>
             </div>
           </div>
         </div>
@@ -87,19 +92,19 @@ export default function SyaratPaketPage() {
             <div className="p-4 rounded-2xl bg-white border border-gray-200/80 space-y-2">
               <h3 className="text-xs font-black text-gray-900">A. Essay Only</h3>
               <p className="text-xs text-gray-600 leading-relaxed">
-                Fokus penuh pada penyusunan motivation letter, personal statement, dan esai reflektif (contoh: PPKB UI, Talent Scouting UI, SBM ITB, IUP UGM/Airlangga). Mentor membimbing perumusan hook, struktur STAR, dan konsistensi visi prodi.
+                Fokus penuh pada penyusunan motivation letter, personal statement, dan esai reflektif (contoh: PPKB UI, Talent Scouting UI, SBM ITB, IUP UNAIR, IUP UNDIP). Mentor membimbing perumusan hook pembuka, penulisan struktur STAR, dan konsistensi visi program studi impian.
               </p>
             </div>
             <div className="p-4 rounded-2xl bg-white border border-gray-200/80 space-y-2">
               <h3 className="text-xs font-black text-gray-900">B. Prestasi Only</h3>
               <p className="text-xs text-gray-600 leading-relaxed">
-                Fokus pada kurasi sertifikat Puspresnas, OSN, O2SN, FLS2N, rekam jejak kepemimpinan (Ketua OSIS), kepramukaan, dan sertifikasi kejuaraan untuk seleksi PBUB UGM, SJP IPB, Golden Ticket UNAIR, dan SNBP.
+                Fokus pada kurasi sertifikat Puspresnas, OSN, O2SN, FLS2N, rekam jejak kepemimpinan (Ketua OSIS), kepramukaan, dan sertifikasi kejuaraan untuk seleksi PBUB UGM, SJP IPB, SBUB UNDIP, SM Prestasi UNNES, dan SNBP.
               </p>
             </div>
             <div className="p-4 rounded-2xl bg-white border border-gray-200/80 space-y-2">
               <h3 className="text-xs font-black text-gray-900">C. Hybrid (Essay + Prestasi)</h3>
               <p className="text-xs text-gray-600 leading-relaxed">
-                Pendampingan komprehensif mengawinkan kekuatan portofolio prestasi dan ketajaman narasi esai motivasi. Solusi terbaik bagi siswa yang membidik beberapa jalur non-tes sekaligus dalam 1 musim seleksi.
+                Pendampingan komprehensif mengawinkan kekuatan portofolio prestasi dan ketajaman narasi esai motivasi (contoh: SSU Talenta Sains ITB, IUP UGM, IUP IPB, IUP ITB). Solusi terbaik bagi siswa yang membidik beberapa jalur non-tes sekaligus dalam 1 musim seleksi.
               </p>
             </div>
           </div>
@@ -243,7 +248,7 @@ export default function SyaratPaketPage() {
                 <h3 className="text-xl font-black text-gray-950 mt-1">Paket Royal Jelly</h3>
               </div>
               <span className="text-xs font-bold text-amber-950 bg-amber-200 px-3 py-1 rounded-full border border-amber-400">
-                Masa Berlaku: Pendampingan Penuh Hingga Hari Pengumuman Resmi PTN
+                Masa Berlaku: Maksimal Berlaku 3 Bulan (90 Hari)
               </span>
             </div>
 
@@ -296,3 +301,4 @@ export default function SyaratPaketPage() {
     </div>
   )
 }
+

@@ -207,12 +207,30 @@ export default function MentorApplyPage() {
                 <label className="block mb-1.5">Jalur Kelulusan Saat Diterima</label>
                 <input
                   type="text"
+                  list="jalur-options"
                   value={form.track}
                   onChange={e => setForm({ ...form, track: e.target.value })}
-                  placeholder="Misal: PPKB UI, SNBP, SM ITB, PBUB UGM"
+                  placeholder="Misal: PPKB UI, Talent Scouting UI, IUP UGM, SNBP"
                   required
                   className="w-full p-3 rounded-2xl bg-gray-50 text-gray-900 outline-none focus:ring-2 focus:ring-amber-400/40"
                 />
+                <datalist id="jalur-options">
+                  <option value="SNBP" />
+                  <option value="PPKB UI" />
+                  <option value="Talent Scouting UI (KKI)" />
+                  <option value="IUP UGM" />
+                  <option value="IUP UNAIR" />
+                  <option value="IUP ITB" />
+                  <option value="IUP ITS" />
+                  <option value="IUP IPB" />
+                  <option value="IUP UB" />
+                  <option value="IUP UNDIP" />
+                  <option value="PBUB UGM" />
+                  <option value="SJP IPB" />
+                  <option value="SSU Tes Tulis / Rapor ITB" />
+                  <option value="SMUP UNPAD" />
+                  <option value="SBUB UNDIP" />
+                </datalist>
               </div>
 
               <div>

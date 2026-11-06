@@ -78,7 +78,7 @@ const FEATURES: FeatureConfig[] = [
   },
   {
     label: 'Mentor Alumni',
-    href: '/checkout/intensif',
+    href: '/dashboard/mentor',
     img: '/mascot-hd/trio-mentor.png',
     bg: 'linear-gradient(135deg, #fdf2f8 0%, #fce7f3 60%, #fbcfe8 100%)',
     border: 'rgba(244, 114, 182, 0.4)',
@@ -98,7 +98,7 @@ const FEATURES: FeatureConfig[] = [
   },
   {
     label: 'Penyimpanan Dokumen',
-    href: '/dashboard/dokumen',
+    href: '/dashboard/tracking-jalur',
     img: '/mascot-hd/file-box-storage.png',
     bg: 'linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 60%, #99f6e4 100%)',
     border: 'rgba(45, 212, 191, 0.4)',
@@ -118,7 +118,7 @@ const FEATURES: FeatureConfig[] = [
   },
   {
     label: 'Komunitas',
-    href: '/komunitas',
+    href: '/dashboard/komunitas',
     img: '/mascot-hd/megaphone-community.png',
     bg: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 60%, #fde68a 100%)',
     border: 'rgba(245, 158, 11, 0.4)',

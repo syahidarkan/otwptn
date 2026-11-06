@@ -1,6 +1,12 @@
 import type { JalurStatic, PricingMap, JalurCategory } from '@/types'
 import { PRICE_MATRIX, type Track } from '@/lib/pricing'
 
+export const OFFICIAL_WA = {
+  number: '6285121659182',
+  display: '+62 851-2165-9182',
+  url: 'https://wa.me/6285121659182',
+}
+
 export const JALUR_LIST: JalurStatic[] = [
   // SNBP - jalur nasional berbasis rapor & peringkat sekolah, bukan per-PTN
   { id: 'snbp', name: 'SNBP', ptn: 'Seluruh PTN Negeri', category: 'snbp' },
@@ -28,6 +34,23 @@ export const JALUR_LIST: JalurStatic[] = [
   // HYBRID
   { id: 'ssu-talenta-sains-itb', name: 'SSU Jalur Talenta Sains ITB', ptn: 'Institut Teknologi Bandung', category: 'hybrid' },
   { id: 'ssu-talenta-itb', name: 'SSU Jalur Talenta (Olahraga/Seni/Keagamaan) ITB', ptn: 'Institut Teknologi Bandung', category: 'hybrid' },
+
+  // INTERNATIONAL & IUP (InterOtwPTN)
+  { id: 'talent-scouting-ui', name: 'Talent Scouting UI', ptn: 'Universitas Indonesia', category: 'essay_only', isInter: true },
+  { id: 'iup-unair', name: 'IUP UNAIR', ptn: 'Universitas Airlangga', category: 'essay_only', isInter: true },
+  { id: 'smup-iup-unpad', name: 'SMUP IUP UNPAD', ptn: 'Universitas Padjadjaran', category: 'essay_only', isInter: true },
+  { id: 'iup-its', name: 'IUP ITS', ptn: 'Institut Teknologi Sepuluh Nopember', category: 'essay_only', isInter: true },
+  { id: 'iup-ub', name: 'IUP UB', ptn: 'Universitas Brawijaya', category: 'essay_only', isInter: true },
+  { id: 'sm-ki-upi', name: 'SM KI UPI', ptn: 'Universitas Pendidikan Indonesia', category: 'essay_only', isInter: true },
+  { id: 'iup-ugm', name: 'IUP UGM', ptn: 'Universitas Gadjah Mada', category: 'hybrid', isInter: true },
+  { id: 'iup-ipb', name: 'IUP IPB', ptn: 'IPB University', category: 'hybrid', isInter: true },
+  { id: 'ki-uns', name: 'KI UNS', ptn: 'Universitas Sebelas Maret', category: 'essay_only', isInter: true },
+  { id: 'sm-iup-unnes', name: 'SM IUP UNNES', ptn: 'Universitas Negeri Semarang', category: 'essay_only', isInter: true },
+  { id: 'iup-undip', name: 'IUP UNDIP', ptn: 'Universitas Diponegoro', category: 'essay_only', isInter: true },
+  { id: 'iup-unesa', name: 'IUP UNESA', ptn: 'Universitas Negeri Surabaya', category: 'essay_only', isInter: true },
+  { id: 'iup-itb', name: 'IUP ITB', ptn: 'Institut Teknologi Bandung', category: 'hybrid', isInter: true },
+  { id: 'icp-unj', name: 'ICP UNJ', ptn: 'Universitas Negeri Jakarta', category: 'essay_only', isInter: true },
+  { id: 'ki-unhas', name: 'KI UNHAS', ptn: 'Universitas Hasanuddin', category: 'essay_only', isInter: true },
 ]
 
 export const BANK_INFO = {

@@ -444,7 +444,7 @@ function EcourseContent() {
                         </span>
                       </div>
                       <Link
-                        href="/checkout/intensif"
+                        href="/upgrade"
                         className="px-4 py-2 rounded-full text-xs font-extrabold btn-brand-primary inline-flex items-center gap-1.5"
                       >
                         <Crown size={13} className="text-gray-900" /> Lihat Premium

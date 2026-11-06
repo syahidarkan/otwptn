@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-const WA_URL = process.env.WA_SERVICE_URL
+const WA_URL = process.env.WA_SERVICE_URL || 'https://otwptn.onrender.com'
 const WA_TOKEN = process.env.WA_SERVICE_TOKEN
 
 export async function GET() {
@@ -13,7 +13,7 @@ export async function GET() {
   if (!profile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   if (!WA_URL) {
-    // No Railway configured — send one state event then close
+    // No WA URL configured - send one state event then close
     const encoder = new TextEncoder()
     const stream = new ReadableStream({
       start(controller) {
@@ -26,7 +26,7 @@ export async function GET() {
     })
   }
 
-  // Proxy SSE from Railway WA service
+  // Proxy SSE from WA service
   const headers: Record<string, string> = { Accept: 'text/event-stream' }
   if (WA_TOKEN) headers['x-service-token'] = WA_TOKEN
 

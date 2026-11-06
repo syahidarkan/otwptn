@@ -71,12 +71,19 @@ export default function WhatsAppAdminPage() {
   const [error, setError] = useState<string | null>(null)
   const msgEndRef = useRef<HTMLDivElement>(null)
   const eventSourceRef = useRef<EventSource | null>(null)
+  const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const isMountedRef = useRef(true)
 
   useEffect(() => {
+    isMountedRef.current = true
     fetchStatus()
     fetchMessages()
     connectSSE()
-    return () => eventSourceRef.current?.close()
+    return () => {
+      isMountedRef.current = false
+      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current)
+      eventSourceRef.current?.close()
+    }
   }, [])
 
   useEffect(() => {
@@ -107,6 +114,10 @@ export default function WhatsAppAdminPage() {
   }
 
   function connectSSE() {
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current)
+      reconnectTimerRef.current = null
+    }
     eventSourceRef.current?.close()
     const es = new EventSource('/api/wa-admin/events')
     eventSourceRef.current = es
@@ -117,7 +128,15 @@ export default function WhatsAppAdminPage() {
         setMessages(prev => [msg, ...prev.slice(0, 199)])
       } catch {}
     })
-    es.onerror = () => es.close()
+    es.onerror = () => {
+      es.close()
+      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current)
+      reconnectTimerRef.current = setTimeout(() => {
+        if (isMountedRef.current) {
+          connectSSE()
+        }
+      }, 4000)
+    }
   }
 
   async function doAction(action: string) {

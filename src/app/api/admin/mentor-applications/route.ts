@@ -152,7 +152,7 @@ export async function POST(request: Request) {
       zoom_sessions_used: 0,
       revision_count_total: cfg.revisions,
       revision_count_used: 0,
-    }, { onConflict: 'user_id' })
+    }, { onConflict: 'order_id' })
 
     // Create payout record for mentor
     const payoutAmount = order.tier === 'menyeluruh' ? 120000 : 60000

@@ -121,61 +121,14 @@ export default function PricingSection() {
           ))}
         </div>
 
-        {/* Comparison Table */}
-        <div className="mt-16">
-          <div className="text-center mb-8">
-            <h3 className="text-xl md:text-2xl font-bold text-fg mb-2">Tabel Perbandingan Fitur &amp; Benefit</h3>
-            <p className="text-xs text-gray-500">Bandingkan seluruh fasilitas dari Akun Gratis hingga pendampingan intensif Royal Jelly.</p>
-          </div>
-
-          <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-xs">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="py-3.5 px-4 font-bold text-gray-700 min-w-[200px]">Fitur &amp; Fasilitas</th>
-                  <th className="py-3.5 px-3 font-bold text-gray-600 text-center">Gratis</th>
-                  <th className="py-3.5 px-3 font-bold text-gray-900 text-center bg-amber-50/50">Akun Premium</th>
-                  <th className="py-3.5 px-3 font-bold text-gray-900 text-center">Nectar</th>
-                  <th className="py-3.5 px-3 font-bold text-gray-900 text-center">Honeycomb</th>
-                  <th className="py-3.5 px-3 font-bold text-amber-950 text-center bg-amber-100/60">Royal Jelly</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 text-gray-600 font-medium">
-                {[
-                  { feat: 'Chat Konsultan Otbee AI', free: '3x / 2 hari', web: 'Unlimited', nectar: 'Unlimited', honey: 'Unlimited', royal: 'Unlimited' },
-                  { feat: 'Essay AI Review & Scoring', free: '1x / minggu', web: 'Unlimited', nectar: 'Unlimited', honey: 'Unlimited', royal: 'Unlimited' },
-                  { feat: 'Kalkulator Peluang SNBP & Mandiri', free: '1x / minggu', web: 'Unlimited', nectar: 'Unlimited', honey: 'Unlimited', royal: 'Unlimited' },
-                  { feat: 'Atur Strategi Rekomendasi Prodi', free: '✕', web: '✓ Lengkap', nectar: '✓ Lengkap', honey: '✓ Lengkap', royal: '✓ Lengkap' },
-                  { feat: 'Akses 100% Modul Materi & Video', free: 'Preview', web: '✓ 110 Lesson', nectar: '✓ 110 Lesson', honey: '✓ 110 Lesson', royal: '✓ 110 Lesson' },
-                  { feat: 'Akses Komunitas & Buat Study Circle', free: 'Join Saja', web: '✓ Buat Circle', nectar: '✓ Buat Circle', honey: '✓ Buat Circle', royal: '✓ Buat Circle' },
-                  { feat: 'Review Esai/Prestasi Mentor Alumni', free: '✕', web: '✕', nectar: '2x Putaran Revisi', honey: '5x Putaran Revisi', royal: 'Unlimited Revisi' },
-                  { feat: 'Sesi Privat Zoom/Meet 1-on-1 (45m)', free: '✕', web: '✕', nectar: '✕', honey: '2x Sesi Privat', royal: 'Unlimited Prioritas' },
-                  { feat: 'Grup WhatsApp Eksklusif Mentor', free: '✕', web: '✕', nectar: '✕', honey: '✓ Termasuk', royal: '✓ Termasuk' },
-                  { feat: 'Rapor & Kelengkapan Profil (Scan OCR + Linieritas Mentor)', free: '✕', web: '✕', nectar: '✕', honey: '✕', royal: '✓ Eksklusif' },
-                  { feat: 'Simulasi Wawancara & Bimbingan Dokumen', free: '✕', web: '✕', nectar: '✕', honey: '✕', royal: '✓ Termasuk' },
-                  { feat: 'Exclusive Trip Campus Tour ke UI', free: '✕', web: '✕', nectar: '✕', honey: '✕', royal: '✓ Termasuk' },
-                ].map((row, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50/70 transition-colors">
-                    <td className="py-3 px-4 font-semibold text-gray-800">{row.feat}</td>
-                    <td className="py-3 px-3 text-center text-gray-400">{row.free}</td>
-                    <td className="py-3 px-3 text-center font-bold text-amber-900 bg-amber-50/30">{row.web}</td>
-                    <td className="py-3 px-3 text-center text-gray-700">{row.nectar}</td>
-                    <td className="py-3 px-3 text-center text-gray-700">{row.honey}</td>
-                    <td className="py-3 px-3 text-center font-bold text-amber-950 bg-amber-50/60">{row.royal}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="mt-4 text-center">
-            <Link
-              href="/syarat-paket"
-              className="text-xs font-bold text-amber-700 hover:text-amber-800 hover:underline inline-flex items-center gap-1.5"
-            >
-              Baca Peraturan &amp; Ketentuan Detail Setiap Paket &rarr;
-            </Link>
-          </div>
+        {/* Link to Upgrade / Pricing Detail & Comparison */}
+        <div className="mt-12 text-center">
+          <Link
+            href="/upgrade"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-xs font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 transition-all shadow-xs"
+          >
+            Lihat Tabel Perbandingan Benefit &amp; Opsi Lengkap di Halaman Upgrade &rarr;
+          </Link>
         </div>
       </div>
     </section>

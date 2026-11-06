@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import RaporProfilView from '@/components/dashboard/RaporProfilView'
 import {
   Sparkles,
   ShieldCheck,
@@ -1136,126 +1137,10 @@ export default function MentorAlumniPage() {
             </div>
           )}
 
-          {/* TAB 2: RAPOR & KELENGKAPAN PROFIL (SCAN OCR) */}
+          {/* TAB 2: RAPOR & KELENGKAPAN PROFIL (SCAN OCR + AUDIT MENTOR) */}
           {activeTab === 'profile-rapor' && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left Column: Form & Scan Trigger */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* Academic Context Card */}
-                <div className="p-8 rounded-3xl bg-white shadow-md space-y-6">
-                  <div className="flex items-center justify-between pb-4 border-b border-gray-100">
-                    <div className="flex items-center gap-2">
-                      <School size={18} className="text-amber-500" />
-                      <h3 className="text-sm font-black text-gray-900">
-                        Profil Sekolah & Posisi Eligible Kamu
-                      </h3>
-                    </div>
-                    <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
-                      <Check size={13} /> Data Tersinkronisasi
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-bold text-gray-700 mb-1.5 block">
-                        Asal Sekolah (SMA / SMK / MA)
-                      </label>
-                      <input
-                        value={schoolName}
-                        onChange={e => setSchoolName(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-bold text-gray-700 mb-1.5 block">
-                        Jurusan Saat Ini
-                      </label>
-                      <select
-                        value={jurusan}
-                        onChange={e => setJurusan(e.target.value as 'IPA' | 'IPS')}
-                        className="w-full px-4 py-2.5 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none"
-                      >
-                        <option value="IPA">MIPA / Sains & Teknologi</option>
-                        <option value="IPS">IPS / Sosial Humaniora</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-bold text-gray-700 mb-1.5 block">
-                        Peringkat Eligible Sekolah
-                      </label>
-                      <input
-                        value={eligibleRank}
-                        onChange={e => setEligibleRank(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-bold text-gray-700 mb-1.5 block">
-                        Jejak Alumni di PTN Target (3 Thn Terakhir)
-                      </label>
-                      <input
-                        value={alumniCount}
-                        onChange={e => setAlumniCount(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Nilai rapor & Kelengkapan Profil */}
-                <div className="p-8 rounded-3xl bg-white shadow-md space-y-4">
-                  <div>
-                    <h3 className="text-sm font-black text-gray-900 flex items-center gap-2">
-                      <Scan size={18} className="text-amber-500" aria-hidden /> Nilai Rapor Semester 1-5 &amp; Scan OCR
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {tier === 'menyeluruh' || tier === 'intensif' || isAdmin
-                        ? 'Kelola nilai rapor 5 semester, scan berkas OCR otomatis, dan pantau hasil audit linieritas resmi dari mentor alumni.'
-                        : 'Audit rapor mendalam dan analisis linieritas mata pelajaran oleh mentor alumni tersedia eksklusif untuk paket Royal Jelly.'}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Link
-                      href="/dashboard/rapor-profil"
-                      className="btn-brand-primary px-4 py-2 rounded-full text-xs font-black shadow-xs inline-flex items-center gap-1.5"
-                    >
-                      Buka Rapor &amp; Profil (Royal Jelly) <ArrowRight size={14} aria-hidden />
-                    </Link>
-                    <Link
-                      href="/dashboard/kalkulator"
-                      className="btn btn-outline px-4 py-2 rounded-full text-xs font-bold inline-flex items-center gap-1.5"
-                    >
-                      Buka Kalkulator Peluang
-                    </Link>
-                  </div>
-                </div>
-              </div>
-
-              {/* Upload Sertifikat Checklist */}
-              <div className="space-y-4">
-                <div className="p-6 rounded-3xl bg-white shadow-md space-y-4">
-                  <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
-                    <Trophy size={16} className="text-amber-500" />
-                    <h3 className="text-xs font-black uppercase tracking-wider text-gray-900">
-                      Sertifikat Prestasi Wajib
-                    </h3>
-                  </div>
-
-                  <p className="text-xs text-gray-500 leading-relaxed">
-                    Mentor mewajibkan upload 3 sertifikat tertinggi untuk dikurasi bobot nilainya.
-                  </p>
-
-                  <Link
-                    href="/dashboard/tracking-jalur"
-                    className="w-full py-3 rounded-full text-xs font-black bg-gray-100 hover:bg-gray-200 text-gray-800 flex items-center justify-center gap-2 transition-colors"
-                  >
-                    <Upload size={14} aria-hidden /> Kelola Berkas di Tracking Jalur &amp; Dokumen
-                  </Link>
-                </div>
-              </div>
+            <div className="w-full">
+              <RaporProfilView />
             </div>
           )}
 

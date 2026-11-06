@@ -50,7 +50,7 @@ export default function GlobalError({
           </Link>
 
           <a
-            href="https://wa.me/6285156667221?text=Halo%20Admin%20OtwPTN%2C%20saya%20mengalami%20kendala%20saat%20membuka%20web"
+            href="https://wa.me/6285121659182?text=Halo%20Admin%20OtwPTN%2C%20saya%20mengalami%20kendala%20saat%20membuka%20web"
             target="_blank"
             rel="noreferrer"
             className="w-full py-3 rounded-2xl text-xs font-bold text-gray-600 hover:text-gray-900 transition-colors flex items-center justify-center gap-1.5"

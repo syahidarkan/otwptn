@@ -1,7 +1,8 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/security'
 import { NextResponse } from 'next/server'
-import { MODES, TRACKS, TIERS, TIER_LABELS, getPrice, type Mode, type Track, type Tier } from '@/lib/pricing'
+import { MODES, TRACKS, TIERS, TIER_LABELS, getPrice, getAddonPrice, getInterSurcharge, type Mode, type Track, type Tier } from '@/lib/pricing'
+import { JALUR_LIST } from '@/lib/constants'
 
 function isMode(v: unknown): v is Mode {
   return typeof v === 'string' && (MODES as readonly string[]).includes(v)
@@ -42,6 +43,8 @@ export async function POST(request: Request) {
     referral_code,
     squad_action,
     squad_invite_code,
+    main_jalur,
+    addon_jalurs = [],
   } = await request.json()
 
   if (!isTier(tier)) return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
@@ -54,7 +57,7 @@ export async function POST(request: Request) {
   const priceEntry = getPrice(mode, track, tier)
   const tierName = `${TIER_LABELS[tier]}${mode === 'squad' ? ' (Squad)' : ''}`
 
-  // Referral discount only applies to Individu — Squad pricing is already fixed/discounted.
+  // Referral discount only applies to Individu - Squad pricing is already fixed/discounted.
   let appliedReferralCode: string | null = null
   let baseAmount = priceEntry.amount
   if (mode === 'individu' && typeof referral_code === 'string' && referral_code.trim()) {
@@ -72,6 +75,34 @@ export async function POST(request: Request) {
       baseAmount = priceEntry.referralAmount
     }
   }
+
+  // Check main jalur for International surcharge
+  let mainJalurObj = null
+  let interSurcharge = 0
+  if (typeof main_jalur === 'string' && main_jalur.trim()) {
+    mainJalurObj = JALUR_LIST.find(j => j.id === main_jalur.trim())
+    if (mainJalurObj?.isInter) {
+      interSurcharge = getInterSurcharge(tier)
+    }
+  }
+
+  // Check addon jalurs
+  let addonTotal = 0
+  const validAddons: string[] = []
+  if (Array.isArray(addon_jalurs)) {
+    for (const addonId of addon_jalurs) {
+      if (typeof addonId === 'string') {
+        const found = JALUR_LIST.find(j => j.id === addonId)
+        if (found && found.id !== main_jalur) {
+          validAddons.push(found.id)
+          const addonTrack: Track = found.category === 'hybrid' ? 'hybrid' : (found.category === 'prestasi_only' ? 'prestasi' : 'essay')
+          addonTotal += getAddonPrice(addonTrack, found.isInter)
+        }
+      }
+    }
+  }
+
+  baseAmount += interSurcharge + addonTotal
 
   // Squad: create a new group, or join an existing one by invite code.
   let squadGroupId: string | null = null
@@ -183,6 +214,12 @@ export async function POST(request: Request) {
     status: 'pending',
     invoice_number: invoiceNumber,
     payment_method,
+    notes: JSON.stringify({
+      main_jalur: mainJalurObj?.id ?? main_jalur ?? null,
+      addon_jalurs: validAddons,
+      inter_surcharge: interSurcharge,
+      addon_total: addonTotal,
+    }),
   }).select('id').single()
 
   if (orderError || !order) {
@@ -229,7 +266,7 @@ export async function POST(request: Request) {
     }
 
     // data.link is the full payment page URL returned by Mayar create API
-    // e.g. https://otwptn.myr.id/pl/{slug}  — use it directly, /pay/{uuid} is not a valid format
+    // e.g. https://otwptn.myr.id/pl/{slug} - use it directly, /pay/{uuid} is not a valid format
     const paymentUrl = mayarData.data.link as string
 
     await db.from('orders').update({

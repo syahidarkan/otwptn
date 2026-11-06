@@ -284,6 +284,59 @@ export default function KomunitasPage() {
   const [cuitanFilter, setCuitanFilter] = useState<'Semua' | 'SNBP' | 'Esai' | 'Mentor'>('Semua')
   const [cuitanLoading, setCuitanLoading] = useState(false)
 
+  // Reply Thread Modal States
+  const [activeReplyPost, setActiveReplyPost] = useState<CuitanPost | null>(null)
+  const [repliesList, setRepliesList] = useState<{
+    id: string
+    content: string
+    created_at: string
+    profiles: { full_name?: string; avatar_url?: string; school_name?: string; target_ptns?: string[] } | null
+  }[]>([])
+  const [repliesLoading, setRepliesLoading] = useState(false)
+  const [replyInputText, setReplyInputText] = useState('')
+  const [replySubmitting, setReplySubmitting] = useState(false)
+
+  async function handleOpenReplies(post: CuitanPost) {
+    setActiveReplyPost(post)
+    setRepliesLoading(true)
+    try {
+      const res = await fetch(`/api/community?postId=${post.id}`)
+      const data = await res.json()
+      setRepliesList(data.replies ?? [])
+    } catch {
+      setRepliesList([])
+    } finally {
+      setRepliesLoading(false)
+    }
+  }
+
+  async function handleSendReply() {
+    if (!activeReplyPost || !replyInputText.trim() || replySubmitting) return
+    setReplySubmitting(true)
+    try {
+      const res = await fetch('/api/community', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: activeReplyPost.id, content: replyInputText.trim() }),
+      })
+      const data = await res.json()
+      if (res.ok && data.reply) {
+        setRepliesList(prev => [...prev, data.reply])
+        setReplyInputText('')
+        setCuitanList(prev =>
+          prev.map(p => (p.id === activeReplyPost.id ? { ...p, replies: p.replies + 1 } : p))
+        )
+        showToast('Balasan berhasil dikirim!')
+      } else {
+        showToast(data.error || 'Gagal mengirim balasan')
+      }
+    } catch {
+      showToast('Koneksi gagal saat mengirim balasan')
+    } finally {
+      setReplySubmitting(false)
+    }
+  }
+
   // Gating & Creation Modals
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [upgradeAlertOpen, setUpgradeAlertOpen] = useState(false)
@@ -318,13 +371,14 @@ export default function KomunitasPage() {
             id: string
             content: string
             likes: number
+            replies?: number
             created_at: string
             profiles: { full_name?: string; avatar_url?: string; target_ptns?: string[]; target_majors?: string[] } | null
           }) => {
             const prof = p.profiles
             const ptn = prof?.target_ptns?.[0] ?? '-'
             const name = prof?.full_name ?? 'Pejuang PTN'
-            const handle = '@' + name.toLowerCase().replace(/\s+/g, '').slice(0, 10)
+            const handle = '@' + name.toLowerCase().replace(/\s+/g, '')
             const elapsed = Math.floor((Date.now() - new Date(p.created_at).getTime()) / 60000)
             const timeStr = elapsed < 1 ? 'Baru saja' : elapsed < 60 ? `${elapsed}m yang lalu` : elapsed < 1440 ? `${Math.floor(elapsed / 60)}j yang lalu` : `${Math.floor(elapsed / 1440)}h yang lalu`
             return {
@@ -336,7 +390,7 @@ export default function KomunitasPage() {
               time: timeStr,
               content: p.content,
               likes: p.likes,
-              replies: 0,
+              replies: p.replies ?? 0,
               liked: false,
             }
           })
@@ -369,7 +423,7 @@ export default function KomunitasPage() {
         const name = prof?.full_name ?? myProfile?.name ?? 'Kamu'
         const avatar = prof?.avatar_url ?? myProfile?.avatar ?? ''
         const targetPTN = (prof?.target_ptns as string[] | undefined)?.[0] ?? myProfile?.targetPTN ?? '-'
-        const handle = '@' + name.toLowerCase().replace(/\s+/g, '').slice(0, 10)
+        const handle = '@' + name.toLowerCase().replace(/\s+/g, '')
         const newPost: CuitanPost = {
           id: p.id,
           author: name,
@@ -635,10 +689,14 @@ export default function KomunitasPage() {
                     <Heart size={15} fill={post.liked ? 'currentColor' : 'none'} />
                     <span>{post.likes}</span>
                   </button>
-                  <span className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenReplies(post)}
+                    className="flex items-center gap-1.5 hover:text-amber-600 transition-colors cursor-pointer"
+                  >
                     <MessageCircle size={15} aria-hidden />
                     <span>{post.replies} Balasan</span>
-                  </span>
+                  </button>
                   <button
                     type="button"
                     onClick={() => {
@@ -1149,6 +1207,138 @@ export default function KomunitasPage() {
                 className="w-full py-2.5 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer"
               >
                 Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reply Thread Modal */}
+      {activeReplyPost && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+          role="dialog"
+          onClick={e => {
+            if (e.target === e.currentTarget) {
+              setActiveReplyPost(null)
+              setRepliesList([])
+              setReplyInputText('')
+            }
+          }}
+        >
+          <div className="w-full max-w-lg rounded-3xl bg-white shadow-2xl relative overflow-hidden max-h-[85vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-gray-100 flex-shrink-0">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full inline-block mb-1">
+                  Thread Diskusi
+                </span>
+                <h3 className="text-sm font-black text-gray-900">
+                  Balasan untuk {activeReplyPost.author}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveReplyPost(null)
+                  setRepliesList([])
+                  setReplyInputText('')
+                }}
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 hover:bg-gray-200 cursor-pointer"
+              >
+                <X size={15} />
+              </button>
+            </div>
+
+            {/* Scrollable list */}
+            <div className="overflow-y-auto flex-1 px-6 py-4 space-y-4">
+              {/* Parent Cuitan */}
+              <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 space-y-2">
+                <div className="flex items-center gap-2.5">
+                  {activeReplyPost.avatar ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={activeReplyPost.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-amber-400 text-amber-950 font-black text-xs flex items-center justify-center">
+                      {activeReplyPost.author.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-xs font-black text-gray-900 block leading-tight">{activeReplyPost.author}</span>
+                    <span className="text-[10px] text-gray-400">{activeReplyPost.handle} · {activeReplyPost.time}</span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-800 leading-relaxed font-medium pl-10">
+                  {activeReplyPost.content}
+                </p>
+              </div>
+
+              {/* Replies list */}
+              <div className="space-y-3">
+                <p className="text-[11px] font-black uppercase tracking-wider text-gray-400">
+                  Balasan ({repliesList.length})
+                </p>
+                {repliesLoading && (
+                  <div className="p-6 text-center text-xs text-gray-400 animate-pulse">Memuat balasan...</div>
+                )}
+                {!repliesLoading && repliesList.length === 0 && (
+                  <div className="p-6 text-center text-xs text-gray-400 bg-gray-50/50 rounded-2xl">
+                    Belum ada balasan. Tulis balasan pertamamu di bawah!
+                  </div>
+                )}
+                {!repliesLoading && repliesList.map(r => {
+                  const author = r.profiles?.full_name ?? 'Pejuang PTN'
+                  const handle = '@' + author.toLowerCase().replace(/\s+/g, '')
+                  const elapsed = Math.floor((Date.now() - new Date(r.created_at).getTime()) / 60000)
+                  const timeStr = elapsed < 1 ? 'Baru saja' : elapsed < 60 ? `${elapsed}m lalu` : `${Math.floor(elapsed / 60)}j lalu`
+                  return (
+                    <div key={r.id} className="p-3.5 rounded-2xl border border-gray-100 bg-white space-y-1.5 shadow-2xs">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {r.profiles?.avatar_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={r.profiles.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover" />
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-amber-200 text-amber-900 font-bold text-[10px] flex items-center justify-center">
+                              {author.slice(0, 2).toUpperCase()}
+                            </div>
+                          )}
+                          <span className="text-xs font-bold text-gray-900">{author}</span>
+                          <span className="text-[10px] text-gray-400">{handle}</span>
+                        </div>
+                        <span className="text-[10px] text-gray-400">{timeStr}</span>
+                      </div>
+                      <p className="text-xs text-gray-700 leading-relaxed pl-8">
+                        {r.content}
+                      </p>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Input area */}
+            <div className="p-4 border-t border-gray-100 bg-white flex-shrink-0 flex items-center gap-2">
+              <input
+                type="text"
+                value={replyInputText}
+                onChange={e => setReplyInputText(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    handleSendReply()
+                  }
+                }}
+                placeholder="Tulis balasanmu..."
+                className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-2.5 text-xs focus:outline-none focus:border-amber-400 text-gray-900"
+              />
+              <button
+                type="button"
+                onClick={handleSendReply}
+                disabled={replySubmitting || !replyInputText.trim()}
+                className="btn-brand-primary px-4 py-2.5 rounded-full text-xs font-black disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+              >
+                {replySubmitting ? 'Mengirim...' : 'Kirim'}
               </button>
             </div>
           </div>

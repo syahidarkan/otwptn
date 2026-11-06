@@ -1,5 +1,5 @@
 // Single source of truth for the Mode x Track x Tier pricing matrix.
-// Imported by both /upgrade (display) and /api/checkout (authoritative charge amount) —
+// Imported by both /upgrade (display) and /api/checkout (authoritative charge amount) -
 // client-sent amounts are never trusted.
 
 export const MODES = ['individu', 'squad'] as const
@@ -8,7 +8,7 @@ export type Mode = (typeof MODES)[number]
 export const TRACKS = ['essay', 'prestasi', 'hybrid'] as const
 export type Track = (typeof TRACKS)[number]
 
-// Keep these backendKey names unchanged — profiles.tier (premium-gating) depends on them.
+// Keep these backendKey names unchanged - profiles.tier (premium-gating) depends on them.
 export const TIERS = ['web_premium', 'review', 'dokumen', 'menyeluruh'] as const
 export type Tier = (typeof TIERS)[number]
 
@@ -189,11 +189,26 @@ export const TIER_SESSION_CONFIG: Record<Tier, { zoom: number; revisions: number
 }
 
 // Flat ambassador commission per mentee, regardless of mode/track (Squad commission is
-// calculated per individual mentee order, not split — each of the 3 squad orders pays this
+// calculated per individual mentee order, not split - each of the 3 squad orders pays this
 // same amount independently).
 export const TIER_COMMISSION: Record<Tier, number> = {
   menyeluruh: 75000,
   dokumen: 35000,
   review: 15000,
   web_premium: 10000,
+}
+
+// Addon track prices
+export function getAddonPrice(track: Track, isInter?: boolean): number {
+  if (isInter) {
+    return track === 'hybrid' ? 90000 : 65000
+  }
+  return track === 'hybrid' ? 75000 : 50000
+}
+
+// Surcharge for Main Jalur if it is an International track (only for mentored tiers)
+export function getInterSurcharge(tier: Tier): number {
+  if (tier === 'web_premium') return 0
+  if (tier === 'review') return 25000
+  return 50000
 }

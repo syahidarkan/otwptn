@@ -37,7 +37,7 @@ const {
   makeCacheableSignalKeyStore,
 } = await import('@whiskeysockets/baileys')
 
-// Silent logger — Baileys requires a pino-compatible logger object
+// Silent logger - Baileys requires a pino-compatible logger object
 const logger = {
   level: 'silent',
   trace: () => {}, debug: () => {}, info: () => {},
@@ -82,6 +82,9 @@ class WAManager extends EventEmitter {
         markOnlineOnConnect: false,
         syncFullHistory: false,
         logger,
+        browser: ['otwptn Admin', 'Chrome', '120.0.0'],
+        keepAliveIntervalMs: 25_000,
+        connectTimeoutMs: 60_000,
       })
 
       this.sock.ev.on('creds.update', saveCreds)
@@ -95,7 +98,7 @@ class WAManager extends EventEmitter {
             try { qrDataUrl = await QRCode.toDataURL(qr, { width: 300, margin: 2 }) } catch {}
           }
           this._setState({ status: 'qr', qr: qrDataUrl })
-          console.log('[WA] QR ready — scan now')
+          console.log('[WA] QR ready - scan now')
         }
 
         if (connection === 'open') {
@@ -242,6 +245,7 @@ app.get('/events', auth, (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream')
   res.setHeader('Cache-Control', 'no-cache')
   res.setHeader('Connection', 'keep-alive')
+  res.setHeader('X-Accel-Buffering', 'no')
   res.flushHeaders()
 
   const send = (event, data) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
@@ -270,7 +274,7 @@ app.listen(PORT, () => {
   console.log(`[WA Service] Token auth: ${SERVICE_TOKEN ? 'enabled' : 'DISABLED'}`)
 
   // Self-ping every 10 min to prevent Render free tier spin-down
-  const SELF_URL = process.env.SELF_URL
+  const SELF_URL = process.env.SELF_URL || process.env.RENDER_EXTERNAL_URL || 'https://otwptn.onrender.com'
   if (SELF_URL) {
     setInterval(async () => {
       try {
