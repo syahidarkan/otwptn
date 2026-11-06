@@ -38,13 +38,13 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Admin routes — unauthenticated. Server components under /admin read data with the service
+  // Admin routes - unauthenticated. Server components under /admin read data with the service
   // client, so anonymous visitors must be stopped here, not by the client-side layout.
   if (!user && pathname.startsWith('/admin')) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Mentor routes — unauthenticated
+  // Mentor routes - unauthenticated
   if (!user && pathname.startsWith('/mentor') && pathname !== '/mentor/auth' && pathname !== '/mentor/apply') {
     return NextResponse.redirect(new URL('/mentor/auth', request.url))
   }

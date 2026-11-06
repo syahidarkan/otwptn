@@ -87,10 +87,21 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
 export const HONEY_DRIP_H = 170
 const HONEY_VB_H = BRIDGE_H + 168
 
-export const HoneyOverlay = forwardRef<HTMLDivElement, { videoRef?: React.Ref<HTMLVideoElement | null> }>(
-  function HoneyOverlay({ videoRef }, ref) {
+export const HoneyOverlay = forwardRef<
+  HTMLDivElement,
+  {
+    videoRef?: React.Ref<HTMLVideoElement | null>
+    onEnded?: () => void
+    onTimeUpdate?: (time: number) => void
+  }
+>(
+  function HoneyOverlay({ videoRef, onEnded, onTimeUpdate }, ref) {
     const internalVideoRef = useRef<HTMLVideoElement | null>(null)
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
+    const onEndedRef = useRef(onEnded)
+    const onTimeUpdateRef = useRef(onTimeUpdate)
+    onEndedRef.current = onEnded
+    onTimeUpdateRef.current = onTimeUpdate
 
     useEffect(() => {
       const video = internalVideoRef.current
@@ -346,10 +357,26 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, { videoRef?: React.Ref<HT
         }
       }
 
+      function handleTimeUpdate() {
+        if (onTimeUpdateRef.current && video) {
+          onTimeUpdateRef.current(video.currentTime)
+        }
+      }
+
+      function handleEnded() {
+        if (onEndedRef.current) {
+          onEndedRef.current()
+        }
+      }
+
       video.addEventListener('play', startLoop)
       video.addEventListener('playing', startLoop)
+      video.addEventListener('canplay', drawCurrentFrame)
+      video.addEventListener('loadeddata', drawCurrentFrame)
       video.addEventListener('pause', stopLoop)
       video.addEventListener('ended', stopLoop)
+      video.addEventListener('ended', handleEnded)
+      video.addEventListener('timeupdate', handleTimeUpdate)
       video.addEventListener('seeked', drawCurrentFrame)
 
       if (!video.paused && !video.ended) {
@@ -360,8 +387,12 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, { videoRef?: React.Ref<HT
         stopLoop()
         video.removeEventListener('play', startLoop)
         video.removeEventListener('playing', startLoop)
+        video.removeEventListener('canplay', drawCurrentFrame)
+        video.removeEventListener('loadeddata', drawCurrentFrame)
         video.removeEventListener('pause', stopLoop)
         video.removeEventListener('ended', stopLoop)
+        video.removeEventListener('ended', handleEnded)
+        video.removeEventListener('timeupdate', handleTimeUpdate)
         video.removeEventListener('seeked', drawCurrentFrame)
         if (gl && buffer) gl.deleteBuffer(buffer)
         if (gl && texture) gl.deleteTexture(texture)
@@ -399,8 +430,16 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, { videoRef?: React.Ref<HT
           playsInline
           muted
           preload="auto"
-          crossOrigin="anonymous"
-          style={{ display: 'none' }}
+          style={{
+            position: 'fixed',
+            top: '-9999px',
+            left: '-9999px',
+            width: '320px',
+            height: '180px',
+            opacity: 0.001,
+            pointerEvents: 'none',
+            zIndex: -1,
+          }}
         />
         <canvas
           ref={canvasRef}

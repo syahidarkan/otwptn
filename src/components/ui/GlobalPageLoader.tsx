@@ -74,33 +74,17 @@ export default function GlobalPageLoader() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeKey])
 
-  // Attach video time listener so overlay hides cleanly when honey drip animation finishes
-  useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
-
-    function onTimeUpdate() {
-      if (!video) return
-      // Honey completes its drain-off around 9.2s - 9.6s of the 10s clip
-      if (routeLoadedRef.current && (video.currentTime >= 9.3 || video.ended)) {
-        reveal()
-      }
+  function handleTimeUpdate(time: number) {
+    if (routeLoadedRef.current && time >= 9.2) {
+      reveal()
     }
+  }
 
-    function onEnded() {
-      if (routeLoadedRef.current) {
-        reveal()
-      }
+  function handleEnded() {
+    if (routeLoadedRef.current) {
+      reveal()
     }
-
-    video.addEventListener('timeupdate', onTimeUpdate)
-    video.addEventListener('ended', onEnded)
-    return () => {
-      video.removeEventListener('timeupdate', onTimeUpdate)
-      video.removeEventListener('ended', onEnded)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }
 
   function startNav() {
     const href = pendingHrefRef.current
@@ -127,7 +111,7 @@ export default function GlobalPageLoader() {
     if (videoRef.current) {
       try {
         videoRef.current.currentTime = 0
-        videoRef.current.playbackRate = 2.2
+        videoRef.current.playbackRate = 2.0
         videoRef.current.play().catch(() => {})
       } catch {}
     }
@@ -178,5 +162,12 @@ export default function GlobalPageLoader() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return <HoneyOverlay ref={elRef} videoRef={videoRef} />
+  return (
+    <HoneyOverlay
+      ref={elRef}
+      videoRef={videoRef}
+      onTimeUpdate={handleTimeUpdate}
+      onEnded={handleEnded}
+    />
+  )
 }

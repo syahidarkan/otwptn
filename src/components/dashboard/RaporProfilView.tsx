@@ -28,6 +28,7 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
+import Select from '@/components/ui/Select'
 import SearchablePicker from '@/components/ui/SearchablePicker'
 import { INDONESIA_PTN_LIST, INDONESIA_JURUSAN_LIST } from '@/lib/indonesiaDirectory'
 import {
@@ -562,16 +563,18 @@ export default function RaporProfilView() {
 
               <div>
                 <label className="font-bold text-gray-700 block mb-1">Jurusan di SMA</label>
-                <select
+                <Select
                   value={profileData.jurusanSma}
-                  onChange={e => setProfileData({ ...profileData, jurusanSma: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-2xl bg-gray-50 border border-gray-200 font-semibold text-gray-900 outline-none focus:border-amber-400"
-                >
-                  <option value="MIPA">MIPA / Sains &amp; Teknologi</option>
-                  <option value="IPS">IPS / Sosial Humaniora</option>
-                  <option value="Bahasa">Bahasa &amp; Budaya</option>
-                  <option value="SMK">SMK / Vokasi</option>
-                </select>
+                  onChange={v => setProfileData({ ...profileData, jurusanSma: v })}
+                  options={[
+                    { value: 'MIPA', label: 'MIPA / Sains & Teknologi' },
+                    { value: 'IPS', label: 'IPS / Sosial Humaniora' },
+                    { value: 'Bahasa', label: 'Bahasa & Budaya' },
+                    { value: 'SMK', label: 'SMK / Vokasi' },
+                  ]}
+                  placeholder="Pilih jurusan SMA"
+                  size="sm"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
@@ -586,15 +589,17 @@ export default function RaporProfilView() {
                 </div>
                 <div>
                   <label className="font-bold text-gray-700 block mb-1">Akreditasi</label>
-                  <select
+                  <Select
                     value={profileData.schoolAccreditation}
-                    onChange={e => setProfileData({ ...profileData, schoolAccreditation: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-2xl bg-gray-50 border border-gray-200 font-semibold text-gray-900 outline-none focus:border-amber-400"
-                  >
-                    <option value="A">Akreditasi A (Kuota 40%)</option>
-                    <option value="B">Akreditasi B (Kuota 25%)</option>
-                    <option value="C">Akreditasi C (Kuota 5%)</option>
-                  </select>
+                    onChange={v => setProfileData({ ...profileData, schoolAccreditation: v })}
+                    options={[
+                      { value: 'A', label: 'Akreditasi A', sublabel: 'Kuota 40%' },
+                      { value: 'B', label: 'Akreditasi B', sublabel: 'Kuota 25%' },
+                      { value: 'C', label: 'Akreditasi C', sublabel: 'Kuota 5%' },
+                    ]}
+                    placeholder="Pilih akreditasi"
+                    size="sm"
+                  />
                 </div>
               </div>
             </div>
@@ -879,15 +884,17 @@ export default function RaporProfilView() {
                   </div>
                   <div>
                     <label className="font-bold text-gray-700 block mb-1">Status Kelayakan</label>
-                    <select
+                    <Select
                       value={editStatus}
-                      onChange={e => setEditStatus(e.target.value as any)}
-                      className="w-full px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 font-bold text-gray-900 outline-none"
-                    >
-                      <option value="Sangat Kompetitif">Sangat Kompetitif</option>
-                      <option value="Cukup Kompetitif">Cukup Kompetitif</option>
-                      <option value="Berisiko Tinggi">Berisiko Tinggi</option>
-                    </select>
+                      onChange={v => setEditStatus(v as any)}
+                      options={[
+                        { value: 'Sangat Kompetitif', label: 'Sangat Kompetitif', badge: 'Tinggi' },
+                        { value: 'Cukup Kompetitif', label: 'Cukup Kompetitif', badge: 'Sedang' },
+                        { value: 'Berisiko Tinggi', label: 'Berisiko Tinggi', badge: 'Waspada' },
+                      ]}
+                      placeholder="Pilih status"
+                      size="sm"
+                    />
                   </div>
                 </div>
 

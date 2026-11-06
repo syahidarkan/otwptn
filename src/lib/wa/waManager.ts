@@ -1,7 +1,7 @@
 /**
  * WhatsApp Web session manager using Baileys.
  * This runs as a singleton in the custom server process.
- * NOT compatible with Vercel serverless — requires a persistent Node.js process.
+ * NOT compatible with Vercel serverless - requires a persistent Node.js process.
  */
 import makeWASocket, {
   DisconnectReason,
@@ -114,7 +114,7 @@ class WAManager extends EventEmitter {
             } catch {}
           }
           this.setState({ status: 'qr', qr: qrDataUrl })
-          console.log('[WA] QR code ready — scan with WhatsApp')
+          console.log('[WA] QR code ready - scan with WhatsApp')
         }
 
         if (connection === 'open') {
@@ -144,7 +144,7 @@ class WAManager extends EventEmitter {
             console.log(`[WA] Reconnecting in ${delay}ms (attempt ${this.retryCount})`)
             setTimeout(() => this.connect(), delay)
           } else if (statusCode === DisconnectReason.loggedOut) {
-            console.log('[WA] Logged out — clearing session')
+            console.log('[WA] Logged out - clearing session')
             this.clearSession()
           }
         }
@@ -232,7 +232,7 @@ class WAManager extends EventEmitter {
   }
 }
 
-// Singleton — shared across all API route calls within the same process
+// Singleton - shared across all API route calls within the same process
 declare global {
   // eslint-disable-next-line no-var
   var __waManager: WAManager | undefined

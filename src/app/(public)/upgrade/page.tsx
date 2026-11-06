@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { LEGAL_ENTITY, JALUR_LIST } from '@/lib/constants'
 import { createClient } from '@/lib/supabase/client'
+import Select from '@/components/ui/Select'
 import {
   MODES,
   TRACKS,
@@ -497,23 +498,20 @@ export default function UpgradePage() {
                 <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">
                   Jalur PTN Utama Kamu
                 </p>
-                <div className="relative">
-                  <select
-                    value={mainJalur}
-                    onChange={e => {
-                      const newJalur = e.target.value
-                      setMainJalur(newJalur)
-                      setAddonJalurs(prev => prev.filter(id => id !== newJalur))
-                    }}
-                    className="w-full text-xs font-bold bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-amber-400"
-                  >
-                    {availableMainJalurs.map(j => (
-                      <option key={j.id} value={j.id}>
-                        {j.name} - {j.ptn} {j.isInter ? '⭐ [Internasional/IUP]' : ''}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <Select
+                  value={mainJalur}
+                  onChange={newJalur => {
+                    setMainJalur(newJalur)
+                    setAddonJalurs(prev => prev.filter(id => id !== newJalur))
+                  }}
+                  options={availableMainJalurs.map(j => ({
+                    value: j.id,
+                    label: `${j.name} - ${j.ptn}`,
+                    badge: j.isInter ? '⭐ IUP/Inter' : undefined,
+                  }))}
+                  placeholder="Pilih Jalur PTN Utama"
+                  size="sm"
+                />
                 {isInterMain && (
                   <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[11px] font-semibold text-amber-900">
                     <span>⭐ Program Kelas Internasional / IUP dikenakan penyesuaian kurikulum &amp; standar bahasa inggris (+{formatIDR(interSurcharge)}).</span>

@@ -133,13 +133,13 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
       language: Math.min(baseScore + 4, 82),
       overall: baseScore,
       feedback: wordCount < 200
-        ? `Esai kamu baru ${wordCount} kata — jauh di bawah standar minimal esai PTN non-tes (300-600 kata). Pada tahap ini, evaluasi mendalam belum bisa dilakukan karena konten yang ada terlalu sedikit untuk menunjukkan kemampuan argumentasi dan storytelling kamu. Prioritas utama: tulis lebih banyak, ceritakan pengalaman nyata dengan metode STAR.`
+        ? `Esai kamu baru ${wordCount} kata - jauh di bawah standar minimal esai PTN non-tes (300-600 kata). Pada tahap ini, evaluasi mendalam belum bisa dilakukan karena konten yang ada terlalu sedikit untuk menunjukkan kemampuan argumentasi dan storytelling kamu. Prioritas utama: tulis lebih banyak, ceritakan pengalaman nyata dengan metode STAR.`
         : `Esai kamu (${wordCount} kata) sudah memiliki arah dasar. Namun masih perlu pengembangan signifikan sebelum layak dikurasi panitia PTN. Perkuat bukti tindakan nyata dengan angka dan dampak konkret, serta pertajam relevansi pilihan jurusan.`,
       suggestions: [
-        'Tambah panjang esai minimal 300 kata — esai terlalu pendek tidak akan lolos kurasi awal panitia seleksi.',
+        'Tambah panjang esai minimal 300 kata - esai terlalu pendek tidak akan lolos kurasi awal panitia seleksi.',
         'Gunakan pendekatan STAR (Situation, Task, Action, Result) untuk menceritakan capaianmu secara terukur dengan data.',
         'Jelaskan alasan spesifik mengapa kurikulum atau laboratorium di kampus target sangat kamu butuhkan.',
-        'Perhalus kalimat pembuka — hindari klise "Saya adalah siswa..." dan ganti dengan hook yang memantik rasa ingin tahu.',
+        'Perhalus kalimat pembuka - hindari klise "Saya adalah siswa..." dan ganti dengan hook yang memantik rasa ingin tahu.',
       ],
       issues: [
         {

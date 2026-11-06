@@ -12,6 +12,8 @@ import HoldButton from './_components/HoldButton'
 import GrowthCurve from './_components/GrowthCurve'
 import { fireConfetti } from './_components/confetti'
 import { playSfx, playFanfare } from './_components/sfx'
+import Select from '@/components/ui/Select'
+import { getFacultyNamesForPtn, getMajorsForFaculty } from '@/lib/facultyMajorDirectory'
 
 // ── PTN list ─────────────────────────────────────────────────────────────────
 
@@ -474,6 +476,12 @@ interface PrestasiItem {
   files: File[]
 }
 
+export interface OnboardingTargetChoice {
+  ptn: string
+  faculty: string
+  major: string
+}
+
 interface FormData {
   kelas: string
   jalur_tujuan: string
@@ -481,6 +489,7 @@ interface FormData {
   full_name: string
   school_name: string
   school_tier: string
+  target_choices: OnboardingTargetChoice[]
   target_ptns: string[]
   target_majors: string
   avg_rapor: string
@@ -504,6 +513,12 @@ interface FormData {
 
 const INIT: FormData = {
   kelas: '', jalur_tujuan: '', confidence: 50, full_name: '', school_name: '', school_tier: '',
+  target_choices: [
+    { ptn: '', faculty: '', major: '' },
+    { ptn: '', faculty: '', major: '' },
+    { ptn: '', faculty: '', major: '' },
+    { ptn: '', faculty: '', major: '' },
+  ],
   target_ptns: [], target_majors: '', avg_rapor: '', rapor_per_semester: ['', '', '', '', '', ''],
   peminatan: '', rapor_mapel: {}, school_rank_tier: '', cert_count: '', cert_highest_level: '',
   prestasi_list: [], essay_draft: '', learning_styles: [], biggest_challenge: '', daily_study_hours: 0,
@@ -826,6 +841,39 @@ export default function OnboardingPage() {
   function toggleArr(k: 'target_ptns' | 'learning_styles', v: string) {
     setForm(p => ({ ...p, [k]: p[k].includes(v) ? p[k].filter(x => x !== v) : [...p[k], v] }))
   }
+  function updateChoice(index: number, field: 'ptn' | 'faculty' | 'major', val: string) {
+    setForm(prev => {
+      const choices = prev.target_choices ? [...prev.target_choices] : [
+        { ptn: '', faculty: '', major: '' },
+        { ptn: '', faculty: '', major: '' },
+        { ptn: '', faculty: '', major: '' },
+        { ptn: '', faculty: '', major: '' },
+      ]
+      while (choices.length < 4) {
+        choices.push({ ptn: '', faculty: '', major: '' })
+      }
+      const cur = { ...choices[index] }
+      if (field === 'ptn') {
+        cur.ptn = val
+        cur.faculty = ''
+        cur.major = ''
+      } else if (field === 'faculty') {
+        cur.faculty = val
+        cur.major = ''
+      } else if (field === 'major') {
+        cur.major = val
+      }
+      choices[index] = cur
+      const ptns = choices.map(c => c.ptn).filter(Boolean)
+      const majors = choices.map(c => c.major).filter(Boolean)
+      return {
+        ...prev,
+        target_choices: choices,
+        target_ptns: ptns,
+        target_majors: majors.join(', '),
+      }
+    })
+  }
   function toggleDay(i: number) { setForm(p => { const d = [...p.study_days]; d[i] = !d[i]; return { ...p, study_days: d } }) }
   function setRaporSem(i: number, v: string) { setForm(p => { const s = [...p.rapor_per_semester]; s[i] = v; return { ...p, rapor_per_semester: s } }) }
   function setMapelVal(mapel: string, v: string) { setForm(p => ({ ...p, rapor_mapel: { ...p.rapor_mapel, [mapel]: v } })) }
@@ -843,7 +891,14 @@ export default function OnboardingPage() {
     essayRevealed, // 4 essay must be submitted
     true,          // 5 gamified
     form.full_name.trim().length > 1 && form.school_name.trim().length > 1,
-    form.target_ptns.length > 0,
+    Boolean(
+      form.target_choices?.[0]?.ptn?.trim() &&
+      form.target_choices?.[0]?.faculty?.trim() &&
+      form.target_choices?.[0]?.major?.trim() &&
+      form.target_choices?.[1]?.ptn?.trim() &&
+      form.target_choices?.[1]?.faculty?.trim() &&
+      form.target_choices?.[1]?.major?.trim()
+    ),
     form.avg_rapor !== '',
     true,          // 9 prestasi optional
     true,          // 10 essay draft optional
@@ -1011,12 +1066,17 @@ export default function OnboardingPage() {
         console.warn('Prestasi payload generation error:', payloadErr)
       }
 
+      const filledChoices = (form.target_choices || []).filter(c => c.ptn && c.ptn.trim() !== '')
+      const targetPtns = filledChoices.map(c => c.ptn)
+      const targetMajors = filledChoices.map(c => c.major)
+
       await supabase.from('profiles').update({
         full_name: form.full_name,
         school_name: form.school_name,
         school_rank_tier: form.school_rank_tier || null,
-        target_ptns: form.target_ptns,
-        target_majors: form.target_majors ? [form.target_majors] : [],
+        target_ptns: targetPtns.length > 0 ? targetPtns : form.target_ptns,
+        target_majors: targetMajors.length > 0 ? targetMajors : (form.target_majors ? [form.target_majors] : []),
+        target_choices: filledChoices,
         target_jalurs: [form.jalur_tujuan],
         jalur_tujuan: form.jalur_tujuan,
         avg_rapor: computedAvg || null,
@@ -1243,57 +1303,140 @@ export default function OnboardingPage() {
               </div>
             )}
 
-            {/* 7 kampus + jurusan */}
+            {/* 7 kampus + fakultas + jurusan (4 pilihan, wajib 2 pilihan teratas) */}
             {step === 7 && (
-              <div>
-                <p className="text-xs font-semibold mb-2" style={{ color: 'var(--fg)' }}>Kampus impian (bisa pilih lebih dari satu)</p>
-                <div className="grid grid-cols-4 gap-2 mb-4">
-                  {PTN_LIST.map(p => {
-                    const active = form.target_ptns.includes(p.name)
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-sm font-black text-gray-900">Target PTN, Fakultas &amp; Jurusan</h3>
+                    <span className="text-[11px] font-bold text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full">
+                      Pilihan 1 &amp; 2 Wajib
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Pilih hingga 4 target prodi impianmu. Sistem auto-match mentor dan rasionalisasi peluang akan memprioritaskan pilihan 1 &amp; 2.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  {[0, 1, 2, 3].map((idx) => {
+                    const choice = form.target_choices?.[idx] || { ptn: '', faculty: '', major: '' }
+                    const isRequired = idx < 2
+                    const facultyNames = choice.ptn ? getFacultyNamesForPtn(choice.ptn) : []
+                    const facultyOpts = facultyNames.map(f => ({ value: f, label: f }))
+                    const majorNames = choice.ptn && choice.faculty ? getMajorsForFaculty(choice.ptn, choice.faculty) : []
+                    const majorOpts = majorNames.map(m => ({ value: m, label: m }))
+
+                    const allPtnOpts = [
+                      ...PTN_LIST.map(p => ({ value: p.name, label: p.name, sublabel: p.code.toUpperCase() })),
+                      { value: 'Universitas Negeri Jakarta', label: 'Universitas Negeri Jakarta', sublabel: 'UNJ' },
+                      { value: 'Universitas Pendidikan Indonesia', label: 'Universitas Pendidikan Indonesia', sublabel: 'UPI' },
+                      { value: 'Universitas Negeri Surabaya', label: 'Universitas Negeri Surabaya', sublabel: 'UNESA' },
+                      { value: 'Universitas Udayana', label: 'Universitas Udayana', sublabel: 'UNUD' },
+                      { value: 'Universitas Sriwijaya', label: 'Universitas Sriwijaya', sublabel: 'UNSRI' },
+                      { value: 'Universitas Riau', label: 'Universitas Riau', sublabel: 'UNRI' },
+                      { value: 'UPN Veteran Jakarta', label: 'UPN Veteran Jakarta', sublabel: 'UPNVJ' },
+                      { value: 'UPN Veteran Yogyakarta', label: 'UPN Veteran Yogyakarta', sublabel: 'UPNVY' },
+                      { value: 'UPN Veteran Jawa Timur', label: 'UPN Veteran Jawa Timur', sublabel: 'UPNVJT' },
+                    ]
+
                     return (
-                      <button key={p.code} onClick={() => { toggleArr('target_ptns', p.name); playSfx('select') }}
-                        className="flex flex-col items-center gap-1 py-2 rounded-xl transition-colors"
-                        style={{ background: active ? 'rgba(255,212,0,0.18)' : 'rgba(255,255,255,0.6)', border: active ? '1.5px solid #ffd400' : '1.5px solid rgba(0,0,0,0.08)' }}>
-                        {p.logo
-                          ? <Image src={p.logo} alt={p.name} width={26} height={26} style={{ width: 26, height: 26, objectFit: 'contain' }} />
-                          : <div className="flex items-center justify-center rounded-full text-[8px] font-black" style={{ width: 26, height: 26, background: '#eef2f8', color: '#1e40af', letterSpacing: '-0.5px' }}>{p.code.toUpperCase()}</div>
-                        }
-                        <span className="text-[10px] font-bold uppercase" style={{ color: 'var(--fg)' }}>{p.code}</span>
-                      </button>
+                      <div
+                        key={idx}
+                        className={`p-3.5 rounded-2xl border transition-all ${
+                          isRequired
+                            ? 'bg-amber-50/50 border-amber-300 shadow-2xs'
+                            : 'bg-white/80 border-gray-200'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2.5">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-black ${
+                                isRequired ? 'bg-amber-400 text-amber-950' : 'bg-gray-200 text-gray-600'
+                              }`}
+                            >
+                              {idx + 1}
+                            </span>
+                            <span className="text-xs font-black text-gray-900">
+                              {idx === 0
+                                ? 'Pilihan 1 (Target Utama)'
+                                : idx === 1
+                                ? 'Pilihan 2 (Target Kedua)'
+                                : idx === 2
+                                ? 'Pilihan 3 (Cadangan SNBP/Mandiri)'
+                                : 'Pilihan 4 (Cadangan Tambahan)'}
+                            </span>
+                          </div>
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              isRequired
+                                ? 'bg-amber-200/90 text-amber-900'
+                                : 'bg-gray-100 text-gray-500'
+                            }`}
+                          >
+                            {isRequired ? 'Wajib Diisi *' : 'Opsional'}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                          <div>
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                              1. Kampus / PTN {isRequired && <span className="text-red-500">*</span>}
+                            </label>
+                            <Select
+                              value={choice.ptn}
+                              onChange={v => {
+                                updateChoice(idx, 'ptn', v)
+                                playSfx('select')
+                              }}
+                              options={allPtnOpts}
+                              placeholder="Pilih Kampus PTN"
+                              searchable
+                              size="sm"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                              2. Fakultas {isRequired && <span className="text-red-500">*</span>}
+                            </label>
+                            <Select
+                              value={choice.faculty}
+                              onChange={v => {
+                                updateChoice(idx, 'faculty', v)
+                                playSfx('select')
+                              }}
+                              options={facultyOpts}
+                              placeholder={choice.ptn ? 'Pilih Fakultas' : 'Pilih kampus dulu'}
+                              disabled={!choice.ptn}
+                              searchable
+                              size="sm"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                              3. Jurusan / Prodi {isRequired && <span className="text-red-500">*</span>}
+                            </label>
+                            <Select
+                              value={choice.major}
+                              onChange={v => {
+                                updateChoice(idx, 'major', v)
+                                playSfx('select')
+                              }}
+                              options={majorOpts}
+                              placeholder={choice.faculty ? 'Pilih Jurusan' : 'Pilih fakultas dulu'}
+                              disabled={!choice.faculty}
+                              searchable
+                              size="sm"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     )
                   })}
                 </div>
-                {/* Lainnya - custom PTN */}
-                <div className="mb-4">
-                  <p className="text-[11px] font-semibold mb-1.5" style={{ color: 'var(--muted)' }}>PTN lainnya? Ketik nama kampus:</p>
-                  <input
-                    placeholder="cth: Universitas Brawijaya, ITB, UGM..."
-                    className="input text-sm"
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' || e.key === ',') {
-                        e.preventDefault()
-                        const v = (e.currentTarget.value).trim()
-                        if (v && !form.target_ptns.includes(v)) { toggleArr('target_ptns', v); playSfx('select') }
-                        e.currentTarget.value = ''
-                      }
-                    }}
-                  />
-                  <p className="text-[10px] mt-1" style={{ color: 'var(--muted)' }}>Tekan Enter atau koma untuk menambahkan</p>
-                </div>
-                {form.target_ptns.filter(p => !PTN_LIST.map(x => x.name).includes(p)).length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mb-3">
-                    {form.target_ptns.filter(p => !PTN_LIST.map(x => x.name).includes(p)).map(p => (
-                      <span key={p} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
-                        style={{ background: 'rgba(255,212,0,0.18)', border: '1.5px solid #ffd400', color: '#111' }}>
-                        {p}
-                        <button onClick={() => toggleArr('target_ptns', p)} style={{ color: 'var(--muted)' }}><X size={11} /></button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <Field label="Jurusan yang diminati">
-                  <JurusanPicker value={form.target_majors} onChange={v => set('target_majors', v)} />
-                </Field>
               </div>
             )}
 

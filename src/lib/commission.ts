@@ -12,8 +12,8 @@ interface OrderForCommission {
   referral_code?: string | null
 }
 
-// Shared by every payment webhook (Mayar, DOKU, Jago transfer). Each paying order — including
-// every member of a Squad, since they're each their own `orders` row — independently credits
+// Shared by every payment webhook (Mayar, DOKU, Jago transfer). Each paying order - including
+// every member of a Squad, since they're each their own `orders` row - independently credits
 // its own ambassador commission; there is no splitting across squad members.
 export async function creditAmbassadorCommission(
   supabase: SupabaseClient,

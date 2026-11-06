@@ -1,8 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Flame, CheckCircle2, Circle, ArrowRight } from 'lucide-react'
+import { Flame, CheckCircle2, Circle, ArrowRight, Share2, Sparkles } from 'lucide-react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
+import StreakPosterModal from '@/components/dashboard/StreakPosterModal'
 import {
   calculateAndSaveStreak,
   getDailyQuests,
@@ -29,6 +31,8 @@ export function DashboardStreakCard() {
     activeDaysOfWeek: [new Date().getDay()],
   })
   const [completedModulesCount, setCompletedModulesCount] = useState(0)
+  const [showPosterModal, setShowPosterModal] = useState(false)
+  const [userInfo, setUserInfo] = useState({ name: 'Pejuang PTN', targetPTN: 'Universitas Indonesia' })
 
   useEffect(() => {
     const s = calculateAndSaveStreak()
@@ -38,57 +42,93 @@ export function DashboardStreakCard() {
       const ec = JSON.parse(localStorage.getItem('ecourse_v2_completed') || '[]')
       setCompletedModulesCount(ec.length)
     } catch {}
+
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        supabase
+          .from('profiles')
+          .select('full_name, target_ptns')
+          .eq('id', user.id)
+          .single()
+          .then(({ data }) => {
+            const name = data?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || 'Pejuang PTN'
+            const ptns = data?.target_ptns
+            const targetPTN = (Array.isArray(ptns) && ptns[0]) ? ptns[0] : 'Universitas Indonesia'
+            setUserInfo({ name, targetPTN })
+          })
+      }
+    })
   }, [])
 
   return (
-    <div className="glass-panel rounded-3xl p-6 flex flex-col justify-between">
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-gradient-to-br from-amber-400 to-amber-500 text-amber-950 shadow-xs">
-              <Flame size={22} className="fill-amber-950" />
-            </div>
-            <div>
-              <span className="text-xl font-black text-gray-950">{streakData.streak} Hari</span>
-              <p className="text-[11px] font-bold text-gray-500">Streak Belajar Aktif</p>
-            </div>
-          </div>
-          <span className="text-xs font-black px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
-            {streakData.activeDaysOfWeek.length} / 7 hari aktif
-          </span>
-        </div>
+    <>
+      <StreakPosterModal
+        isOpen={showPosterModal}
+        onClose={() => setShowPosterModal(false)}
+        streak={streakData.streak}
+        activeDaysCount={streakData.activeDaysOfWeek.length}
+        completedModulesCount={completedModulesCount}
+        userName={userInfo.name}
+        targetPTN={userInfo.targetPTN}
+      />
 
-        {/* Days of week */}
-        <div className="flex justify-between gap-1 mb-5">
-          {DAYS.map((d, i) => {
-            const isActive = streakData.activeDaysOfWeek.includes(d.day)
-            return (
-              <div
-                key={i}
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border transition-all ${
-                  isActive
-                    ? 'bg-amber-400 text-amber-950 border-amber-500 shadow-2xs scale-105'
-                    : 'border-gray-200 text-gray-400 bg-white/60'
-                }`}
-              >
-                {d.label}
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      <div className="border-t border-gray-200/80 pt-4 flex items-center justify-between text-sm">
+      <div className="glass-panel rounded-3xl p-6 flex flex-col justify-between">
         <div>
-          <p className="font-extrabold text-base text-gray-900">{completedModulesCount}</p>
-          <p className="text-xs text-gray-500 font-medium">materi selesai</p>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-gradient-to-br from-amber-400 to-amber-500 text-amber-950 shadow-xs">
+                <Flame size={22} className="fill-amber-950" />
+              </div>
+              <div>
+                <span className="text-xl font-black text-gray-950">{streakData.streak} Hari</span>
+                <p className="text-[11px] font-bold text-gray-500">Streak Belajar Aktif</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowPosterModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 shadow-xs hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            >
+              <Share2 size={12} /> Pamerkan Streak
+            </button>
+          </div>
+
+          {/* Days of week */}
+          <div className="flex justify-between gap-1 mb-5">
+            {DAYS.map((d, i) => {
+              const isActive = streakData.activeDaysOfWeek.includes(d.day)
+              return (
+                <div
+                  key={i}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border transition-all ${
+                    isActive
+                      ? 'bg-amber-400 text-amber-950 border-amber-500 shadow-2xs scale-105'
+                      : 'border-gray-200 text-gray-400 bg-white/60'
+                  }`}
+                >
+                  {d.label}
+                </div>
+              )
+            })}
+          </div>
         </div>
-        <div className="text-right">
-          <p className="font-extrabold text-base text-emerald-600">Konsisten</p>
-          <p className="text-xs text-gray-500 font-medium">status belajar</p>
+
+        <div className="border-t border-gray-200/80 pt-4 flex items-center justify-between text-sm">
+          <div>
+            <p className="font-extrabold text-base text-gray-900">{completedModulesCount}</p>
+            <p className="text-xs text-gray-500 font-medium">materi selesai</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowPosterModal(true)}
+            className="text-xs font-black text-amber-700 hover:text-amber-800 flex items-center gap-1 cursor-pointer"
+          >
+            Buat Poster Story <Sparkles size={12} />
+          </button>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

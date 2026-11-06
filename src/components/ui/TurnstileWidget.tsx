@@ -55,7 +55,7 @@ export function TurnstileWidget({ onSuccess, onExpire, theme = 'light', size = '
       s.onload = render
       document.head.appendChild(s)
     } else {
-      // Script loading but not ready yet — poll
+      // Script loading but not ready yet - poll
       const id = setInterval(() => {
         if (window.turnstile) { clearInterval(id); render() }
       }, 100)

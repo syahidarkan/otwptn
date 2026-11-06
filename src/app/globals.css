@@ -843,7 +843,7 @@ select.input {
 }
 
 /* ───────────────────────────────────────────────────────────────
-   Collapsible sidebar — driven by data-sidebar-collapsed on <html>
+   Collapsible sidebar - driven by data-sidebar-collapsed on <html>
    ─────────────────────────────────────────────────────────────── */
 .dashboard-main {
   margin-left: 0;
@@ -859,7 +859,7 @@ select.input {
 }
 
 /* ───────────────────────────────────────────────────────────────
-   Dark Mode — additional overrides for amber/colored backgrounds
+   Dark Mode - additional overrides for amber/colored backgrounds
    ─────────────────────────────────────────────────────────────── */
 
 /* Amber/yellow light backgrounds */

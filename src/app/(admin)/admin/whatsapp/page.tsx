@@ -141,7 +141,7 @@ export default function WhatsAppAdminPage() {
   function openConversation(jid: string) {
     setActiveJid(jid)
     setReadTimestamps(prev => {
-      const next = { ...prev, [jid]: Date.now() }
+      const next = { ...prev, [jid]: Date.now() + 5000 }
       try { localStorage.setItem('otwptn_wa_read_ts', JSON.stringify(next)) } catch {}
       return next
     })
@@ -462,7 +462,7 @@ export default function WhatsAppAdminPage() {
                     {conv.lastMsg?.text}
                   </p>
                 </div>
-                {conv.unread > 0 && (
+                {conv.unread > 0 && activeJid !== conv.jid && (
                   <span className="w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">
                     {conv.unread}
                   </span>

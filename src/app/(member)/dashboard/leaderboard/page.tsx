@@ -30,7 +30,7 @@ export default function LeaderboardPage() {
         setEntries(data.entries ?? [])
       }
     } catch {
-      // silently fail — show empty state
+      // silently fail - show empty state
     } finally {
       setLoading(false)
     }

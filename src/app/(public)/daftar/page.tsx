@@ -6,6 +6,7 @@ import { formatRupiah } from '@/lib/utils'
 import type { JalurCategory, PackageTier } from '@/types'
 import Button from '@/components/ui/Button'
 import FileUpload from '@/components/ui/FileUpload'
+import Select from '@/components/ui/Select'
 import { CheckCircle2, Check, Lightbulb, ArrowLeft, ArrowRight } from 'lucide-react'
 
 const TOTAL_STEPS = 6
@@ -237,17 +238,18 @@ export default function DaftarPage() {
                 ))}
               </div>
 
-              <p className="text-sm font-semibold text-brand-dark mb-3">Jalur PTN Utama</p>
-              <select
+              <p className="text-sm font-semibold text-brand-dark mb-2">Jalur PTN Utama</p>
+              <Select
                 value={form.jalur_utama_id ?? ''}
-                onChange={(e) => update({ jalur_utama_id: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black"
-              >
-                <option value="">-- Pilih jalur utama --</option>
-                {JALUR_LIST.filter((j) => j.category === form.category && !j.closed).map((j) => (
-                  <option key={j.id} value={j.id}>{j.name} - {j.ptn}</option>
-                ))}
-              </select>
+                onChange={val => update({ jalur_utama_id: val })}
+                options={JALUR_LIST.filter((j) => j.category === form.category && !j.closed).map((j) => ({
+                  value: j.id,
+                  label: `${j.name} - ${j.ptn}`,
+                  badge: j.isInter ? '⭐ IUP/Inter' : undefined,
+                }))}
+                placeholder="Pilih jalur utama"
+                searchable
+              />
 
               <div className="flex justify-between mt-8">
                 <Button variant="ghost" onClick={() => setStep(1)}><ArrowLeft size={14} className="inline-block mr-1 align-[-2px]" aria-hidden /> Kembali</Button>
