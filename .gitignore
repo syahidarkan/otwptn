@@ -49,3 +49,8 @@ node_modules/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Large local zips and docs
+Maskot/*.zip
+modul.rtf
+

@@ -222,45 +222,18 @@ export const HoneyOverlay = forwardRef<
         if (!video || !canvas) return
         if (video.readyState < 2) return
 
-        const dpr = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 2)
-        const displayW = Math.floor(canvas.clientWidth * dpr)
-        const displayH = Math.floor(canvas.clientHeight * dpr)
-
-        if (displayW <= 0 || displayH <= 0) return
-
-        if (canvas.width !== displayW || canvas.height !== displayH) {
-          canvas.width = displayW
-          canvas.height = displayH
+        // Fixed internal render buffer (1280x720) to ensure lightning-fast WebGL rendering with zero memory thrashing
+        if (canvas.width !== 1280 || canvas.height !== 720) {
+          canvas.width = 1280
+          canvas.height = 720
         }
 
         if (gl && program && texture) {
-          gl.viewport(0, 0, canvas.width, canvas.height)
+          gl.viewport(0, 0, 1280, 720)
           gl.useProgram(program)
 
-          const vw = video.videoWidth || 1280
-          const vh = video.videoHeight || 720
-          const videoAspect = vw / vh
-          const canvasAspect = canvas.width / canvas.height
-
-          let scaleX = 1
-          let scaleY = 1
-          let offsetX = 0
-          let offsetY = 0
-
-          if (canvasAspect > videoAspect) {
-            scaleX = 1
-            scaleY = videoAspect / canvasAspect
-            offsetX = 0
-            offsetY = 0
-          } else {
-            scaleX = canvasAspect / videoAspect
-            scaleY = 1
-            offsetX = (1.0 - scaleX) * 0.5
-            offsetY = 0
-          }
-
-          if (uScaleLoc) gl.uniform2f(uScaleLoc, scaleX, scaleY)
-          if (uOffsetLoc) gl.uniform2f(uOffsetLoc, offsetX, offsetY)
+          if (uScaleLoc) gl.uniform2f(uScaleLoc, 1.0, 1.0)
+          if (uOffsetLoc) gl.uniform2f(uOffsetLoc, 0.0, 0.0)
 
           gl.bindTexture(gl.TEXTURE_2D, texture)
           try {
@@ -272,24 +245,10 @@ export const HoneyOverlay = forwardRef<
         } else {
           const ctx = canvas.getContext('2d')
           if (ctx) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height)
-            const vw = video.videoWidth || 1280
-            const vh = video.videoHeight || 720
-            const videoAspect = vw / vh
-            const canvasAspect = canvas.width / canvas.height
-            let dw = canvas.width
-            let dh = canvas.height
-            let dx = 0
-            let dy = 0
-            if (canvasAspect > videoAspect) {
-              dh = dw / videoAspect
-            } else {
-              dw = dh * videoAspect
-              dx = (canvas.width - dw) / 2
-            }
-            ctx.drawImage(video, dx, dy, dw, dh)
+            ctx.clearRect(0, 0, 1280, 720)
+            ctx.drawImage(video, 0, 0, 1280, 720)
             try {
-              const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+              const imgData = ctx.getImageData(0, 0, 1280, 720)
               const data = imgData.data
               for (let i = 0; i < data.length; i += 4) {
                 const r = data[i]
@@ -426,7 +385,7 @@ export const HoneyOverlay = forwardRef<
               ;(videoRef as React.MutableRefObject<HTMLVideoElement | null>).current = node
             }
           }}
-          src="/honey-splash-fix.mp4"
+          src="/honey-fast.mp4"
           playsInline
           muted
           preload="auto"

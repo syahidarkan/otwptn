@@ -2,6 +2,7 @@ import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { consumeQuota, rateLimit } from '@/lib/security'
 import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
+import { analyzeEssayWithNLP } from '@/lib/nlp/essayNlpEngine'
 
 const TIER_ESSAY_LIMIT: Record<string, number | null> = {
   free: 1, web_premium: null, review: null, dokumen: null, menyeluruh: null, intensif: null,
@@ -46,6 +47,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'quota_exceeded', limit }, { status: 403 })
   }
 
+  // Execute NLP Engine against 100 Accepted PPKB UI Essays Benchmark
+  const nlpBenchmark = analyzeEssayWithNLP(content)
+
   const wordCount = content.trim().split(/\s+/).filter(Boolean).length
   const { client, model } = getAiClient('complex')
   const prompt = `Kamu adalah Kurator Senior & Penilai Esai Motivasi / Personal Statement PTN Seleksi Non-Tes Indonesia (PPKB UI, PBUB UGM, SJP IPB, Golden Ticket UNAIR, SIMAK UI) di platform otwptn (PT. Lembaga Sains Nasional).
@@ -55,11 +59,20 @@ TUGAS: Evaluasi draf esai berikut secara KRITIS dan JUJUR. Jangan memberikan sko
 INFORMASI ESAI:
 - Jumlah kata: ${wordCount} kata
 
+HASIL ANALISIS NLP BENCHMARK (100 ESAI LOLOS PPKB UI):
+- Skor Kemiripan Vektor Kosinus (TF-IDF vs Korpus Lolos): ${nlpBenchmark.similarityScore}/100
+- Klaster Fakultas/Prodi Terdekat: ${nlpBenchmark.topMatchingFaculty} - ${nlpBenchmark.topMatchingMajor}
+- Kepadatan Aksi STAR: ${nlpBenchmark.starScore}/100 (Kata kerja aksi terdeteksi: ${nlpBenchmark.starActionVerbs.join(', ') || 'Belum ada'})
+- Bukti Angka / Metrik Terukur: ${nlpBenchmark.metricsFound.join(', ') || 'Belum ditemukan'}
+- Spesifisitas Istilah Prodi: ${nlpBenchmark.domainSpecificityScore}/100 (${nlpBenchmark.detectedDomainTerms.join(', ') || 'Umum'})
+- Frasa Klise Terdeteksi: ${nlpBenchmark.clichesFound.join(', ') || 'Nihil (Bagus)'}
+- Peringkat Persentil Benchmark: Persentil ke-${nlpBenchmark.benchmarkRankPercentile} (${nlpBenchmark.verdict})
+
 PANDUAN SKOR BERDASARKAN PANJANG ESAI:
 - < 100 kata: MAKSIMAL skor 45 untuk semua dimensi. Ini bukan esai, hanya draft kasar.
-- 100–199 kata: MAKSIMAL skor 62. Terlalu pendek untuk menunjukkan bukti nyata.
-- 200–299 kata: MAKSIMAL skor 75. Masih sangat kurang dari standar minimal esai PTN (300-600 kata).
-- 300–499 kata: Skor bisa 60-82 tergantung kualitas konten.
+- 100-199 kata: MAKSIMAL skor 62. Terlalu pendek untuk menunjukkan bukti nyata.
+- 200-299 kata: MAKSIMAL skor 75. Masih sangat kurang dari standar minimal esai PTN (300-600 kata).
+- 300-499 kata: Skor bisa 60-82 tergantung kualitas konten.
 - 500+ kata: Skor bisa 70-95 tergantung kualitas konten.
 
 DIMENSI PENILAIAN:
@@ -118,12 +131,13 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
 
     const rawContent = completion.choices[0].message.content ?? '{}'
     result = JSON.parse(rawContent)
+    result.nlpBenchmark = nlpBenchmark
   } catch (apiErr) {
     console.warn('[AI Essay Review] Primary AI call failed, generating heuristic evaluation:', apiErr)
     const firstSentence = content.split(/[.!?]/)[0]?.trim() || content.slice(0, 30)
     const midSentence = content.slice(Math.floor(content.length / 2), Math.floor(content.length / 2) + 40).trim()
 
-    // Calibrated heuristic scores based on word count
+    // Calibrated heuristic scores based on word count & NLP benchmark
     const baseScore = wordCount < 100 ? 35 : wordCount < 200 ? 52 : wordCount < 300 ? 65 : wordCount < 500 ? 72 : 78
 
     result = {
@@ -131,15 +145,15 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
       coherence: Math.min(baseScore - 2, 78),
       argument: Math.min(baseScore - 4, 76),
       language: Math.min(baseScore + 4, 82),
-      overall: baseScore,
+      overall: Math.round((baseScore + nlpBenchmark.benchmarkRankPercentile) / 2),
       feedback: wordCount < 200
         ? `Esai kamu baru ${wordCount} kata - jauh di bawah standar minimal esai PTN non-tes (300-600 kata). Pada tahap ini, evaluasi mendalam belum bisa dilakukan karena konten yang ada terlalu sedikit untuk menunjukkan kemampuan argumentasi dan storytelling kamu. Prioritas utama: tulis lebih banyak, ceritakan pengalaman nyata dengan metode STAR.`
-        : `Esai kamu (${wordCount} kata) sudah memiliki arah dasar. Namun masih perlu pengembangan signifikan sebelum layak dikurasi panitia PTN. Perkuat bukti tindakan nyata dengan angka dan dampak konkret, serta pertajam relevansi pilihan jurusan.`,
+        : `Esai kamu (${wordCount} kata) memiliki kemiripan ${nlpBenchmark.similarityScore}% terhadap korpus esai lolos PPKB UI bidang ${nlpBenchmark.topMatchingFaculty}. Namun masih perlu penguatan aksi nyata terukur dan eliminasi frasa klise sebelum layak dikurasi panitia seleksi.`,
       suggestions: [
         'Tambah panjang esai minimal 300 kata - esai terlalu pendek tidak akan lolos kurasi awal panitia seleksi.',
         'Gunakan pendekatan STAR (Situation, Task, Action, Result) untuk menceritakan capaianmu secara terukur dengan data.',
         'Jelaskan alasan spesifik mengapa kurikulum atau laboratorium di kampus target sangat kamu butuhkan.',
-        'Perhalus kalimat pembuka - hindari klise "Saya adalah siswa..." dan ganti dengan hook yang memantik rasa ingin tahu.',
+        'Perhalus kalimat pembuka - hindari klise pembuka dan ganti dengan hook observasi masalah nyata.',
       ],
       issues: [
         {
@@ -153,6 +167,7 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
           comment: 'Klaim tanpa bukti konkret. Cantumkan nama program, lomba, atau kegiatan nyata yang pernah kamu ikuti.',
         },
       ],
+      nlpBenchmark,
     }
   }
 
@@ -174,4 +189,3 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
 
   return NextResponse.json(result)
 }
-

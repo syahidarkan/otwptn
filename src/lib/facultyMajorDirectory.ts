@@ -1026,3 +1026,4 @@ export function getFacultyForMajor(majorName: string, ptnName?: string): string 
 
   return 'Fakultas Terkait'
 }
+

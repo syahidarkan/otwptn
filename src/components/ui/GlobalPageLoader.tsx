@@ -59,31 +59,24 @@ export default function GlobalPageLoader() {
     if (phaseRef.current === 'idle' || routeKey === startKeyRef.current) return
     routeLoadedRef.current = true
 
-    // If video has already passed peak drip or finished, reveal smoothly
+    // If video has already passed peak drain or finished, reveal cleanly
     const video = videoRef.current
     if (video) {
-      if (video.ended || video.currentTime >= 9.2) {
+      if (video.ended || video.currentTime >= 2.45) {
         reveal()
-      } else {
-        // Accelerate drain exit slightly (2.4x) so transition feels snappy and lively
-        try { video.playbackRate = 2.4 } catch {}
       }
-    } else {
-      reveal()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeKey])
 
   function handleTimeUpdate(time: number) {
-    if (routeLoadedRef.current && time >= 9.2) {
+    if (time >= 2.45) {
       reveal()
     }
   }
 
   function handleEnded() {
-    if (routeLoadedRef.current) {
-      reveal()
-    }
+    reveal()
   }
 
   function startNav() {
@@ -111,18 +104,23 @@ export default function GlobalPageLoader() {
     if (videoRef.current) {
       try {
         videoRef.current.currentTime = 0
-        videoRef.current.playbackRate = 2.0
+        videoRef.current.playbackRate = 1.0
         videoRef.current.play().catch(() => {})
       } catch {}
     }
 
     phaseRef.current = 'waiting'
-    startNav()
+    // Navigate at 800ms when honey has flooded >95% of the screen so page change is completely hidden behind honey
+    setTimeout(() => {
+      if (phaseRef.current === 'waiting') {
+        startNav()
+      }
+    }, 800)
 
     capTimerRef.current = setTimeout(() => {
       if (phaseRef.current === 'idle') return
       reveal()
-    }, HARD_CAP_MS)
+    }, 3500)
     return true
   }
 

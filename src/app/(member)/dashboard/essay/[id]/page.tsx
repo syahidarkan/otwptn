@@ -23,6 +23,24 @@ interface Issue {
   comment: string
 }
 
+interface NlpBenchmarkData {
+  similarityScore: number
+  topMatchingFaculty: string
+  topMatchingMajor: string
+  matchedWinningExcerpt: string
+  starScore: number
+  starActionVerbs: string[]
+  metricsFound: string[]
+  domainSpecificityScore: number
+  detectedDomainTerms: string[]
+  clichesFound: string[]
+  lexicalDiversityScore: number
+  benchmarkRankPercentile: number
+  verdict: 'Sangat Menjanjikan' | 'Cukup Kompetitif' | 'Perlu Penguatan Nyata' | 'Kurang Memenuhi Standar'
+  strengths: string[]
+  warnings: string[]
+}
+
 interface Feedback {
   structure: number
   coherence: number
@@ -32,6 +50,7 @@ interface Feedback {
   feedback: string
   suggestions: string[]
   issues?: Issue[]
+  nlpBenchmark?: NlpBenchmarkData
 }
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -753,6 +772,105 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                       {feedback.feedback}
                     </p>
                   </div>
+
+                  {/* NLP Benchmark vs 100 Accepted PPKB UI Essays */}
+                  {feedback.nlpBenchmark && (
+                    <div className="p-4 rounded-2xl bg-white border border-amber-300/80 shadow-xs space-y-3.5">
+                      <div className="flex items-center justify-between border-b border-amber-100 pb-2.5">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                          <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-wider">
+                            Benchmark NLP Esai Lolos PPKB UI
+                          </h4>
+                        </div>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                          100 Esai
+                        </span>
+                      </div>
+
+                      {/* Rank & Similarity Grid */}
+                      <div className="grid grid-cols-2 gap-2 text-center">
+                        <div className="p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/60">
+                          <p className="text-[10px] font-bold text-slate-500 uppercase">Kemiripan Korpus</p>
+                          <p className="text-lg font-black text-amber-900 mt-0.5">
+                            {feedback.nlpBenchmark.similarityScore}%
+                          </p>
+                          <p className="text-[10px] text-slate-500 truncate" title={feedback.nlpBenchmark.topMatchingMajor}>
+                            {feedback.nlpBenchmark.topMatchingMajor}
+                          </p>
+                        </div>
+                        <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                          <p className="text-[10px] font-bold text-slate-500 uppercase">Posisi Persentil</p>
+                          <p className="text-lg font-black text-slate-900 mt-0.5">
+                            Top {100 - feedback.nlpBenchmark.benchmarkRankPercentile}%
+                          </p>
+                          <span className={`inline-block text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
+                            feedback.nlpBenchmark.verdict === 'Sangat Menjanjikan'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : feedback.nlpBenchmark.verdict === 'Cukup Kompetitif'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {feedback.nlpBenchmark.verdict}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* STAR Action & Quantification Density */}
+                      <div className="space-y-1.5 pt-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-slate-700 text-[11px]">Kepadatan Aksi STAR</span>
+                          <span className="font-mono font-black text-amber-800 text-[11px]">
+                            {feedback.nlpBenchmark.starScore}/100
+                          </span>
+                        </div>
+                        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-amber-500 rounded-full"
+                            style={{ width: `${feedback.nlpBenchmark.starScore}%` }}
+                          />
+                        </div>
+                        {feedback.nlpBenchmark.starActionVerbs.length > 0 ? (
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {feedback.nlpBenchmark.starActionVerbs.slice(0, 5).map(verb => (
+                              <span key={verb} className="text-[10px] font-medium bg-amber-50 text-amber-800 border border-amber-200/80 px-2 py-0.5 rounded-md">
+                                {verb}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-[10px] text-amber-700 italic">Belum terdeteksi verba aksi aktif (merancang, memimpin, menguji).</p>
+                        )}
+                        {feedback.nlpBenchmark.metricsFound.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {feedback.nlpBenchmark.metricsFound.slice(0, 4).map(metric => (
+                              <span key={metric} className="text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-md">
+                                {metric}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Banned Clichés Alert / Pass */}
+                      {feedback.nlpBenchmark.clichesFound.length > 0 ? (
+                        <div className="p-2.5 rounded-xl bg-red-50/80 border border-red-200 text-xs">
+                          <div className="flex items-center gap-1.5 text-red-800 font-bold text-[11px] mb-1">
+                            <AlertCircle size={13} className="text-red-600 flex-shrink-0" />
+                            <span>Frasa Klise Terdeteksi ({feedback.nlpBenchmark.clichesFound.length})</span>
+                          </div>
+                          <p className="text-[10px] text-red-700 leading-snug">
+                            Hindari: &quot;{feedback.nlpBenchmark.clichesFound.slice(0, 2).join('&quot;, &quot;')}&quot;. Kurator seleksi langsung menandai esai dengan pembuka ini sebagai kurang unik.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] font-bold text-emerald-800 flex items-center gap-1.5">
+                          <CheckCircle2 size={13} className="text-emerald-600 flex-shrink-0" />
+                          <span>0 Frasa Klise - Gaya bahasa autentik &amp; orisinal</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* 4 Dimension Bars */}
                   <div>
