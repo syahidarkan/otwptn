@@ -1,4 +1,5 @@
 import type { JalurStatic, PricingMap, JalurCategory } from '@/types'
+import { PRICE_MATRIX, type Track } from '@/lib/pricing'
 
 export const JALUR_LIST: JalurStatic[] = [
   // SNBP - jalur nasional berbasis rapor & peringkat sekolah, bukan per-PTN
@@ -35,25 +36,51 @@ export const BANK_INFO = {
   account_name: 'Syahid Arkan Fashihurrohman',
 }
 
-// Harga per tier per kategori jalur (essay_only & prestasi_only sama tracknya)
+// Harga diturunkan dari src/lib/pricing.ts (sumber tunggal). Jangan hardcode angka di sini.
+const CATEGORY_TRACK: Record<JalurCategory, Track> = {
+  essay_only: 'essay',
+  prestasi_only: 'prestasi',
+  hybrid: 'hybrid',
+}
+
+function buildPricing(category: JalurCategory): PricingMap {
+  const row = PRICE_MATRIX.individu[CATEGORY_TRACK[category]]
+  return {
+    review: row.review.amount,
+    dokumen: row.dokumen.amount,
+    menyeluruh: row.menyeluruh.amount,
+  }
+}
+
 export const PRICING: Record<JalurCategory, PricingMap> = {
-  essay_only:    { review: 89000,  dokumen: 179000, menyeluruh: 349000 },
-  prestasi_only: { review: 89000,  dokumen: 179000, menyeluruh: 349000 },
-  hybrid:        { review: 109000, dokumen: 219000, menyeluruh: 439000 },
+  essay_only: buildPricing('essay_only'),
+  prestasi_only: buildPricing('prestasi_only'),
+  hybrid: buildPricing('hybrid'),
 }
 
 export const WEB_PREMIUM_PRICE: Record<JalurCategory, number> = {
-  essay_only: 30000,
-  prestasi_only: 30000,
-  hybrid: 39000,
+  essay_only: PRICE_MATRIX.individu.essay.web_premium.amount,
+  prestasi_only: PRICE_MATRIX.individu.prestasi.web_premium.amount,
+  hybrid: PRICE_MATRIX.individu.hybrid.web_premium.amount,
 }
 
-// Diskon referral ambassador per tier
-export const REFERRAL_DISCOUNT: Record<string, number> = {
-  review: 0.15,
-  dokumen: 0.10,
-  menyeluruh: 0.05,
-  web_premium: 0,
+// Harga akhir dengan kode referral (hanya tier bermentor, mode Individu)
+export const REFERRAL_PRICING: Record<JalurCategory, Partial<Record<keyof PricingMap, number>>> = {
+  essay_only: {
+    review: PRICE_MATRIX.individu.essay.review.referralAmount,
+    dokumen: PRICE_MATRIX.individu.essay.dokumen.referralAmount,
+    menyeluruh: PRICE_MATRIX.individu.essay.menyeluruh.referralAmount,
+  },
+  prestasi_only: {
+    review: PRICE_MATRIX.individu.prestasi.review.referralAmount,
+    dokumen: PRICE_MATRIX.individu.prestasi.dokumen.referralAmount,
+    menyeluruh: PRICE_MATRIX.individu.prestasi.menyeluruh.referralAmount,
+  },
+  hybrid: {
+    review: PRICE_MATRIX.individu.hybrid.review.referralAmount,
+    dokumen: PRICE_MATRIX.individu.hybrid.dokumen.referralAmount,
+    menyeluruh: PRICE_MATRIX.individu.hybrid.menyeluruh.referralAmount,
+  },
 }
 
 export const ADDON_PRICE: Record<JalurCategory, number> = {
@@ -134,7 +161,7 @@ export const FAQS = [
   },
   {
     q: 'Berapa lama proses pendampingan?',
-    a: 'Tergantung tier. Review biasanya 3–5 hari kerja. Dokumen 7–10 hari. Menyeluruh mengikuti timeline jalur PTN tujuanmu.',
+    a: 'Tergantung paket. Review (Nectar) biasanya 3-5 hari kerja, Reguler (Honeycomb) 7-10 hari, dan Intensif (Queen Bee) mengikuti timeline jalur PTN tujuanmu.',
   },
   {
     q: 'Apakah ada jaminan diterima PTN?',
@@ -146,7 +173,7 @@ export const FAQS = [
   },
   {
     q: 'Apakah bisa daftar lebih dari satu jalur?',
-    a: 'Ya! Kamu bisa tambahkan jalur tambahan sebagai add-on dengan biaya Rp 50.000–75.000 per jalur tergantung kategorinya.',
+    a: 'Ya! Kamu bisa tambahkan jalur tambahan sebagai add-on dengan biaya Rp 50.000 sampai Rp 75.000 per jalur tergantung kategorinya.',
   },
   {
     q: 'Apa bedanya Essay Only, Prestasi Only, dan Hybrid?',

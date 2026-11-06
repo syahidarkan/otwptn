@@ -241,7 +241,7 @@ export default function MentorAuthPage() {
         <div className="text-center pt-2 border-t border-gray-100 text-[11px] text-gray-400 space-y-1">
           <p>© {new Date().getFullYear()} {LEGAL_ENTITY.brand} Mentor Network</p>
           <Link href="/dashboard" className="text-amber-700 font-bold hover:underline block">
-            Bukan Mentor? Masuk ke Portal Siswa →
+            Bukan Mentor? Masuk ke Portal Siswa <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden />
           </Link>
         </div>
       </div>

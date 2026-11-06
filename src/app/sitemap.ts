@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import { ARTICLES } from '@/lib/articlesData'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://otwptn.com'
   const currentDate = new Date().toISOString()
 
@@ -26,36 +26,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.95,
     },
     {
-      url: `${baseUrl}/panduan/jalur-non-tes-ptn`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/panduan/ppkb-ui`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/panduan/pbub-ugm`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/panduan/sjp-ipb`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/panduan/mentor-ptn-terbaik`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
       url: `${baseUrl}/upgrade`,
       lastModified: currentDate,
       changeFrequency: 'weekly',
@@ -74,6 +44,30 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/tentang`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/direktori`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/kebijakan-privasi`,
+      lastModified: currentDate,
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/syarat-ketentuan`,
+      lastModified: currentDate,
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
       url: `${baseUrl}/login`,
       lastModified: currentDate,
       changeFrequency: 'monthly',
@@ -87,25 +81,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ]
 
-  // Jalur Non-Tes Subroutes for SEO Dominance
-  const jalurTracks = [
-    'ppkb-ui',
-    'sjp-ipb',
-    'pbub-ugm',
-    'golden-ticket-unair',
-    'smitb-peminatan',
-    'snbp-nasional',
-    'span-ptkin',
-    'prestasi-undip',
-    'mandiri-prestasi-unpad',
-  ]
-
-  const trackRoutes: MetadataRoute.Sitemap = jalurTracks.map(id => ({
-    url: `${baseUrl}/jalur/${id}`,
-    lastModified: currentDate,
-    changeFrequency: 'weekly',
-    priority: 0.85,
-  }))
+  // /jalur/[id] is backed by the jalur_pages table (uuid ids), so list the real active rows.
+  // Public read is allowed by RLS; on any failure fall back to no per-jalur entries.
+  let trackRoutes: MetadataRoute.Sitemap = []
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    if (url && anon) {
+      const res = await fetch(`${url}/rest/v1/jalur_pages?select=id,created_at&is_active=eq.true`, {
+        headers: { apikey: anon, Authorization: `Bearer ${anon}` },
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(4000),
+      })
+      if (res.ok) {
+        const rows: { id: string; created_at: string }[] = await res.json()
+        trackRoutes = rows.map(r => ({
+          url: `${baseUrl}/jalur/${r.id}`,
+          lastModified: new Date(r.created_at).toISOString(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.8,
+        }))
+      }
+    }
+  } catch {
+    trackRoutes = []
+  }
 
   // Artikel Hub & All Articles from articlesData for SEO Dominance
   const articleRoutes: MetadataRoute.Sitemap = [

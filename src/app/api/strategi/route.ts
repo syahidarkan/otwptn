@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { consumeQuota } from '@/lib/security'
 import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
 
@@ -15,15 +16,8 @@ export async function POST(request: Request) {
   const tier = profile?.tier ?? 'free'
   const limit = TIER_STRATEGI_LIMIT[tier] ?? null
 
-  if (limit !== null) {
-    const { data: quota } = await supabase
-      .from('usage_quotas')
-      .select('used_count')
-      .eq('user_id', user.id)
-      .eq('feature', 'ai_strategi')
-      .maybeSingle()
-    const used = quota?.used_count ?? 0
-    if (used >= limit) return NextResponse.json({ error: 'quota_exceeded', limit }, { status: 403 })
+  if (!(await consumeQuota(user.id, 'ai_strategi', limit))) {
+    return NextResponse.json({ error: 'quota_exceeded', limit }, { status: 403 })
   }
 
   const { kalkulator_session_id, input_data } = await request.json() as {
@@ -90,9 +84,6 @@ Berikan rekomendasi strategi dalam JSON valid berikut (HANYA JSON):
       input_data,
       result_json: result,
     })
-
-    const curUsed = (await supabase.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'ai_strategi').maybeSingle()).data?.used_count ?? 0
-    await supabase.from('usage_quotas').upsert({ user_id: user.id, feature: 'ai_strategi', used_count: curUsed + 1 }, { onConflict: 'user_id,feature' })
 
     return NextResponse.json(result)
   } catch {

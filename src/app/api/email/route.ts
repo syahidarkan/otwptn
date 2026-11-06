@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createAdminClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import nodemailer from 'nodemailer'
 
 const schema = z.object({
-  subject: z.string().min(1),
-  body: z.string().min(1),
+  subject: z.string().min(1).max(200).regex(/^[^\r\n]+$/, 'Subject must be a single line'),
+  body: z.string().min(1).max(20000),
 })
 
 const transporter = nodemailer.createTransport({
@@ -19,13 +19,14 @@ const transporter = nodemailer.createTransport({
 export async function POST(request: Request) {
   try {
     const data = schema.parse(await request.json())
-    const supabase = await createAdminClient()
-
-    const { data: { user } } = await supabase.auth.getUser()
+    const session = await createClient()
+    const { data: { user } } = await session.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { data: adminProfile } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single()
+    const { data: adminProfile } = await session.from('profiles').select('is_admin').eq('id', user.id).single()
     if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+    const supabase = createServiceClient()
 
     // Get emails of users who have a paid tier (i.e., are members)
     const { data: members } = await supabase

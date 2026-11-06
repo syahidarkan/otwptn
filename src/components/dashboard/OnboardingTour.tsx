@@ -56,7 +56,7 @@ const TOUR_STEPS: TourStep[] = [
     badge: 'Langkah 3 dari 6',
     actionUrl: '/dashboard/kalkulator',
     actionLabel: 'Buka Kalkulator',
-    illustration: '/mascot/chart-pointing.png',
+    illustration: '/mascot/bar-chart-point.png',
   },
   {
     title: 'Fitur 3: Atur Strategi & Tracking Jalur',

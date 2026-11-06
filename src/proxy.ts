@@ -38,6 +38,12 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
+  // Admin routes — unauthenticated. Server components under /admin read data with the service
+  // client, so anonymous visitors must be stopped here, not by the client-side layout.
+  if (!user && pathname.startsWith('/admin')) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
   // Mentor routes — unauthenticated
   if (!user && pathname.startsWith('/mentor') && pathname !== '/mentor/auth' && pathname !== '/mentor/apply') {
     return NextResponse.redirect(new URL('/mentor/auth', request.url))
@@ -51,7 +57,7 @@ export async function proxy(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    const isAdmin = profile?.is_admin || profile?.role === 'superadmin' || user.email === 'admin@otwptn.id'
+    const isAdmin = profile?.is_admin || profile?.role === 'superadmin'
     if (!isAdmin) return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
@@ -63,7 +69,7 @@ export async function proxy(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    const isMentor = profile?.role === 'mentor' || profile?.is_admin || profile?.role === 'superadmin' || profile?.role === 'admin' || user.email === 'admin@otwptn.id'
+    const isMentor = profile?.role === 'mentor' || profile?.is_admin || profile?.role === 'superadmin' || profile?.role === 'admin'
     if (!isMentor) return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 

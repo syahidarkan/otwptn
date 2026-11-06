@@ -82,7 +82,7 @@ export default function MentorPemasukanPage() {
 
   const activeBalance = totalHonor - alreadyPaid
 
-  const mentorAmbassadorUrl = referralCode ? `https://otwptn.id/r/${referralCode}` : ''
+  const mentorAmbassadorUrl = referralCode ? `https://otwptn.com/upgrade?ref=${referralCode}` : ''
 
   function handleCopyCode() {
     navigator.clipboard.writeText(referralCode)

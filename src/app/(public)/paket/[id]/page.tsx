@@ -1,13 +1,6 @@
-import ProductDetailClient from './ProductDetailClient'
+import { redirect } from 'next/navigation'
 
-export default async function ProductDetailPage(props: {
-  params: Promise<{ id: string }>
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
-  const params = await props.params
-  const searchParams = await props.searchParams
-  const id = params?.id || 'nectar'
-  const initialCartOpen = searchParams?.cart === '1'
-
-  return <ProductDetailClient id={id} initialCartOpen={initialCartOpen} />
+// Legacy product detail page — consolidated into /upgrade (see /checkout/page.tsx for why).
+export default function ProductDetailRedirectPage() {
+  redirect('/upgrade')
 }

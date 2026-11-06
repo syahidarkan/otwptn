@@ -35,18 +35,6 @@ import {
   GraduationCap,
 } from 'lucide-react'
 
-// Dummy mentor profile for demonstration
-const ASSIGNED_MENTOR = {
-  name: 'Kak Rayhan Fadillah, S.Kom.',
-  univ: 'Universitas Indonesia',
-  major: 'Fasilkom UI (Ilmu Komputer)',
-  track: 'Lolos PPKB UI & SNBP',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-  waNumber: '6281234567890',
-  rating: 4.98,
-  menteeCount: 42,
-}
-
 interface MentorProfile {
   name: string
   univ: string
@@ -222,16 +210,6 @@ export default function MentorAlumniPage() {
   const [eligibleRank, setEligibleRank] = useState('3')
   const [jurusan, setJurusan] = useState<'IPA' | 'IPS'>('IPA')
   const [alumniCount, setAlumniCount] = useState('14')
-  const [scanning, setScanning] = useState(false)
-  const [scanSuccess, setScanSuccess] = useState(false)
-  const [raporData, setRaporData] = useState<Record<string, number[]>>({
-    Matematika: [88, 90, 92, 94, 95],
-    Fisika: [85, 88, 90, 92, 93],
-    Kimia: [86, 87, 89, 91, 93],
-    Biologi: [87, 89, 90, 93, 94],
-    'Bahasa Indonesia': [90, 91, 93, 94, 95],
-    'Bahasa Inggris': [89, 92, 93, 95, 96],
-  })
 
   // Booking Sesi 1-on-1 States
   const [bookingDate, setBookingDate] = useState('')
@@ -307,23 +285,6 @@ export default function MentorAlumniPage() {
       })
     )
     setReplyInput(prev => ({ ...prev, [commentId]: '' }))
-  }
-
-  function handleScanRapor() {
-    setScanning(true)
-    setScanSuccess(false)
-    setTimeout(() => {
-      setScanning(false)
-      setScanSuccess(true)
-      setRaporData({
-        Matematika: [90, 92, 93, 95, 96],
-        Fisika: [88, 90, 91, 94, 95],
-        Kimia: [87, 89, 92, 93, 94],
-        Biologi: [89, 91, 91, 93, 94],
-        'Bahasa Indonesia': [92, 93, 94, 95, 96],
-        'Bahasa Inggris': [91, 93, 94, 96, 97],
-      })
-    }, 2000)
   }
 
   function handleExportPDF() {
@@ -546,7 +507,7 @@ export default function MentorAlumniPage() {
                       ● Sesi Terhubung
                     </span>
                     <h4 className="text-xs font-black text-gray-900 mt-1">
-                      {mentoringRecord?.mentor_name ?? ASSIGNED_MENTOR.name}
+                      {mentoringRecord?.mentor_name ?? 'Mentor akan segera ditugaskan'}
                     </h4>
                     <p className="text-[11px] text-gray-500">Alumni PTN · Mentor Pendamping otwptn</p>
                   </div>
@@ -892,7 +853,7 @@ export default function MentorAlumniPage() {
                     <ShieldCheck size={12} className="text-amber-700" /> Mentor Pendamping Kamu
                   </span>
                   <h2 className="text-lg font-black text-gray-900">
-                    {mentoringRecord?.mentor_name ?? ASSIGNED_MENTOR.name}
+                    {mentoringRecord?.mentor_name ?? 'Mentor akan segera ditugaskan'}
                   </h2>
                   <p className="text-xs text-gray-500 font-semibold">Alumni PTN · otwptn Mentor</p>
                 </div>
@@ -1234,61 +1195,22 @@ export default function MentorAlumniPage() {
                   </div>
                 </div>
 
-                {/* Scan Rapor OCR Section */}
-                <div className="p-8 rounded-3xl bg-white shadow-md space-y-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
-                    <div>
-                      <h3 className="text-sm font-black text-gray-900 flex items-center gap-2">
-                        <Scan size={18} className="text-amber-500" /> Hasil Audit Nilai Rapor (Semester 1–5)
-                      </h3>
-                      <p className="text-xs text-gray-500">Mata pelajaran penentu bobot kelolosan prodi pilihan.</p>
-                    </div>
-
-                    <button
-                      onClick={handleScanRapor}
-                      disabled={scanning}
-                      className="btn-brand-primary px-4 py-2 rounded-full text-xs font-black shadow-xs flex items-center gap-1.5 self-start sm:self-auto"
-                    >
-                      <Upload size={14} /> {scanning ? 'Menganalisis Rapor...' : 'Upload & Scan Ulang Rapor'}
-                    </button>
+                {/* Nilai rapor */}
+                <div className="p-8 rounded-3xl bg-white shadow-md space-y-4">
+                  <div>
+                    <h3 className="text-sm font-black text-gray-900 flex items-center gap-2">
+                      <Scan size={18} className="text-amber-500" aria-hidden /> Nilai Rapor Semester 1-5
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Nilai rapor kamu dikelola di Kalkulator Peluang dan dibaca mentor dari sana.
+                    </p>
                   </div>
-
-                  {scanSuccess && (
-                    <div className="p-4 rounded-2xl bg-emerald-50 text-emerald-900 text-xs font-bold flex items-center gap-2">
-                      <CheckCircle2 size={16} className="text-emerald-600" />
-                      OCR Berhasil: Nilai rapor 5 semester telah diperbarui dan diverifikasi otomatis.
-                    </div>
-                  )}
-
-                  {/* Rapor Data Table */}
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left">
-                      <thead>
-                        <tr className="border-b border-gray-100 text-[11px] font-black uppercase text-gray-400">
-                          <th className="py-2.5 px-3">Mata Pelajaran</th>
-                          <th className="py-2.5 px-3 text-center">Sem 1</th>
-                          <th className="py-2.5 px-3 text-center">Sem 2</th>
-                          <th className="py-2.5 px-3 text-center">Sem 3</th>
-                          <th className="py-2.5 px-3 text-center">Sem 4</th>
-                          <th className="py-2.5 px-3 text-center">Sem 5</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-50 font-semibold text-gray-900">
-                        {Object.entries(raporData).map(([subject, grades]) => (
-                          <tr key={subject} className="hover:bg-gray-50">
-                            <td className="py-3 px-3 font-bold">{subject}</td>
-                            {grades.map((grade, idx) => (
-                              <td key={idx} className="py-3 px-3 text-center">
-                                <span className="px-2.5 py-1 rounded-lg bg-gray-100 font-mono">
-                                  {grade}
-                                </span>
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <Link
+                    href="/dashboard/kalkulator"
+                    className="btn-brand-primary px-4 py-2 rounded-full text-xs font-black shadow-xs inline-flex items-center gap-1.5"
+                  >
+                    Buka Kalkulator Peluang <ArrowRight size={14} aria-hidden />
+                  </Link>
                 </div>
               </div>
 
@@ -1306,29 +1228,12 @@ export default function MentorAlumniPage() {
                     Mentor mewajibkan upload 3 sertifikat tertinggi untuk dikurasi bobot nilainya.
                   </p>
 
-                  <div className="space-y-3">
-                    {[
-                      { name: 'Sertifikat 1 (Medali Perak OSN Informatika)', level: 'Nasional', status: 'Terunggah' },
-                      { name: 'Sertifikat 2 (Juara 1 Lomba Web Design)', level: 'Provinsi', status: 'Terunggah' },
-                      { name: 'Sertifikat 3 (Ketua OSIS / Kepemimpinan)', level: 'Sekolah', status: 'Perlu Dicek' },
-                    ].map((cert, ci) => (
-                      <div key={ci} className="p-3.5 rounded-2xl bg-gray-50 space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 bg-amber-100/60 px-2 py-0.5 rounded-full">
-                            {cert.level}
-                          </span>
-                          <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
-                            <Check size={11} /> {cert.status}
-                          </span>
-                        </div>
-                        <p className="text-xs font-bold text-gray-900">{cert.name}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <button className="w-full py-3 rounded-full text-xs font-black bg-gray-100 hover:bg-gray-200 text-gray-800 flex items-center justify-center gap-2 transition-colors">
-                    <Upload size={14} /> Unggah Sertifikat Baru
-                  </button>
+                  <Link
+                    href="/dashboard/dokumen"
+                    className="w-full py-3 rounded-full text-xs font-black bg-gray-100 hover:bg-gray-200 text-gray-800 flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <Upload size={14} aria-hidden /> Kelola Sertifikat di Penyimpanan Dokumen
+                  </Link>
                 </div>
               </div>
             </div>
@@ -1343,7 +1248,7 @@ export default function MentorAlumniPage() {
                 </div>
                 <div>
                   <h3 className="text-base font-black text-gray-900">Jadwalkan Sesi 1-on-1 Google Meet</h3>
-                  <p className="text-xs text-gray-500">Konsultasi privat 45–60 menit bersama {ASSIGNED_MENTOR.name}.</p>
+                  <p className="text-xs text-gray-500">Konsultasi privat 45–60 menit bersama {mentoringRecord?.mentor_name ?? 'mentor kamu'}.</p>
                 </div>
               </div>
 

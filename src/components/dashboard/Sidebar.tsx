@@ -93,6 +93,7 @@ export default function Sidebar() {
   const [name, setName] = useState('')
   const [school, setSchool] = useState('')
   const [tier, setTier] = useState('free')
+  const [isAdmin, setIsAdmin] = useState(false)
   const [avatar, setAvatar] = useState('/avatars/avatar-1.png')
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
@@ -200,11 +201,12 @@ export default function Sidebar() {
       if (!data.user) return
       const userMetaName = data.user.user_metadata?.full_name || data.user.user_metadata?.name
       const userEmailFallback = data.user.email?.split('@')[0]
-      supabase.from('profiles').select('full_name, tier, avatar_url, school_name, school').eq('id', data.user.id).maybeSingle().then(({ data: profile }) => {
+      supabase.from('profiles').select('full_name, tier, avatar_url, school_name, school, is_admin').eq('id', data.user.id).maybeSingle().then(({ data: profile }) => {
         const finalName = profile?.full_name || userMetaName || userEmailFallback || 'Pejuang PTN'
         setName(finalName)
         setSchool(profile?.school_name || profile?.school || '')
         setTier(profile?.tier || 'free')
+        setIsAdmin(!!profile?.is_admin)
         if (profile?.avatar_url) {
           setAvatar(profile.avatar_url)
           try { localStorage.setItem('otwptn_user_avatar', profile.avatar_url) } catch {}
@@ -478,7 +480,11 @@ export default function Sidebar() {
                   <p className="text-xs font-black truncate text-gray-900 group-hover:text-amber-900 leading-tight">
                     {name || 'Pejuang PTN'}
                   </p>
-                  {tier && tier !== 'free' && (
+                  {isAdmin ? (
+                    <span className="flex-shrink-0 text-[8px] font-black px-1.5 py-0.5 rounded-full leading-none bg-gray-900 text-amber-300">
+                      SUPERADMIN
+                    </span>
+                  ) : tier && tier !== 'free' ? (
                     <span className={`flex-shrink-0 text-[8px] font-black px-1.5 py-0.5 rounded-full leading-none ${
                       tier === 'menyeluruh' ? 'bg-purple-100 text-purple-700' :
                       tier === 'dokumen' ? 'bg-blue-100 text-blue-700' :
@@ -490,7 +496,7 @@ export default function Sidebar() {
                        tier === 'review' ? 'NECTAR' :
                        tier === 'web_premium' ? 'PREMIUM' : tier.toUpperCase()}
                     </span>
-                  )}
+                  ) : null}
                 </div>
                 <p className="text-[10px] font-semibold text-gray-400 truncate">
                   {school || '+ Tambahkan sekolah...'}

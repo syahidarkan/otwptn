@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
+import { rateLimit } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -136,9 +137,23 @@ function buildFallbackInsight(ptn: string, jurusan: string): CampusInsightPayloa
 }
 
 export async function GET(request: Request) {
+  // This endpoint spends AI credits and writes a cache shared by every user: login required.
+  const authClient = await createClient()
+  const { data: { user } } = await authClient.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await rateLimit('campus_insight', user.id, 30, 3600))) {
+    return NextResponse.json({ error: 'Terlalu banyak permintaan. Coba lagi nanti.' }, { status: 429 })
+  }
+
   const { searchParams } = new URL(request.url)
   const rawPtn = (searchParams.get('ptn') || '').trim()
   const rawJurusan = (searchParams.get('jurusan') || '').trim()
+  // Values are interpolated into an AI prompt and stored in a shared cache: allow only
+  // plain names (no newlines, quotes or braces that could carry injected instructions).
+  const SAFE_NAME = /^[\p{L}\p{N} .,()&\/'-]{1,80}$/u
+  if (!SAFE_NAME.test(rawPtn) || !SAFE_NAME.test(rawJurusan)) {
+    return NextResponse.json({ error: 'Parameter ptn atau jurusan tidak valid' }, { status: 400 })
+  }
 
   if (!rawPtn || !rawJurusan) {
     return NextResponse.json(

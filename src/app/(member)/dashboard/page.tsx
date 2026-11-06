@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import PaymentSuccessBanner from '@/components/dashboard/PaymentSuccessBanner'
+import { PRICE_MATRIX, formatIDR } from '@/lib/pricing'
 import {
   ArrowRight,
   Rocket,
@@ -268,7 +269,7 @@ export default async function DashboardPage() {
               Upgrade ke Paket Mentor
             </h2>
             <p className="text-2xl font-black text-amber-400 mb-2.5">
-              Mulai dari Rp50.000
+              Mulai dari {formatIDR(PRICE_MATRIX.squad.essay.review.amount)}
             </p>
             <p className="text-sm font-medium leading-relaxed text-slate-200/90 mb-6 max-w-lg">
               Review essay langsung dari mentor alumni UI, ITB & UGM, akses modul dokumen tak terbatas, serta penyusunan strategi personal sesuai targetmu.

@@ -36,7 +36,7 @@ export default function ShareStoryModal({
 
   if (!isOpen) return null
 
-  const shareText = `Alhamdulillah dapet prediksi peluang lolos ${Math.round(score)}% di ${targetMajor} - ${targetUniv}! Cek peluang rapor dan strategi masuk PTN kamu gratis di https://otwptn.com 🎓🐝`
+  const shareText = `Alhamdulillah dapet prediksi peluang lolos ${Math.round(score)}% di ${targetMajor} - ${targetUniv}! Cek peluang rapor dan strategi masuk PTN kamu gratis di https://otwptn.com`
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shareText)

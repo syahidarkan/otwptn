@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Check } from 'lucide-react'
+import { Check, ArrowRight } from 'lucide-react'
 import { TurnstileWidget } from '@/components/ui/TurnstileWidget'
 
 export default function RegisterPage() {
@@ -61,7 +61,7 @@ export default function RegisterPage() {
           </div>
           <h1 className="text-lg font-bold text-fg mb-2">Cek email kamu!</h1>
           <p className="text-sm mb-5" style={{ color: 'var(--muted)' }}>Link konfirmasi sudah dikirim ke <strong>{email}</strong>.</p>
-          <Link href="/login" className="btn btn-dark w-full py-3 text-sm">Sudah konfirmasi? Masuk →</Link>
+          <Link href="/login" className="btn btn-dark w-full py-3 text-sm">Sudah konfirmasi? Masuk <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden /></Link>
         </div>
       </div>
     )

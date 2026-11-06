@@ -1,108 +1,165 @@
 'use client'
 
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useRef } from 'react'
 import { usePathname, useSearchParams, useRouter } from 'next/navigation'
-import { HoneyFill } from '@/components/ui/HoneyDrip'
+import { HoneyOverlay } from '@/components/ui/HoneyDrip'
 
-type HoneyPhase = 'idle' | 'entering' | 'exiting'
+type Phase = 'idle' | 'covering' | 'waiting' | 'revealing'
 
-// Navigation is held back until the honey has visually started covering the
-// screen (or this minimum elapses), so the new page never flashes in before
-// the animation appears.
-const MIN_COVER_BEFORE_NAV_MS = 220
+const COVER_MS = 300
+const REVEAL_MS = 400
+// Absolute ceiling for a whole transition so the overlay can never hang the UI.
+const HARD_CAP_MS = 3500
 
 export default function GlobalPageLoader() {
+  const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const router = useRouter()
-  const [honeyPhase, setHoneyPhase] = useState<HoneyPhase>('idle')
-  const honeyPhaseRef = useRef<HoneyPhase>('idle')
-  honeyPhaseRef.current = honeyPhase
-  // Both must be true before exit starts
-  const coveredRef = useRef(false)
-  const navDoneRef = useRef(false)
-  const maxTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const routeKey = `${pathname}?${searchParams.toString()}`
+
+  const elRef = useRef<HTMLDivElement>(null)
+  const phaseRef = useRef<Phase>('idle')
   const pendingHrefRef = useRef<string | null>(null)
-  const navStartedRef = useRef(false)
+  const startKeyRef = useRef(routeKey)
+  const routeKeyRef = useRef(routeKey)
+  routeKeyRef.current = routeKey
+  const capTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const coverAnimRef = useRef<Animation | null>(null)
+  const revealAnimRef = useRef<Animation | null>(null)
 
-  const startPendingNav = useCallback(() => {
-    if (navStartedRef.current || !pendingHrefRef.current) return
-    navStartedRef.current = true
-    router.push(pendingHrefRef.current)
-  }, [router])
-
-  // Navigation done: if honey already covering → exit; else mark and wait for cover
+  // Reveal only once the new route has committed AND painted.
   useEffect(() => {
-    if (honeyPhaseRef.current !== 'entering') return
-    navDoneRef.current = true
-    if (coveredRef.current) setHoneyPhase('exiting')
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, searchParams])
+    if (phaseRef.current !== 'waiting' || routeKey === startKeyRef.current) return
+    // Two animation frames = committed + painted; the timer keeps it moving if frames are throttled.
+    let r2 = 0
+    const r1 = requestAnimationFrame(() => {
+      r2 = requestAnimationFrame(() => reveal())
+    })
+    const t = setTimeout(() => reveal(), 100)
+    return () => {
+      cancelAnimationFrame(r1)
+      cancelAnimationFrame(r2)
+      clearTimeout(t)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeKey])
 
-  // HoneyFill pauses video and calls this when canvas is fully covered
-  const handleFullyCovered = useCallback(() => {
-    coveredRef.current = true
-    if (navDoneRef.current) setHoneyPhase('exiting')
-    // else: stay in entering, video is paused at full-cover; pathname effect will trigger exit
-  }, [])
+  function reveal() {
+    const el = elRef.current
+    if (!el || phaseRef.current === 'revealing' || phaseRef.current === 'idle') return
+    phaseRef.current = 'revealing'
+    coverAnimRef.current?.cancel()
+    const h = el.offsetHeight
+    // Flip so the drips lead on the way down and the honey drains off the screen.
+    el.style.transform = `translateY(${h}px) scaleY(-1)`
+    const anim = el.animate(
+      [
+        { transform: `translateY(${h}px) scaleY(-1)` },
+        { transform: `translateY(${h * 2}px) scaleY(-1)` },
+      ],
+      { duration: REVEAL_MS, easing: 'cubic-bezier(0.5, 0, 0.9, 0.6)', fill: 'forwards' },
+    )
+    revealAnimRef.current = anim
+    anim.onfinish = finish
+    setTimeout(() => {
+      if (revealAnimRef.current === anim) finish()
+    }, REVEAL_MS + 80)
+  }
+
+  function finish() {
+    const el = elRef.current
+    if (capTimerRef.current) clearTimeout(capTimerRef.current)
+    capTimerRef.current = null
+    if (revealAnimRef.current) {
+      revealAnimRef.current.onfinish = null
+      revealAnimRef.current.cancel()
+      revealAnimRef.current = null
+    }
+    pendingHrefRef.current = null
+    if (el) {
+      el.style.visibility = 'hidden'
+      el.style.transform = 'translateY(-110%)'
+    }
+    phaseRef.current = 'idle'
+  }
+
+  function startNav() {
+    const href = pendingHrefRef.current
+    if (!href) return
+    router.push(href)
+  }
+
+  function cover(href: string) {
+    const el = elRef.current
+    if (!el) return false
+    pendingHrefRef.current = href
+    if (phaseRef.current !== 'idle') {
+      // Already covering/waiting: just retarget the navigation.
+      if (phaseRef.current === 'waiting') startNav()
+      return true
+    }
+    startKeyRef.current = routeKeyRef.current
+    phaseRef.current = 'covering'
+    router.prefetch(href)
+    el.style.visibility = 'visible'
+    const anim = el.animate(
+      [{ transform: 'translateY(-110%) scaleY(1)' }, { transform: 'translateY(0) scaleY(1)' }],
+      { duration: COVER_MS, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' },
+    )
+    coverAnimRef.current = anim
+    const onCovered = () => {
+      if (coverAnimRef.current !== anim || phaseRef.current !== 'covering') return
+      el.style.transform = 'translateY(0) scaleY(1)'
+      anim.cancel()
+      phaseRef.current = 'waiting'
+      startNav()
+    }
+    anim.onfinish = onCovered
+    // Do not depend on the animation clock alone: start navigating even if frames are throttled.
+    setTimeout(onCovered, COVER_MS + 40)
+    capTimerRef.current = setTimeout(() => {
+      if (phaseRef.current === 'idle') return
+      startNav()
+      reveal()
+    }, HARD_CAP_MS)
+    return true
+  }
 
   useEffect(() => {
-    function handleAnchorClick(e: MouseEvent) {
-      // Let modified/non-primary clicks behave natively (new tab, etc.)
-      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+    function onClick(e: MouseEvent) {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-      const target = (e.target as HTMLElement).closest('a')
-      if (!target) return
-      const href = target.getAttribute('href')
+      const a = (e.target as HTMLElement | null)?.closest?.('a')
+      if (!a) return
+      const href = a.getAttribute('href')
       if (!href) return
       if (
         href.startsWith('#') ||
         href.startsWith('mailto:') ||
         href.startsWith('tel:') ||
-        target.getAttribute('target') === '_blank' ||
-        target.getAttribute('download') !== null
+        a.getAttribute('target') === '_blank' ||
+        a.getAttribute('download') !== null
       ) return
 
-      const isInternal = href.startsWith('/') || href.startsWith(window.location.origin)
-      if (!isInternal) return
-
+      let url: URL
       try {
-        const url = new URL(href, window.location.origin)
-        const cur = new URL(window.location.href)
-        if (url.pathname === cur.pathname && url.search === cur.search) return
-
-        if (honeyPhaseRef.current !== 'idle') return
-
-        // Hold navigation back until honey starts covering the screen
-        e.preventDefault()
-        coveredRef.current = false
-        navDoneRef.current = false
-        navStartedRef.current = false
-        pendingHrefRef.current = `${url.pathname}${url.search}${url.hash}`
-
-        setHoneyPhase('entering')
-        setTimeout(startPendingNav, MIN_COVER_BEFORE_NAV_MS)
-
-        // Safety net: force exit after 2.5s even if coverage detection fails
-        if (maxTimerRef.current) clearTimeout(maxTimerRef.current)
-        maxTimerRef.current = setTimeout(() => {
-          startPendingNav()
-          if (honeyPhaseRef.current !== 'idle') setHoneyPhase('idle')
-        }, 2500)
+        url = new URL(href, window.location.href)
       } catch {
-        // invalid URL
+        return
       }
+      if (url.origin !== window.location.origin) return
+      const cur = window.location
+      if (url.pathname === cur.pathname && url.search === cur.search) return
+
+      e.preventDefault()
+      e.stopPropagation()
+      cover(`${url.pathname}${url.search}${url.hash}`)
     }
+    document.addEventListener('click', onClick, true)
+    return () => document.removeEventListener('click', onClick, true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-    document.addEventListener('click', handleAnchorClick, true)
-    return () => document.removeEventListener('click', handleAnchorClick, true)
-  }, [startPendingNav])
-
-  return honeyPhase !== 'idle' ? (
-    <HoneyFill
-      phase={honeyPhase as 'entering' | 'exiting'}
-      onComplete={() => setHoneyPhase('idle')}
-      onFullyCovered={handleFullyCovered}
-    />
-  ) : null
+  return <HoneyOverlay ref={elRef} />
 }

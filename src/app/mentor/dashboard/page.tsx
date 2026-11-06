@@ -431,7 +431,7 @@ export default function MentorDashboardPage() {
                 Status Akun: Menunggu Verifikasi Dokumen LOA
               </p>
               <p className="text-[11px] text-amber-800 font-medium mt-0.5">
-                Dokumen LOA kamu sedang diverifikasi oleh Tim Akademik {LEGAL_ENTITY.name}. Siswa di bawah ini merupakan data simulasi mentee untuk demonstrasi workspace.
+                Dokumen LOA kamu sedang diverifikasi oleh Tim Akademik {LEGAL_ENTITY.name}. Mentee akan ditugaskan otomatis setelah akunmu disetujui.
               </p>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createAdminClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
+import { getClientIp, rateLimit } from '@/lib/security'
 
 const schema = z.object({
   fullName: z.string().min(2, 'Nama lengkap minimal 2 karakter'),
@@ -13,7 +14,7 @@ const schema = z.object({
   tiktok: z.string().min(1, 'Username TikTok wajib diisi'),
   portfolioLink: z.string().url('Link video atau portofolio harus berupa URL yang valid (Google Drive, TikTok, atau IG)'),
   phoneModel: z.string().min(2, 'Tipe HP wajib diisi'),
-  reason: z.string().min(10, 'Ceritakan alasan kamu minimal 10 karakter'),
+  reason: z.string().max(3000).min(10, 'Ceritakan alasan kamu minimal 10 karakter'),
   position: z.string().default('Marketing Partner (Content Creator)'),
 })
 
@@ -29,12 +30,16 @@ export async function POST(request: Request) {
       )
     }
 
+    if (!(await rateLimit('career_apply', getClientIp(request), 5, 3600))) {
+      return NextResponse.json({ error: 'Terlalu banyak pengiriman. Coba lagi nanti.' }, { status: 429 })
+    }
+
     const data = parsed.data
     const referenceId = `MP-${Date.now().toString(36).toUpperCase()}`
 
     // Try saving to Supabase if table exists
     try {
-      const supabase = await createAdminClient()
+      const supabase = createServiceClient()
       await supabase.from('career_applications').insert({
         reference_id: referenceId,
         position: data.position,

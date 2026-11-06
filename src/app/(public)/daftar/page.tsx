@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { JALUR_LIST, PRICING, ADDON_PRICE, CATEGORY_LABEL, TIER_LABEL, TIER_DESCRIPTION, BANK_INFO, REFERRAL_DISCOUNT } from '@/lib/constants'
+import { JALUR_LIST, PRICING, ADDON_PRICE, CATEGORY_LABEL, TIER_LABEL, TIER_DESCRIPTION, BANK_INFO, REFERRAL_PRICING } from '@/lib/constants'
 import { formatRupiah } from '@/lib/utils'
 import type { JalurCategory, PackageTier } from '@/types'
 import Button from '@/components/ui/Button'
 import FileUpload from '@/components/ui/FileUpload'
-import { CheckCircle2, Check, Lightbulb } from 'lucide-react'
+import { CheckCircle2, Check, Lightbulb, ArrowLeft, ArrowRight } from 'lucide-react'
 
 const TOTAL_STEPS = 6
 
@@ -194,7 +194,7 @@ export default function DaftarPage() {
               </div>
               <div className="flex justify-end mt-8">
                 <Button onClick={() => setStep(2)} disabled={!form.category}>
-                  Lanjut →
+                  Lanjut <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden />
                 </Button>
               </div>
             </div>
@@ -226,9 +226,9 @@ export default function DaftarPage() {
                         <p className="font-extrabold text-brand-black">
                           {form.category && formatRupiah(PRICING[form.category][tier])}
                         </p>
-                        {REFERRAL_DISCOUNT[tier] > 0 && form.category && (
+                        {form.category && REFERRAL_PRICING[form.category][tier] && (
                           <p className="text-[10px] text-green-600 font-semibold">
-                            Referral: {formatRupiah(Math.round(PRICING[form.category][tier] * (1 - REFERRAL_DISCOUNT[tier])))}
+                            Referral: {formatRupiah(REFERRAL_PRICING[form.category][tier]!)}
                           </p>
                         )}
                       </div>
@@ -250,9 +250,9 @@ export default function DaftarPage() {
               </select>
 
               <div className="flex justify-between mt-8">
-                <Button variant="ghost" onClick={() => setStep(1)}>← Kembali</Button>
+                <Button variant="ghost" onClick={() => setStep(1)}><ArrowLeft size={14} className="inline-block mr-1 align-[-2px]" aria-hidden /> Kembali</Button>
                 <Button onClick={() => setStep(3)} disabled={!form.tier || !form.jalur_utama_id}>
-                  Lanjut →
+                  Lanjut <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden />
                 </Button>
               </div>
             </div>
@@ -319,8 +319,8 @@ export default function DaftarPage() {
               </div>
 
               <div className="flex justify-between mt-6">
-                <Button variant="ghost" onClick={() => setStep(2)}>← Kembali</Button>
-                <Button onClick={() => setStep(4)}>Lanjut →</Button>
+                <Button variant="ghost" onClick={() => setStep(2)}><ArrowLeft size={14} className="inline-block mr-1 align-[-2px]" aria-hidden /> Kembali</Button>
+                <Button onClick={() => setStep(4)}>Lanjut <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden /></Button>
               </div>
             </div>
           )}
@@ -396,7 +396,7 @@ export default function DaftarPage() {
                 </div>
               </div>
               <div className="flex justify-between mt-8">
-                <Button variant="ghost" onClick={() => setStep(3)}>← Kembali</Button>
+                <Button variant="ghost" onClick={() => setStep(3)}><ArrowLeft size={14} className="inline-block mr-1 align-[-2px]" aria-hidden /> Kembali</Button>
                 <Button
                   onClick={() => setStep(5)}
                   disabled={
@@ -404,7 +404,7 @@ export default function DaftarPage() {
                     form.password.length < 8 || form.password !== form.confirm_password
                   }
                 >
-                  Lanjut →
+                  Lanjut <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden />
                 </Button>
               </div>
             </div>
@@ -476,7 +476,7 @@ export default function DaftarPage() {
               )}
 
               <div className="flex justify-between mt-8">
-                <Button variant="ghost" onClick={() => setStep(4)}>← Kembali</Button>
+                <Button variant="ghost" onClick={() => setStep(4)}><ArrowLeft size={14} className="inline-block mr-1 align-[-2px]" aria-hidden /> Kembali</Button>
                 <Button
                   onClick={handleSubmit}
                   loading={loading}

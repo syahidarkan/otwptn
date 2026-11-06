@@ -18,9 +18,19 @@ export { ARTICLES, type Article } from '@/lib/articlesData'
 import { ARTICLES } from '@/lib/articlesData'
 
 
-export default function ArtikelPage() {
-  const featured = ARTICLES.filter(a => a.featured)
-  const regulars = ARTICLES.filter(a => !a.featured)
+const CATEGORY_FILTERS = ['SNBP', 'PPKB UI', 'SJP IPB', 'PBUB UGM', 'Essay & Portofolio', 'Strategi Rapor'] as const
+
+export default async function ArtikelPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const sp = await searchParams
+  const rawKategori = Array.isArray(sp?.kategori) ? sp.kategori[0] : sp?.kategori
+  const activeCategory = CATEGORY_FILTERS.find(c => c === rawKategori) ?? null
+  const visible = activeCategory ? ARTICLES.filter(a => a.category === activeCategory) : ARTICLES
+  const featured = visible.filter(a => a.featured)
+  const regulars = visible.filter(a => !a.featured)
 
   return (
     <div className="w-full min-h-screen pt-28 pb-24" style={{ background: 'var(--bg)' }}>
@@ -72,21 +82,28 @@ export default function ArtikelPage() {
 
         {/* Category Pills */}
         <div className="flex items-center gap-2.5 overflow-x-auto pb-4 mb-10" style={{ scrollbarWidth: 'none' }}>
-          {['Semua Artikel', 'SNBP', 'PPKB UI', 'SJP IPB', 'PBUB UGM', 'Essay & Portofolio', 'Strategi Rapor'].map((cat, i) => (
-            <button
-              key={cat}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                i === 0
-                  ? 'btn-brand-primary'
-                  : 'bg-white text-gray-700 hover:bg-gray-100 shadow-2xs'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+          {(['Semua Artikel', ...CATEGORY_FILTERS] as const).map(cat => {
+            const isActive = cat === 'Semua Artikel' ? !activeCategory : cat === activeCategory
+            return (
+              <Link
+                key={cat}
+                href={cat === 'Semua Artikel' ? '/artikel' : `/artikel?kategori=${encodeURIComponent(cat)}`}
+                aria-current={isActive ? 'page' : undefined}
+                className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
+                  isActive ? 'btn-brand-primary' : 'bg-white text-gray-700 hover:bg-gray-100 shadow-2xs'
+                }`}
+              >
+                {cat}
+              </Link>
+            )
+          })}
         </div>
 
-        {/* Featured 2 Articles */}
+        {visible.length === 0 && (
+          <p className="text-center text-sm text-gray-500 py-16">Belum ada artikel di kategori ini.</p>
+        )}
+
+        {/* Featured Articles */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-14">
           {featured.map(article => (
             <Link
@@ -182,7 +199,7 @@ export default function ArtikelPage() {
             </p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <Link href="/register" className="btn btn-primary text-xs sm:text-sm px-6 py-3 font-black shadow-md">
-                Daftar & Mulai Konsultasi Gratis →
+                Daftar & Mulai Konsultasi Gratis <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden />
               </Link>
               <Link href="/dashboard/kalkulator" className="btn bg-white hover:bg-gray-50 text-gray-900 text-xs sm:text-sm px-5 py-3 font-bold shadow-2xs">
                 Cek Kalkulator Peluang

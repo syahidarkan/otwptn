@@ -1,20 +1,19 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
-  Bell, GraduationCap, FileCheck2, Sparkles, Compass, Check,
-  X, ExternalLink, ChevronRight, CheckCheck, Megaphone, Newspaper,
+  Bell, GraduationCap, FileCheck2, Sparkles, Compass,
+  X, ChevronRight, Megaphone, Newspaper,
   Calculator, Users, Bot, BookOpen
 } from 'lucide-react'
 import {
   getAllNotifications,
+  syncNotificationsFromServer,
   markNotificationAsRead,
   markAllNotificationsAsRead,
   EVENT_NOTIF_UPDATE,
   type NotificationItem,
-  type NotificationType,
 } from '@/lib/notifications'
 
 interface NotificationPopoverProps {
@@ -39,7 +38,7 @@ export default function NotificationPopover({
 
   // Initial load and event listeners
   useEffect(() => {
-    refreshNotifications()
+    const initial = setTimeout(refreshNotifications, 0)
 
     const handleUpdate = () => {
       refreshNotifications()
@@ -49,10 +48,16 @@ export default function NotificationPopover({
     window.addEventListener('storage', handleUpdate)
 
     return () => {
+      clearTimeout(initial)
       window.removeEventListener(EVENT_NOTIF_UPDATE, handleUpdate)
       window.removeEventListener('storage', handleUpdate)
     }
   }, [])
+
+  // Pull fresh notifications whenever the popover is opened.
+  useEffect(() => {
+    if (isOpen) void syncNotificationsFromServer()
+  }, [isOpen])
 
   const unreadCount = useMemo(() => {
     return notifications.filter(n => n.isUnread).length
@@ -76,6 +81,10 @@ export default function NotificationPopover({
     e.preventDefault()
     markNotificationAsRead(item.id)
     onClose()
+    if (/^https?:\/\//i.test(item.href)) {
+      window.open(item.href, '_blank', 'noopener,noreferrer')
+      return
+    }
     router.push(item.href)
   }
 
@@ -271,7 +280,7 @@ export default function NotificationPopover({
         {/* Footer Note */}
         <div className="pt-2 mt-2 border-t border-gray-100/70 text-center">
           <span className="text-[10px] font-semibold text-gray-400">
-            Semua link mengarah langsung ke artikel dan fitur resmi OtwPTN
+            Pengumuman dari tim OtwPTN dan kabar fitur terbaru
           </span>
         </div>
       </div>

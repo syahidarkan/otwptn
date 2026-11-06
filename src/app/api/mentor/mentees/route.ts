@@ -41,6 +41,16 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
+  const isShortText = (v: unknown) => v === null || (typeof v === 'string' && v.length <= 500)
+  if (
+    (checklist !== undefined && JSON.stringify(checklist ?? null).length > 20000) ||
+    (wa_group_link !== undefined && !isShortText(wa_group_link)) ||
+    (zoom_link !== undefined && !isShortText(zoom_link)) ||
+    (vip_analysis !== undefined && JSON.stringify(vip_analysis ?? null).length > 50000)
+  ) {
+    return NextResponse.json({ error: 'Data terlalu besar atau tidak valid' }, { status: 400 })
+  }
+
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
   if (checklist !== undefined) updates.checklist = checklist
   if (wa_group_link !== undefined) updates.wa_group_link = wa_group_link

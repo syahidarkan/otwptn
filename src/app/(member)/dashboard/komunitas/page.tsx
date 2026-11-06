@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { useToast } from '@/components/ui/useToast'
 import {
   Search,
   Plus,
@@ -29,6 +30,7 @@ import {
   CheckCircle2,
   Target,
   Lightbulb,
+  ArrowRight,
 } from 'lucide-react'
 
 interface CircleItem {
@@ -260,6 +262,7 @@ const INITIAL_CUITAN: CuitanPost[] = [
 ]
 
 export default function KomunitasPage() {
+  const { showToast, toastHost } = useToast()
   const supabase = createClient()
   const [tier, setTier] = useState<string>('free')
   const [myProfile, setMyProfile] = useState<{ name: string; avatar: string; targetPTN: string } | null>(null)
@@ -300,7 +303,7 @@ export default function KomunitasPage() {
       setMyProfile({
         name: profile?.full_name || data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Pejuang PTN',
         avatar: profile?.avatar_url ?? '',
-        targetPTN: (profile?.target_ptns as string[] | null)?.[0] ?? '—',
+        targetPTN: (profile?.target_ptns as string[] | null)?.[0] ?? '-',
       })
     })
   }, [supabase])
@@ -319,7 +322,7 @@ export default function KomunitasPage() {
             profiles: { full_name?: string; avatar_url?: string; target_ptns?: string[]; target_majors?: string[] } | null
           }) => {
             const prof = p.profiles
-            const ptn = prof?.target_ptns?.[0] ?? '—'
+            const ptn = prof?.target_ptns?.[0] ?? '-'
             const name = prof?.full_name ?? 'Pejuang PTN'
             const handle = '@' + name.toLowerCase().replace(/\s+/g, '').slice(0, 10)
             const elapsed = Math.floor((Date.now() - new Date(p.created_at).getTime()) / 60000)
@@ -365,7 +368,7 @@ export default function KomunitasPage() {
         // Prefer cached myProfile if the join returned null (e.g. RLS or missing profile row)
         const name = prof?.full_name ?? myProfile?.name ?? 'Kamu'
         const avatar = prof?.avatar_url ?? myProfile?.avatar ?? ''
-        const targetPTN = (prof?.target_ptns as string[] | undefined)?.[0] ?? myProfile?.targetPTN ?? '—'
+        const targetPTN = (prof?.target_ptns as string[] | undefined)?.[0] ?? myProfile?.targetPTN ?? '-'
         const handle = '@' + name.toLowerCase().replace(/\s+/g, '').slice(0, 10)
         const newPost: CuitanPost = {
           id: p.id,
@@ -465,7 +468,8 @@ export default function KomunitasPage() {
 
   return (
     <div className="w-full px-6 md:px-8 py-6 md:py-8 space-y-6">
-      {/* TOP HEADER WITH FEED / CIRCLE TOGGLE SWITCH (PERSIS SCREENSHOT 1) */}
+      {toastHost}
+      {/* Header with Feed / Circle toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Toggle Pill Button: Feed vs Circle */}
         <div className="inline-flex items-center p-1.5 rounded-full bg-gray-100/90 shadow-2xs">
@@ -622,12 +626,22 @@ export default function KomunitasPage() {
                     <Heart size={15} fill={post.liked ? 'currentColor' : 'none'} />
                     <span>{post.likes}</span>
                   </button>
-                  <button className="flex items-center gap-1.5 hover:text-amber-600 transition-colors">
-                    <MessageCircle size={15} />
+                  <span className="flex items-center gap-1.5">
+                    <MessageCircle size={15} aria-hidden />
                     <span>{post.replies} Balasan</span>
-                  </button>
-                  <button className="flex items-center gap-1.5 hover:text-emerald-600 transition-colors">
-                    <Repeat2 size={15} />
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const text = `${post.content ?? ''}`.slice(0, 200)
+                      navigator.clipboard.writeText(`${text}\n\n${window.location.origin}/dashboard/komunitas`).then(
+                        () => showToast('Cuitan disalin ke clipboard.', 'success'),
+                        () => showToast('Gagal menyalin cuitan.', 'error'),
+                      )
+                    }}
+                    className="flex items-center gap-1.5 hover:text-emerald-600 transition-colors"
+                  >
+                    <Repeat2 size={15} aria-hidden />
                     <span>Bagikan</span>
                   </button>
                 </div>
@@ -671,22 +685,19 @@ export default function KomunitasPage() {
                         <p className="text-[11px] text-gray-500 font-medium">{c.membersCount} anggota</p>
                       </div>
                     </div>
-                    <button className="btn-brand-primary px-3.5 py-1.5 rounded-full text-[11px] font-black shadow-2xs">
-                      Buka Chat →
-                    </button>
+                    <span className="btn-brand-primary px-3.5 py-1.5 rounded-full text-[11px] font-black shadow-2xs">
+                      Buka Chat <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden />
+                    </span>
                   </div>
                 ))}
               </div>
             )}
           </div>
 
-          {/* SECTION 2: CIRCLE KAMPUS (PERSIS SCREENSHOT 1) */}
+          {/* SECTION 2: CIRCLE KAMPUS  */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-black text-gray-950">Circle kampus</h2>
-              <button className="text-xs font-black text-gray-500 hover:text-gray-900 flex items-center gap-0.5">
-                Semua kampus <ChevronRight size={14} />
-              </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -739,13 +750,10 @@ export default function KomunitasPage() {
             </div>
           </div>
 
-          {/* SECTION 3: CIRCLE AKTIF (PERSIS SCREENSHOT 1) */}
+          {/* SECTION 3: CIRCLE AKTIF  */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-black text-gray-950">Circle aktif</h2>
-              <button className="text-xs font-black text-gray-500 hover:text-gray-900 flex items-center gap-0.5">
-                Jelajahi semua <ChevronRight size={14} />
-              </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -801,11 +809,11 @@ export default function KomunitasPage() {
             <ArrowLeft size={15} /> Kembali ke Daftar Circle
           </button>
 
-          {/* Split 2-Column: Left Chat Box (Flex-1) + Right Info Drawer (Screenshot 2) */}
+          {/* Split 2-Column: Left Chat Box (Flex-1) + Right Info Drawer  */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* LEFT / CENTER: CHAT BOX AREA */}
             <div className="lg:col-span-8 bg-white rounded-3xl shadow-md overflow-hidden flex flex-col min-h-[580px] max-h-[720px]">
-              {/* Header (Screenshot 2) */}
+              {/* Header  */}
               <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -827,12 +835,9 @@ export default function KomunitasPage() {
                   </div>
                 </div>
 
-                <button className="p-2 text-gray-400 hover:text-gray-600 rounded-xl">
-                  <Info size={18} />
-                </button>
               </div>
 
-              {/* Chat Messages Stream (Screenshot 2) */}
+              {/* Chat Messages Stream  */}
               <div className="flex-1 p-6 overflow-y-auto space-y-5 bg-gray-50/30">
                 {currentMessages.map(msg => (
                   <div
@@ -858,7 +863,7 @@ export default function KomunitasPage() {
                         </div>
                       )}
 
-                      {/* Bubble: Golden yellow for me, clean white with shadow for others (Screenshot 2) */}
+                      {/* Bubble: Golden yellow for me, clean white with shadow for others  */}
                       <div
                         className={`p-3.5 rounded-2xl text-xs leading-relaxed ${
                           msg.isMe
@@ -881,15 +886,8 @@ export default function KomunitasPage() {
                 ))}
               </div>
 
-              {/* Bottom Input Bar (Screenshot 2) */}
+              {/* Bottom Input Bar  */}
               <div className="p-4 border-t border-gray-100 flex items-center gap-2 bg-white">
-                <button className="p-2 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-gray-100">
-                  <Smile size={18} />
-                </button>
-                <button className="p-2 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-gray-100">
-                  <Paperclip size={18} />
-                </button>
-
                 <input
                   value={messageText}
                   onChange={e => setMessageText(e.target.value)}
@@ -979,7 +977,13 @@ export default function KomunitasPage() {
 
               {/* Salin Tautan Undangan Button */}
               <button
-                onClick={() => alert('Link undangan circle berhasil disalin!')}
+                onClick={() => {
+                  const url = `${window.location.origin}/dashboard/komunitas`
+                  navigator.clipboard.writeText(url).then(
+                    () => showToast('Tautan komunitas disalin.', 'success'),
+                    () => showToast('Gagal menyalin tautan. Salin manual dari address bar.', 'error'),
+                  )
+                }}
                 className="w-full py-2.5 rounded-full text-xs font-bold bg-white hover:bg-gray-50 text-gray-800 shadow-xs border border-gray-100 flex items-center justify-center gap-1.5 transition-colors"
               >
                 <Share2 size={13} className="text-amber-600" /> Salin Tautan Undangan

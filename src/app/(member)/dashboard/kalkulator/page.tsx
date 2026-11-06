@@ -32,6 +32,7 @@ import FeatureHeader from '@/components/dashboard/FeatureHeader'
 import SearchInput from '@/components/ui/SearchInput'
 import Select from '@/components/ui/Select'
 import SearchablePicker from '@/components/ui/SearchablePicker'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { INDONESIA_PTN_LIST, INDONESIA_JURUSAN_LIST } from '@/lib/indonesiaDirectory'
 
 interface KalkulatorResult {
@@ -259,6 +260,7 @@ function ResultPanel({
 }
 
 export default function KalkulatorPage() {
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false)
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<KalkulatorResult | null>(null)
@@ -360,21 +362,22 @@ export default function KalkulatorPage() {
     return () => clearTimeout(timer)
   }, [semesters, jurusanSma, isEligible, eligibleRank, schoolQuota, schoolAccreditation, pilihan1Ptn, pilihan1Prodi, pilihan2Ptn, pilihan2Prodi, certificates])
 
-  const handleResetForm = () => {
-    if (confirm('Kosongkan semua nilai rapor dan reset formulir kalkulator?')) {
-      localStorage.removeItem('otwptn_kalkulator_draft_v1')
-      setSemesters(Array.from({ length: 5 }, (_, i) => ({ semester: i + 1, subjects: [] })))
-      setCertificates([])
-      setEligibleRank('')
-      setSchoolQuota('')
-      setSchoolAccreditation('')
-      setPilihan1Ptn('')
-      setPilihan1Prodi('')
-      setPilihan2Ptn('')
-      setPilihan2Prodi('')
-      setResult(null)
-      setLastSaved(null)
-    }
+  const handleResetForm = () => setResetConfirmOpen(true)
+
+  const confirmResetForm = () => {
+    setResetConfirmOpen(false)
+    localStorage.removeItem('otwptn_kalkulator_draft_v1')
+    setSemesters(Array.from({ length: 5 }, (_, i) => ({ semester: i + 1, subjects: [] })))
+    setCertificates([])
+    setEligibleRank('')
+    setSchoolQuota('')
+    setSchoolAccreditation('')
+    setPilihan1Ptn('')
+    setPilihan1Prodi('')
+    setPilihan2Ptn('')
+    setPilihan2Prodi('')
+    setResult(null)
+    setLastSaved(null)
   }
 
   useEffect(() => {
@@ -618,6 +621,15 @@ export default function KalkulatorPage() {
   // ─── Step 2: Form Input ───────────────────────────────────────────
   return (
     <div className="w-full px-6 md:px-8 py-8 md:py-10 pb-20">
+      <ConfirmDialog
+        isOpen={resetConfirmOpen}
+        title="Reset formulir kalkulator"
+        message="Semua nilai rapor dan pilihan yang sudah kamu isi akan dikosongkan. Tindakan ini tidak bisa dibatalkan."
+        confirmLabel="Kosongkan"
+        destructive
+        onConfirm={confirmResetForm}
+        onCancel={() => setResetConfirmOpen(false)}
+      />
       <FeatureHeader
         title="Kalkulator Peluang Masuk PTN"
         subtitle={`Rasionalisasi nilai rapor & portofolio untuk: ${selectedJalur.name} (${selectedJalur.ptn})`}

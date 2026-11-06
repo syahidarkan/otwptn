@@ -395,8 +395,8 @@ export default function FiturSection() {
                 style={{ width: idx === i ? 20 : 6, background: idx === i ? 'var(--dark)' : 'var(--border)' }} />
             ))}
           </div>
-          <span className="text-[11px] text-gray-400 font-medium sm:hidden">
-            ← Geser kanan / kiri untuk melihat fitur lainnya →
+          <span className="text-[11px] text-gray-400 font-medium sm:hidden inline-flex items-center gap-1">
+            <ChevronLeft size={12} aria-hidden /> Geser untuk melihat fitur lainnya <ChevronRight size={12} aria-hidden />
           </span>
         </div>
       </div>

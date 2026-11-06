@@ -36,6 +36,7 @@ import {
 } from 'lucide-react'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
 import SearchablePicker from '@/components/ui/SearchablePicker'
+import { useToast } from '@/components/ui/useToast'
 import {
   INDONESIA_PTN_LIST,
   INDONESIA_JURUSAN_LIST,
@@ -74,6 +75,8 @@ export default function ProfilPage() {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'biodata' | 'target' | 'avatar' | 'security'>('biodata')
   const [userTier, setUserTier] = useState<string>('free')
+  const [isAdmin, setIsAdmin] = useState(false)
+  const { showToast, toastHost } = useToast()
 
   // Edit target modal
   const [isEditingTarget, setIsEditingTarget] = useState(false)
@@ -206,6 +209,7 @@ export default function ProfilPage() {
         .then(({ data: profile }) => {
           if (profile) {
             setUserTier(profile.tier || 'free')
+            setIsAdmin(!!profile.is_admin)
             const targetPtns = (profile.target_ptns as string[]) || []
             const targetMajors = (profile.target_majors as string[]) || []
             setForm(prev => {
@@ -311,14 +315,14 @@ export default function ProfilPage() {
   async function handleUpdatePassword(e: React.FormEvent) {
     e.preventDefault()
     if (!newPassword || newPassword.length < 6) {
-      alert('Password minimal 6 karakter.')
+      showToast('Password minimal 6 karakter.', 'error')
       return
     }
     setPasswordLoading(true)
     const { error: pErr } = await supabase.auth.updateUser({ password: newPassword })
     setPasswordLoading(false)
     if (pErr) {
-      alert('Gagal update password: ' + pErr.message)
+      showToast('Gagal update password: ' + pErr.message, 'error')
     } else {
       setPasswordSaved(true)
       setNewPassword('')
@@ -348,6 +352,7 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
 
   return (
     <div className="w-full px-6 md:px-8 py-8 md:py-10 space-y-8">
+      {toastHost}
       <FeatureHeader
         title="Pengaturan Akun & Profil"
         subtitle="Kelola identitas diri, asal sekolah, target PTN pilihan, dan preferensi keamanan akunmu."
@@ -380,19 +385,25 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-900 flex items-center gap-1">
               <ShieldCheck size={12} className="text-amber-700" /> Siswa Aktif
             </span>
-            {userTier && userTier !== 'free' && (
+            {isAdmin ? (
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1 bg-gray-900 text-amber-300">
+                <Sparkles size={11} /> Superadmin
+              </span>
+            ) : userTier && userTier !== 'free' ? (
               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1 ${
-                userTier === 'queen_bee' ? 'bg-purple-100 text-purple-800 border border-purple-200' :
-                userTier === 'honeycomb' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                userTier === 'menyeluruh' ? 'bg-purple-100 text-purple-800 border border-purple-200' :
+                userTier === 'dokumen' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                userTier === 'review' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
                 'bg-yellow-100 text-yellow-800 border border-yellow-200'
               }`}>
                 <Sparkles size={11} />
-                {userTier === 'queen_bee' ? 'Paket Queen Bee' :
-                 userTier === 'honeycomb' ? 'Paket Honeycomb' :
-                 userTier === 'nectar' ? 'Paket Nectar' :
+                {userTier === 'menyeluruh' ? 'Paket Queen Bee' :
+                 userTier === 'dokumen' ? 'Paket Honeycomb' :
+                 userTier === 'review' ? 'Paket Nectar' :
+                 userTier === 'web_premium' ? 'Akun Premium' :
                  `Paket ${userTier.charAt(0).toUpperCase() + userTier.slice(1)}`}
               </span>
-            )}
+            ) : null}
           </div>
           <p className="text-xs text-gray-500 font-medium">
             {form.school || 'Belum mengisi sekolah'} · {form.email}

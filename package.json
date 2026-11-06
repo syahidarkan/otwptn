@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "start:wa": "node --require ts-node/register server.ts",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -61,5 +62,9 @@
     "@whiskeysockets/baileys@7.0.0-rc14": true,
     "protobufjs@7.6.6": true,
     "esbuild@0.28.2": true
+  },
+  "engines": {
+    "node": ">=20.9.0 <27",
+    "npm": ">=10"
   }
 }

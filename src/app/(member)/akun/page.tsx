@@ -93,7 +93,7 @@ export default function AkunPage() {
       <FeatureHeader
         title="Pengaturan Akun & Keamanan"
         subtitle="Kelola informasi login, status paket langganan, dan keamanan akunmu."
-        mascot="/mascot-hd/standing-badge.png"
+        mascot="/mascot-hd/maskot-piala-toga-juara.png"
         badgeText="Akun & Keamanan"
       />
 

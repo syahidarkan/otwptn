@@ -26,6 +26,7 @@ import {
   Check,
 } from 'lucide-react'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
+import { useToast } from '@/components/ui/useToast'
 import {
   saveDocToLocalVault,
   getDocFromLocalVault,
@@ -55,6 +56,7 @@ interface DocAttachment {
 }
 
 export default function DokumenPage() {
+  const { showToast, toastHost } = useToast()
   const supabase = createClient()
   const [targetJalurs, setTargetJalurs] = useState<string[]>([])
   const [progress, setProgress] = useState<ProgressRow[]>([])
@@ -211,7 +213,7 @@ export default function DokumenPage() {
     if (!userId) return
     const docRecord = await getDocFromLocalVault(userId, jalurId, docName)
     if (!docRecord || !docRecord.blob) {
-      alert('File belum tersimpan di memori perangkat ini. Silakan pilih berkas ulang.')
+      showToast('File belum tersimpan di memori perangkat ini. Silakan pilih berkas ulang.', 'error')
       return
     }
     const url = URL.createObjectURL(docRecord.blob)
@@ -247,6 +249,7 @@ export default function DokumenPage() {
 
   return (
     <div className="w-full px-6 md:px-8 py-8 md:py-10">
+      {toastHost}
       <FeatureHeader
         title="Penyimpanan & Checklist Dokumen"
         subtitle="Lacak seluruh berkas rapor legalisir, surat rekomendasi, portofolio, dan sertifikat yang disinkronkan otomatis dengan target jalurmu."
@@ -418,7 +421,7 @@ export default function DokumenPage() {
                                     className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10.5px] font-bold transition-colors"
                                   >
                                     <Link2 size={12} />
-                                    <span>Buka Link Drive ↗</span>
+                                    <span>Buka Link Drive <ExternalLink size={13} className="inline-block ml-1 align-[-2px]" aria-hidden /></span>
                                   </a>
                                 )}
                                 {att.fileName && att.isLocalDevice ? (

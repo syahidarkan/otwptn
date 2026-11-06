@@ -1,4 +1,5 @@
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
+import { consumeQuota, sanitizeChatMessages } from '@/lib/security'
 import { getAiClient } from '@/lib/ai/client'
 
 const TIER_OTBEE_LIMIT: Record<string, number | null> = {
@@ -40,23 +41,20 @@ export async function POST(request: Request) {
   const tier = profile?.tier ?? 'free'
   const limit = isStaff ? null : (TIER_OTBEE_LIMIT[tier] ?? null)
 
-  if (limit !== null) {
-    const { data: quota } = await supabase
-      .from('usage_quotas')
-      .select('used_count')
-      .eq('user_id', user.id)
-      .eq('feature', 'otbee_chat')
-      .maybeSingle()
-    const used = quota?.used_count ?? 0
-    if (used >= limit) {
-      return new Response(JSON.stringify({ error: 'quota_exceeded', limit }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
+  const body = await request.json()
+  const conversation_id = typeof body?.conversation_id === 'string' ? body.conversation_id : null
+  // Untrusted history: strip system/tool roles (prompt override) and cap size.
+  const messages = sanitizeChatMessages(body?.messages)
+  if (messages.length === 0 || messages[messages.length - 1].role !== 'user') {
+    return new Response(JSON.stringify({ error: 'invalid_messages' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
   }
 
-  const { messages, conversation_id } = await request.json()
+  if (!(await consumeQuota(user.id, 'otbee_chat', limit))) {
+    return new Response(JSON.stringify({ error: 'quota_exceeded', limit }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
 
   const { client, model } = getAiClient('fast')
 
@@ -85,13 +83,9 @@ export async function POST(request: Request) {
       controller.enqueue(encoder.encode('data: [DONE]\n\n'))
       controller.close()
 
-      const admin = await createAdminClient()
-      const curUsed = (await admin.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'otbee_chat').maybeSingle()).data?.used_count ?? 0
-      await admin.from('usage_quotas').upsert({ user_id: user.id, feature: 'otbee_chat', used_count: curUsed + 1 }, { onConflict: 'user_id,feature' })
-
       if (conversation_id) {
         const allMessages = [...messages, { role: 'assistant', content: fullContent, created_at: new Date().toISOString() }]
-        await supabase.from('otbee_conversations').update({ messages: allMessages, updated_at: new Date().toISOString() }).eq('id', conversation_id)
+        await supabase.from('otbee_conversations').update({ messages: allMessages, updated_at: new Date().toISOString() }).eq('id', conversation_id).eq('user_id', user.id)
       }
     },
   })

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { MascotBee } from './MascotBeeModel'
-import { Sparkles, X, MessageSquare, RotateCcw, Volume2, ChevronUp } from 'lucide-react'
+import { Sparkles, X, MessageSquare, RotateCcw, Volume2, ChevronUp, ArrowRight } from 'lucide-react'
 
 const TIPS = [
   'Nilai rapor semester 1-5 kamu adalah aset paling berharga di SNBP!',
@@ -257,7 +257,7 @@ export default function InteractiveOtbee3D({
               <div className="flex-1">
                 <p>{TIPS[tipIndex]}</p>
                 <span className="text-[10px] font-bold text-amber-700 block mt-1">
-                  Klik untuk tips selanjutnya →
+                  Klik untuk tips selanjutnya <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden />
                 </span>
               </div>
             </div>

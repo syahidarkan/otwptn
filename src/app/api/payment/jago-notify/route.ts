@@ -1,7 +1,7 @@
-import { createAdminClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { creditAmbassadorCommission } from '@/lib/commission'
-import { autoAssignIndividuMentor, handleSquadPayment } from '@/lib/mentorAssignment'
+import { safeEqual } from '@/lib/security'
+import { claimOrderPaid, fulfillPaidOrder } from '@/lib/orderFulfillment'
 
 // Called by Google Apps Script when it detects a Jago transfer email
 // POST body: { amount: number, secret: string }
@@ -13,49 +13,43 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  // Simple shared secret to prevent random POSTs
+  // Shared secret (constant-time compare); fail closed when not configured.
   const expectedSecret = process.env.JAGO_NOTIFY_SECRET ?? ''
-  if (!expectedSecret || body.secret !== expectedSecret) {
+  if (!expectedSecret || typeof body.secret !== 'string' || !safeEqual(body.secret, expectedSecret)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const amount = Number(body.amount)
-  if (!amount || amount < 1000) {
+  if (!Number.isInteger(amount) || amount < 1000) {
     return NextResponse.json({ error: 'Invalid amount' }, { status: 400 })
   }
 
-  const supabase = await createAdminClient()
+  const supabase = createServiceClient()
 
-  // Find a pending transfer order matching this exact unique amount
-  const { data: order } = await supabase
+  // Match a pending transfer order by its exact (unique-suffix) amount. If more than one
+  // order shares the amount we cannot tell who paid: never guess, leave it for manual review.
+  const { data: candidates } = await supabase
     .from('orders')
-    .select('id, user_id, tier, referral_code, mode, track, squad_group_id')
+    .select('id')
     .eq('amount', amount)
     .eq('status', 'pending')
     .eq('payment_method', 'transfer')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+    .limit(2)
 
-  if (!order) {
+  if (!candidates || candidates.length === 0) {
     console.warn(`[jago-notify] No pending transfer order found for amount ${amount}`)
     return NextResponse.json({ error: 'No matching order found' }, { status: 404 })
   }
-
-  // Mark order as paid and update user tier
-  await Promise.all([
-    supabase.from('orders').update({ status: 'paid', paid_at: new Date().toISOString() }).eq('id', order.id),
-    supabase.from('profiles').update({ tier: order.tier }).eq('id', order.user_id),
-  ])
-
-  await creditAmbassadorCommission(supabase, order)
-
-  if (order.mode === 'squad' && order.squad_group_id) {
-    await handleSquadPayment(supabase, { ...order, squad_group_id: order.squad_group_id })
-  } else {
-    await autoAssignIndividuMentor(supabase, order)
+  if (candidates.length > 1) {
+    console.warn(`[jago-notify] Ambiguous: multiple pending orders for amount ${amount}, manual confirmation required`)
+    return NextResponse.json({ error: 'Ambiguous amount, manual confirmation required' }, { status: 409 })
   }
 
-  console.log(`[jago-notify] Order ${order.id} confirmed for user ${order.user_id}, tier ${order.tier}`)
-  return NextResponse.json({ ok: true, order_id: order.id, tier: order.tier })
+  const claimed = await claimOrderPaid(supabase, candidates[0].id)
+  if (!claimed) return NextResponse.json({ ok: true, already_paid: true })
+
+  await fulfillPaidOrder(supabase, claimed)
+
+  console.log(`[jago-notify] Order ${claimed.id} confirmed for user ${claimed.user_id}, tier ${claimed.tier}`)
+  return NextResponse.json({ ok: true, order_id: claimed.id, tier: claimed.tier })
 }

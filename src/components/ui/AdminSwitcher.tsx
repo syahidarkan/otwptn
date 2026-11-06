@@ -3,12 +3,13 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { Crown, GraduationCap, Star, Globe, X, type LucideIcon } from 'lucide-react'
 
-const VIEWS = [
-  { label: 'Super Admin',  icon: '👑', href: '/admin',           color: '#7c3aed' },
-  { label: 'Mentor',       icon: '🎓', href: '/mentor/dashboard', color: '#0369a1' },
-  { label: 'Member',       icon: '⭐', href: '/dashboard',        color: '#b45309' },
-  { label: 'Publik',       icon: '🌐', href: '/',                 color: '#374151' },
+const VIEWS: { label: string; icon: LucideIcon; href: string; color: string }[] = [
+  { label: 'Super Admin',  icon: Crown, href: '/admin',           color: '#7c3aed' },
+  { label: 'Mentor',       icon: GraduationCap, href: '/mentor/dashboard', color: '#0369a1' },
+  { label: 'Member',       icon: Star, href: '/dashboard',        color: '#b45309' },
+  { label: 'Publik',       icon: Globe, href: '/',                 color: '#374151' },
 ]
 
 export default function AdminSwitcher() {
@@ -99,7 +100,7 @@ export default function AdminSwitcher() {
                 onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.07)' }}
                 onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
               >
-                <span style={{ fontSize: 16 }}>{v.icon}</span>
+                <v.icon size={16} aria-hidden />
                 <span>{v.label}</span>
                 {active && <span style={{ marginLeft: 'auto', fontSize: 10, color: '#6b7280' }}>sekarang</span>}
               </button>
@@ -111,7 +112,9 @@ export default function AdminSwitcher() {
       {/* Trigger button */}
       <button
         onClick={() => setOpen(o => !o)}
-        title="Admin Switcher"
+        title="Pindah dashboard"
+        aria-label="Pindah dashboard"
+        aria-expanded={open}
         style={{
           width: 44,
           height: 44,
@@ -129,7 +132,7 @@ export default function AdminSwitcher() {
           transform: open ? 'rotate(45deg) scale(0.95)' : 'none',
         }}
       >
-        {open ? '✕' : current.icon}
+        {open ? <X size={18} aria-hidden /> : <current.icon size={18} aria-hidden />}
       </button>
     </div>
   )

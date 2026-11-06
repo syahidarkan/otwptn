@@ -138,7 +138,7 @@ export default function DirekturiPage() {
           <h3 className="font-extrabold text-lg mb-2" style={{ color: 'var(--fg)' }}>Belum tahu mau pilih jalur mana?</h3>
           <p className="text-sm mb-5" style={{ color: 'var(--muted)' }}>Pakai kalkulator peluang untuk estimasi jalur yang paling sesuai profilmu.</p>
           <Link href="/dashboard/kalkulator" className="btn btn-primary px-6 py-3 text-sm inline-block">
-            Cek Kalkulator Peluang →
+            Cek Kalkulator Peluang <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden />
           </Link>
         </div>
       </div>

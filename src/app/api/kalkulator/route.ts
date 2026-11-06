@@ -1,4 +1,5 @@
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
+import { consumeQuota } from '@/lib/security'
 import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
 
@@ -15,18 +16,8 @@ export async function POST(request: Request) {
   const tier = profile?.tier ?? 'free'
   const limit = TIER_KALKULATOR_LIMIT[tier] ?? null
 
-  if (limit !== null) {
-    const { data: quota } = await supabase
-      .from('usage_quotas')
-      .select('used_count')
-      .eq('user_id', user.id)
-      .eq('feature', 'ai_kalkulator')
-      .maybeSingle()
-
-    const used = quota?.used_count ?? 0
-    if (used >= limit) {
-      return NextResponse.json({ error: 'quota_exceeded', limit }, { status: 403 })
-    }
+  if (!(await consumeQuota(user.id, 'ai_kalkulator', limit))) {
+    return NextResponse.json({ error: 'quota_exceeded', limit }, { status: 403 })
   }
 
   const body = await request.json()
@@ -180,12 +171,6 @@ Berikan respons HANYA dalam format JSON valid (tanpa markdown backtick):
         result_json: result,
       })
 
-      const admin = await createAdminClient()
-      await admin.from('usage_quotas').upsert({
-        user_id: user.id,
-        feature: 'ai_kalkulator',
-        used_count: (TIER_KALKULATOR_LIMIT[tier] === null ? 0 : ((await admin.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'ai_kalkulator').maybeSingle()).data?.used_count ?? 0)) + 1,
-      }, { onConflict: 'user_id,feature' })
     } catch (dbErr) {
       console.warn('[AI Kalkulator] Non-blocking DB quota log warning:', dbErr)
     }

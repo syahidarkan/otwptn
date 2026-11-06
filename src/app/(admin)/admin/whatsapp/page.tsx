@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import {
   Send, RefreshCw, Loader2, Phone, CheckCircle2,
   AlertCircle, ServerCrash, Smartphone, LogOut,
@@ -59,6 +60,7 @@ function timeLabel(ts: number) {
 }
 
 export default function WhatsAppAdminPage() {
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false)
   const [state, setState] = useState<WAState>({ status: 'disconnected' })
   const [messages, setMessages] = useState<WAMessage[]>([])
   const [activeJid, setActiveJid] = useState<string | null>(null)
@@ -193,7 +195,7 @@ export default function WhatsAppAdminPage() {
                 <img src={state.qr} alt="QR Code" className="w-52 h-52 object-contain" />
               </div>
               <p className="text-xs text-gray-500">
-                Buka WhatsApp di HP → <strong>Perangkat Tertaut</strong> → <strong>Tautkan Perangkat</strong>
+                Buka WhatsApp di HP, pilih <strong>Perangkat Tertaut</strong>, lalu <strong>Tautkan Perangkat</strong>
               </p>
             </div>
           ) : isLoading ? (
@@ -236,8 +238,17 @@ export default function WhatsAppAdminPage() {
   // ── WhatsApp Web layout ──────────────────────────────────────────────────
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#f0f2f5' }}>
+      <ConfirmDialog
+        isOpen={logoutConfirmOpen}
+        title="Keluar dari WhatsApp"
+        message="Sesi WhatsApp akan diputus dan kamu harus scan QR lagi untuk menghubungkan."
+        confirmLabel="Keluar"
+        destructive
+        onConfirm={() => { setLogoutConfirmOpen(false); doAction('logout') }}
+        onCancel={() => setLogoutConfirmOpen(false)}
+      />
 
-      {/* Left sidebar — conversation list */}
+      {/* Left sidebar: conversation list */}
       <div className="w-80 flex-shrink-0 flex flex-col bg-white border-r border-gray-200">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 bg-[#f0f2f5]">
@@ -252,7 +263,7 @@ export default function WhatsAppAdminPage() {
           </div>
           <div className="flex items-center gap-1">
             <button
-              onClick={() => { if (confirm('Logout WA? Harus scan QR lagi.')) doAction('logout') }}
+              onClick={() => setLogoutConfirmOpen(true)}
               title="Logout"
               className="w-8 h-8 rounded-full hover:bg-gray-200 flex items-center justify-center text-gray-600"
             >
@@ -324,7 +335,7 @@ export default function WhatsAppAdminPage() {
         </div>
       </div>
 
-      {/* Right — chat window */}
+      {/* Right: chat window */}
       <div className="flex-1 flex flex-col">
         {activeConv ? (
           <>

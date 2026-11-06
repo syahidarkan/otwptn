@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createAdminClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/lib/email/send'
 import PembayaranDikonfirmasi from '@/lib/email/templates/PembayaranDikonfirmasi'
 import PembayaranDitolak from '@/lib/email/templates/PembayaranDitolak'
@@ -26,14 +26,16 @@ export async function POST(request: Request) {
     }
 
     const { order_id, action, wa_group_link, mentor_name, mentor_id, is_review, notes } = parsed.data
-    const supabase = await createAdminClient()
-
-    const { data: { user } } = await supabase.auth.getUser()
+    // Authenticate with the visitor's session, then write with the service client.
+    const session = await createClient()
+    const { data: { user } } = await session.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { data: adminProfile } = await supabase
+    const { data: adminProfile } = await session
       .from('profiles').select('is_admin').eq('id', user.id).single()
     if (!adminProfile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+    const supabase = createServiceClient()
 
     const { data: order, error: orderError } = await supabase
       .from('orders')

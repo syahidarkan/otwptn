@@ -16,6 +16,7 @@ import {
   Users,
   UserCircle2,
   Gift,
+  ArrowRight,
 } from 'lucide-react'
 import { LEGAL_ENTITY } from '@/lib/constants'
 import { createClient } from '@/lib/supabase/client'
@@ -39,7 +40,7 @@ import {
 const MODE_LABELS: Record<Mode, string> = { individu: 'Individu', squad: 'Squad' }
 const MODE_SUBTITLE: Record<Mode, string> = {
   individu: 'Satu mentor, 100% fokus ke kamu aja.',
-  squad: 'Ajak 2 temen seperjuangan, satu mentor pegang kalian bertiga — lebih hemat.',
+  squad: 'Ajak 2 temen seperjuangan, satu mentor pegang kalian bertiga, lebih hemat.',
 }
 const TRACK_LABELS: Record<Track, string> = {
   essay: 'Essay Only',
@@ -66,6 +67,11 @@ export default function UpgradePage() {
   const [userInfo, setUserInfo] = useState<{ name: string; email: string } | null>(null)
 
   useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get('ref')
+    if (ref) setReferralCode(ref.trim().toUpperCase().slice(0, 24))
+  }, [])
+
+  useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
@@ -77,8 +83,8 @@ export default function UpgradePage() {
     })
   }, [])
 
-  // Squad mode doesn't offer the Hybrid track toggle in the price — price is flat per tier
-  // regardless of track — but we still let people pick which track the squad focuses on.
+  // Squad mode doesn't offer the Hybrid track toggle in the price. Price is flat per tier
+  // regardless of track, but we still let people pick which track the squad focuses on.
   useEffect(() => {
     if (mode === 'squad' && track === 'hybrid') setTrack('essay')
   }, [mode, track])
@@ -135,14 +141,14 @@ export default function UpgradePage() {
             Pilih jalanmu, kami kawal sampai lolos
           </h1>
           <p className="text-sm sm:text-base font-medium text-gray-500 leading-relaxed">
-            Dari sekadar cek peluang sendiri sampai digandeng mentor yang udah pernah lolos di jalur yang sama persis — tinggal pilih seberapa deket kamu mau didampingi, harganya otomatis nyesuain. Diselenggarakan di bawah naungan resmi <strong>{LEGAL_ENTITY.name}</strong>.
+            Dari sekadar cek peluang sendiri sampai digandeng mentor yang udah pernah lolos di jalur yang sama persis. Tinggal pilih seberapa deket kamu mau didampingi, harganya otomatis nyesuain. Diselenggarakan di bawah naungan resmi <strong>{LEGAL_ENTITY.name}</strong>.
           </p>
         </div>
 
-        {/* LANGKAH 1 — Mode Toggle */}
+        {/* Langkah 1: Mode Toggle */}
         <div className="max-w-2xl mx-auto mb-8">
           <p className="text-center text-[11px] font-black uppercase tracking-wider text-gray-400 mb-3">
-            Langkah 1 — Mode Mentoring
+            Langkah 1: Mode Mentoring
           </p>
           <div className="grid grid-cols-2 gap-3">
             {MODES.map(m => (
@@ -167,10 +173,10 @@ export default function UpgradePage() {
           </div>
         </div>
 
-        {/* LANGKAH 2 — Track Toggle */}
+        {/* Langkah 2: Track Toggle */}
         <div className="max-w-2xl mx-auto mb-4">
           <p className="text-center text-[11px] font-black uppercase tracking-wider text-gray-400 mb-3">
-            Langkah 2 — Cakupan Bantuan
+            Langkah 2: Cakupan Bantuan
           </p>
           <div className={`grid gap-2 ${mode === 'squad' ? 'grid-cols-2' : 'grid-cols-3'}`}>
             {TRACKS.filter(t => mode === 'individu' || t !== 'hybrid').map(t => (
@@ -187,7 +193,7 @@ export default function UpgradePage() {
           </div>
           <p className="text-center text-[11px] text-gray-400 mt-2 max-w-md mx-auto leading-relaxed">
             {mode === 'individu'
-              ? 'Harga di bawah buat satu cakupan aja (Essay atau Prestasi). Butuh dua-duanya? Pilih "Essay + Prestasi" — harga naik, tapi satu mentor pegang semuanya.'
+              ? 'Harga di bawah buat satu cakupan aja (Essay atau Prestasi). Butuh dua-duanya? Pilih "Essay + Prestasi". Harga naik, tapi satu mentor pegang semuanya.'
               : 'Mode Squad pakai harga tetap, nggak ikut toggle cakupan ini.'}
           </p>
         </div>
@@ -234,7 +240,7 @@ export default function UpgradePage() {
           </div>
         )}
 
-        {/* Referral code — Individu only */}
+        {/* Referral code, Individu only */}
         {mode === 'individu' && (
           <div className="max-w-md mx-auto mb-10">
             <div className="flex items-center gap-2 p-3 rounded-2xl bg-white border border-gray-100">
@@ -331,7 +337,7 @@ export default function UpgradePage() {
         {/* Legal Footer Info */}
         <div className="p-6 rounded-2xl bg-gray-50 text-center text-xs text-gray-400 space-y-1">
           <p>© {new Date().getFullYear()} <strong>{LEGAL_ENTITY.brand}</strong> - Dikelola oleh <strong>{LEGAL_ENTITY.name}</strong>.</p>
-          <p>Batas waktu pakai (&ldquo;angus&rdquo;) dihitung dari tanggal transaksi lunas — benefit yang belum dipakai sampai batas waktu nggak bisa dicairkan lagi.</p>
+          <p>Batas waktu pakai (&ldquo;angus&rdquo;) dihitung dari tanggal transaksi lunas. Benefit yang belum dipakai sampai batas waktu nggak bisa dicairkan lagi.</p>
         </div>
       </div>
 
@@ -446,7 +452,7 @@ export default function UpgradePage() {
                 {isSubmitting ? (
                   <><Loader2 size={15} className="animate-spin" /> Memproses...</>
                 ) : (
-                  <>Bayar & Aktifkan {TIER_LABELS[selection.tier]} →</>
+                  <>Bayar & Aktifkan {TIER_LABELS[selection.tier]} <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden /></>
                 )}
               </button>
               <p className="text-center text-[11px] text-gray-400 mt-2.5">

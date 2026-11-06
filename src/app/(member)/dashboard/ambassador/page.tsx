@@ -24,8 +24,11 @@ import {
   ArrowUpRight,
 } from 'lucide-react'
 import InteractiveFeatureDemoPlayer from '@/components/dashboard/InteractiveFeatureDemoPlayer'
+import Modal from '@/components/ui/Modal'
+import { TIER_COMMISSION, PRICE_MATRIX, TIERS, TIER_LABELS, TIER_TAGLINES, TIER_BADGE, formatIDR, type Tier, type Track } from '@/lib/pricing'
 
 export default function AmbassadorDashboardPage() {
+  const [termsOpen, setTermsOpen] = useState(false)
   const [copiedCode, setCopiedCode] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
   const [copiedCaptionId, setCopiedCaptionId] = useState<string | null>(null)
@@ -43,7 +46,7 @@ export default function AmbassadorDashboardPage() {
 
   // Referral code (loaded from DB)
   const [referralCode, setReferralCode] = useState('')
-  const referralUrl = referralCode ? `https://otwptn.id/r/${referralCode}` : ''
+  const referralUrl = referralCode ? `https://otwptn.com/upgrade?ref=${referralCode}` : ''
 
   // Withdrawal Modal State
   const [withdrawModalOpen, setWithdrawModalOpen] = useState(false)
@@ -281,84 +284,36 @@ export default function AmbassadorDashboardPage() {
       ? screenRecordDemos
       : screenRecordDemos.filter(d => d.category === promoFilter)
 
-  // Pricing Catalog Config based on official packages: Nectar, Honeycomb, Queen Bee, and Akun Premium
+  // Katalog harga: seluruh angka diambil dari src/lib/pricing.ts (sumber tunggal harga).
   const getCatalogData = () => {
-    const allItems = [
-      {
-        name: 'Akun Premium (Fitur Platform)',
-        orig: 'Rp 99.000',
-        flash: 'Rp 49.000 (flash)',
-        codePrice: 'Rp 44.100',
-        sub: 'Akses tanpa batas semua fitur platform cerdas (Kalkulator, Otbee, Essay AI, Circle, Modul 100%, Atur Strategi).',
-        badge: 'Self-Paced',
-      },
-      {
-        name: 'Paket Nectar (Opsi Review)',
-        orig: 'Rp 199.000',
-        flash: 'Rp 99.000 (flash)',
-        codePrice: 'Rp 89.100',
-        sub: 'Termasuk Akun Premium + Free konsultasi awal + Cek berkas + 2x putaran revisi esai via WhatsApp Chat.',
-        badge: 'Review Dokumen',
-      },
-      {
-        name: 'Paket Honeycomb (Opsi Reguler)',
-        orig: 'Rp 399.000',
-        flash: 'Rp 199.000 (flash)',
-        codePrice: 'Rp 179.100',
-        sub: 'Termasuk Akun Premium + Bimbingan step by step + 5x putaran revisi + 2x Sesi Zoom + Akses Grup WhatsApp Eksklusif.',
-        badge: 'Reguler Populer',
-      },
-      {
-        name: 'Paket Queen Bee (Royal Jelly VIP)',
-        orig: 'Rp 799.000',
-        flash: 'Rp 399.000 (flash)',
-        codePrice: 'Rp 359.100',
-        sub: 'Termasuk Akun Premium + Unlimited revisi esai + Meet fleksibel + Wajib Dokumen Analisis Pilihan 1 & 2 Mentor + Trip UI.',
-        badge: 'Paling Direkomendasikan',
-      },
+    const tierItem = (tier: Tier, track: Track, label: string) => {
+      const price = PRICE_MATRIX.individu[track][tier]
+      return {
+        name: label,
+        orig: formatIDR(price.amount),
+        codePrice: formatIDR(price.referralAmount ?? price.amount),
+        sub: TIER_TAGLINES[tier],
+        badge: TIER_BADGE[tier],
+      }
+    }
+    const tierGroup = (tier: Tier) => [
+      tierItem(tier, 'essay', `${TIER_LABELS[tier]} (Essay atau Prestasi)`),
+      tierItem(tier, 'hybrid', `${TIER_LABELS[tier]} (Essay + Prestasi)`),
     ]
 
     switch (katalogCategory) {
       case 'Nectar':
-        return {
-          title: 'Harga Paket Nectar (Review)',
-          items: [
-            allItems[1],
-            { name: 'Nectar + Add-on Jalur 2', orig: 'Rp 249.000', flash: 'Rp 149.000 (flash)', codePrice: 'Rp 134.100', sub: 'Review 2 jalur pendaftaran sekaligus + Akun Premium' },
-            { name: 'Nectar Bundle All-In', orig: 'Rp 349.000', flash: 'Rp 199.000 (flash)', codePrice: 'Rp 179.100', sub: 'Review esai + audit rapor 5 semester lengkap' },
-          ],
-        }
+        return { title: 'Harga Paket Nectar (Review)', items: tierGroup('review') }
       case 'Honeycomb':
-        return {
-          title: 'Harga Paket Honeycomb (Reguler)',
-          items: [
-            allItems[2],
-            { name: 'Honeycomb 2 Jalur PTN', orig: 'Rp 499.000', flash: 'Rp 249.000 (flash)', codePrice: 'Rp 224.100', sub: 'Bimbingan 2 jalur berbeda + 4x Sesi Zoom + Grup WA' },
-            { name: 'Honeycomb Garansi Final', orig: 'Rp 699.000', flash: 'Rp 349.000 (flash)', codePrice: 'Rp 314.100', sub: 'Pendampingan sampai hari pengumuman kelulusan resmi' },
-          ],
-        }
+        return { title: 'Harga Paket Honeycomb (Reguler)', items: tierGroup('dokumen') }
       case 'Queen Bee':
-        return {
-          title: 'Harga Paket Queen Bee (Royal Jelly VIP)',
-          items: [
-            allItems[3],
-            { name: 'Queen Bee Kedokteran Spesialis', orig: 'Rp 1.199.000', flash: 'Rp 599.000 (flash)', codePrice: 'Rp 539.100', sub: 'Mentor alumni FK UI / UGM + Bedah portofolio kesehatan' },
-            { name: 'Queen Bee All PTN Ultimate', orig: 'Rp 1.599.000', flash: 'Rp 799.000 (flash)', codePrice: 'Rp 719.100', sub: 'Pendampingan 4 jalur PTN + Simulasi wawancara tatap muka' },
-          ],
-        }
+        return { title: 'Harga Paket Queen Bee (Intensif)', items: tierGroup('menyeluruh') }
       case 'Akun Premium':
-        return {
-          title: 'Harga Akun Premium (Fitur Only)',
-          items: [
-            allItems[0],
-            { name: 'Premium Pass 6 Bulan', orig: 'Rp 149.000', flash: 'Rp 79.000 (flash)', codePrice: 'Rp 71.100', sub: 'Akses penuh kalkulator & AI selama persiapan 2 semester' },
-            { name: 'Premium Lifetime Pass', orig: 'Rp 299.000', flash: 'Rp 129.000 (flash)', codePrice: 'Rp 116.100', sub: 'Akses selamanya ke semua fitur dan modul e-course' },
-          ],
-        }
+        return { title: 'Harga Akun Premium (Fitur Only)', items: tierGroup('web_premium') }
       default:
         return {
           title: 'Daftar Harga Seluruh Paket Resmi',
-          items: allItems,
+          items: TIERS.map(tier => tierItem(tier, 'essay', `${TIER_LABELS[tier]} (mulai dari)`)),
         }
     }
   }
@@ -797,7 +752,7 @@ export default function AmbassadorDashboardPage() {
             ].map(cat => (
               <button
                 key={cat.id}
-                onClick={() => setKatalogCategory(cat.id as any)}
+                onClick={() => setKatalogCategory(cat.id as typeof katalogCategory)}
                 className={`px-4 py-1.5 rounded-full text-xs font-black transition-colors ${
                   katalogCategory === cat.id
                     ? 'btn-brand-primary'
@@ -886,7 +841,6 @@ export default function AmbassadorDashboardPage() {
 
                   <div className="flex items-center gap-1.5 text-[10px]">
                     <span className="line-through text-gray-400">{item.orig}</span>
-                    <span className="font-bold text-rose-600">{item.flash}</span>
                   </div>
 
                   {item.sub && (
@@ -901,14 +855,12 @@ export default function AmbassadorDashboardPage() {
             {/* Poster Footer (Screenshot 3) */}
             <div className="pt-3 border-t border-gray-200/50 text-center space-y-1">
               <p className="text-[9px] text-gray-500">
-                Harga flash: harga akun baru, 72 jam pertama sejak daftar
+                Harga pakai kode berlaku untuk paket bermentor mode Individu
               </p>
               <p className="text-[11px] font-black text-gray-900 font-mono">
-                Daftar di otwptn.id/r/{referralCode}
+                Daftar di otwptn.com/upgrade?ref={referralCode}
               </p>
-              <p className="text-[9px] text-gray-400">
-                Harga per 29 Okt 2026
-              </p>
+
             </div>
           </div>
 
@@ -963,7 +915,7 @@ export default function AmbassadorDashboardPage() {
         </Link>
 
         <button
-          onClick={() => alert('Syarat & Ketentuan Student Ambassador otwptn:\n1. Setiap siswa yang mendaftar menggunakan kodemu ACANOTW01 akan mendapatkan potongan diskon langsung 10%.\n2. Kamu berhak atas komisi tunai uang beneran:\n   - Paket Nectar (Review): Rp 15.000/siswa\n   - Paket Honeycomb (Reguler): Rp 35.000/siswa\n   - Paket Queen Bee (VIP): Rp 75.000/siswa\n3. Komisi langsung masuk ke saldo siap tarik tanpa masa tunggu (0 hari penahanan).\n4. Penarikan saldo dapat dilakukan kapan saja tanpa potongan biaya admin.')}
+          onClick={() => setTermsOpen(true)}
           className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors text-left"
         >
           <div className="flex items-center gap-3">
@@ -1098,6 +1050,22 @@ export default function AmbassadorDashboardPage() {
           onClose={() => setActiveDemoVideo(null)}
         />
       )}
+      <Modal isOpen={termsOpen} onClose={() => setTermsOpen(false)} title="Syarat & Ketentuan Student Ambassador" size="md">
+        <ol className="list-decimal pl-5 space-y-2.5 text-sm text-gray-700 leading-relaxed">
+          <li>Teman yang membeli paket bermentor (mode Individu) dengan kodemu mendapat potongan harga langsung di halaman pembayaran.</li>
+          <li>
+            Kamu mendapat komisi tunai per siswa yang berhasil membayar:
+            <ul className="list-disc pl-5 mt-1 space-y-0.5">
+              <li>Paket Nectar (Review): Rp {TIER_COMMISSION.review.toLocaleString('id-ID')}</li>
+              <li>Paket Honeycomb (Reguler): Rp {TIER_COMMISSION.dokumen.toLocaleString('id-ID')}</li>
+              <li>Paket Queen Bee (Intensif): Rp {TIER_COMMISSION.menyeluruh.toLocaleString('id-ID')}</li>
+              <li>Akun Premium: Rp {TIER_COMMISSION.web_premium.toLocaleString('id-ID')}</li>
+            </ul>
+          </li>
+          <li>Komisi masuk ke saldo setelah pembayaran terkonfirmasi.</li>
+          <li>Penarikan saldo diproses admin setelah kamu mengajukan permintaan dari halaman ini.</li>
+        </ol>
+      </Modal>
     </div>
   )
 }

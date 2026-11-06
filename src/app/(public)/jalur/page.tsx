@@ -1,6 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { MapPin } from 'lucide-react'
+import { MapPin, ArrowRight } from 'lucide-react'
 
 const CATEGORY_LABEL: Record<string, string> = {
   essay_only: 'Essay Only',
@@ -91,7 +91,7 @@ export default async function JalurPage({
                     {CATEGORY_LABEL[jalur.category] ?? jalur.category}
                   </span>
                   <span className="text-xs font-semibold text-brand-muted bg-brand-gray px-2 py-0.5 rounded-full">
-                    Lihat Detail →
+                    Lihat Detail <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden />
                   </span>
                 </div>
                 <p className="text-xs text-brand-muted font-medium mb-1">{jalur.university}</p>

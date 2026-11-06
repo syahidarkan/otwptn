@@ -1,6 +1,5 @@
 import Link from 'next/link'
-import Image from 'next/image'
-import { Home, Calculator, Sparkles, BookOpen, ArrowRight } from 'lucide-react'
+import { Home, Calculator, Sparkles } from 'lucide-react'
 
 export default function NotFound() {
   return (
@@ -10,7 +9,7 @@ export default function NotFound() {
         <div className="relative w-36 h-36 mx-auto">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/mascot/otbee-flying.png"
+            src="/mascot/confused.png"
             alt="Otbee Bingung"
             className="w-full h-full object-contain filter drop-shadow-md animate-bounce"
             style={{ animationDuration: '3s' }}
@@ -54,7 +53,7 @@ export default function NotFound() {
         </div>
 
         <p className="text-[11px] text-gray-400 font-medium">
-          otwptn.com - Platform Bimbingan Jalur Non-Tes PTN No. 1 di Indonesia
+          otwptn.com - Platform Bimbingan Jalur Non-Tes PTN
         </p>
       </div>
     </div>

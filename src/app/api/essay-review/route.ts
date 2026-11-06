@@ -1,4 +1,5 @@
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { consumeQuota } from '@/lib/security'
 import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
 
@@ -16,18 +17,23 @@ export async function POST(request: Request) {
   const tier = profile?.tier ?? 'free'
   const limit = isStaff ? null : TIER_ESSAY_LIMIT[tier]
 
-  if (limit !== null) {
-    const { data: quota } = await supabase
-      .from('usage_quotas')
-      .select('used_count')
-      .eq('user_id', user.id)
-      .eq('feature', 'ai_essay')
-      .maybeSingle()
-    const used = quota?.used_count ?? 0
-    if (used >= limit) return NextResponse.json({ error: 'quota_exceeded', limit }, { status: 403 })
+  const { essay_id, content } = await request.json()
+  if (typeof content !== 'string' || content.trim().length < 20 || content.length > 20000) {
+    return NextResponse.json({ error: 'Isi esai tidak valid (20 sampai 20.000 karakter)' }, { status: 400 })
+  }
+  if (typeof essay_id !== 'string') {
+    return NextResponse.json({ error: 'essay_id tidak valid' }, { status: 400 })
   }
 
-  const { essay_id, content } = await request.json()
+  // Ownership: the feedback row is written with the service client, so verify the essay is
+  // the caller's own first (otherwise anyone could attach feedback to someone else's essay).
+  const { data: ownEssay } = await supabase.from('essays').select('id').eq('id', essay_id).eq('user_id', user.id).maybeSingle()
+  if (!ownEssay) return NextResponse.json({ error: 'Esai tidak ditemukan' }, { status: 404 })
+
+  // Atomic check+increment BEFORE the paid AI call (parallel requests can no longer all pass).
+  if (!(await consumeQuota(user.id, 'ai_essay', limit))) {
+    return NextResponse.json({ error: 'quota_exceeded', limit }, { status: 403 })
+  }
 
   const wordCount = content.trim().split(/\s+/).filter(Boolean).length
   const { client, model } = getAiClient('complex')
@@ -140,7 +146,7 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
   }
 
   try {
-    const admin = await createAdminClient()
+    const admin = createServiceClient()
 
     await admin.from('essay_feedback').insert({
       essay_id,
@@ -151,10 +157,6 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
     const { data: essayData } = await supabase.from('essays').select('revision_count').eq('id', essay_id).maybeSingle()
     await supabase.from('essays').update({ revision_count: (essayData?.revision_count ?? 0) + 1 }).eq('id', essay_id)
 
-    if (!isStaff) {
-      const curUsed = (await admin.from('usage_quotas').select('used_count').eq('user_id', user.id).eq('feature', 'ai_essay').maybeSingle()).data?.used_count ?? 0
-      await admin.from('usage_quotas').upsert({ user_id: user.id, feature: 'ai_essay', used_count: curUsed + 1 }, { onConflict: 'user_id,feature' })
-    }
   } catch (dbErr) {
     console.warn('[AI Essay Review] Non-blocking DB log warning:', dbErr)
   }

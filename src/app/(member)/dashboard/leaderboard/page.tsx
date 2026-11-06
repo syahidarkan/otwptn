@@ -47,7 +47,7 @@ export default function LeaderboardPage() {
       <FeatureHeader
         title="Papan Peringkat Pejuang PTN"
         subtitle="Pantau progres belajar, konsistensi streak, dan kumpulkan XP melalui penulisan essay dan latihan rasionalisasi nilai rapor."
-        mascot="/fitur/ecourse-modul.png"
+        mascot="/fitur/modul-video.png"
         badgeText="Live Leaderboard"
       />
 

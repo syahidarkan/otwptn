@@ -11,6 +11,7 @@ WORKDIR /app
 
 # Set production environment
 ENV NODE_ENV="production"
+ENV PORT=3001
 
 
 # Throw-away build stage to reduce size of final image
@@ -32,8 +33,9 @@ COPY . .
 FROM base
 
 # Copy built application
-COPY --from=build /app /app
+COPY --from=build --chown=node:node /app /app
 
 # Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
-CMD [ "npm", "run", "start" ]
+EXPOSE 3001
+USER node
+CMD [ "node", "src/server.js" ]

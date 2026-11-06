@@ -5,13 +5,16 @@
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
 import Link from 'next/link'
+import { PRICE_MATRIX, formatIDR } from '@/lib/pricing'
+
+const BASE = PRICE_MATRIX.individu.essay
 
 const FREE = { name: 'Akun Gratis', price: 'Rp0', desc: 'Mulai eksplorasi tanpa bayar sepeser pun.', feats: ['Kalkulator Peluang 1x/bulan', 'Chat Otbee AI 3x/hari', 'Essay AI Review 1x/bulan', 'Akses modul preview'], href: '/register' }
-const WEB = { name: 'Akun Premium', price: 'Rp49.000', desc: 'Akses penuh ke seluruh fitur platform cerdas tanpa mentor alumni.', feats: ['Kalkulator & AI Unlimited', 'Bebas buat Circle', 'Unlock 100% modul e-course', 'Buka Atur Strategi'], href: '/upgrade' }
+const WEB = { name: 'Akun Premium', price: `${formatIDR(BASE.web_premium.amount)}`, desc: 'Akses penuh ke seluruh fitur platform cerdas tanpa mentor alumni.', feats: ['Kalkulator & AI Unlimited', 'Bebas buat Circle', 'Unlock 100% modul e-course', 'Buka Atur Strategi'], href: '/upgrade' }
 const SMALL = [
-  { key: 'review', name: 'Nectar (Review)', price: 'Rp99.000', feats: ['Termasuk Akun Premium', '2x Revisi Esai via WA', 'Cek validasi dokumen'], href: '/upgrade', highlight: false },
-  { key: 'reguler', name: 'Honeycomb (Reguler)', price: 'Rp199.000', feats: ['Termasuk Akun Premium', '5x Putaran Revisi Esai', '2x Sesi Privat Zoom', 'Grup WA Eksklusif'], href: '/upgrade', highlight: false },
-  { key: 'intensif', name: 'Queen Bee (Royal Jelly)', price: 'Rp399.000', feats: ['Termasuk Akun Premium', 'Unlimited Revisi + Meet', 'Wajib Analisis Pil 1 & 2', 'Exclusive Trip ke UI'], href: '/upgrade', highlight: true },
+  { key: 'review', name: 'Nectar (Review)', price: `Mulai ${formatIDR(BASE.review.amount)}`, feats: ['Termasuk Akun Premium', '2x Revisi Esai via WA', 'Cek validasi dokumen'], href: '/upgrade', highlight: false },
+  { key: 'reguler', name: 'Honeycomb (Reguler)', price: `Mulai ${formatIDR(BASE.dokumen.amount)}`, feats: ['Termasuk Akun Premium', '5x Putaran Revisi Esai', '2x Sesi Privat Zoom', 'Grup WA Eksklusif'], href: '/upgrade', highlight: false },
+  { key: 'intensif', name: 'Queen Bee (Royal Jelly)', price: `Mulai ${formatIDR(BASE.menyeluruh.amount)}`, feats: ['Termasuk Akun Premium', 'Unlimited Revisi + Meet', 'Bimbingan dokumen & wawancara', 'Exclusive Trip ke UI'], href: '/upgrade', highlight: true },
 ]
 
 function Feats({ items }: { items: string[] }) {
@@ -39,7 +42,7 @@ export default function PricingSection() {
           className="text-center mb-12"
         >
           <h2 className="text-section-heading text-fg mb-3">Pilih sesuai kebutuhanmu</h2>
-          <p className="text-body">Sekali bayar, akses selamanya. Bisa upgrade kapan aja.</p>
+          <p className="text-body">Sekali bayar. Pilih mode Individu atau Squad dan cakupan Essay atau Prestasi di halaman checkout.</p>
         </motion.div>
 
         {/* Desktop bento */}

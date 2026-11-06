@@ -1,11 +1,8 @@
-import CheckoutClient from './CheckoutClient'
+import { redirect } from 'next/navigation'
 
-export default async function CheckoutPage(props: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
-  const searchParams = await props.searchParams
-  const tier = (searchParams?.tier as string) || 'nectar'
-  const initialSnapOpen = searchParams?.snap === '1'
-
-  return <CheckoutClient initialTier={tier} initialSnapOpen={initialSnapOpen} />
+// Legacy checkout entry point — consolidated into /upgrade, the single source of truth
+// for pricing (mode x track x tier). Keeping a separate hardcoded price table here
+// caused it to drift out of sync with /api/checkout's authoritative pricing matrix.
+export default function CheckoutRedirectPage() {
+  redirect('/upgrade')
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useMemo, Suspense } from 'react'
+import { useState, useRef, useEffect, useMemo, useSyncExternalStore, Suspense } from 'react'
 import {
   ChevronDown,
   Lock,
@@ -16,16 +16,19 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { EJALUR_LIST, type ELesson, type EStage } from '@/lib/ecourseData'
+import { getCompletedSnapshot, getCompletedServerSnapshot, subscribeCompleted } from './completed'
 
-const STORAGE_KEY = 'ecourse_v2_completed'
+const CAT_ALIASES: Record<string, string> = {
+  pbm: 'basic-essay',
+  ppu: 'basic-essay',
+  esai: 'essay',
+  ppkb: 'essay',
+}
 
-function getCompleted(): string[] {
-  if (typeof window === 'undefined') return []
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
-  } catch {
-    return []
-  }
+function resolveJalurId(cat: string | null): string {
+  if (cat && EJALUR_LIST.some(j => j.id === cat)) return cat
+  if (cat && CAT_ALIASES[cat]) return CAT_ALIASES[cat]
+  return EJALUR_LIST[0].id
 }
 
 // Pintarly winding offsets (X percentage within the road canvas)
@@ -42,15 +45,15 @@ const NODE_OFFSETS = [
   [50, 64, 56, 50], // Unit 10
 ]
 
-const ROW_HEIGHT = 100 // px per node row
+const ROW_HEIGHT = 120 // px per node row (room for the lesson caption under each node)
 
 function EcourseContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const [jalurId, setJalurId] = useState(EJALUR_LIST[0].id)
+  const jalurId = resolveJalurId(searchParams.get('cat'))
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [completed, setCompletedState] = useState<string[]>([])
+  const completed = useSyncExternalStore(subscribeCompleted, getCompletedSnapshot, getCompletedServerSnapshot)
   const [lockedNotice, setLockedNotice] = useState<string | null>(null)
   const [userTier, setUserTier] = useState<string>('free')
   const [isAdmin, setIsAdmin] = useState(false)
@@ -58,8 +61,6 @@ function EcourseContent() {
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    setCompletedState(getCompleted())
-
     // Check profile tier
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => {
@@ -75,24 +76,6 @@ function EcourseContent() {
         })
     })
   }, [])
-
-  // Dynamic category sync whenever searchParams change (sidebar sub-menu switching)
-  useEffect(() => {
-    const cat = searchParams.get('cat')
-    if (cat && EJALUR_LIST.some(j => j.id === cat)) {
-      setJalurId(cat)
-    } else if (cat === 'pbm' || cat === 'ppu' || cat === 'basic-essay') {
-      setJalurId('basic-essay')
-    } else if (cat === 'esai' || cat === 'ppkb' || cat === 'essay') {
-      setJalurId('essay')
-    } else if (cat === 'snbp') {
-      setJalurId('snbp')
-    } else if (cat === 'jalur-essay') {
-      setJalurId('jalur-essay')
-    } else if (cat === 'jalur-prestasi') {
-      setJalurId('jalur-prestasi')
-    }
-  }, [searchParams])
 
   useEffect(() => {
     function handle(e: MouseEvent) {
@@ -146,7 +129,6 @@ function EcourseContent() {
   }
 
   function handleSelectJalur(id: string) {
-    setJalurId(id)
     setDropdownOpen(false)
     router.push(`/dashboard/ecourse?cat=${id}`)
   }
@@ -167,7 +149,7 @@ function EcourseContent() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/mascot/thumbsup.png" alt="" className="w-7 h-7 object-contain" />
               </div>
-              <span className="text-base font-extrabold text-gray-900 tracking-tight">
+              <span className="text-sm sm:text-base font-extrabold text-gray-900 tracking-tight truncate max-w-[58vw] sm:max-w-none">
                 {jalur.label}
               </span>
               <ChevronDown
@@ -197,7 +179,12 @@ function EcourseContent() {
                           : 'hover:bg-gray-50 text-gray-800 font-semibold'
                       }`}
                     >
-                      <span className="text-sm">{j.label}</span>
+                      <span className="min-w-0">
+                        <span className="block text-sm truncate">{j.label}</span>
+                        <span className="block text-[11px] font-medium text-gray-500">
+                          {j.stages.length} unit · {j.stages.reduce((n, s) => n + s.lessons.length, 0)} materi
+                        </span>
+                      </span>
                       {j.id === jalurId && (
                         <CheckCircle2 size={16} className="text-amber-500" />
                       )}
@@ -215,7 +202,7 @@ function EcourseContent() {
           <div className="w-full max-w-[620px] mx-auto flex flex-col items-center">
             {jalur.stages.map((stage, si) => {
               const offsets = NODE_OFFSETS[si % NODE_OFFSETS.length]
-              const totalHeight = 4 * ROW_HEIGHT
+              const totalHeight = (stage.lessons.length + 1) * ROW_HEIGHT
               const isStageFinished = stage.lessons.every(l => completed.includes(l.id))
 
               return (
@@ -373,6 +360,15 @@ function EcourseContent() {
                               )}
                             </button>
 
+                            <span
+                              className={`absolute top-full left-1/2 -translate-x-1/2 w-[150px] text-center text-[10px] leading-tight line-clamp-2 ${
+                                isCurrent ? 'font-black text-gray-900' : 'font-bold text-gray-500'
+                              }`}
+                              style={{ marginTop: isCurrent ? 6 : 4 }}
+                            >
+                              {lesson.title}
+                            </span>
+
                             {/* Otbee Mascot Beside Active Node */}
                             {isCurrent && (
                               <div
@@ -399,7 +395,7 @@ function EcourseContent() {
                     <div
                       className="absolute"
                       style={{
-                        top: 3 * ROW_HEIGHT + ROW_HEIGHT / 2,
+                        top: stage.lessons.length * ROW_HEIGHT + ROW_HEIGHT / 2,
                         left: `${offsets[3 % offsets.length]}%`,
                         transform: 'translate(-50%, -50%)',
                         zIndex: 2,

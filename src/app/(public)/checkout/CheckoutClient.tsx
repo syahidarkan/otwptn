@@ -104,7 +104,7 @@ export default function CheckoutClient({ initialTier = 'nectar' }: { initialTier
 
         <h1 className="text-2xl font-black mb-1" style={{ color: 'var(--fg)' }}>Checkout Pesanan</h1>
         <p className="text-xs mb-8" style={{ color: 'var(--muted)' }}>
-          Pembayaran diproses via Mayar — VA Bank, QRIS, GoPay, OVO, Dana, Kartu Kredit.
+          Pembayaran diproses via Mayar: VA Bank, QRIS, GoPay, OVO, Dana, Kartu Kredit.
         </p>
 
         {/* Selected Product */}
@@ -181,7 +181,7 @@ export default function CheckoutClient({ initialTier = 'nectar' }: { initialTier
 
         <div className="p-3 rounded-xl text-center text-[11px]" style={{ background: 'var(--bg-alt)', color: 'var(--muted)' }}>
           <ShieldCheck size={13} className="inline mr-1 mb-0.5" />
-          Transaksi aman via <strong>Mayar</strong> — terdaftar & diawasi OJK.
+          Transaksi aman via <strong>Mayar</strong>, terdaftar & diawasi OJK.
           Akun kamu otomatis diupgrade setelah pembayaran dikonfirmasi.
         </div>
 

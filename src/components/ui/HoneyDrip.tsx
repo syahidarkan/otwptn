@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { forwardRef } from 'react'
 
 interface HoneyDripProps {
   mode?: 'separator' | 'fullscreen'
@@ -62,9 +62,6 @@ const FULL_DRIPS: DripDef[] = [
 ]
 const FULL_BOTTOM_PATH = honeyBottomPath(FULL_DRIPS, 1200, BRIDGE_H)
 
-const HONEY_GRADIENT =
-  'linear-gradient(180deg,#92400e 0%,#b45309 8%,#d97706 18%,#f59e0b 42%,#fbbf24 68%,#fcd34d 86%,#fde68a 100%)'
-
 export default function HoneyDrip({ mode = 'separator', className = '', height = 90 }: HoneyDripProps) {
   if (mode === 'fullscreen') return null
   return (
@@ -87,141 +84,46 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
   )
 }
 
-interface HoneyFillProps {
-  phase: 'entering' | 'exiting'
-  onComplete: () => void
-  onFullyCovered?: () => void
-}
+export const HONEY_DRIP_H = 170
+const HONEY_VB_H = BRIDGE_H + 168
 
-// Lower internal resolution for processing — display is CSS-scaled to fullscreen.
-// 480×270 = 7× fewer pixels than 1280×720, same aspect ratio, visually identical for large honey shapes.
-const CANVAS_W = 480
-const CANVAS_H = 270
-
-// 9-point grid to detect when honey fully covers the canvas
-const COVERAGE_POINTS: [number, number][] = [
-  [24, 14],   [240, 14],   [456, 14],
-  [24, 135],  [240, 135],  [456, 135],
-  [24, 256],  [240, 256],  [456, 256],
-]
-
-export function HoneyFill({ phase, onComplete, onFullyCovered }: HoneyFillProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const rafRef = useRef<number>(0)
-  const coveredRef = useRef(false)
-  const onCompleteRef = useRef(onComplete)
-  onCompleteRef.current = onComplete
-  const onFullyCoveredRef = useRef(onFullyCovered)
-  onFullyCoveredRef.current = onFullyCovered
-
-  useEffect(() => {
-    if (canvasRef.current) {
-      canvasRef.current.width = CANVAS_W
-      canvasRef.current.height = CANVAS_H
-    }
-    return () => cancelAnimationFrame(rafRef.current)
-  }, [])
-
-  const startDrawing = useCallback(() => {
-    const ctx = canvasRef.current?.getContext('2d', { willReadFrequently: true })
-    if (!ctx) return
-    ctx.imageSmoothingEnabled = true
-    ctx.imageSmoothingQuality = 'high'
-    let nativeAlphaChecked = false
-    let useLumaKey = true  // assume needed until proven otherwise
-
-    const draw = () => {
-      const vid = videoRef.current
-      if (vid && vid.readyState >= 2) {
-        ctx.clearRect(0, 0, CANVAS_W, CANVAS_H)
-        ctx.drawImage(vid, 0, 0, CANVAS_W, CANVAS_H)
-        const imgData = ctx.getImageData(0, 0, CANVAS_W, CANVAS_H)
-        const d = imgData.data
-
-        // On first real frame, check if native WebM alpha is working
-        // (top-left pixel should be transparent at t≈0 since honey hasn't appeared yet)
-        if (!nativeAlphaChecked && vid.currentTime > 0.05) {
-          nativeAlphaChecked = true
-          useLumaKey = d[3] > 200  // if already transparent → native alpha works, skip luma key
-        }
-
-        if (useLumaKey) {
-          for (let i = 0; i < d.length; i += 4) {
-            const b = d[i + 2]
-            if (b > 150 && d[i] > 190 && d[i + 1] > 180) {
-              d[i + 3] = Math.round(Math.max(0, 1 - (b - 150) / 105) * 255)
-            }
-          }
-          ctx.putImageData(imgData, 0, 0)
-        }
-
-        // Detect full honey coverage; pause video and notify parent
-        if (!coveredRef.current) {
-          // Re-read after potential luma key modification
-          const check = useLumaKey ? d : ctx.getImageData(0, 0, CANVAS_W, CANVAS_H).data
-          const allCovered = COVERAGE_POINTS.every(([x, y]) => check[(y * CANVAS_W + x) * 4 + 3] > 200)
-          if (allCovered) {
-            coveredRef.current = true
-            vid.pause()
-            onFullyCoveredRef.current?.()
-          }
-        }
-      }
-      rafRef.current = requestAnimationFrame(draw)
-    }
-    cancelAnimationFrame(rafRef.current)
-    rafRef.current = requestAnimationFrame(draw)
-  }, [])
-
-  useEffect(() => {
-    const vid = videoRef.current
-    if (!vid) return
-
-    if (phase === 'entering') {
-      coveredRef.current = false
-      vid.currentTime = 0
-      vid.playbackRate = 5  // enter at 5x: covers in ~1s
-      vid.play().then(startDrawing).catch(startDrawing)
-    } else if (phase === 'exiting') {
-      // Resume from paused full-cover position and drain quickly
-      const remaining = (vid.duration || 10) - vid.currentTime
-      if (remaining <= 0.05) { onCompleteRef.current(); return }
-      vid.playbackRate = Math.min(8, remaining / 0.5)  // finish exit in ~0.5s
-      vid.play()
-    }
-  }, [phase, startDrawing])
-
-  useEffect(() => {
-    const vid = videoRef.current
-    if (!vid) return
-    const handleEnded = () => { cancelAnimationFrame(rafRef.current); onCompleteRef.current() }
-    vid.addEventListener('ended', handleEnded)
-    return () => vid.removeEventListener('ended', handleEnded)
-  }, [])
-
+// Always-mounted, GPU-only honey layer for page transitions. No video, no canvas, no
+// per-frame pixel work: GlobalPageLoader drives it with Web Animations on the root element.
+export const HoneyOverlay = forwardRef<HTMLDivElement>(function HoneyOverlay(_, ref) {
   return (
     <div
+      ref={ref}
       aria-hidden="true"
       style={{
-        position: 'fixed', inset: 0,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
         zIndex: 999997,
         pointerEvents: 'none',
         userSelect: 'none',
+        visibility: 'hidden',
+        transformOrigin: 'top left',
+        transform: 'translateY(-110%)',
+        willChange: 'transform',
+        contain: 'layout paint',
       }}
     >
-      <video
-        ref={videoRef}
-        muted playsInline preload="auto"
-        style={{ display: 'none' }}
-      >
-        <source src="/honey-fill.webm" type="video/webm" />
-        <source src="/honey-splash.mp4" type="video/mp4" />
-      </video>
-      <canvas
-        ref={canvasRef}
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+      <div
+        style={{
+          height: '100vh',
+          background: 'linear-gradient(180deg,#fcd34d 0%,#fbbf24 35%,#f59e0b 100%)',
+        }}
       />
+      <svg
+        viewBox={`0 0 1200 ${HONEY_VB_H}`}
+        preserveAspectRatio="none"
+        width="100%"
+        height={HONEY_DRIP_H}
+        style={{ display: 'block', marginTop: -30, filter: 'drop-shadow(0 6px 8px rgba(120,53,15,0.25))' }}
+      >
+        <path d={FULL_BOTTOM_PATH} fill="#f59e0b" />
+      </svg>
     </div>
   )
-}
+})

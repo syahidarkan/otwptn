@@ -1,3 +1,4 @@
+import { rateLimit } from '@/lib/security'
 import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
 
@@ -119,8 +120,13 @@ export async function POST(request: Request) {
 
     const { message, history } = await request.json()
 
-    if (!message || typeof message !== 'string') {
+    if (!message || typeof message !== 'string' || message.length > 1000) {
       return NextResponse.json({ error: 'Pesan tidak valid' }, { status: 400 })
+    }
+    // Public endpoint that spends AI credits: the in-memory limiter below is per serverless
+    // instance, so also throttle through the shared DB limiter.
+    if (!(await rateLimit('cs_chat', ip, 20, 600))) {
+      return NextResponse.json({ error: 'Terlalu banyak permintaan. Coba lagi nanti.' }, { status: 429 })
     }
 
     // 1. Check quick rule-based customer service knowledge first
@@ -138,7 +144,7 @@ export async function POST(request: Request) {
         ...(Array.isArray(history)
           ? history.slice(-6).map((h: any) => ({
               role: h.role === 'user' ? ('user' as const) : ('assistant' as const),
-              content: String(h.content),
+              content: String(h.content).slice(0, 1000),
             }))
           : []),
         { role: 'user' as const, content: message },

@@ -7,6 +7,12 @@ app = 'otwptn-wa'
 primary_region = 'sin'
 
 [build]
+
+# The Baileys WhatsApp session is a singleton: two live instances using the same credentials kick
+# each other off WhatsApp. Keep exactly ONE machine and never roll out with overlap.
+[deploy]
+  strategy = 'immediate'
+
 [http_service]
   internal_port = 3001
   force_https = true
@@ -14,6 +20,13 @@ primary_region = 'sin'
   auto_start_machines = true
   min_machines_running = 1
   processes = ['app']
+
+  [[http_service.checks]]
+    grace_period = '20s'
+    interval = '30s'
+    method = 'GET'
+    timeout = '5s'
+    path = '/health'
 
 [[vm]]
   memory = '1gb'

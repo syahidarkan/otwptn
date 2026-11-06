@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, useSyncExternalStore, use } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import {
   ChevronLeft,
   ChevronRight,
@@ -13,36 +12,24 @@ import {
   Play,
   ArrowRight,
   BookOpen,
-  Share2,
   Video,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { EJALUR_LIST, type ELesson, type EStage, type EJalur } from '@/lib/ecourseData'
 
-const STORAGE_KEY = 'ecourse_v2_completed'
-
-function getCompleted(): string[] {
-  if (typeof window === 'undefined') return []
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
-  } catch {
-    return []
-  }
-}
-
-function setCompleted(ids: string[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids))
-  } catch {}
-}
+import {
+  getCompletedSnapshot,
+  getCompletedServerSnapshot,
+  subscribeCompleted,
+  writeCompleted,
+} from '../../completed'
 
 export default function LessonDetailPage({ params }: { params: Promise<{ lessonId: string }> }) {
   const { lessonId } = use(params)
-  const router = useRouter()
 
   const [userTier, setUserTier] = useState<string>('free')
   const [isAdmin, setIsAdmin] = useState(false)
-  const [completed, setCompletedState] = useState<string[]>([])
+  const completed = useSyncExternalStore(subscribeCompleted, getCompletedSnapshot, getCompletedServerSnapshot)
   const [loading, setLoading] = useState(true)
 
   // Find the lesson, stage, and track
@@ -69,8 +56,6 @@ export default function LessonDetailPage({ params }: { params: Promise<{ lessonI
   const nextLesson = currentIdx >= 0 && currentIdx < allTrackLessons.length - 1 ? allTrackLessons[currentIdx + 1] : null
 
   useEffect(() => {
-    setCompletedState(getCompleted())
-
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) {
@@ -94,8 +79,7 @@ export default function LessonDetailPage({ params }: { params: Promise<{ lessonI
     const updated = completed.includes(id)
       ? completed.filter(x => x !== id)
       : [...completed, id]
-    setCompletedState(updated)
-    setCompleted(updated)
+    writeCompleted(updated)
   }
 
   if (!foundLesson || !foundStage || !foundJalur) {
@@ -273,7 +257,7 @@ export default function LessonDetailPage({ params }: { params: Promise<{ lessonI
 
             {/* Long-form Content Article */}
             <div
-              className="prose prose-sm max-w-none text-gray-800"
+              className="min-w-0 max-w-none text-gray-800 break-words [&_svg]:max-w-full"
               dangerouslySetInnerHTML={{ __html: foundLesson.content }}
             />
 
@@ -296,16 +280,12 @@ export default function LessonDetailPage({ params }: { params: Promise<{ lessonI
 
               {nextLesson && (
                 <Link
-                  href={
-                    nextLesson.isPremium && userTier === 'free'
-                      ? `/dashboard/ecourse/lesson/${nextLesson.id}`
-                      : `/dashboard/ecourse/lesson/${nextLesson.id}`
-                  }
+                  href={`/dashboard/ecourse/lesson/${nextLesson.id}`}
                   className="w-full sm:w-auto px-6 py-3 rounded-2xl btn-brand-primary text-xs font-black shadow-sm flex items-center gap-2 justify-center"
                 >
                   <div className="text-right">
                     <span className="text-[10px] text-amber-900/80 block font-bold flex items-center justify-end gap-1">
-                      {nextLesson.isPremium && userTier === 'free' ? (
+                      {nextLesson.isPremium && userTier === 'free' && !isAdmin ? (
                         <>
                           <Lock size={10} />
                           <span>Materi Berikutnya (Premium)</span>

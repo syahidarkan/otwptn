@@ -2,7 +2,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { formatRupiah, formatDateTime } from '@/lib/utils'
 import Badge from '@/components/ui/Badge'
-import { Users, Clock, CheckCircle, TrendingUp } from 'lucide-react'
+import { Users, Clock, CheckCircle, TrendingUp, ArrowRight } from 'lucide-react'
 
 const STATUS_BADGE: Record<string, 'pending' | 'confirmed' | 'rejected' | 'expired'> = {
   pending: 'pending',
@@ -118,7 +118,7 @@ export default async function AdminDashboard() {
             <p className="text-xs text-gray-500">Daftar pendaftar teranyar yang masuk ke sistem.</p>
           </div>
           <a href="/admin/pendaftar" className="text-xs text-amber-700 hover:text-amber-800 font-bold">
-            Lihat semua →
+            Lihat semua <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden />
           </a>
         </div>
 

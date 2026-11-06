@@ -40,7 +40,7 @@ export default function MascotLoading({
         />
 
         <Image
-          src="/mascot-hd/graduation-trophy.png"
+          src="/mascot-hd/trophy-graduate.png"
           alt="OtBee Loading"
           width={140}
           height={140}

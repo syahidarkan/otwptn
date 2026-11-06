@@ -1,23 +1,32 @@
 import { NextResponse } from 'next/server'
-import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { randomUUID } from 'crypto'
+import { createServiceClient } from '@/lib/supabase/server'
+import { getClientIp, matchesFileSignature, rateLimit } from '@/lib/security'
 
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'application/pdf']
+const ALLOWED_TYPES: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'application/pdf': 'pdf',
+}
 const MAX_BYTES = 5 * 1024 * 1024 // 5MB
 
 export async function POST(request: Request) {
   try {
-    // For registration flow: allow unauthenticated uploads but rate-limit by IP
-    const forwarded = request.headers.get('x-forwarded-for')
-    const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown'
+    // Registration flow allows unauthenticated uploads, so throttle per IP.
+    const ip = getClientIp(request)
+    if (!(await rateLimit('upload_payment', ip, 10, 3600))) {
+      return NextResponse.json({ error: 'Terlalu banyak upload. Coba lagi nanti.' }, { status: 429 })
+    }
 
     const formData = await request.formData()
-    const file = formData.get('file') as File | null
+    const file = formData.get('file')
 
-    if (!file) {
+    if (!(file instanceof File)) {
       return NextResponse.json({ error: 'File tidak ditemukan' }, { status: 400 })
     }
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    const ext = ALLOWED_TYPES[file.type]
+    if (!ext) {
       return NextResponse.json({ error: 'Tipe file tidak didukung. Gunakan JPG, PNG, atau PDF.' }, { status: 400 })
     }
 
@@ -25,16 +34,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Ukuran file maksimal 5MB.' }, { status: 400 })
     }
 
-    // Use admin client for storage upload (anon can't upload to private bucket)
-    const supabase = await createAdminClient()
-    const ext = file.name.split('.').pop()?.replace(/[^a-zA-Z0-9]/g, '') ?? 'jpg'
-    const safeName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const path = `uploads/${safeName}`
+    const bytes = new Uint8Array(await file.arrayBuffer())
+    // The browser-declared MIME type is attacker controlled: verify the real file signature.
+    if (!matchesFileSignature(bytes, file.type)) {
+      return NextResponse.json({ error: 'Isi file tidak sesuai dengan tipenya.' }, { status: 400 })
+    }
 
-    const bytes = await file.arrayBuffer()
+    // Extension comes from the verified type (never from the client file name) and the
+    // object name is an unguessable UUID, so proofs cannot be enumerated via the public URL.
+    const path = `uploads/${randomUUID()}.${ext}`
+
+    const supabase = createServiceClient()
     const { error: uploadError } = await supabase.storage
       .from('payment-proofs')
-      .upload(path, bytes, { contentType: file.type })
+      .upload(path, bytes, { contentType: file.type, upsert: false })
 
     if (uploadError) {
       return NextResponse.json({ error: 'Gagal upload file' }, { status: 500 })

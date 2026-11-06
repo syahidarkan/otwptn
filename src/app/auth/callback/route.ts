@@ -1,10 +1,12 @@
 import { createServerClient } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
+import { safeNextPath } from '@/lib/security'
+import { createServiceClient } from '@/lib/supabase/server'
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/dashboard'
+  const next = safeNextPath(searchParams.get('next'))
 
   // Support reverse proxies / production domains (e.g. Vercel)
   const forwardedHost = request.headers.get('x-forwarded-host')
@@ -56,7 +58,8 @@ export async function GET(request: NextRequest) {
         if (!profile) {
           // Auto-register user into profiles table
           try {
-            await supabase.from('profiles').insert({
+            // profiles has no INSERT policy for users (and must not): create the row server-side.
+            await createServiceClient().from('profiles').upsert({
               id: user.id,
               email: user.email || '',
               full_name:
@@ -71,7 +74,7 @@ export async function GET(request: NextRequest) {
               onboarding_completed: false,
               role: 'user',
               tier: 'free',
-            })
+            }, { onConflict: 'id', ignoreDuplicates: true })
           } catch (insertErr) {
             console.error('Failed to auto-insert profile:', insertErr)
           }

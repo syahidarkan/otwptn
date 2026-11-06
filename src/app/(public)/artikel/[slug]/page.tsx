@@ -460,7 +460,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <Link href="/dashboard/essay" className="btn bg-gray-950 hover:bg-black text-white text-xs sm:text-sm px-6 py-3 font-bold rounded-full">
-              Coba Essay AI Review →
+              Coba Essay AI Review <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden />
             </Link>
             <Link href="/dashboard/kalkulator" className="btn bg-white hover:bg-gray-100 text-gray-900 text-xs sm:text-sm px-5 py-3 font-bold rounded-full">
               Kalkulator Peluang

@@ -1,8 +1,8 @@
-import { createAdminClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
-import { creditAmbassadorCommission } from '@/lib/commission'
-import { autoAssignIndividuMentor, handleSquadPayment } from '@/lib/mentorAssignment'
+import { safeEqual } from '@/lib/security'
+import { claimOrderPaid, fulfillPaidOrder } from '@/lib/orderFulfillment'
 
 function verifyDokuSignature(
   requestBody: string,
@@ -21,7 +21,7 @@ function verifyDokuSignature(
     `Digest:${digest}`,
   ].join('\n')
   const expected = 'HMACSHA256=' + crypto.createHmac('sha256', secretKey).update(componentToSign).digest('base64')
-  return expected === signatureHeader
+  return safeEqual(expected, signatureHeader)
 }
 
 export async function POST(request: Request) {
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
   }
 
-  const shouldVerify = secretKey && process.env.NODE_ENV !== 'development'
+  const shouldVerify = process.env.NODE_ENV !== 'development'
   if (shouldVerify && !verifyDokuSignature(rawBody, signatureHeader, requestId, requestTimestamp, clientId, secretKey)) {
     console.warn('[DOKU Webhook] Invalid signature — rejected')
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
@@ -59,31 +59,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
   }
 
-  const supabase = await createAdminClient()
+  const supabase = createServiceClient()
 
   const { data: order } = await supabase
     .from('orders')
-    .select('id, user_id, tier, referral_code, mode, track, squad_group_id')
+    .select('id, status, amount')
     .eq('invoice_number', invoiceNumber)
     .maybeSingle()
 
   if (!order) return NextResponse.json({ error: 'Order not found' }, { status: 404 })
 
   if (status === 'SUCCESS') {
-    await Promise.all([
-      supabase.from('orders').update({ status: 'paid', paid_at: new Date().toISOString() }).eq('id', order.id),
-      supabase.from('profiles').update({ tier: order.tier }).eq('id', order.user_id),
-    ])
-
-    await creditAmbassadorCommission(supabase, order)
-
-    if (order.mode === 'squad' && order.squad_group_id) {
-      await handleSquadPayment(supabase, { ...order, squad_group_id: order.squad_group_id })
-    } else {
-      await autoAssignIndividuMentor(supabase, order)
+    if (order.status === 'paid') return NextResponse.json({ ok: true, already_paid: true })
+    const paidAmount = Number((body?.order as Record<string, unknown>)?.amount ?? NaN)
+    if (Number.isFinite(paidAmount) && paidAmount < order.amount) {
+      console.warn(`[DOKU Webhook] Underpaid order ${order.id}: ${paidAmount} < ${order.amount}`)
+      return NextResponse.json({ error: 'Amount mismatch' }, { status: 409 })
     }
-  } else if (status === 'FAILED' || status === 'EXPIRED') {
-    await supabase.from('orders').update({ status: status.toLowerCase() }).eq('id', order.id)
+    const claimed = await claimOrderPaid(supabase, order.id)
+    if (claimed) await fulfillPaidOrder(supabase, claimed)
+  } else if ((status === 'FAILED' || status === 'EXPIRED') && order.status === 'pending') {
+    await supabase.from('orders').update({ status: status.toLowerCase() }).eq('id', order.id).eq('status', 'pending')
   }
 
   return NextResponse.json({ ok: true })

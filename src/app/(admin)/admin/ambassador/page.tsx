@@ -7,6 +7,7 @@ import {
   Copy, Check, ExternalLink, CheckCheck
 } from 'lucide-react'
 import { formatRupiah } from '@/lib/utils'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
 
 interface AmbassadorUser {
   id: string
@@ -29,74 +30,8 @@ interface AmbassadorUser {
   status: 'active' | 'suspended'
 }
 
-const MOCK_AMBASSADORS: AmbassadorUser[] = [
-  {
-    id: 'amb-1',
-    fullName: 'Syahid Arkan Pratama',
-    email: 'syahid.arkan@gmail.com',
-    phone: '081298765432',
-    school: 'SMAN 8 Jakarta',
-    referralCode: 'ARKANVIP',
-    totalInvited: 28,
-    paidInvited: 12,
-    breakdown: { review: 5, reguler: 4, vip: 3 },
-    totalCommission: 5 * 15000 + 4 * 35000 + 3 * 75000, // 75rb + 140rb + 225rb = 440.000
-    withdrawnCommission: 250000,
-    pendingWithdraw: 190000,
-    bankInfo: 'BCA - 8735281920 a.n Syahid Arkan',
-    status: 'active',
-  },
-  {
-    id: 'amb-2',
-    fullName: 'Nabila Zahra Putri',
-    email: 'nabila.zahra@gmail.com',
-    phone: '081377889900',
-    school: 'SMAN 3 Bandung',
-    referralCode: 'NABILAOTW',
-    totalInvited: 42,
-    paidInvited: 18,
-    breakdown: { review: 8, reguler: 6, vip: 4 },
-    totalCommission: 8 * 15000 + 6 * 35000 + 4 * 75000, // 120rb + 210rb + 300rb = 630.000
-    withdrawnCommission: 500000,
-    pendingWithdraw: 130000,
-    bankInfo: 'GoPay / ShopeePay - 081377889900',
-    status: 'active',
-  },
-  {
-    id: 'amb-3',
-    fullName: 'Dimas Kevin Saputra',
-    email: 'dimas.kevin@gmail.com',
-    phone: '085712345678',
-    school: 'SMAN 1 Surabaya',
-    referralCode: 'DIMASJUARA',
-    totalInvited: 15,
-    paidInvited: 5,
-    breakdown: { review: 2, reguler: 2, vip: 1 },
-    totalCommission: 2 * 15000 + 2 * 35000 + 1 * 75000, // 30rb + 70rb + 75rb = 175.000
-    withdrawnCommission: 100000,
-    pendingWithdraw: 75000,
-    bankInfo: 'Mandiri - 1320098765432 a.n Dimas Kevin',
-    status: 'active',
-  },
-  {
-    id: 'amb-4',
-    fullName: 'Fathia Rahmawati',
-    email: 'fathia.rahma@gmail.com',
-    phone: '082199887766',
-    school: 'SMAN 1 Yogyakarta',
-    referralCode: 'FATHIASNBP',
-    totalInvited: 19,
-    paidInvited: 7,
-    breakdown: { review: 3, reguler: 3, vip: 1 },
-    totalCommission: 3 * 15000 + 3 * 35000 + 1 * 75000, // 45rb + 105rb + 75rb = 225.000
-    withdrawnCommission: 225000,
-    pendingWithdraw: 0,
-    bankInfo: 'BNI - 0987654321 a.n Fathia Rahma',
-    status: 'active',
-  },
-]
-
 export default function AdminAmbassadorPage() {
+  const [withdrawTarget, setWithdrawTarget] = useState<AmbassadorUser | null>(null)
   const [ambassadors, setAmbassadors] = useState<AmbassadorUser[]>([])
   const [search, setSearch] = useState('')
   const [payoutSuccess, setPayoutSuccess] = useState<string | null>(null)
@@ -118,8 +53,6 @@ export default function AdminAmbassadorPage() {
   useEffect(() => { load() }, [load])
 
   const handleApproveWithdraw = async (amb: AmbassadorUser) => {
-    if (!confirm(`Konfirmasi transfer penarikan komisi tunai sebesar ${formatRupiah(amb.pendingWithdraw)} ke ${amb.bankInfo}?`)) return
-
     const res = await fetch('/api/admin/ambassadors', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -162,6 +95,18 @@ export default function AdminAmbassadorPage() {
 
   return (
     <div className="space-y-6">
+      <ConfirmDialog
+        isOpen={!!withdrawTarget}
+        title="Konfirmasi penarikan komisi"
+        message={withdrawTarget ? `Konfirmasi transfer penarikan komisi tunai sebesar ${formatRupiah(withdrawTarget.pendingWithdraw)} ke ${withdrawTarget.bankInfo}?` : ''}
+        confirmLabel="Ya, sudah ditransfer"
+        onConfirm={() => {
+          const target = withdrawTarget
+          setWithdrawTarget(null)
+          if (target) handleApproveWithdraw(target)
+        }}
+        onCancel={() => setWithdrawTarget(null)}
+      />
       {/* Header Banner Card */}
       <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xs border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-start gap-4">
@@ -304,7 +249,7 @@ export default function AdminAmbassadorPage() {
                   <td className="py-3.5 px-4">
                     {amb.pendingWithdraw > 0 ? (
                       <button
-                        onClick={() => handleApproveWithdraw(amb)}
+                        onClick={() => setWithdrawTarget(amb)}
                         className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 font-black text-amber-950 text-xs transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
                       >
                         Setujui Transfer

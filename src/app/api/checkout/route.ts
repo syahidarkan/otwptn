@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { rateLimit } from '@/lib/security'
 import { NextResponse } from 'next/server'
 import { MODES, TRACKS, TIERS, TIER_LABELS, getPrice, type Mode, type Track, type Tier } from '@/lib/pricing'
 
@@ -23,6 +24,15 @@ export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // RLS only lets a user read/write their own rows, so referral lookup, squad create/join and
+  // order insert run through the service client AFTER the auth check above. Amounts are always
+  // recomputed from the server-side price matrix, never taken from the client.
+  const db = createServiceClient()
+
+  if (!(await rateLimit('checkout', user.id, 20, 600))) {
+    return NextResponse.json({ error: 'Terlalu banyak permintaan. Tunggu beberapa menit.' }, { status: 429 })
+  }
 
   const {
     tier,
@@ -49,7 +59,10 @@ export async function POST(request: Request) {
   let baseAmount = priceEntry.amount
   if (mode === 'individu' && typeof referral_code === 'string' && referral_code.trim()) {
     const code = referral_code.trim().toUpperCase()
-    const { data: ambassador } = await supabase
+    if (!(await rateLimit('referral_lookup', user.id, 15, 600))) {
+      return NextResponse.json({ error: 'Terlalu banyak percobaan kode referral. Coba lagi nanti.' }, { status: 429 })
+    }
+    const { data: ambassador } = await db
       .from('profiles')
       .select('id, referral_code')
       .eq('referral_code', code)
@@ -67,7 +80,11 @@ export async function POST(request: Request) {
       if (typeof squad_invite_code !== 'string' || !squad_invite_code.trim()) {
         return NextResponse.json({ error: 'Kode undangan squad wajib diisi' }, { status: 400 })
       }
-      const { data: squad } = await supabase
+      // Invite codes are 6 chars: throttle guessing per user.
+      if (!(await rateLimit('squad_join', user.id, 10, 900))) {
+        return NextResponse.json({ error: 'Terlalu banyak percobaan kode. Coba lagi dalam 15 menit.' }, { status: 429 })
+      }
+      const { data: squad } = await db
         .from('squads')
         .select('id, track, tier, status')
         .eq('invite_code', squad_invite_code.trim().toUpperCase())
@@ -80,7 +97,7 @@ export async function POST(request: Request) {
       if (squad.status !== 'forming') {
         return NextResponse.json({ error: 'Squad ini sudah penuh atau sudah berjalan' }, { status: 400 })
       }
-      const { count: seatCount } = await supabase
+      const { count: seatCount } = await db
         .from('orders')
         .select('id', { count: 'exact', head: true })
         .eq('squad_group_id', squad.id)
@@ -88,9 +105,18 @@ export async function POST(request: Request) {
       if ((seatCount ?? 0) >= 3) {
         return NextResponse.json({ error: 'Squad ini sudah penuh (maks 3 orang)' }, { status: 400 })
       }
+      const { count: ownSeat } = await db
+        .from('orders')
+        .select('id', { count: 'exact', head: true })
+        .eq('squad_group_id', squad.id)
+        .eq('user_id', user.id)
+        .eq('status', 'paid')
+      if ((ownSeat ?? 0) > 0) {
+        return NextResponse.json({ error: 'Kamu sudah terdaftar di squad ini' }, { status: 400 })
+      }
       squadGroupId = squad.id
     } else {
-      const { data: newSquad, error: squadError } = await supabase
+      const { data: newSquad, error: squadError } = await db
         .from('squads')
         .insert({ track, tier, invite_code: generateInviteCode(), status: 'forming' })
         .select('id')
@@ -146,7 +172,7 @@ export async function POST(request: Request) {
     ? baseAmount + Math.floor(Math.random() * 900) + 100
     : baseAmount
 
-  const { data: order, error: orderError } = await supabase.from('orders').insert({
+  const { data: order, error: orderError } = await db.from('orders').insert({
     user_id: user.id,
     tier,
     mode,
@@ -198,7 +224,7 @@ export async function POST(request: Request) {
     const mayarData = await mayarRes.json()
 
     if (!mayarRes.ok || !mayarData?.data?.id) {
-      await supabase.from('orders').update({ status: 'failed' }).eq('id', order.id)
+      await db.from('orders').update({ status: 'failed' }).eq('id', order.id)
       return NextResponse.json({ error: 'Gagal membuat payment link', details: mayarData }, { status: 502 })
     }
 
@@ -206,7 +232,7 @@ export async function POST(request: Request) {
     // e.g. https://otwptn.myr.id/pl/{slug}  — use it directly, /pay/{uuid} is not a valid format
     const paymentUrl = mayarData.data.link as string
 
-    await supabase.from('orders').update({
+    await db.from('orders').update({
       doku_reference: mayarData.data.id,
       payment_url: paymentUrl,
     }).eq('id', order.id)
@@ -217,7 +243,7 @@ export async function POST(request: Request) {
       order_id: order.id,
     })
   } catch {
-    await supabase.from('orders').update({ status: 'failed' }).eq('id', order.id)
+    await db.from('orders').update({ status: 'failed' }).eq('id', order.id)
     return NextResponse.json({ error: 'Gagal terhubung ke Mayar' }, { status: 503 })
   }
 }
