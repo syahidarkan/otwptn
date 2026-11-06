@@ -27,7 +27,9 @@ interface NlpBenchmarkData {
   similarityScore: number
   topMatchingFaculty: string
   topMatchingMajor: string
+  matchedAuthorContext?: string
   matchedWinningExcerpt: string
+  matchedFullTextSnippet?: string
   starScore: number
   starActionVerbs: string[]
   metricsFound: string[]
@@ -35,6 +37,10 @@ interface NlpBenchmarkData {
   detectedDomainTerms: string[]
   clichesFound: string[]
   lexicalDiversityScore: number
+  sentenceFlowScore?: number
+  avgSentenceLength?: number
+  runawaySentencesCount?: number
+  transitionWordsFound?: string[]
   benchmarkRankPercentile: number
   verdict: 'Sangat Menjanjikan' | 'Cukup Kompetitif' | 'Perlu Penguatan Nyata' | 'Kurang Memenuhi Standar'
   strengths: string[]
@@ -86,6 +92,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
   const [activeIssueIndex, setActiveIssueIndex] = useState<number | null>(null)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [copiedText, setCopiedText] = useState(false)
+  const [showCorpusReference, setShowCorpusReference] = useState(false)
 
   const handleExportTxt = () => {
     if (!editor) return
@@ -848,6 +855,75 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                                 {metric}
                               </span>
                             ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Alur & Irama Kalimat (Rhetorical Cadence) */}
+                      {typeof feedback.nlpBenchmark.sentenceFlowScore === 'number' && (
+                        <div className="space-y-1.5 pt-2 border-t border-amber-100/80">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-bold text-slate-700 text-[11px]">Irama &amp; Variasi Kalimat</span>
+                            <span className="font-mono font-black text-amber-800 text-[11px]">
+                              {feedback.nlpBenchmark.sentenceFlowScore}/100
+                            </span>
+                          </div>
+                          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-amber-500 rounded-full"
+                              style={{ width: `${feedback.nlpBenchmark.sentenceFlowScore}%` }}
+                            />
+                          </div>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1 text-[10px]">
+                            {feedback.nlpBenchmark.avgSentenceLength && (
+                              <span className="font-medium bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">
+                                Rata-rata {feedback.nlpBenchmark.avgSentenceLength} kata/kalimat
+                              </span>
+                            )}
+                            {feedback.nlpBenchmark.runawaySentencesCount && feedback.nlpBenchmark.runawaySentencesCount > 0 ? (
+                              <span className="font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-md">
+                                {feedback.nlpBenchmark.runawaySentencesCount} kalimat &gt;42 kata
+                              </span>
+                            ) : null}
+                          </div>
+                          {feedback.nlpBenchmark.transitionWordsFound && feedback.nlpBenchmark.transitionWordsFound.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {feedback.nlpBenchmark.transitionWordsFound.slice(0, 3).map(tw => (
+                                <span key={tw} className="text-[9px] font-medium bg-blue-50 text-blue-800 border border-blue-200 px-1.5 py-0.5 rounded-md">
+                                  {tw}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Rujukan Esai Lolos PPKB Terdekat */}
+                      <div className="p-2.5 rounded-xl bg-amber-50/60 border border-amber-200 text-xs space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-black text-amber-900 uppercase tracking-wider">
+                            Rujukan Korpus Lolos Terdekat
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setShowCorpusReference(!showCorpusReference)}
+                            className="text-[10px] font-bold text-amber-800 hover:text-amber-950 underline cursor-pointer"
+                          >
+                            {showCorpusReference ? 'Tutup' : 'Lihat Narasi'}
+                          </button>
+                        </div>
+                        {feedback.nlpBenchmark.matchedAuthorContext && (
+                          <p className="text-[10px] font-semibold text-slate-800">
+                            {feedback.nlpBenchmark.matchedAuthorContext}
+                          </p>
+                        )}
+                        <p className="text-[10px] text-slate-600 italic leading-relaxed border-l-2 border-amber-400 pl-2">
+                          &quot;{feedback.nlpBenchmark.matchedWinningExcerpt}&quot;
+                        </p>
+                        {showCorpusReference && feedback.nlpBenchmark.matchedFullTextSnippet && (
+                          <div className="mt-2 pt-2 border-t border-amber-200/60 text-[10px] text-slate-700 leading-relaxed bg-white/80 p-2 rounded-lg">
+                            <p className="font-bold text-slate-900 mb-1">Cuplikan Esai Lengkap:</p>
+                            <p className="whitespace-pre-line">{feedback.nlpBenchmark.matchedFullTextSnippet}</p>
                           </div>
                         )}
                       </div>

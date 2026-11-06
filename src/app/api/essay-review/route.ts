@@ -62,8 +62,12 @@ INFORMASI ESAI:
 HASIL ANALISIS NLP BENCHMARK (100 ESAI LOLOS PPKB UI):
 - Skor Kemiripan Vektor Kosinus (TF-IDF vs Korpus Lolos): ${nlpBenchmark.similarityScore}/100
 - Klaster Fakultas/Prodi Terdekat: ${nlpBenchmark.topMatchingFaculty} - ${nlpBenchmark.topMatchingMajor}
+- Profil Rujukan Korpus Terdekat: ${nlpBenchmark.matchedAuthorContext}
+- Kutipan Benchmark Esai Lolos: "${nlpBenchmark.matchedWinningExcerpt}"
 - Kepadatan Aksi STAR: ${nlpBenchmark.starScore}/100 (Kata kerja aksi terdeteksi: ${nlpBenchmark.starActionVerbs.join(', ') || 'Belum ada'})
 - Bukti Angka / Metrik Terukur: ${nlpBenchmark.metricsFound.join(', ') || 'Belum ditemukan'}
+- Alur & Irama Kalimat (Rhetorical Cadence): ${nlpBenchmark.sentenceFlowScore}/100 (Rata-rata ${nlpBenchmark.avgSentenceLength} kata/kalimat, ${nlpBenchmark.runawaySentencesCount} kalimat terlalu panjang)
+- Kata Penghubung / Transisi Terdeteksi: ${nlpBenchmark.transitionWordsFound.join(', ') || 'Minim'}
 - Spesifisitas Istilah Prodi: ${nlpBenchmark.domainSpecificityScore}/100 (${nlpBenchmark.detectedDomainTerms.join(', ') || 'Umum'})
 - Frasa Klise Terdeteksi: ${nlpBenchmark.clichesFound.join(', ') || 'Nihil (Bagus)'}
 - Peringkat Persentil Benchmark: Persentil ke-${nlpBenchmark.benchmarkRankPercentile} (${nlpBenchmark.verdict})

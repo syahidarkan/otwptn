@@ -98,7 +98,9 @@ export interface NlpAnalysisResult {
   similarityScore: number // 0-100 cosine similarity against 100 accepted PPKB UI corpus
   topMatchingFaculty: string
   topMatchingMajor: string
+  matchedAuthorContext: string // e.g. "Siswa SMAN 8 Jakarta - Lolos PPKB UI 2023"
   matchedWinningExcerpt: string
+  matchedFullTextSnippet: string
   starScore: number // 0-100 STAR Action & Quantification Density
   starActionVerbs: string[]
   metricsFound: string[]
@@ -106,11 +108,37 @@ export interface NlpAnalysisResult {
   detectedDomainTerms: string[]
   clichesFound: string[]
   lexicalDiversityScore: number // 0-100 (Type-Token Ratio)
+  sentenceFlowScore: number // 0-100 sentence length rhythm & cadence
+  avgSentenceLength: number // average words per sentence
+  runawaySentencesCount: number // sentences > 42 words
+  transitionWordsFound: string[] // cohesive connectors detected
   benchmarkRankPercentile: number // e.g. 84th percentile of applicants
   verdict: 'Sangat Menjanjikan' | 'Cukup Kompetitif' | 'Perlu Penguatan Nyata' | 'Kurang Memenuhi Standar'
   strengths: string[]
   warnings: string[]
 }
+
+// Transitional connectors for flow and coherence evaluation
+const TRANSITIONAL_CONNECTORS = [
+  'oleh karena itu',
+  'selain itu',
+  'di sisi lain',
+  'lebih lanjut',
+  'dengan demikian',
+  'melalui pengalaman',
+  'sejalan dengan',
+  'sebagai tindak lanjut',
+  'atas dasar tersebut',
+  'berdasarkan hal',
+  'pada akhirnya',
+  'dalam rangka',
+  'khususnya',
+  'sebagai langkah',
+  'tidak hanya',
+  'kendati demikian',
+  'oleh sebab itu',
+  'bertolak dari',
+]
 
 // Helper: Tokenize and normalize text
 function tokenize(text: string): string[] {
@@ -157,14 +185,14 @@ function cosineSimilarity(tf1: Map<string, number>, tf2: Map<string, number>): n
   return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2))
 }
 
-// Pre-build term frequencies for all 100 corpus entries
+// Pre-build term frequencies for all 100 corpus entries using FULL TEXT + metadata
 const CORPUS_TF_MAPS = ACCEPTED_PPKB_CORPUS.map(entry => {
   const combinedText = [
-    ...entry.keyVocabulary,
-    ...entry.starIndicators,
-    entry.winningExcerpt,
+    entry.fullText,
     entry.faculty,
     entry.major,
+    ...entry.keyVocabulary,
+    ...entry.starIndicators,
   ].join(' ')
   return {
     entry,
@@ -259,18 +287,70 @@ export function analyzeEssayWithNLP(essayText: string): NlpAnalysisResult {
   const ttr = meaningfulTokensCount > 0 ? uniqueTokens.size / meaningfulTokensCount : 0
   const lexicalDiversityScore = Math.min(95, Math.max(40, Math.round(ttr * 110)))
 
-  // 6. Overall Percentile Ranking Calculation
-  // Weighted aggregate: Similarity (35%), STAR action (30%), Specificity (20%), Lexical (15%) - Cliche penalty
+  // 6. Sentence Structure, Cadence & Rhetorical Flow Analysis
+  const rawSentences = essayText
+    .split(/[.!?]+/)
+    .map(s => s.trim())
+    .filter(s => s.length > 5)
+
+  const sentenceWordCounts = rawSentences.map(s => s.split(/\s+/).filter(Boolean).length)
+  const avgSentenceLength = sentenceWordCounts.length > 0
+    ? Math.round((sentenceWordCounts.reduce((a, b) => a + b, 0) / sentenceWordCounts.length) * 10) / 10
+    : 0
+
+  const runawaySentencesCount = sentenceWordCounts.filter(cnt => cnt > 42).length
+
+  // Standard deviation of sentence lengths to measure dynamic rhythm vs monotone
+  const sentenceVariance = sentenceWordCounts.length > 1
+    ? Math.sqrt(
+        sentenceWordCounts.reduce((acc, len) => acc + Math.pow(len - avgSentenceLength, 2), 0) /
+          sentenceWordCounts.length
+      )
+    : 0
+
+  // Transitional connective markers (cohesion & coherence)
+  const transitionWordsFound: string[] = []
+  for (const conn of TRANSITIONAL_CONNECTORS) {
+    if (normalized.includes(conn)) {
+      transitionWordsFound.push(conn)
+    }
+  }
+
+  // Cadence score: calibrated against the 100 accepted essays (mean sentence length 18-26, std dev 6-12)
+  let sentenceFlowScore = 78
+  if (avgSentenceLength >= 15 && avgSentenceLength <= 28) {
+    sentenceFlowScore += 10
+  } else if (avgSentenceLength < 11 || avgSentenceLength > 36) {
+    sentenceFlowScore -= 18
+  }
+
+  if (sentenceVariance >= 5 && sentenceVariance <= 16) {
+    sentenceFlowScore += 8
+  }
+
+  if (runawaySentencesCount > 0) {
+    sentenceFlowScore -= Math.min(25, runawaySentencesCount * 8)
+  }
+
+  if (transitionWordsFound.length >= 3) {
+    sentenceFlowScore += 6
+  }
+
+  sentenceFlowScore = Math.min(98, Math.max(30, Math.round(sentenceFlowScore)))
+
+  // 7. Overall Percentile Ranking Calculation
+  // Weighted aggregate: Full-Text Similarity (30%), STAR action (25%), Domain Specificity (15%), Sentence Cadence (15%), Lexical Diversity (15%) - Cliche penalty
   const rawAggregate =
-    scaledSimilarity * 0.35 +
-    starScore * 0.30 +
-    domainSpecificityScore * 0.20 +
+    scaledSimilarity * 0.30 +
+    starScore * 0.25 +
+    domainSpecificityScore * 0.15 +
+    sentenceFlowScore * 0.15 +
     lexicalDiversityScore * 0.15 -
     clichesFound.length * 8
 
   const benchmarkRankPercentile = Math.min(99, Math.max(25, Math.round(rawAggregate)))
 
-  // 7. Qualitative Verdict & Actionable Strengths/Warnings
+  // 8. Qualitative Verdict & Actionable Strengths/Warnings
   let verdict: NlpAnalysisResult['verdict'] = 'Kurang Memenuhi Standar'
   if (benchmarkRankPercentile >= 82) {
     verdict = 'Sangat Menjanjikan'
@@ -292,6 +372,12 @@ export function analyzeEssayWithNLP(essayText: string): NlpAnalysisResult {
   if (detectedDomainTerms.length >= 3) {
     strengths.push(`Penguasaan diksi prodi kuat selaras korpus ${topMatch.faculty}.`)
   }
+  if (sentenceFlowScore >= 80) {
+    strengths.push(`Irama dan variasi kalimat dinamis (${avgSentenceLength} kata/kalimat), nyaman dan enak dibaca kurator.`)
+  }
+  if (transitionWordsFound.length >= 2) {
+    strengths.push(`Kohesi antar-gagasan kokoh dengan transisi terarah (${transitionWordsFound.slice(0, 3).join(', ')}).`)
+  }
 
   if (clichesFound.length > 0) {
     warnings.push(`Terdeteksi ${clichesFound.length} frasa pembuka klise ("${clichesFound[0]}") yang menurunkan keunikan esai di mata kurator.`)
@@ -302,6 +388,9 @@ export function analyzeEssayWithNLP(essayText: string): NlpAnalysisResult {
   if (metricsFound.length === 0) {
     warnings.push('Belum ada metrik angka atau bukti kuantitatif (contoh: persentase, jumlah orang, capaian lomba).')
   }
+  if (runawaySentencesCount > 0) {
+    warnings.push(`Terdapat ${runawaySentencesCount} kalimat yang terlalu panjang (>42 kata). Pecah menjadi kalimat efektif agar kurator tidak lelah membacanya.`)
+  }
   if (tokens.length < 300) {
     warnings.push(`Panjang teks (${tokens.length} kata) masih di bawah batas aman korpus esai lolos PPKB (350-600 kata).`)
   }
@@ -310,7 +399,9 @@ export function analyzeEssayWithNLP(essayText: string): NlpAnalysisResult {
     similarityScore: scaledSimilarity,
     topMatchingFaculty: topMatch.faculty,
     topMatchingMajor: topMatch.major,
+    matchedAuthorContext: topMatch.authorContext,
     matchedWinningExcerpt: topMatch.winningExcerpt,
+    matchedFullTextSnippet: topMatch.fullText.length > 320 ? topMatch.fullText.slice(0, 320) + '...' : topMatch.fullText,
     starScore,
     starActionVerbs: detectedActionVerbs,
     metricsFound,
@@ -318,6 +409,10 @@ export function analyzeEssayWithNLP(essayText: string): NlpAnalysisResult {
     detectedDomainTerms,
     clichesFound,
     lexicalDiversityScore,
+    sentenceFlowScore,
+    avgSentenceLength,
+    runawaySentencesCount,
+    transitionWordsFound,
     benchmarkRankPercentile,
     verdict,
     strengths,
