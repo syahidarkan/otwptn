@@ -17,7 +17,9 @@ interface WAState {
 
 interface WAMessage {
   id: string
+  chatJid?: string
   from: string
+  to?: string
   fromName?: string
   text: string
   timestamp: number
@@ -34,17 +36,47 @@ type Conversation = {
   lastMsg: WAMessage | null
 }
 
-function groupConversations(messages: WAMessage[]): Conversation[] {
+function groupConversations(messages: WAMessage[], myPhone?: string): Conversation[] {
   const map = new Map<string, Conversation>()
   for (const msg of messages) {
-    const jid = msg.isGroup ? (msg.groupName || msg.from) : msg.from
-    const name = msg.isGroup ? (msg.groupName || msg.from) : (msg.fromName || msg.from)
-    if (!map.has(jid)) map.set(jid, { jid, name, messages: [], unread: 0, lastMsg: null })
-    const conv = map.get(jid)!
+    // Thread JID: Always prioritize chatJid or the conversation partner's JID
+    let threadJid = msg.chatJid || (msg.isMe ? msg.to : msg.from) || msg.from
+    if (!threadJid) continue
+
+    // If an outgoing message was mistakenly tagged with our own phone number without a target partner,
+    // don't create an isolated self-chat conversation
+    if (myPhone && threadJid === myPhone && !msg.chatJid && !msg.to) {
+      continue
+    }
+
+    const name = msg.isGroup
+      ? (msg.groupName || threadJid)
+      : (!msg.isMe && msg.fromName ? msg.fromName : threadJid)
+
+    if (!map.has(threadJid)) {
+      map.set(threadJid, { jid: threadJid, name, messages: [], unread: 0, lastMsg: null })
+    }
+    const conv = map.get(threadJid)!
+    if (!msg.isMe && msg.fromName && conv.name === threadJid) {
+      conv.name = msg.fromName
+    }
     conv.messages.push(msg)
     conv.lastMsg = msg
     if (!msg.isMe) conv.unread++
   }
+
+  // Deduplicate and sort messages chronologically (oldest first) within each conversation
+  for (const conv of map.values()) {
+    const seen = new Set<string>()
+    conv.messages = conv.messages.filter(m => {
+      if (seen.has(m.id)) return false
+      seen.add(m.id)
+      return true
+    })
+    conv.messages.sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0))
+    conv.lastMsg = conv.messages[conv.messages.length - 1] || null
+  }
+
   return Array.from(map.values()).sort((a, b) =>
     (b.lastMsg?.timestamp ?? 0) - (a.lastMsg?.timestamp ?? 0)
   )
@@ -99,7 +131,7 @@ export default function WhatsAppAdminPage() {
     msgEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [activeJid, messages])
 
-  const conversations = groupConversations(messages)
+  const conversations = groupConversations(messages, state.phone)
   const filteredConvs = conversations.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.jid.includes(search)
@@ -193,10 +225,16 @@ export default function WhatsAppAdminPage() {
       const data = await res.json()
       if (!data.ok) setError(data.error || 'Gagal kirim')
       else {
-        // Optimistic update
+        // Optimistic update: bind directly to the active conversation thread
         const outMsg: WAMessage = {
-          id: Date.now().toString(), from: state.phone || 'me',
-          text: sendText.trim(), timestamp: Date.now(), isMe: true,
+          id: `opt-${Date.now()}`,
+          chatJid: activeJid,
+          to: activeJid,
+          from: state.phone || 'me',
+          fromName: 'Kamu',
+          text: sendText.trim(),
+          timestamp: Date.now(),
+          isMe: true,
         }
         setMessages(prev => [outMsg, ...prev])
         setSendText('')
@@ -402,7 +440,7 @@ export default function WhatsAppAdminPage() {
               className="flex-1 overflow-y-auto px-4 py-4 space-y-1"
               style={{ background: '#efeae2', backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' fill='%23e5ddd5' opacity='0.3'/%3E%3C/svg%3E\")" }}
             >
-              {[...activeConv.messages].reverse().map(msg => (
+              {activeConv.messages.map(msg => (
                 <div key={msg.id} className={`flex ${msg.isMe ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[65%] rounded-2xl px-3 py-2 shadow-xs text-sm ${msg.isMe ? 'bg-[#d9fdd3] text-gray-800 rounded-br-sm' : 'bg-white text-gray-800 rounded-bl-sm'}`}>
                     {!msg.isMe && msg.fromName && (

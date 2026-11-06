@@ -145,12 +145,14 @@ class WAManager extends EventEmitter {
         for (const msg of messages) {
           if (!msg.message) continue
           const jid = msg.key.remoteJid ?? ''
+          if (!jid || jid === 'status@broadcast') continue
+
           const isGroup = jid.endsWith('@g.us')
           let groupName
           if (isGroup) {
             try { groupName = (await this.sock?.groupMetadata(jid))?.subject } catch {}
           }
-          const phone = jid.replace('@s.whatsapp.net', '').replace('@g.us', '')
+          const cleanPhone = jid.replace('@s.whatsapp.net', '').replace('@g.us', '').replace('@lid', '')
           const text = msg.message?.conversation
             ?? msg.message?.extendedTextMessage?.text
             ?? msg.message?.imageMessage?.caption
@@ -159,8 +161,10 @@ class WAManager extends EventEmitter {
 
           const waMsg = {
             id: msg.key.id ?? Date.now().toString(),
-            from: phone,
-            fromName: msg.pushName || phone,
+            chatJid: jid,
+            from: cleanPhone,
+            to: jid,
+            fromName: msg.pushName || cleanPhone,
             text,
             timestamp: (msg.messageTimestamp ?? 0) * 1000 || Date.now(),
             isMe: !!msg.key.fromMe,
