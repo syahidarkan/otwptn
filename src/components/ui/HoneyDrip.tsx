@@ -376,7 +376,7 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, { videoRef?: React.Ref<HT
         style={{
           position: 'fixed',
           inset: 0,
-          zIndex: 999997,
+          zIndex: 999999,
           pointerEvents: 'none',
           userSelect: 'none',
           visibility: 'hidden',

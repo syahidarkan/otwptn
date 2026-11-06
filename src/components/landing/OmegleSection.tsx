@@ -291,12 +291,12 @@ export default function OmegleSection() {
       {/* Heading */}
       <div className="max-w-5xl mx-auto px-4 text-center mb-10">
         <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45 }}>
-          <h2 className="text-section-heading text-fg mb-3">Cari Temen Belajar Bareng.</h2>
+          <h2 className="text-section-heading text-fg mb-3">Otbee TV - Cari Temen Belajar Bareng.</h2>
           <p className="text-body max-w-md mx-auto">Bisa belajar dan tambah relasi dari sesama pejuang PTN se-Indonesia secara live!</p>
         </motion.div>
       </div>
 
-      {/* OmeTV frame */}
+      {/* Otbee TV frame */}
       <motion.div
         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}
         className="mx-auto px-4 md:px-8"

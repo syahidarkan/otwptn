@@ -255,7 +255,7 @@ const FEATURES: Feature[] = [
   { id: 'komunitas', label: 'Komunitas', title: 'Gak berjuang sendirian.', desc: 'Forum diskusi real-time dengan sesama pejuang jalur non-tes - tanya jawab, sharing pengalaman, saling semangatin.', mascot: '/mascot/megaphone-community.png', preview: () => <KomunitasPostPreview /> },
   { id: 'tracking', label: 'Tracking Jalur', title: 'Pantau progres semua jalur yang kamu ikuti.', desc: 'Timeline yang nunjukin status tiap pendaftaran jalur - draf, submit, hasil - biar gak ada yang kelewat.', mascot: '/mascot/roadmap-flags.png', preview: () => <TrackingTimelinePreview /> },
   { id: 'dokumen', label: 'Penyimpanan Dokumen', title: 'Semua dokumen pendaftaran, satu tempat.', desc: 'Simpan rapor, sertifikat, dan essay versi terbaru - tinggal download pas butuh submit.', mascot: '/mascot/file-box-storage.png', preview: () => <DokumenFolderPreview /> },
-  { id: 'matching', label: 'Cari Teman Belajar', title: 'Belajar bareng, kayak Omegle buat PTN.', desc: 'Terhubung instan dengan sesama pejuang jalur non-tes buat ngobrol, sharing strategi, atau saling semangatin.', mascot: '/mascot/video-call-match.png', preview: () => <MatchingPreview /> },
+  { id: 'matching', label: 'Otbee TV', title: 'Belajar bareng di Otbee TV, video call pejuang PTN.', desc: 'Terhubung instan dengan sesama pejuang jalur non-tes buat ngobrol, sharing strategi, atau saling semangatin.', mascot: '/mascot/video-call-match.png', preview: () => <MatchingPreview /> },
 ]
 
 export default function FiturSection() {

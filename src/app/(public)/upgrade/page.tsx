@@ -391,6 +391,13 @@ export default function UpgradePage() {
               </thead>
               <tbody className="divide-y divide-gray-100 text-gray-600 font-medium">
                 {[
+                  { feat: 'Workspace Essay & Draft Editor', free: '✓ Termasuk', web: '✓ Termasuk', nectar: '✓ Termasuk', honey: '✓ Termasuk', royal: '✓ Termasuk' },
+                  { feat: 'Tracking Jalur Masuk PTN & Kalender', free: '✓ Termasuk', web: '✓ Termasuk', nectar: '✓ Termasuk', honey: '✓ Termasuk', royal: '✓ Termasuk' },
+                  { feat: 'Brankas Penyimpanan Dokumen & Sertifikat', free: '✓ Termasuk', web: '✓ Termasuk', nectar: '✓ Termasuk', honey: '✓ Termasuk', royal: '✓ Termasuk' },
+                  { feat: 'Otbee TV (Cari Teman Belajar Live)', free: '✓ Termasuk', web: '✓ Termasuk', nectar: '✓ Termasuk', honey: '✓ Termasuk', royal: '✓ Termasuk' },
+                  { feat: 'Latihan Mandiri & Mini Games Edukasi', free: '✓ Termasuk', web: '✓ Termasuk', nectar: '✓ Termasuk', honey: '✓ Termasuk', royal: '✓ Termasuk' },
+                  { feat: 'Komunitas & Linimasa Cuitan PTN', free: '✓ Termasuk', web: '✓ Termasuk', nectar: '✓ Termasuk', honey: '✓ Termasuk', royal: '✓ Termasuk' },
+                  { feat: 'Direktori & Info Eksklusif Jalur Non-Tes', free: '✓ Termasuk', web: '✓ Termasuk', nectar: '✓ Termasuk', honey: '✓ Termasuk', royal: '✓ Termasuk' },
                   { feat: 'Chat Konsultan Otbee AI', free: '3x / 2 hari', web: 'Unlimited', nectar: 'Unlimited', honey: 'Unlimited', royal: 'Unlimited' },
                   { feat: 'Essay AI Review & Scoring', free: '1x / minggu', web: 'Unlimited', nectar: 'Unlimited', honey: 'Unlimited', royal: 'Unlimited' },
                   { feat: 'Kalkulator Peluang SNBP & Mandiri', free: '1x / minggu', web: 'Unlimited', nectar: 'Unlimited', honey: 'Unlimited', royal: 'Unlimited' },

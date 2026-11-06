@@ -76,10 +76,13 @@ export async function useSupabaseAuthState(supabase) {
 
 export async function clearSupabaseSession(supabase) {
   try {
-    // List and delete all files in bucket
+    // List and delete auth files in bucket, preserving chat history in messages.json
     const { data: files } = await supabase.storage.from(BUCKET).list('', { limit: 1000 })
     if (files?.length) {
-      await supabase.storage.from(BUCKET).remove(files.map(f => f.name))
+      const toRemove = files.filter(f => f.name !== 'messages.json').map(f => f.name)
+      if (toRemove.length > 0) {
+        await supabase.storage.from(BUCKET).remove(toRemove)
+      }
     }
     const { data: keyFiles } = await supabase.storage.from(BUCKET).list('keys', { limit: 1000 })
     if (keyFiles?.length) {
@@ -93,7 +96,7 @@ export async function clearSupabaseSession(supabase) {
         }
       }
     }
-    console.log('[WA Auth] Supabase session cleared')
+    console.log('[WA Auth] Supabase session cleared (messages preserved)')
   } catch (err) {
     console.error('[WA Auth] Clear error:', err?.message)
   }

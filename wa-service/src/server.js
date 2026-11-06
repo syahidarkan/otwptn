@@ -22,9 +22,42 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
-// Messages stored in memory (not critical to persist)
-const MAX_MESSAGES = 200
+// Persistent chat storage in Supabase Storage bucket wa-session
+const BUCKET = 'wa-session'
+const MAX_MESSAGES = 500
 let recentMessages = []
+let saveMessagesTimeout = null
+
+async function loadPersistedMessages() {
+  try {
+    const { data, error } = await supabase.storage.from(BUCKET).download('messages.json')
+    if (error || !data) return
+    const text = await data.text()
+    const parsed = JSON.parse(text)
+    if (Array.isArray(parsed)) {
+      recentMessages = parsed.slice(0, MAX_MESSAGES)
+      console.log(`[WA Service] Loaded ${recentMessages.length} persisted messages from Supabase Storage`)
+    }
+  } catch (err) {
+    console.warn('[WA Service] Could not load persisted messages:', err?.message)
+  }
+}
+
+function persistMessages() {
+  if (saveMessagesTimeout) clearTimeout(saveMessagesTimeout)
+  saveMessagesTimeout = setTimeout(async () => {
+    try {
+      const content = JSON.stringify(recentMessages.slice(0, MAX_MESSAGES))
+      const blob = new Blob([content], { type: 'application/json' })
+      await supabase.storage.from(BUCKET).upload('messages.json', blob, { upsert: true })
+    } catch (err) {
+      console.warn('[WA Service] Error saving messages to Supabase Storage:', err?.message)
+    }
+  }, 800)
+}
+
+// Initial load
+await loadPersistedMessages()
 
 // ── Baileys ───────────────────────────────────────────────────────────────────
 let QRCode = null
@@ -173,6 +206,7 @@ class WAManager extends EventEmitter {
           }
 
           recentMessages = [waMsg, ...recentMessages].slice(0, MAX_MESSAGES)
+          persistMessages()
           this.emit('message', waMsg)
           this.emit('state', this.getState())
         }
@@ -189,7 +223,24 @@ class WAManager extends EventEmitter {
     if (!this.sock || this.state.status !== 'connected') return false
     try {
       const jid = to.includes('@') ? to : `${to}@s.whatsapp.net`
-      await this.sock.sendMessage(jid, { text })
+      const res = await this.sock.sendMessage(jid, { text })
+      const cleanPhone = jid.replace('@s.whatsapp.net', '').replace('@g.us', '').replace('@lid', '')
+      const myPhone = this.sock?.user?.id?.split(':')[0]?.split('@')[0] || 'me'
+      const waMsg = {
+        id: res?.key?.id || Date.now().toString(),
+        chatJid: jid,
+        from: myPhone,
+        to: jid,
+        fromName: 'Admin',
+        text,
+        timestamp: Date.now(),
+        isMe: true,
+        isGroup: jid.endsWith('@g.us'),
+      }
+      recentMessages = [waMsg, ...recentMessages].slice(0, MAX_MESSAGES)
+      persistMessages()
+      this.emit('message', waMsg)
+      this.emit('state', this.getState())
       return true
     } catch (err) {
       console.error('[WA] Send error:', err)

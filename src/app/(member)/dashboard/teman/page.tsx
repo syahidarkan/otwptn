@@ -556,8 +556,8 @@ export default function CariTemanBelajarPage() {
   return (
     <div className="w-full px-6 md:px-8 py-8 md:py-10">
       <FeatureHeader
-        title="Study Cam - Cari Teman Belajar"
-        subtitle="Rasakan serunya belajar bareng via video call acak layaknya OmeTV / Umigle, temukan rekan satu target PTN, tambahkan ke kontak teman, dan jaga fokus belajar bersama."
+        title="Otbee TV - Cari Teman Belajar"
+        subtitle="Rasakan serunya belajar bareng via video call acak layaknya Otbee TV, temukan rekan satu target PTN, tambahkan ke kontak teman, dan jaga fokus belajar bersama."
         mascot="/fitur/cari-teman-belajar.png"
         badgeText="Interactive Video Matching"
       />
@@ -572,7 +572,7 @@ export default function CariTemanBelajarPage() {
               : 'bg-white text-gray-700 shadow-xs hover:bg-gray-50'
           }`}
         >
-          <Video size={16} /> Live Study Cam (Ome Study)
+          <Video size={16} /> Live Study Cam (Otbee TV)
         </button>
 
         <button

@@ -220,7 +220,7 @@ export default function AmbassadorDashboardPage() {
     {
       id: 'demo-teman',
       slug: 'cari-teman-belajar',
-      title: 'Demo: Cari Teman Belajar (Omegle Study Buddy)',
+      title: 'Demo: Cari Teman Belajar (Otbee TV Study Buddy)',
       feature: 'Cari Teman Belajar',
       category: 'Landscape',
       duration: '00:15',

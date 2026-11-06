@@ -456,7 +456,7 @@ export default function PadananKataGame({
         {/* 1. LOBBY VIEW */}
         {gameState === 'lobby' && (
           opponentPreset ? (
-            /* DEDICATED DIRECT DUEL LOBBY (STUDY CAM / OMETV) */
+            /* DEDICATED DIRECT DUEL LOBBY (STUDY CAM / OTBEE TV) */
             <div className="p-6 sm:p-10 text-center space-y-6">
               <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-black">
                 <Swords size={14} className="text-amber-600" />

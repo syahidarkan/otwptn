@@ -36,16 +36,23 @@ type Conversation = {
   lastMsg: WAMessage | null
 }
 
-function groupConversations(messages: WAMessage[], myPhone?: string): Conversation[] {
+function groupConversations(
+  messages: WAMessage[],
+  myPhone?: string,
+  activeJid?: string | null,
+  readTimestamps: Record<string, number> = {}
+): Conversation[] {
   const map = new Map<string, Conversation>()
+  const cleanMyPhone = (myPhone || '').replace(/\D/g, '')
+
   for (const msg of messages) {
     // Thread JID: Always prioritize chatJid or the conversation partner's JID
     let threadJid = msg.chatJid || (msg.isMe ? msg.to : msg.from) || msg.from
     if (!threadJid) continue
 
-    // If an outgoing message was mistakenly tagged with our own phone number without a target partner,
-    // don't create an isolated self-chat conversation
-    if (myPhone && threadJid === myPhone && !msg.chatJid && !msg.to) {
+    // Normalize phone number for checking self-chat
+    const cleanThread = threadJid.replace(/\D/g, '')
+    if (cleanMyPhone && cleanThread === cleanMyPhone && !msg.chatJid && !msg.to) {
       continue
     }
 
@@ -62,7 +69,12 @@ function groupConversations(messages: WAMessage[], myPhone?: string): Conversati
     }
     conv.messages.push(msg)
     conv.lastMsg = msg
-    if (!msg.isMe) conv.unread++
+
+    // Unread count: only increment if incoming and thread is not the active open chat
+    const lastRead = readTimestamps[threadJid] || 0
+    if (!msg.isMe && activeJid !== threadJid && (msg.timestamp ?? 0) > lastRead) {
+      conv.unread++
+    }
   }
 
   // Deduplicate and sort messages chronologically (oldest first) within each conversation
@@ -101,13 +113,54 @@ export default function WhatsAppAdminPage() {
   const [actionLoading, setActionLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [readTimestamps, setReadTimestamps] = useState<Record<string, number>>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('otwptn_wa_read_ts')
+        return stored ? JSON.parse(stored) : {}
+      } catch {
+        return {}
+      }
+    }
+    return {}
+  })
   const msgEndRef = useRef<HTMLDivElement>(null)
   const eventSourceRef = useRef<EventSource | null>(null)
   const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null)
   const isMountedRef = useRef(true)
 
+  // Persist messages to localStorage for instant offline access and recovery
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        localStorage.setItem('otwptn_wa_messages', JSON.stringify(messages.slice(0, 300)))
+      } catch {}
+    }
+  }, [messages])
+
+  function openConversation(jid: string) {
+    setActiveJid(jid)
+    setReadTimestamps(prev => {
+      const next = { ...prev, [jid]: Date.now() }
+      try { localStorage.setItem('otwptn_wa_read_ts', JSON.stringify(next)) } catch {}
+      return next
+    })
+  }
+
   useEffect(() => {
     isMountedRef.current = true
+
+    // Load cached messages immediately so user never sees blank chat on reconnect
+    try {
+      const cached = localStorage.getItem('otwptn_wa_messages')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed)
+        }
+      }
+    } catch {}
+
     fetchStatus()
     fetchMessages()
     connectSSE()
@@ -131,7 +184,7 @@ export default function WhatsAppAdminPage() {
     msgEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [activeJid, messages])
 
-  const conversations = groupConversations(messages, state.phone)
+  const conversations = groupConversations(messages, state.phone, activeJid, readTimestamps)
   const filteredConvs = conversations.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.jid.includes(search)
@@ -389,7 +442,7 @@ export default function WhatsAppAdminPage() {
             filteredConvs.map(conv => (
               <button
                 key={conv.jid}
-                onClick={() => setActiveJid(conv.jid)}
+                onClick={() => openConversation(conv.jid)}
                 className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-left ${activeJid === conv.jid ? 'bg-gray-100' : ''}`}
               >
                 <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 text-sm font-bold text-green-700">

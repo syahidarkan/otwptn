@@ -119,44 +119,50 @@ const INITIAL_CIRCLES: CircleItem[] = [
   },
   {
     id: 'c-act-1',
-    name: "D'SPARSV - 14",
-    category: 'Aktif',
-    avatar: '/mascot/roadmap-flags.png',
-    membersCount: 37,
-    onlineCount: 13,
-    description: 'Study circle privat belajar intensif non-tes setiap malam jam 20:00 WIB.',
-    ptnTarget: 'Multi Kampus Top',
+    name: 'Pejuang Kedokteran Se-Indonesia 2026',
+    category: 'Kedokteran',
+    avatar: '/mascot/trophy-graduate.png',
+    univBadge: 'FK',
+    membersCount: 48,
+    onlineCount: 16,
+    description: 'Circle pejuang FK UI, FK UGM, FK Unair, dan FK Unpad via SNBP & Jalur Prestasi. Diskusi kurasi portofolio biologi-kimia dan rekap passing grade rapor.',
+    ptnTarget: 'FK UI, UGM, Unair, Unpad',
     joined: false,
     members: [
-      { name: 'Fikri Aditya', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80', ptn: 'Teknik Mesin UI', role: 'Ketua' },
+      { name: 'dr. Alwan Fakhri', avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=150&q=80', ptn: 'Pendidikan Dokter UI', role: 'Ketua' },
+      { name: 'Sarah Amanda', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80', ptn: 'Kedokteran UGM', role: 'Anggota' },
     ],
   },
   {
     id: 'c-act-2',
-    name: 'bebek ayu',
-    category: 'Aktif',
-    avatar: '/mascot/thumbsup.png',
-    membersCount: 40,
-    onlineCount: 4,
-    description: 'Circle santai tapi konsisten, sharing rekap materi rapor dan tips essay.',
-    ptnTarget: 'Semua PTN',
+    name: 'Squad FEB & Hukum UI-UGM-Unpad 2026',
+    category: 'Soshum',
+    avatar: '/mascot/glasses-writing-desk.png',
+    univBadge: 'FEB/FH',
+    membersCount: 52,
+    onlineCount: 19,
+    description: 'Fokus bedah esai reflektif PPKB UI, IUP FEB UGM, dan strategi seleksi rapor rumpun soshum ekonomi dan hukum.',
+    ptnTarget: 'FEB & FH UI, FEB UGM, FH Unpad',
     joined: false,
     members: [
-      { name: 'Ayu Lestari', avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=150&q=80', ptn: 'Manajemen UGM', role: 'Ketua' },
+      { name: 'Rayhan Pratama', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80', ptn: 'Ilmu Ekonomi UI', role: 'Ketua' },
+      { name: 'Aisyah Putri', avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=150&q=80', ptn: 'Ilmu Hukum UGM', role: 'Anggota' },
     ],
   },
   {
     id: 'c-act-3',
-    name: 'yg mau tau lebih, CHAT!',
-    category: 'Aktif',
-    avatar: '/mascot/otbee-phone.png',
-    membersCount: 10,
-    onlineCount: 1,
-    description: 'Tanya jawab seputar kurasi sertifikat dan verifikasi berkas SNBP.',
-    ptnTarget: 'Kampus Saintek',
+    name: 'International Program (IUP & Talent Scouting)',
+    category: 'Internasional',
+    avatar: '/mascot/roadmap-flags.png',
+    univBadge: 'IUP',
+    membersCount: 34,
+    onlineCount: 11,
+    description: 'Sharing kurasi sertifikat internasional, Motivation Letter bahasa Inggris, dan latihan interview seleksi KKI UI & IUP UGM/ITB.',
+    ptnTarget: 'KKI UI, IUP UGM, IUP ITB, IUP ITS',
     joined: false,
     members: [
-      { name: 'Bagas Seto', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80', ptn: 'Teknik Elektro ITS', role: 'Ketua' },
+      { name: 'Bagas Wibisono', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80', ptn: 'IUP Teknik Kimia UGM', role: 'Ketua' },
+      { name: 'Elena Clarissa', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', ptn: 'KKI FEB UI', role: 'Anggota' },
     ],
   },
 ]
@@ -284,8 +290,8 @@ export default function KomunitasPage() {
   const [cuitanFilter, setCuitanFilter] = useState<'Semua' | 'SNBP' | 'Esai' | 'Mentor'>('Semua')
   const [cuitanLoading, setCuitanLoading] = useState(false)
 
-  // Reply Thread Modal States
-  const [activeReplyPost, setActiveReplyPost] = useState<CuitanPost | null>(null)
+  // Inline Reply Thread States (Twitter/X style)
+  const [expandedReplyPostId, setExpandedReplyPostId] = useState<string | null>(null)
   const [repliesList, setRepliesList] = useState<{
     id: string
     content: string
@@ -296,9 +302,16 @@ export default function KomunitasPage() {
   const [replyInputText, setReplyInputText] = useState('')
   const [replySubmitting, setReplySubmitting] = useState(false)
 
-  async function handleOpenReplies(post: CuitanPost) {
-    setActiveReplyPost(post)
+  async function handleToggleReplies(post: CuitanPost) {
+    if (expandedReplyPostId === post.id) {
+      setExpandedReplyPostId(null)
+      setRepliesList([])
+      setReplyInputText('')
+      return
+    }
+    setExpandedReplyPostId(post.id)
     setRepliesLoading(true)
+    setReplyInputText('')
     try {
       const res = await fetch(`/api/community?postId=${post.id}`)
       const data = await res.json()
@@ -310,21 +323,21 @@ export default function KomunitasPage() {
     }
   }
 
-  async function handleSendReply() {
-    if (!activeReplyPost || !replyInputText.trim() || replySubmitting) return
+  async function handleSendReply(postId: string) {
+    if (!postId || !replyInputText.trim() || replySubmitting) return
     setReplySubmitting(true)
     try {
       const res = await fetch('/api/community', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId: activeReplyPost.id, content: replyInputText.trim() }),
+        body: JSON.stringify({ postId, content: replyInputText.trim() }),
       })
       const data = await res.json()
       if (res.ok && data.reply) {
         setRepliesList(prev => [...prev, data.reply])
         setReplyInputText('')
         setCuitanList(prev =>
-          prev.map(p => (p.id === activeReplyPost.id ? { ...p, replies: p.replies + 1 } : p))
+          prev.map(p => (p.id === postId ? { ...p, replies: p.replies + 1 } : p))
         )
         showToast('Balasan berhasil dikirim!')
       } else {
@@ -691,8 +704,10 @@ export default function KomunitasPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleOpenReplies(post)}
-                    className="flex items-center gap-1.5 hover:text-amber-600 transition-colors cursor-pointer"
+                    onClick={() => handleToggleReplies(post)}
+                    className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
+                      expandedReplyPostId === post.id ? 'text-amber-600 font-bold' : 'hover:text-amber-600'
+                    }`}
                   >
                     <MessageCircle size={15} aria-hidden />
                     <span>{post.replies} Balasan</span>
@@ -712,6 +727,78 @@ export default function KomunitasPage() {
                     <span>Bagikan</span>
                   </button>
                 </div>
+
+                {/* Inline Replies Thread (Twitter/X style) */}
+                {expandedReplyPostId === post.id && (
+                  <div className="mt-3 pt-3 border-t border-gray-100 pl-4 sm:pl-12 space-y-3 animate-fade-in">
+                    {/* Existing replies */}
+                    {repliesLoading ? (
+                      <div className="py-4 text-center text-xs text-gray-400 animate-pulse">
+                        Memuat balasan...
+                      </div>
+                    ) : repliesList.length > 0 ? (
+                      <div className="space-y-2.5">
+                        {repliesList.map(r => {
+                          const author = r.profiles?.full_name ?? 'Pejuang PTN'
+                          const handle = '@' + author.toLowerCase().replace(/\s+/g, '')
+                          const elapsed = Math.floor((Date.now() - new Date(r.created_at).getTime()) / 60000)
+                          const timeStr = elapsed < 1 ? 'Baru saja' : elapsed < 60 ? `${elapsed}m lalu` : `${Math.floor(elapsed / 60)}j lalu`
+                          return (
+                            <div key={r.id} className="p-3 rounded-2xl bg-gray-50/80 border border-gray-100 space-y-1">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  {r.profiles?.avatar_url ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={r.profiles.avatar_url} alt="" className="w-5 h-5 rounded-full object-cover" />
+                                  ) : (
+                                    <div className="w-5 h-5 rounded-full bg-amber-200 text-amber-900 font-bold text-[9px] flex items-center justify-center">
+                                      {author.slice(0, 2).toUpperCase()}
+                                    </div>
+                                  )}
+                                  <span className="text-xs font-bold text-gray-900">{author}</span>
+                                  <span className="text-[10px] text-gray-400">{handle}</span>
+                                </div>
+                                <span className="text-[10px] text-gray-400">{timeStr}</span>
+                              </div>
+                              <p className="text-xs text-gray-700 leading-relaxed pl-7">
+                                {r.content}
+                              </p>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-gray-400 italic py-1">
+                        Belum ada balasan. Jadilah yang pertama membalas cuitan ini!
+                      </p>
+                    )}
+
+                    {/* Inline reply input */}
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="text"
+                        value={replyInputText}
+                        onChange={e => setReplyInputText(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault()
+                            handleSendReply(post.id)
+                          }
+                        }}
+                        placeholder={`Balas ${post.author}...`}
+                        className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-2 text-xs focus:outline-none focus:border-amber-400 text-gray-900 placeholder:text-gray-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleSendReply(post.id)}
+                        disabled={replySubmitting || !replyInputText.trim()}
+                        className="btn-brand-primary px-4 py-2 rounded-full text-xs font-bold disabled:opacity-40 cursor-pointer flex items-center gap-1 flex-shrink-0"
+                      >
+                        {replySubmitting ? 'Mengirim...' : 'Balas'}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -1207,138 +1294,6 @@ export default function KomunitasPage() {
                 className="w-full py-2.5 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer"
               >
                 Batal
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Reply Thread Modal */}
-      {activeReplyPost && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
-          role="dialog"
-          onClick={e => {
-            if (e.target === e.currentTarget) {
-              setActiveReplyPost(null)
-              setRepliesList([])
-              setReplyInputText('')
-            }
-          }}
-        >
-          <div className="w-full max-w-lg rounded-3xl bg-white shadow-2xl relative overflow-hidden max-h-[85vh] flex flex-col">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-gray-100 flex-shrink-0">
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full inline-block mb-1">
-                  Thread Diskusi
-                </span>
-                <h3 className="text-sm font-black text-gray-900">
-                  Balasan untuk {activeReplyPost.author}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveReplyPost(null)
-                  setRepliesList([])
-                  setReplyInputText('')
-                }}
-                className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 hover:bg-gray-200 cursor-pointer"
-              >
-                <X size={15} />
-              </button>
-            </div>
-
-            {/* Scrollable list */}
-            <div className="overflow-y-auto flex-1 px-6 py-4 space-y-4">
-              {/* Parent Cuitan */}
-              <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200 space-y-2">
-                <div className="flex items-center gap-2.5">
-                  {activeReplyPost.avatar ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={activeReplyPost.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-amber-400 text-amber-950 font-black text-xs flex items-center justify-center">
-                      {activeReplyPost.author.slice(0, 2).toUpperCase()}
-                    </div>
-                  )}
-                  <div>
-                    <span className="text-xs font-black text-gray-900 block leading-tight">{activeReplyPost.author}</span>
-                    <span className="text-[10px] text-gray-400">{activeReplyPost.handle} · {activeReplyPost.time}</span>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-800 leading-relaxed font-medium pl-10">
-                  {activeReplyPost.content}
-                </p>
-              </div>
-
-              {/* Replies list */}
-              <div className="space-y-3">
-                <p className="text-[11px] font-black uppercase tracking-wider text-gray-400">
-                  Balasan ({repliesList.length})
-                </p>
-                {repliesLoading && (
-                  <div className="p-6 text-center text-xs text-gray-400 animate-pulse">Memuat balasan...</div>
-                )}
-                {!repliesLoading && repliesList.length === 0 && (
-                  <div className="p-6 text-center text-xs text-gray-400 bg-gray-50/50 rounded-2xl">
-                    Belum ada balasan. Tulis balasan pertamamu di bawah!
-                  </div>
-                )}
-                {!repliesLoading && repliesList.map(r => {
-                  const author = r.profiles?.full_name ?? 'Pejuang PTN'
-                  const handle = '@' + author.toLowerCase().replace(/\s+/g, '')
-                  const elapsed = Math.floor((Date.now() - new Date(r.created_at).getTime()) / 60000)
-                  const timeStr = elapsed < 1 ? 'Baru saja' : elapsed < 60 ? `${elapsed}m lalu` : `${Math.floor(elapsed / 60)}j lalu`
-                  return (
-                    <div key={r.id} className="p-3.5 rounded-2xl border border-gray-100 bg-white space-y-1.5 shadow-2xs">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {r.profiles?.avatar_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={r.profiles.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover" />
-                          ) : (
-                            <div className="w-6 h-6 rounded-full bg-amber-200 text-amber-900 font-bold text-[10px] flex items-center justify-center">
-                              {author.slice(0, 2).toUpperCase()}
-                            </div>
-                          )}
-                          <span className="text-xs font-bold text-gray-900">{author}</span>
-                          <span className="text-[10px] text-gray-400">{handle}</span>
-                        </div>
-                        <span className="text-[10px] text-gray-400">{timeStr}</span>
-                      </div>
-                      <p className="text-xs text-gray-700 leading-relaxed pl-8">
-                        {r.content}
-                      </p>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Input area */}
-            <div className="p-4 border-t border-gray-100 bg-white flex-shrink-0 flex items-center gap-2">
-              <input
-                type="text"
-                value={replyInputText}
-                onChange={e => setReplyInputText(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault()
-                    handleSendReply()
-                  }
-                }}
-                placeholder="Tulis balasanmu..."
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-2.5 text-xs focus:outline-none focus:border-amber-400 text-gray-900"
-              />
-              <button
-                type="button"
-                onClick={handleSendReply}
-                disabled={replySubmitting || !replyInputText.trim()}
-                className="btn-brand-primary px-4 py-2.5 rounded-full text-xs font-black disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
-              >
-                {replySubmitting ? 'Mengirim...' : 'Kirim'}
               </button>
             </div>
           </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Mail, ArrowRight } from 'lucide-react'
+import { Mail, Phone, ArrowRight } from 'lucide-react'
 
 const COLS = [
   {
@@ -121,14 +121,20 @@ export default function Footer() {
             <div className="col-span-2">
               <div className="mb-4 inline-block bg-white rounded-xl p-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.png" alt="otwptn" style={{ height: 40, width: 'auto', display: 'block' }} />
+                <img src="/logo-footer.png" alt="otwptn" style={{ height: 42, width: 'auto', display: 'block' }} />
               </div>
-              <p className="text-sm leading-relaxed mb-2" style={{ color: '#ffffff', fontWeight: 600, maxWidth: 220, textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
+              <p className="text-sm leading-relaxed mb-3" style={{ color: '#ffffff', fontWeight: 600, maxWidth: 240, textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
                 Platform persiapan masuk PTN jalur non-tes - essay, prestasi, dan strategi personal.
               </p>
-              <div className="mb-4 text-xs font-semibold flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.85)' }}>
-                <Mail size={13} className="text-amber-300" />
-                <a href="mailto:otwptn.com@gmail.com" className="hover:underline text-amber-300">otwptn.com@gmail.com</a>
+              <div className="space-y-1.5 mb-4">
+                <div className="text-xs font-semibold flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                  <Mail size={13} className="text-amber-300" />
+                  <a href="mailto:otwptn.com@gmail.com" className="hover:underline text-amber-300">otwptn.com@gmail.com</a>
+                </div>
+                <div className="text-xs font-semibold flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                  <Phone size={13} className="text-amber-300" />
+                  <a href="https://wa.me/6285121659182" target="_blank" rel="noopener noreferrer" className="hover:underline text-amber-300">+62 851-2165-9182 (WhatsApp CS)</a>
+                </div>
               </div>
               {/* Social icons */}
               <div className="flex items-center gap-3 mb-5">
