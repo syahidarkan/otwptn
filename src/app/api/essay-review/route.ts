@@ -64,6 +64,8 @@ HASIL ANALISIS NLP BENCHMARK (100 ESAI LOLOS PPKB UI):
 - Klaster Fakultas/Prodi Terdekat: ${nlpBenchmark.topMatchingFaculty} - ${nlpBenchmark.topMatchingMajor}
 - Profil Rujukan Korpus Terdekat: ${nlpBenchmark.matchedAuthorContext}
 - Kutipan Benchmark Esai Lolos: "${nlpBenchmark.matchedWinningExcerpt}"
+- Relevansi Isu Strategis 5 Tahun: ${nlpBenchmark.temporalAnalysis.temporalScore}/100 (${nlpBenchmark.temporalAnalysis.trendAlignment}) - Tema: ${nlpBenchmark.temporalAnalysis.matchedThemes.join(', ') || 'Umum'}
+- Tahapan Retorika 5 Paragraf: ${nlpBenchmark.rhetoricalStages.map(s => `${s.stage} (${s.status})`).join('; ')}
 - Kepadatan Aksi STAR: ${nlpBenchmark.starScore}/100 (Kata kerja aksi terdeteksi: ${nlpBenchmark.starActionVerbs.join(', ') || 'Belum ada'})
 - Bukti Angka / Metrik Terukur: ${nlpBenchmark.metricsFound.join(', ') || 'Belum ditemukan'}
 - Alur & Irama Kalimat (Rhetorical Cadence): ${nlpBenchmark.sentenceFlowScore}/100 (Rata-rata ${nlpBenchmark.avgSentenceLength} kata/kalimat, ${nlpBenchmark.runawaySentencesCount} kalimat terlalu panjang)

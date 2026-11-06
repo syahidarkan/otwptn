@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/useToast'
@@ -19,6 +19,7 @@ import {
   Lock,
   Sparkles,
   MessageCircle,
+  MessageSquare,
   ChevronRight,
   School,
   ArrowLeft,
@@ -55,16 +56,13 @@ const INITIAL_CIRCLES: CircleItem[] = [
     category: 'Kampus',
     avatar: '/mascot/trophy-graduate.png',
     univBadge: 'UGM',
-    membersCount: 9,
-    onlineCount: 4,
+    membersCount: 1,
+    onlineCount: 1,
     description: 'Circle resmi pejuang SNBP & UM UGM. Diskusi nilai rapor saintek/soshum dan persiapan tes substantif.',
     ptnTarget: 'Universitas Gadjah Mada',
     joined: false,
     isOfficial: true,
-    members: [
-      { name: 'Rian Pratama', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80', ptn: 'Teknik Sipil UGM', role: 'Ketua' },
-      { name: 'Siti Rahma', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', ptn: 'Kedokteran UGM', role: 'Anggota' },
-    ],
+    members: [],
   },
   {
     id: 'c-itb',
@@ -72,15 +70,13 @@ const INITIAL_CIRCLES: CircleItem[] = [
     category: 'Kampus',
     avatar: '/mascot/glasses-writing-desk.png',
     univBadge: 'ITB',
-    membersCount: 9,
-    onlineCount: 3,
+    membersCount: 1,
+    onlineCount: 1,
     description: 'Kupas tuntas kuota eligible sekolah, rekam jejak alumni di ITB, dan portofolio lomba riset BPTI.',
     ptnTarget: 'Institut Teknologi Bandung',
     joined: false,
     isOfficial: true,
-    members: [
-      { name: 'Kevin Marvel', avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=150&q=80', ptn: 'STEI-R ITB', role: 'Ketua' },
-    ],
+    members: [],
   },
   {
     id: 'c-unpad',
@@ -88,15 +84,13 @@ const INITIAL_CIRCLES: CircleItem[] = [
     category: 'Kampus',
     avatar: '/mascot/review-draft.png',
     univBadge: 'UNPAD',
-    membersCount: 6,
-    onlineCount: 2,
+    membersCount: 1,
+    onlineCount: 1,
     description: 'Fokus seleksi nilai rapor dan prestasi SNBP serta SMUP Unpad Jatinangor.',
     ptnTarget: 'Universitas Padjadjaran',
     joined: false,
     isOfficial: true,
-    members: [
-      { name: 'Alifia Putri', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80', ptn: 'Farmasi Unpad', role: 'Ketua' },
-    ],
+    members: [],
   },
   {
     id: 'circle-1',
@@ -104,18 +98,13 @@ const INITIAL_CIRCLES: CircleItem[] = [
     category: 'Teknik',
     avatar: '/mascot/ai-robot.png',
     univBadge: 'UI',
-    membersCount: 42,
-    onlineCount: 8,
+    membersCount: 1,
+    onlineCount: 1,
     description: 'Circle khusus pejuang PPKB & SNBP Fasilkom UI. Saling review essay, bedah passing grade rapor, dan sharing sertifikat Puspresnas.',
     ptnTarget: 'Universitas Indonesia (Fasilkom)',
     joined: true,
     isOfficial: true,
-    members: [
-      { name: 'Arkan Danendra', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80', ptn: 'Ilmu Komputer UI', role: 'Ketua' },
-      { name: 'Nadhira Putri', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', ptn: 'Sistem Informasi UI', role: 'Anggota' },
-      { name: 'Dimas Setiawan', avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80', ptn: 'Ilmu Komputer UI', role: 'Anggota' },
-      { name: 'Salwa Khairunnisa', avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80', ptn: 'Fasilkom UI', role: 'Anggota' },
-    ],
+    members: [],
   },
   {
     id: 'c-act-1',
@@ -123,15 +112,12 @@ const INITIAL_CIRCLES: CircleItem[] = [
     category: 'Kedokteran',
     avatar: '/mascot/trophy-graduate.png',
     univBadge: 'FK',
-    membersCount: 48,
-    onlineCount: 16,
+    membersCount: 1,
+    onlineCount: 1,
     description: 'Circle pejuang FK UI, FK UGM, FK Unair, dan FK Unpad via SNBP & Jalur Prestasi. Diskusi kurasi portofolio biologi-kimia dan rekap passing grade rapor.',
     ptnTarget: 'FK UI, UGM, Unair, Unpad',
     joined: false,
-    members: [
-      { name: 'dr. Alwan Fakhri', avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=150&q=80', ptn: 'Pendidikan Dokter UI', role: 'Ketua' },
-      { name: 'Sarah Amanda', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80', ptn: 'Kedokteran UGM', role: 'Anggota' },
-    ],
+    members: [],
   },
   {
     id: 'c-act-2',
@@ -139,15 +125,12 @@ const INITIAL_CIRCLES: CircleItem[] = [
     category: 'Soshum',
     avatar: '/mascot/glasses-writing-desk.png',
     univBadge: 'FEB/FH',
-    membersCount: 52,
-    onlineCount: 19,
+    membersCount: 1,
+    onlineCount: 1,
     description: 'Fokus bedah esai reflektif PPKB UI, IUP FEB UGM, dan strategi seleksi rapor rumpun soshum ekonomi dan hukum.',
     ptnTarget: 'FEB & FH UI, FEB UGM, FH Unpad',
     joined: false,
-    members: [
-      { name: 'Rayhan Pratama', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80', ptn: 'Ilmu Ekonomi UI', role: 'Ketua' },
-      { name: 'Aisyah Putri', avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=150&q=80', ptn: 'Ilmu Hukum UGM', role: 'Anggota' },
-    ],
+    members: [],
   },
   {
     id: 'c-act-3',
@@ -155,15 +138,12 @@ const INITIAL_CIRCLES: CircleItem[] = [
     category: 'Internasional',
     avatar: '/mascot/roadmap-flags.png',
     univBadge: 'IUP',
-    membersCount: 34,
-    onlineCount: 11,
+    membersCount: 1,
+    onlineCount: 1,
     description: 'Sharing kurasi sertifikat internasional, Motivation Letter bahasa Inggris, dan latihan interview seleksi KKI UI & IUP UGM/ITB.',
     ptnTarget: 'KKI UI, IUP UGM, IUP ITB, IUP ITS',
     joined: false,
-    members: [
-      { name: 'Bagas Wibisono', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80', ptn: 'IUP Teknik Kimia UGM', role: 'Ketua' },
-      { name: 'Elena Clarissa', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', ptn: 'KKI FEB UI', role: 'Anggota' },
-    ],
+    members: [],
   },
 ]
 
@@ -175,47 +155,6 @@ interface MessageItem {
   text: string
   time: string
   isMe: boolean
-}
-
-const INITIAL_MESSAGES: Record<string, MessageItem[]> = {
-  'circle-1': [
-    {
-      id: 'm1',
-      sender: 'Arkan Danendra',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-      ptn: 'Ilmu Komputer UI',
-      text: 'Halo teman-teman pejuang Fasilkom! Draf esai PPKB kalian udah sampai berapa kata? Jangan lupa fokus di hook paragraf pertama ya.',
-      time: '12:05',
-      isMe: false,
-    },
-    {
-      id: 'm2',
-      sender: 'Nadhira Putri',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
-      ptn: 'Sistem Informasi UI',
-      text: 'Punya aku baru 350 kata nih, kemarin pas konsul mentor dibilang jangan terlalu banyak cerita waktu kecil, harus lebih ke problem nyata.',
-      time: '12:12',
-      isMe: false,
-    },
-    {
-      id: 'm3',
-      sender: 'Kamu',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-      ptn: 'Ilmu Komputer UI',
-      text: 'Sama! Mentor Rayhan juga nyaranin cantumin metrik konkret dari proyek aplikasi yang pernah kita bikin biar nilainya kuat.',
-      time: '12:18',
-      isMe: true,
-    },
-    {
-      id: 'm4',
-      sender: 'Arkan Danendra',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-      ptn: 'Ilmu Komputer UI',
-      text: 'Nilai rapor semester 5 buat Matematika udah pada di-submit belum?',
-      time: '12:24',
-      isMe: false,
-    },
-  ],
 }
 
 interface CuitanPost {
@@ -281,7 +220,33 @@ export default function KomunitasPage() {
 
   // Chat message state
   const [messageText, setMessageText] = useState('')
-  const [messagesMap, setMessagesMap] = useState<Record<string, MessageItem[]>>(INITIAL_MESSAGES)
+  const [messagesMap, setMessagesMap] = useState<Record<string, MessageItem[]>>({})
+  const [messagesLoading, setMessagesLoading] = useState(false)
+  const [circleMembersMap, setCircleMembersMap] = useState<Record<string, { name: string; avatar: string; ptn: string; role: 'Ketua' | 'Anggota' }[]>>({})
+
+  const loadCircleMessages = useCallback(async (circleId: string) => {
+    setMessagesLoading(true)
+    try {
+      const res = await fetch(`/api/community/messages?channelId=${encodeURIComponent(circleId)}`)
+      const data = await res.json()
+      if (data.messages) {
+        setMessagesMap(prev => ({ ...prev, [circleId]: data.messages }))
+      }
+      if (data.members) {
+        setCircleMembersMap(prev => ({ ...prev, [circleId]: data.members }))
+      }
+    } catch (err) {
+      console.error('[Load Circle Messages Error]', err)
+    } finally {
+      setMessagesLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (selectedCircleId) {
+      loadCircleMessages(selectedCircleId)
+    }
+  }, [selectedCircleId, loadCircleMessages])
 
   // Cuitan Social Feed State
   const [cuitanList, setCuitanList] = useState<CuitanPost[]>([])
@@ -481,24 +446,50 @@ export default function KomunitasPage() {
     setSelectedCircleId(circleId)
   }
 
-  function handleSendMessage() {
+  async function handleSendMessage() {
     if (!messageText.trim() || !selectedCircleId) return
-    const newMsg: MessageItem = {
-      id: 'm-' + Date.now(),
+    const textToSend = messageText.trim()
+    setMessageText('')
+
+    const tempId = 'm-' + Date.now()
+    const optimisticMsg: MessageItem = {
+      id: tempId,
       sender: myProfile?.name || 'Kamu',
-      avatar: myProfile?.avatar || '',
+      avatar: myProfile?.avatar || '/mascot/default-avatar.png',
       ptn: activeCircle?.ptnTarget || 'Target PTN',
-      text: messageText.trim(),
+      text: textToSend,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       isMe: true,
     }
 
     setMessagesMap(prev => ({
       ...prev,
-      [selectedCircleId]: [...(prev[selectedCircleId] || []), newMsg],
+      [selectedCircleId]: [...(prev[selectedCircleId] || []), optimisticMsg],
     }))
 
-    setMessageText('')
+    try {
+      const res = await fetch('/api/community/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channelId: selectedCircleId,
+          channelName: activeCircle?.name || selectedCircleId,
+          content: textToSend,
+        }),
+      })
+      const data = await res.json()
+      if (data.message) {
+        setMessagesMap(prev => ({
+          ...prev,
+          [selectedCircleId]: (prev[selectedCircleId] || []).map(m => m.id === tempId ? data.message : m),
+        }))
+        if (selectedCircleId) {
+          loadCircleMessages(selectedCircleId)
+        }
+      }
+    } catch (err) {
+      console.error('[Send Message Error]', err)
+    }
   }
 
   function handleOpenCreateModal() {
@@ -993,51 +984,70 @@ export default function KomunitasPage() {
 
               {/* Chat Messages Stream  */}
               <div className="flex-1 p-6 overflow-y-auto space-y-5 bg-gray-50/30">
-                {currentMessages.map(msg => (
-                  <div
-                    key={msg.id}
-                    className={`flex gap-3 max-w-lg ${msg.isMe ? 'ml-auto flex-row-reverse' : ''}`}
-                  >
-                    {!msg.isMe && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={msg.avatar}
-                        alt=""
-                        className="w-8 h-8 rounded-full object-cover shadow-2xs flex-shrink-0 mt-1"
-                      />
-                    )}
-
-                    <div className={`space-y-1 ${msg.isMe ? 'items-end' : ''}`}>
+                {messagesLoading ? (
+                  <div className="flex flex-col items-center justify-center h-full py-20 text-gray-400 space-y-2">
+                    <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                    <p className="text-xs font-semibold text-gray-500">Memuat pesan circle...</p>
+                  </div>
+                ) : currentMessages.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full py-16 text-center text-gray-400 space-y-3">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center shadow-2xs">
+                      <MessageSquare size={26} />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-black text-gray-800">Belum ada percakapan di Circle ini</p>
+                      <p className="text-xs text-gray-500 max-w-xs mx-auto leading-relaxed">
+                        Mulai obrolan pertamamu untuk saling bertukar tips, passing grade, atau kurasi berkas dengan pejuang PTN lainnya!
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  currentMessages.map(msg => (
+                    <div
+                      key={msg.id}
+                      className={`flex gap-3 max-w-lg ${msg.isMe ? 'ml-auto flex-row-reverse' : ''}`}
+                    >
                       {!msg.isMe && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-black text-gray-900">{msg.sender}</span>
-                          <span className="text-[9px] font-bold text-amber-800 bg-amber-100/70 px-2 py-0.2 rounded-full">
-                            {msg.ptn}
-                          </span>
-                        </div>
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={msg.avatar}
+                          alt=""
+                          className="w-8 h-8 rounded-full object-cover shadow-2xs flex-shrink-0 mt-1"
+                        />
                       )}
 
-                      {/* Bubble: Golden yellow for me, clean white with shadow for others  */}
-                      <div
-                        className={`p-3.5 rounded-2xl text-xs leading-relaxed ${
-                          msg.isMe
-                            ? 'bg-amber-400 text-amber-950 font-medium rounded-tr-none shadow-xs'
-                            : 'bg-white text-gray-800 font-medium rounded-tl-none shadow-sm'
-                        }`}
-                      >
-                        <p>{msg.text}</p>
+                      <div className={`space-y-1 ${msg.isMe ? 'items-end' : ''}`}>
+                        {!msg.isMe && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] font-black text-gray-900">{msg.sender}</span>
+                            <span className="text-[9px] font-bold text-amber-800 bg-amber-100/70 px-2 py-0.2 rounded-full">
+                              {msg.ptn}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Bubble: Golden yellow for me, clean white with shadow for others  */}
                         <div
-                          className={`flex items-center justify-end gap-1 text-[10px] mt-1 ${
-                            msg.isMe ? 'text-amber-900/80 font-bold' : 'text-gray-400 font-mono'
+                          className={`p-3.5 rounded-2xl text-xs leading-relaxed ${
+                            msg.isMe
+                              ? 'bg-amber-400 text-amber-950 font-medium rounded-tr-none shadow-xs'
+                              : 'bg-white text-gray-800 font-medium rounded-tl-none shadow-sm'
                           }`}
                         >
-                          <span>{msg.time}</span>
-                          {msg.isMe && <CheckCheck size={13} className="text-amber-900" />}
+                          <p>{msg.text}</p>
+                          <div
+                            className={`flex items-center justify-end gap-1 text-[10px] mt-1 ${
+                              msg.isMe ? 'text-amber-900/80 font-bold' : 'text-gray-400 font-mono'
+                            }`}
+                          >
+                            <span>{msg.time}</span>
+                            {msg.isMe && <CheckCheck size={13} className="text-amber-900" />}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
 
               {/* Bottom Input Bar  */}
@@ -1098,36 +1108,61 @@ export default function KomunitasPage() {
               </div>
 
               {/* Anggota Circle list */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-black text-gray-900">
-                    Anggota Circle ({activeCircle.membersCount})
-                  </span>
-                  <span className="text-[10px] text-gray-400 font-bold">Terverifikasi</span>
-                </div>
+              {(() => {
+                const membersFromApi = circleMembersMap[selectedCircleId] || []
+                const isMeIncluded = membersFromApi.some(
+                  m => myProfile?.name && m.name.toLowerCase().includes(myProfile.name.toLowerCase())
+                )
+                const realMembers = [
+                  ...membersFromApi,
+                  ...(activeCircle.joined && myProfile && !isMeIncluded ? [{
+                    name: `${myProfile.name} (Kamu)`,
+                    avatar: myProfile.avatar || '/mascot/default-avatar.png',
+                    ptn: myProfile.targetPTN || activeCircle.ptnTarget,
+                    role: 'Anggota' as const,
+                  }] : []),
+                ]
 
-                <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
-                  {activeCircle.members.map((m, mi) => (
-                    <div key={mi} className="flex items-center justify-between p-2 rounded-xl bg-gray-50">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={m.avatar}
-                          alt=""
-                          className="w-7 h-7 rounded-full object-cover shadow-2xs"
-                        />
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-gray-900 truncate">{m.name}</p>
-                          <p className="text-[10px] text-gray-500 truncate">{m.ptn}</p>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full">
-                        {m.role}
+                return (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-black text-gray-900">
+                        Anggota Circle ({realMembers.length})
                       </span>
+                      <span className="text-[10px] text-gray-400 font-bold">Terverifikasi</span>
                     </div>
-                  ))}
-                </div>
-              </div>
+
+                    {realMembers.length === 0 ? (
+                      <div className="p-4 rounded-2xl bg-gray-50/80 text-center space-y-1">
+                        <p className="text-xs font-bold text-gray-700">Belum ada anggota terdaftar</p>
+                        <p className="text-[11px] text-gray-400">Jadilah yang pertama bergabung dan mulai berdiskusi!</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
+                        {realMembers.map((m, mi) => (
+                          <div key={mi} className="flex items-center justify-between p-2 rounded-xl bg-gray-50">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={m.avatar || '/mascot/default-avatar.png'}
+                                alt=""
+                                className="w-7 h-7 rounded-full object-cover shadow-2xs"
+                              />
+                              <div className="min-w-0">
+                                <p className="text-xs font-bold text-gray-900 truncate">{m.name}</p>
+                                <p className="text-[10px] text-gray-500 truncate">{m.ptn}</p>
+                              </div>
+                            </div>
+                            <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full">
+                              {m.role}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
 
               {/* Salin Tautan Undangan Button */}
               <button

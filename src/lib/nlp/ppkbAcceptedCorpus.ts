@@ -1348,3 +1348,149 @@ export const BANNED_CLICHES = [
   'besar harapan saya untuk diterima',
   'saya berjanji akan belajar dengan giat',
 ]
+
+// ── Registry Isu & Tren Strategis Nasional/Global 5 Tahun (2021-2026) ────────
+export interface TemporalIssueTheme {
+  category: 'Teknologi & Komputasi' | 'Kesehatan & Medis' | 'Energi & Lingkungan' | 'Hukum & Tata Kelola' | 'Ekonomi & Industri' | 'Pendidikan & Sosial'
+  title: string
+  description: string
+  keywords: string[]
+  strategicRelevance: string
+}
+
+export interface TemporalYearData {
+  year: number
+  eraLabel: string
+  themes: TemporalIssueTheme[]
+}
+
+export const HISTORICAL_TEMPORAL_ISSUES: TemporalYearData[] = [
+  {
+    year: 2021,
+    eraLabel: 'Mitigasi Pandemi & Digitalisasi Darurat',
+    themes: [
+      {
+        category: 'Kesehatan & Medis',
+        title: 'Penanganan Pandemi & Telemedisin 3T',
+        description: 'Fokus pada vaksinasi massal, rantai pasok medis darurat, dan layanan telekonsultasi puskesmas.',
+        keywords: ['pandemi', 'covid-19', 'vaksinasi', 'telemedicine', 'puskesmas', 'fasilitas kesehatan 3t', 'antigen', 'pcr', 'isolasi mandiri'],
+        strategicRelevance: 'Isu historis masa darurat kesehatan; relevan jika dihubungkan dengan resiliensi sistem kesehatan masa depan.',
+      },
+      {
+        category: 'Teknologi & Komputasi',
+        title: 'Pembelajaran Jarak Jauh (PJJ) & Digitalisasi UMKM',
+        description: 'Akselerasi adopsi digital mendesak untuk pendidikan sekolah dan kelangsungan usaha mikro.',
+        keywords: ['pembelajaran jarak jauh', 'pjj', 'kuota edukasi', 'digitalisasi umkm', 'e-commerce', 'disparitas digital', 'akses internet desa'],
+        strategicRelevance: 'Fondasi transformasi digital nasional masa darurat.',
+      },
+    ],
+  },
+  {
+    year: 2022,
+    eraLabel: 'Presidensi G20, Transisi Energi & Perlindungan Korban',
+    themes: [
+      {
+        category: 'Energi & Lingkungan',
+        title: 'Transisi Energi Baru Terbarukan (EBT) & Dekarbonisasi',
+        description: 'Agenda utama Presidensi G20 Indonesia: transisi menuju net zero emission dan hilirisasi nikel baterai listrik.',
+        keywords: ['g20 indonesia', 'energi baru terbarukan', 'ebt', 'net zero emission', 'baterai listrik', 'hilirisasi nikel', 'kendaraan listrik', 'dekarbonisasi', 'cop27'],
+        strategicRelevance: 'Awal mula peta jalan transisi energi hijau nasional yang sangat diapresiasi kurator FT & FMIPA.',
+      },
+      {
+        category: 'Hukum & Tata Kelola',
+        title: 'Pengesahan UU TPKS & Keadilan Gender',
+        description: 'Reformasi hukum perlindungan perempuan dan korban kekerasan seksual.',
+        keywords: ['uu tpks', 'tindak pidana kekerasan seksual', 'keadilan restoratif', 'perlindungan korban', 'kesetaraan gender', 'hak asasi manusia'],
+        strategicRelevance: 'Poin penting bagi pendaftar FH, FISIP, dan Psikologi UI.',
+      },
+    ],
+  },
+  {
+    year: 2023,
+    eraLabel: 'Disrupsi Generative AI, UU PDP & Krisis Polusi Perkotaan',
+    themes: [
+      {
+        category: 'Teknologi & Komputasi',
+        title: 'Etika Generative AI & Tata Kelola Kecerdasan Buatan',
+        description: 'Disrupsi pesat ChatGPT dan model kecerdasan buatan, menuntut akuntabilitas algoritma dan pencegahan bias data.',
+        keywords: ['generative ai', 'kecerdasan buatan', 'large language model', 'chatgpt', 'etika algoritma', 'bias data', 'tanggung jawab moral teknologi', 'machine learning'],
+        strategicRelevance: 'Tema emas bagi pendaftar Fasilkom, FT Komputer, dan Filsafat FIB.',
+      },
+      {
+        category: 'Hukum & Tata Kelola',
+        title: 'Implementasi UU Pelindungan Data Pribadi (UU PDP No. 27/2022)',
+        description: 'Penegakan kedaulatan data privasi warga negara dan kepatuhan korporasi terhadap kebocoran data siber.',
+        keywords: ['uu pdp', 'pelindungan data pribadi', 'keamanan siber', 'kebocoran data', 'privasi digital', 'tata kelola data nasional', 'bssn'],
+        strategicRelevance: 'Isu hukum dan sistem informasi paling mutakhir yang dicari penguji FH & Fasilkom.',
+      },
+      {
+        category: 'Kesehatan & Medis',
+        title: 'Krisis Polusi Udara PM2.5 & Transisi Transportasi Bersih',
+        description: 'Krisis kualitas udara ekstrem Jabodetabek yang memicu lonjakan penyakit pernapasan akut.',
+        keywords: ['polusi udara', 'pm2.5', 'kualitas udara jabodetabek', 'ispa', 'lrt jabodebek', 'emisi kendaraan', 'kesehatan lingkungan'],
+        strategicRelevance: 'Kajian interseksional krusial bagi FKM, FK, dan Teknik Lingkungan FT UI.',
+      },
+      {
+        category: 'Ekonomi & Industri',
+        title: 'Literasi Keuangan Digital vs Jeratan Pinjol Ilegal',
+        description: 'Pencegahan maraknya pinjaman online predator dan judi online di kalangan pemuda.',
+        keywords: ['literasi keuangan', 'pinjol ilegal', 'fintech lending', 'inklusi keuangan', 'ojk', 'judi online', 'perlindungan konsumen'],
+        strategicRelevance: 'Fokus favorit esai reflektif FEB dan Kriminologi FISIP UI.',
+      },
+    ],
+  },
+  {
+    year: 2024,
+    eraLabel: 'Pembangunan IKN Nusantara, Ketahanan Pangan El Nino & AI Kurikulum',
+    themes: [
+      {
+        category: 'Energi & Lingkungan',
+        title: 'Ibu Kota Nusantara (IKN) sebagai Smart Forest City',
+        description: 'Rancang bangun kota masa depan rendah emisi dengan 70% ruang hijau dan mobilitas otonom terintegrasi.',
+        keywords: ['ikn nusantara', 'smart forest city', 'green building', 'arsitektur hijau', 'mobilitas otonom', 'ibu kota baru', 'tata kota sirkular', 'nol emisi karbon'],
+        strategicRelevance: 'Topik strategis nasional nomor satu untuk jurusan Arsitektur, Teknik Sipil, Perencanaan Wilayah, dan Geografi.',
+      },
+      {
+        category: 'Ekonomi & Industri',
+        title: 'Ketahanan Pangan Ekstrem (El Nino) & Diversifikasi Pertanian',
+        description: 'Mitigasi gagal panen akibat cuaca ekstrem melalui pemuliaan tanaman tahan kering dan rantai pasok digital.',
+        keywords: ['ketahanan pangan', 'el nino', 'diversifikasi pangan', 'sorgum', 'singkong', 'smart farming', 'rantai pasok pangan', 'kedaulatan pangan'],
+        strategicRelevance: 'Kajian unggulan untuk rumpun Biologi FMIPA, Farmasi, dan Ekonomi Pembangunan FEB.',
+      },
+      {
+        category: 'Pendidikan & Sosial',
+        title: 'Integrasi AI dalam Pendidikan Nasional & Vokasi Industri',
+        description: 'Penyelarasan kurikulum merdeka dengan keterampilan komputasi masa depan dan industri manufaktur semikonduktor.',
+        keywords: ['kurikulum ai', 'pendidikan vokasi', 'link and match', 'industri semikonduktor', 'talenta digital', 'sdm unggul', 'revolusi industri 5.0'],
+        strategicRelevance: 'Sangat cocok untuk Vokasi UI, Psikologi Pendidikan, dan Ilmu Administrasi FIA.',
+      },
+    ],
+  },
+  {
+    year: 2025,
+    eraLabel: 'Kedaulatan Digital (Sovereign AI), Bioinformatika Genomik & Bursa Karbon',
+    themes: [
+      {
+        category: 'Teknologi & Komputasi',
+        title: 'Kedaulatan Digital & Sovereign AI Nasional',
+        description: 'Kemandirian infrastruktur komputasi kecerdasan buatan berbasis data lokal, bahasa daerah, dan keamanan nasional.',
+        keywords: ['sovereign ai', 'kedaulatan digital', 'model bahasa indonesia', 'kemandirian teknologi', 'infrastruktur komputasi awan lokal', 'kecerdasan buatan etis'],
+        strategicRelevance: 'Puncak aktualitas teknologi 2025-2026 untuk Fasilkom dan Teknik Komputer FT UI.',
+      },
+      {
+        category: 'Kesehatan & Medis',
+        title: 'Bioinformatika Genomik (BGSi) & Pengobatan Presisi',
+        description: 'Inisiatif Biomedical & Genome Science Initiative Indonesia untuk diagnosis dini penyakit degeneratif berbasis profil DNA lokal.',
+        keywords: ['bgsi', 'bioinformatika', 'genomik indonesia', 'precision medicine', 'pengobatan presisi', 'terapi gen', 'penyakit degeneratif', 'bioteknologi kesehatan'],
+        strategicRelevance: 'Topik paling prestisius bagi calon mahasiswa FK, Farmasi, dan Biologi FMIPA UI.',
+      },
+      {
+        category: 'Energi & Lingkungan',
+        title: 'Ekonomi Sirkular Komprehensif & Bursa Karbon (IDXCarbon)',
+        description: 'Monetisasi pengurangan emisi karbon melalui pasar karbon resmi dan daur ulang limbah baterai lithium-ion.',
+        keywords: ['idxcarbon', 'bursa karbon', 'ekonomi sirkular', 'daur ulang baterai', 'extended producer responsibility', 'esg investing', 'green finance', 'karbon kredit'],
+        strategicRelevance: 'Topik lintas disiplin paling diminati FEB, Teknik Metalurgi, dan Hukum Bisnis UI.',
+      },
+    ],
+  },
+]

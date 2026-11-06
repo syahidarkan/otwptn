@@ -294,7 +294,7 @@ export const HoneyOverlay = forwardRef<
         scheduleNextFrame()
       }
 
-      function stopLoop() {
+      function stopLoop(clear = false) {
         isDrawing = false
         if (rafId) {
           cancelAnimationFrame(rafId)
@@ -307,12 +307,14 @@ export const HoneyOverlay = forwardRef<
           }
           rvfcId = 0
         }
-        if (gl) {
-          gl.clearColor(0, 0, 0, 0)
-          gl.clear(gl.COLOR_BUFFER_BIT)
-        } else {
-          const ctx = canvas?.getContext('2d')
-          if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height)
+        if (clear) {
+          if (gl) {
+            gl.clearColor(0, 0, 0, 0)
+            gl.clear(gl.COLOR_BUFFER_BIT)
+          } else {
+            const ctx = canvas?.getContext('2d')
+            if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height)
+          }
         }
       }
 
@@ -332,8 +334,8 @@ export const HoneyOverlay = forwardRef<
       video.addEventListener('playing', startLoop)
       video.addEventListener('canplay', drawCurrentFrame)
       video.addEventListener('loadeddata', drawCurrentFrame)
-      video.addEventListener('pause', stopLoop)
-      video.addEventListener('ended', stopLoop)
+      video.addEventListener('pause', () => stopLoop(false))
+      video.addEventListener('ended', () => stopLoop(false))
       video.addEventListener('ended', handleEnded)
       video.addEventListener('timeupdate', handleTimeUpdate)
       video.addEventListener('seeked', drawCurrentFrame)
@@ -343,13 +345,11 @@ export const HoneyOverlay = forwardRef<
       }
 
       return () => {
-        stopLoop()
+        stopLoop(true)
         video.removeEventListener('play', startLoop)
         video.removeEventListener('playing', startLoop)
         video.removeEventListener('canplay', drawCurrentFrame)
         video.removeEventListener('loadeddata', drawCurrentFrame)
-        video.removeEventListener('pause', stopLoop)
-        video.removeEventListener('ended', stopLoop)
         video.removeEventListener('ended', handleEnded)
         video.removeEventListener('timeupdate', handleTimeUpdate)
         video.removeEventListener('seeked', drawCurrentFrame)

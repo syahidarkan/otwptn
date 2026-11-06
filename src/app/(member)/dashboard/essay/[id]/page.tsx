@@ -41,6 +41,19 @@ interface NlpBenchmarkData {
   avgSentenceLength?: number
   runawaySentencesCount?: number
   transitionWordsFound?: string[]
+  temporalAnalysis?: {
+    temporalScore: number
+    matchedThemes: string[]
+    detectedYearEra: string
+    trendAlignment: string
+    advice: string
+  }
+  rhetoricalStages?: Array<{
+    stage: string
+    label: string
+    status: 'Optimal' | 'Cukup Kuat' | 'Perlu Penguatan'
+    feedback: string
+  }>
   benchmarkRankPercentile: number
   verdict: 'Sangat Menjanjikan' | 'Cukup Kompetitif' | 'Perlu Penguatan Nyata' | 'Kurang Memenuhi Standar'
   strengths: string[]
@@ -93,6 +106,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [copiedText, setCopiedText] = useState(false)
   const [showCorpusReference, setShowCorpusReference] = useState(false)
+  const [showRhetoricalStages, setShowRhetoricalStages] = useState(false)
 
   const handleExportTxt = () => {
     if (!editor) return
@@ -892,6 +906,106 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                                 <span key={tw} className="text-[9px] font-medium bg-blue-50 text-blue-800 border border-blue-200 px-1.5 py-0.5 rounded-md">
                                   {tw}
                                 </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Relevansi Isu & Tren Strategis 5 Tahun (2021-2026) */}
+                      {feedback.nlpBenchmark.temporalAnalysis && (
+                        <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2 text-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-slate-800 text-[11px] flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
+                              Relevansi Isu Strategis (5 Tahun)
+                            </span>
+                            <span className="font-mono font-black text-amber-900 text-[11px]">
+                              {feedback.nlpBenchmark.temporalAnalysis.temporalScore}/100
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                              feedback.nlpBenchmark.temporalAnalysis.temporalScore >= 75
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                : 'bg-blue-100 text-blue-800 border border-blue-200'
+                            }`}>
+                              {feedback.nlpBenchmark.temporalAnalysis.trendAlignment}
+                            </span>
+                            {feedback.nlpBenchmark.temporalAnalysis.detectedYearEra && (
+                              <span className="text-[10px] text-slate-600 font-medium">
+                                Era: {feedback.nlpBenchmark.temporalAnalysis.detectedYearEra}
+                              </span>
+                            )}
+                          </div>
+
+                          {feedback.nlpBenchmark.temporalAnalysis.matchedThemes.length > 0 && (
+                            <div className="flex flex-wrap gap-1 pt-0.5">
+                              {feedback.nlpBenchmark.temporalAnalysis.matchedThemes.map(th => (
+                                <span key={th} className="text-[9px] font-semibold bg-white text-slate-800 border border-amber-200 px-2 py-0.5 rounded-md">
+                                  {th}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          <p className="text-[10px] text-slate-600 leading-relaxed border-t border-amber-200/50 pt-1.5">
+                            {feedback.nlpBenchmark.temporalAnalysis.advice}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Evaluasi Alur Retorika 5 Paragraf */}
+                      {feedback.nlpBenchmark.rhetoricalStages && feedback.nlpBenchmark.rhetoricalStages.length > 0 && (
+                        <div className="p-3 rounded-2xl bg-white border border-slate-200 space-y-2 text-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-slate-800 text-[11px]">
+                              Alur Retorika 5 Paragraf
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setShowRhetoricalStages(!showRhetoricalStages)}
+                              className="text-[10px] font-bold text-amber-700 hover:text-amber-900 underline cursor-pointer"
+                            >
+                              {showRhetoricalStages ? 'Ringkas' : 'Detail Tahap'}
+                            </button>
+                          </div>
+
+                          {showRhetoricalStages ? (
+                            <div className="space-y-2 pt-1">
+                              {feedback.nlpBenchmark.rhetoricalStages.map(st => (
+                                <div key={st.stage} className="p-2 rounded-xl bg-slate-50 border border-slate-100 space-y-0.5 text-[10px]">
+                                  <div className="flex items-center justify-between font-bold">
+                                    <span className="text-slate-800">{st.label}</span>
+                                    <span className={`px-1.5 py-0.2 rounded-md ${
+                                      st.status === 'Optimal'
+                                        ? 'bg-emerald-100 text-emerald-800'
+                                        : st.status === 'Cukup Kuat'
+                                        ? 'bg-blue-100 text-blue-800'
+                                        : 'bg-amber-100 text-amber-800'
+                                    }`}>
+                                      {st.status}
+                                    </span>
+                                  </div>
+                                  <p className="text-slate-600 leading-snug">{st.feedback}</p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 pt-0.5">
+                              {feedback.nlpBenchmark.rhetoricalStages.map((st, i) => (
+                                <div
+                                  key={st.stage}
+                                  title={`${st.label}: ${st.status}`}
+                                  className={`flex-1 h-2 rounded-full ${
+                                    st.status === 'Optimal'
+                                      ? 'bg-emerald-500'
+                                      : st.status === 'Cukup Kuat'
+                                      ? 'bg-blue-400'
+                                      : 'bg-amber-400'
+                                  }`}
+                                />
                               ))}
                             </div>
                           )}

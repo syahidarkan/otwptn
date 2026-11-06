@@ -22,6 +22,7 @@ export default function GlobalPageLoader() {
   pathnameRef.current = pathname
   const routeLoadedRef = useRef(false)
   const isHoldingAtPeakRef = useRef(false)
+  const hasRevealedRef = useRef(false)
   const capTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   function finish() {
@@ -30,6 +31,7 @@ export default function GlobalPageLoader() {
     pendingHrefRef.current = null
     routeLoadedRef.current = false
     isHoldingAtPeakRef.current = false
+    hasRevealedRef.current = false
     const el = elRef.current
     if (el) {
       el.style.visibility = 'hidden'
@@ -47,7 +49,8 @@ export default function GlobalPageLoader() {
 
   function reveal() {
     const el = elRef.current
-    if (!el || phaseRef.current === 'revealing' || phaseRef.current === 'idle') return
+    if (!el || phaseRef.current === 'revealing' || phaseRef.current === 'idle' || hasRevealedRef.current) return
+    hasRevealedRef.current = true
     phaseRef.current = 'revealing'
     el.style.opacity = '0'
     setTimeout(finish, 260)
@@ -55,57 +58,65 @@ export default function GlobalPageLoader() {
 
   // When the new route commits underneath, flag route as loaded.
   useEffect(() => {
-    if (phaseRef.current === 'idle' || pathname === startPathRef.current) return
+    if (phaseRef.current === 'idle' || pathname === startPathRef.current || hasRevealedRef.current) return
     routeLoadedRef.current = true
 
     const video = videoRef.current
     if (video) {
-      // If the video was held at peak coverage waiting for the page, resume immediately!
+      // If the animation already completed its drain or is past 2.30s, reveal immediately!
+      if (video.ended || video.currentTime >= 2.30) {
+        reveal()
+        return
+      }
+
+      // If video was holding or slowed down waiting for route, accelerate to drain speed (1.15x)
+      video.playbackRate = 1.15
       if (isHoldingAtPeakRef.current || video.paused) {
         isHoldingAtPeakRef.current = false
         try {
           video.play().catch(() => {})
         } catch {}
       }
-      // If video already completed its animation, reveal now!
-      if (video.ended || video.currentTime >= 2.45) {
-        reveal()
-      }
     }
   }, [pathname])
 
   function handleTimeUpdate(time: number) {
     const video = videoRef.current
-    if (!video) return
+    if (!video || hasRevealedRef.current || phaseRef.current === 'idle') return
 
-    // Peak coverage window is 1.18s - 1.35s (honey covers >98% of the screen).
-    // If the route has NOT loaded yet, hold/pause at peak honey so the user stays covered!
-    if (time >= 1.20 && time < 1.35 && !routeLoadedRef.current) {
-      if (!isHoldingAtPeakRef.current) {
-        isHoldingAtPeakRef.current = true
-        try {
-          video.pause()
-        } catch {}
+    // Adaptive speed: If the route is still loading in the background
+    if (!routeLoadedRef.current) {
+      // Smoothly ramp down speed as honey approaches 100% full coverage
+      if (time >= 0.85 && time < 1.05) {
+        video.playbackRate = 0.55
+      } else if (time >= 1.05 && time < 1.24) {
+        video.playbackRate = 0.22
+      } else if (time >= 1.24) {
+        // Hold frame seamlessly right at peak honey coverage (>99% coverage)
+        if (!isHoldingAtPeakRef.current) {
+          isHoldingAtPeakRef.current = true
+          try {
+            video.pause()
+          } catch {}
+        }
+        return
       }
-      return
     }
 
-    // Only reveal when the route has ACTUALLY loaded AND the video has finished draining!
-    if (time >= 2.45 && routeLoadedRef.current) {
+    // Only reveal when the route has loaded AND the honey has drained down
+    if (time >= 2.40 && routeLoadedRef.current) {
       reveal()
     }
   }
 
   function handleEnded() {
     const video = videoRef.current
-    if (!video) return
+    if (!video || hasRevealedRef.current) return
 
-    // If route has loaded, reveal immediately
+    // If route has loaded, reveal immediately. Never replay!
     if (routeLoadedRef.current) {
       reveal()
     } else {
-      // If video reached the end but route is still processing, pause on the last frame
-      // until pathname updates
       try {
         video.pause()
       } catch {}
@@ -129,6 +140,7 @@ export default function GlobalPageLoader() {
     startPathRef.current = pathnameRef.current
     routeLoadedRef.current = false
     isHoldingAtPeakRef.current = false
+    hasRevealedRef.current = false
     phaseRef.current = 'covering'
 
     // Prefetch immediately so Next.js starts fetching the route bundle right away
