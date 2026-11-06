@@ -663,7 +663,7 @@ export default function AmbassadorDashboardPage() {
                     videoUrl: d.videoUrl,
                     feature: d.feature
                   })}
-                  className="relative aspect-video rounded-2xl overflow-hidden bg-gray-900 cursor-pointer group"
+                  className="relative aspect-video rounded-2xl overflow-hidden bg-amber-50/70 border border-amber-100 cursor-pointer group"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img

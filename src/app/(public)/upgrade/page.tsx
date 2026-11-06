@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import {
   Check,
   ShieldCheck,
@@ -240,21 +241,6 @@ export default function UpgradePage() {
           </div>
         )}
 
-        {/* Referral code, Individu only */}
-        {mode === 'individu' && (
-          <div className="max-w-md mx-auto mb-10">
-            <div className="flex items-center gap-2 p-3 rounded-2xl bg-white border border-gray-100">
-              <Gift size={16} className="text-amber-600 flex-shrink-0" />
-              <input
-                value={referralCode}
-                onChange={e => setReferralCode(e.target.value.toUpperCase())}
-                placeholder="Pakai kode referral teman (opsional)"
-                className="flex-1 text-xs font-bold tracking-wide uppercase focus:outline-none bg-transparent"
-              />
-            </div>
-          </div>
-        )}
-
         {/* Pricing Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {TIERS.map(tier => {
@@ -287,7 +273,10 @@ export default function UpgradePage() {
                   </p>
 
                   <div className="mb-2">
-                    <span className="text-2xl sm:text-3xl font-black text-gray-900">{price.weekly}</span>
+                    <span className="text-2xl sm:text-3xl font-black text-gray-900">
+                      {price.weekly.split('/')[0]}
+                    </span>
+                    <span className="text-sm font-semibold text-gray-400">/{price.weekly.split('/')[1] ?? 'minggu'}</span>
                   </div>
                   <div className="mb-5 pb-5 border-b border-gray-100 text-xs text-gray-500 font-semibold">
                     {showReferral ? (
@@ -316,6 +305,15 @@ export default function UpgradePage() {
                       </li>
                     ))}
                   </ul>
+
+                  <div className="mb-4 text-center">
+                    <Link
+                      href="/syarat-paket"
+                      className="text-[11px] font-bold text-amber-700 hover:text-amber-800 hover:underline inline-flex items-center gap-1"
+                    >
+                      Peraturan & Ketentuan Paket &rarr;
+                    </Link>
+                  </div>
                 </div>
 
                 <button
@@ -392,20 +390,57 @@ export default function UpgradePage() {
                 </div>
               )}
 
+              {/* What you get */}
+              <div className="rounded-2xl bg-amber-50 border border-amber-100 p-4">
+                <p className="text-[10px] font-black uppercase tracking-wider text-amber-700 mb-3">Yang Kamu Dapatkan</p>
+                <ul className="space-y-1.5">
+                  {FEATURES[selection.track][selection.tier].map((feat, i) => (
+                    <li key={i} className="flex items-start gap-2 text-xs text-amber-900 font-semibold">
+                      <div className="w-3.5 h-3.5 rounded-full bg-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check size={9} className="stroke-[3] text-amber-950" />
+                      </div>
+                      {feat}
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-[10px] text-amber-600 font-semibold mt-2.5">{TIER_PERIOD[selection.tier]}</p>
+              </div>
+
+              {/* Referral code (individu only) - di popup */}
+              {selection.mode === 'individu' && (
+                <div className="rounded-2xl bg-gray-50 p-4">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-2">Kode Referral (opsional)</p>
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-gray-200">
+                    <Gift size={13} className="text-amber-600 flex-shrink-0" />
+                    <input
+                      value={referralCode}
+                      onChange={e => setReferralCode(e.target.value.toUpperCase())}
+                      placeholder="Masukkan kode referral teman"
+                      className="flex-1 text-xs font-bold tracking-wide uppercase focus:outline-none bg-transparent"
+                    />
+                  </div>
+                  <p className="text-[10px] text-gray-400 mt-1.5">Diskon hanya berlaku jika kode valid dan paket individu.</p>
+                </div>
+              )}
+
               {/* Price breakdown */}
               <div className="rounded-2xl bg-gray-50 p-4">
                 <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-3">Rincian Pembayaran</p>
                 <div className="space-y-1.5 text-xs">
                   <div className="flex justify-between text-gray-600">
-                    <span>{TIER_LABELS[selection.tier]} ({TRACK_LABELS[selection.track]})</span>
+                    <span>{TIER_LABELS[selection.tier]} - {TRACK_LABELS[selection.track]}</span>
                     <span className={`font-bold ${selectedFinalAmount !== selectedPrice.amount ? 'line-through text-gray-400' : 'text-gray-900'}`}>
                       {formatIDR(selectedPrice.amount)}
                     </span>
                   </div>
+                  <div className="flex justify-between text-gray-500">
+                    <span>Mode</span>
+                    <span className="font-semibold">{MODE_LABELS[selection.mode]}</span>
+                  </div>
                   {selectedFinalAmount !== selectedPrice.amount && (
                     <div className="flex justify-between text-emerald-600 font-bold">
                       <span>Diskon kode referral</span>
-                      <span>{formatIDR(selectedFinalAmount!)}</span>
+                      <span>- {formatIDR(selectedPrice.amount - selectedFinalAmount!)}</span>
                     </div>
                   )}
                   <div className="flex justify-between font-extrabold text-gray-900 pt-2 border-t border-gray-200 text-sm">
@@ -415,23 +450,13 @@ export default function UpgradePage() {
                 </div>
               </div>
 
-              {/* Payment methods */}
+              {/* Payment methods - informational only, NOT clickable cards */}
               <div className="rounded-2xl bg-gray-50 p-4">
-                <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-3">Metode Pembayaran</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { icon: Building2, label: 'Virtual Account', sub: 'BCA, Mandiri, BNI, BRI, BSI' },
-                    { icon: QrCode, label: 'QRIS', sub: 'Semua aplikasi e-wallet' },
-                    { icon: Smartphone, label: 'E-Wallet', sub: 'GoPay, OVO, Dana, ShopeePay' },
-                    { icon: CreditCard, label: 'Kartu Kredit', sub: 'Visa, Mastercard' },
-                  ].map(({ icon: Icon, label, sub }) => (
-                    <div key={label} className="flex items-center gap-2 p-2 rounded-xl bg-white border border-gray-100">
-                      <Icon size={14} className="text-amber-600 flex-shrink-0" />
-                      <div>
-                        <p className="text-[11px] font-bold text-gray-800">{label}</p>
-                        <p className="text-[10px] text-gray-400">{sub}</p>
-                      </div>
-                    </div>
+                <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-2">Metode Pembayaran yang Tersedia</p>
+                <p className="text-xs text-gray-600 font-semibold mb-2">Dibayar lewat Mayar - pilih metode di halaman pembayaran:</p>
+                <div className="flex flex-wrap gap-2">
+                  {['Virtual Account (BCA, Mandiri, BNI, BRI, BSI)', 'QRIS semua e-wallet', 'GoPay / OVO / Dana / ShopeePay', 'Kartu Kredit/Debit Visa & Mastercard'].map(m => (
+                    <span key={m} className="text-[10px] font-semibold text-gray-500 bg-white border border-gray-200 px-2.5 py-1 rounded-full">{m}</span>
                   ))}
                 </div>
               </div>

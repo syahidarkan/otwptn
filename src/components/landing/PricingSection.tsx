@@ -12,9 +12,9 @@ const BASE = PRICE_MATRIX.individu.essay
 const FREE = { name: 'Akun Gratis', price: 'Rp0', desc: 'Mulai eksplorasi tanpa bayar sepeser pun.', feats: ['Kalkulator Peluang 1x/bulan', 'Chat Otbee AI 3x/hari', 'Essay AI Review 1x/bulan', 'Akses modul preview'], href: '/register' }
 const WEB = { name: 'Akun Premium', price: `${formatIDR(BASE.web_premium.amount)}`, desc: 'Akses penuh ke seluruh fitur platform cerdas tanpa mentor alumni.', feats: ['Kalkulator & AI Unlimited', 'Bebas buat Circle', 'Unlock 100% modul e-course', 'Buka Atur Strategi'], href: '/upgrade' }
 const SMALL = [
-  { key: 'review', name: 'Nectar (Review)', price: `Mulai ${formatIDR(BASE.review.amount)}`, feats: ['Termasuk Akun Premium', '2x Revisi Esai via WA', 'Cek validasi dokumen'], href: '/upgrade', highlight: false },
-  { key: 'reguler', name: 'Honeycomb (Reguler)', price: `Mulai ${formatIDR(BASE.dokumen.amount)}`, feats: ['Termasuk Akun Premium', '5x Putaran Revisi Esai', '2x Sesi Privat Zoom', 'Grup WA Eksklusif'], href: '/upgrade', highlight: false },
-  { key: 'intensif', name: 'Queen Bee (Royal Jelly)', price: `Mulai ${formatIDR(BASE.menyeluruh.amount)}`, feats: ['Termasuk Akun Premium', 'Unlimited Revisi + Meet', 'Bimbingan dokumen & wawancara', 'Exclusive Trip ke UI'], href: '/upgrade', highlight: true },
+  { key: 'review', name: 'Nectar', price: `Mulai ${formatIDR(BASE.review.amount)}`, feats: ['Termasuk Akun Premium', '2x Revisi Esai via WA', 'Cek validasi dokumen'], href: '/upgrade', highlight: false },
+  { key: 'reguler', name: 'Honeycomb', price: `Mulai ${formatIDR(BASE.dokumen.amount)}`, feats: ['Termasuk Akun Premium', '5x Putaran Revisi Esai', '2x Sesi Privat Zoom', 'Grup WA Eksklusif'], href: '/upgrade', highlight: false },
+  { key: 'intensif', name: 'Royal Jelly', price: `Mulai ${formatIDR(BASE.menyeluruh.amount)}`, feats: ['Termasuk Akun Premium', 'Unlimited Revisi + Meet', 'Bimbingan dokumen & wawancara', 'Exclusive Trip ke UI'], href: '/upgrade', highlight: true },
 ]
 
 function Feats({ items }: { items: string[] }) {
@@ -119,6 +119,63 @@ export default function PricingSection() {
               <Link href={t.href} className={t.highlight ? 'btn btn-primary text-xs py-2.5 w-full text-center' : 'btn btn-outline text-xs py-2.5 w-full text-center'}>Pilih</Link>
             </div>
           ))}
+        </div>
+
+        {/* Comparison Table */}
+        <div className="mt-16">
+          <div className="text-center mb-8">
+            <h3 className="text-xl md:text-2xl font-bold text-fg mb-2">Tabel Perbandingan Fitur &amp; Benefit</h3>
+            <p className="text-xs text-gray-500">Bandingkan seluruh fasilitas dari Akun Gratis hingga pendampingan intensif Royal Jelly.</p>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-xs">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="py-3.5 px-4 font-bold text-gray-700 min-w-[200px]">Fitur &amp; Fasilitas</th>
+                  <th className="py-3.5 px-3 font-bold text-gray-600 text-center">Gratis</th>
+                  <th className="py-3.5 px-3 font-bold text-gray-900 text-center bg-amber-50/50">Akun Premium</th>
+                  <th className="py-3.5 px-3 font-bold text-gray-900 text-center">Nectar</th>
+                  <th className="py-3.5 px-3 font-bold text-gray-900 text-center">Honeycomb</th>
+                  <th className="py-3.5 px-3 font-bold text-amber-950 text-center bg-amber-100/60">Royal Jelly</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-gray-600 font-medium">
+                {[
+                  { feat: 'Chat Konsultan Otbee AI', free: '3x / 2 hari', web: 'Unlimited', nectar: 'Unlimited', honey: 'Unlimited', royal: 'Unlimited' },
+                  { feat: 'Essay AI Review & Scoring', free: '1x / minggu', web: 'Unlimited', nectar: 'Unlimited', honey: 'Unlimited', royal: 'Unlimited' },
+                  { feat: 'Kalkulator Peluang SNBP & Mandiri', free: '1x / minggu', web: 'Unlimited', nectar: 'Unlimited', honey: 'Unlimited', royal: 'Unlimited' },
+                  { feat: 'Atur Strategi Rekomendasi Prodi', free: '✕', web: '✓ Lengkap', nectar: '✓ Lengkap', honey: '✓ Lengkap', royal: '✓ Lengkap' },
+                  { feat: 'Akses 100% Modul Materi & Video', free: 'Preview', web: '✓ 110 Lesson', nectar: '✓ 110 Lesson', honey: '✓ 110 Lesson', royal: '✓ 110 Lesson' },
+                  { feat: 'Akses Komunitas & Buat Study Circle', free: 'Join Saja', web: '✓ Buat Circle', nectar: '✓ Buat Circle', honey: '✓ Buat Circle', royal: '✓ Buat Circle' },
+                  { feat: 'Review Esai/Prestasi Mentor Alumni', free: '✕', web: '✕', nectar: '2x Putaran Revisi', honey: '5x Putaran Revisi', royal: 'Unlimited Revisi' },
+                  { feat: 'Sesi Privat Zoom/Meet 1-on-1 (45m)', free: '✕', web: '✕', nectar: '✕', honey: '2x Sesi Privat', royal: 'Unlimited Prioritas' },
+                  { feat: 'Grup WhatsApp Eksklusif Mentor', free: '✕', web: '✕', nectar: '✕', honey: '✓ Termasuk', royal: '✓ Termasuk' },
+                  { feat: 'Rapor & Kelengkapan Profil (Scan OCR + Linieritas Mentor)', free: '✕', web: '✕', nectar: '✕', honey: '✕', royal: '✓ Eksklusif' },
+                  { feat: 'Simulasi Wawancara & Bimbingan Dokumen', free: '✕', web: '✕', nectar: '✕', honey: '✕', royal: '✓ Termasuk' },
+                  { feat: 'Exclusive Trip Campus Tour ke UI', free: '✕', web: '✕', nectar: '✕', honey: '✕', royal: '✓ Termasuk' },
+                ].map((row, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50/70 transition-colors">
+                    <td className="py-3 px-4 font-semibold text-gray-800">{row.feat}</td>
+                    <td className="py-3 px-3 text-center text-gray-400">{row.free}</td>
+                    <td className="py-3 px-3 text-center font-bold text-amber-900 bg-amber-50/30">{row.web}</td>
+                    <td className="py-3 px-3 text-center text-gray-700">{row.nectar}</td>
+                    <td className="py-3 px-3 text-center text-gray-700">{row.honey}</td>
+                    <td className="py-3 px-3 text-center font-bold text-amber-950 bg-amber-50/60">{row.royal}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4 text-center">
+            <Link
+              href="/syarat-paket"
+              className="text-xs font-bold text-amber-700 hover:text-amber-800 hover:underline inline-flex items-center gap-1.5"
+            >
+              Baca Peraturan &amp; Ketentuan Detail Setiap Paket &rarr;
+            </Link>
+          </div>
         </div>
       </div>
     </section>

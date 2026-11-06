@@ -31,17 +31,23 @@ export default function StrategiPage() {
   const [result, setResult] = useState<StrategiResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [quotaError, setQuotaError] = useState(false)
+  const [tier, setTier] = useState('free')
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) { setLoading(false); return }
-      const { data: last } = await supabase
-        .from('kalkulator_sessions')
-        .select('id, input_data, result_json, created_at')
-        .eq('user_id', data.user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
+      const [{ data: profile }, { data: last }] = await Promise.all([
+        supabase.from('profiles').select('tier, is_admin').eq('id', data.user.id).maybeSingle(),
+        supabase.from('kalkulator_sessions')
+          .select('id, input_data, result_json, created_at')
+          .eq('user_id', data.user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+      ])
+      if (profile?.tier) setTier(profile.tier)
+      if (profile?.is_admin) setIsAdmin(true)
       setSession(last as KalkulatorSessionRow | null)
       setLoading(false)
     })
@@ -68,6 +74,32 @@ export default function StrategiPage() {
 
   if (loading) {
     return <div className="w-full px-6 md:px-8 py-10"><p className="text-sm" style={{ color: 'var(--muted)' }}>Memuat...</p></div>
+  }
+
+  if (tier === 'free' && !isAdmin) {
+    return (
+      <div className="w-full px-6 md:px-8 py-10">
+        <FeatureHeader
+          title="Atur Strategi"
+          subtitle="Fitur eksklusif untuk pengguna Akun Premium ke atas."
+          mascot="/fitur/tracking-jalur.png"
+        />
+        <div className="card p-10 text-center max-w-xl mx-auto space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center mx-auto">
+            <Lock size={28} />
+          </div>
+          <div>
+            <h3 className="text-base font-extrabold text-gray-900 mb-1">Fitur Khusus Akun Premium</h3>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Dapatkan rekomendasi prodi pilihan 1 vs pilihan 2 yang taktis, analisis urutan pembobotan sertifikat prestasi, dan langkah persiapan lolos PTN non-tes.
+            </p>
+          </div>
+          <Link href="/upgrade" className="btn btn-primary text-xs px-6 py-3 inline-flex font-black rounded-full shadow-xs">
+            Upgrade ke Akun Premium
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   if (!session) {
@@ -115,7 +147,7 @@ export default function StrategiPage() {
               <Lock size={28} className="mx-auto mb-3" style={{ color: 'var(--muted-2)' }} />
               <p className="text-sm font-semibold mb-1" style={{ color: 'var(--fg)' }}>Kuota Atur Strategi kamu habis</p>
               <p className="text-xs mb-4" style={{ color: 'var(--muted)' }}>Upgrade paket untuk dapat lebih banyak kuota.</p>
-              <Link href="/checkout/intensif" className="btn btn-primary text-xs px-4 py-2 inline-flex">Lihat Paket</Link>
+              <Link href="/upgrade" className="btn btn-primary text-xs px-4 py-2 inline-flex">Upgrade Akun</Link>
             </>
           ) : (
             <>

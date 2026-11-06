@@ -47,7 +47,7 @@ export async function POST(request: Request) {
   if (!isTier(tier)) return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
   if (!isMode(mode)) return NextResponse.json({ error: 'Invalid mode' }, { status: 400 })
   if (!isTrack(track)) return NextResponse.json({ error: 'Invalid track' }, { status: 400 })
-  if (!['transfer', 'mayar'].includes(payment_method)) {
+  if (!['mayar'].includes(payment_method)) {
     return NextResponse.json({ error: 'Invalid payment method' }, { status: 400 })
   }
 

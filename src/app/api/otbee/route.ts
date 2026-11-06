@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
-import { consumeQuota, sanitizeChatMessages } from '@/lib/security'
+import { consumeQuota, rateLimit, sanitizeChatMessages } from '@/lib/security'
 import { getAiClient } from '@/lib/ai/client'
 
 const TIER_OTBEE_LIMIT: Record<string, number | null> = {
-  free: 5, web_premium: null, review: null, dokumen: null, menyeluruh: null, intensif: null,
+  free: 3, web_premium: null, review: null, dokumen: null, menyeluruh: null, intensif: null,
 }
 
 const SYSTEM_PROMPT = `Kamu adalah Otbee, AI konsultan PTN non-tes dan pendamping belajar resmi otwptn (PT. Lembaga Sains Nasional).
@@ -40,6 +40,33 @@ export async function POST(request: Request) {
   const isStaff = profile?.role === 'superadmin' || profile?.role === 'mentor'
   const tier = profile?.tier ?? 'free'
   const limit = isStaff ? null : (TIER_OTBEE_LIMIT[tier] ?? null)
+
+  if (!isStaff && tier === 'free') {
+    // 3 chats per 2 days (48 hours = 172800 seconds)
+    const allowed = await rateLimit('otbee_free', user.id, 3, 172800)
+    if (!allowed) {
+      return new Response(JSON.stringify({
+        error: 'quota_exceeded',
+        message: 'Batas chat gratis (3 pesan per 2 hari) telah tercapai. Upgrade ke Akun Premium untuk chat tanpa batas.',
+      }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+  } else if (!isStaff) {
+    // Claude-style protection for premium: 5-hour limit and weekly limit to prevent bot abuse
+    const allowed5h = await rateLimit('otbee_premium_5h', user.id, 60, 5 * 3600)
+    const allowedWeek = await rateLimit('otbee_premium_week', user.id, 300, 7 * 86400)
+    if (!allowed5h || !allowedWeek) {
+      return new Response(JSON.stringify({
+        error: 'rate_limited',
+        message: 'Batas frekuensi chat tercapai (perlindungan 5 jam / mingguan). Silakan coba lagi beberapa saat lagi.',
+      }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+  }
 
   const body = await request.json()
   const conversation_id = typeof body?.conversation_id === 'string' ? body.conversation_id : null

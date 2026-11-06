@@ -13,17 +13,17 @@ export const TIERS = ['web_premium', 'review', 'dokumen', 'menyeluruh'] as const
 export type Tier = (typeof TIERS)[number]
 
 export const TIER_LABELS: Record<Tier, string> = {
-  web_premium: 'Web Premium',
-  review: 'Review',
-  dokumen: 'Reguler',
-  menyeluruh: 'Intensif',
+  web_premium: 'Akun Premium',
+  review: 'Nectar',
+  dokumen: 'Honeycomb',
+  menyeluruh: 'Royal Jelly',
 }
 
 export const TIER_TAGLINES: Record<Tier, string> = {
-  web_premium: 'Self-service: kalkulator peluang, roadmap, document hub. Tanpa mentor.',
-  review: 'Esai/prestasimu direview tertulis sama mentor. Async, nggak ada sesi langsung.',
-  dokumen: 'Review tertulis plus sesi mentoring langsung.',
-  menyeluruh: 'Pendampingan penuh, beberapa sesi langsung, prioritas jadwal mentor.',
+  web_premium: 'Akses penuh semua fitur AI & e-course. Tanpa mentor alumni.',
+  review: 'Termasuk Akun Premium. Esai/prestasimu direview tertulis sama mentor alumni.',
+  dokumen: 'Termasuk Akun Premium. Review tertulis plus sesi mentoring langsung via Zoom.',
+  menyeluruh: 'Termasuk Akun Premium. Pendampingan penuh, beberapa sesi langsung, prioritas jadwal mentor.',
 }
 
 export const TIER_PERIOD: Record<Tier, string> = {

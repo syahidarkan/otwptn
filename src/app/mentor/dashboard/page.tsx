@@ -65,104 +65,11 @@ interface MenteeItem {
   }
 }
 
-const INITIAL_MENTEES: MenteeItem[] = [
-  {
-    id: 'mentee-1',
-    name: 'Salma Salsabila',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-    school: 'SMAN 28 Jakarta',
-    targetPtn1: 'Universitas Indonesia',
-    targetProdi1: 'Pendidikan Dokter (FK UI)',
-    targetPtn2: 'Universitas Indonesia',
-    targetProdi2: 'Farmasi UI',
-    track: 'PPKB UI & SNBP',
-    packageName: 'Queen Bee (Royal Jelly)',
-    status: 'Perlu Review Esai',
-    whatsapp: '6281234567891',
-    waGroupLink: 'https://chat.whatsapp.com/sample-group-salma-ui',
-    zoomLink: 'https://meet.google.com/abc-defg-hij',
-    essayTitle: 'Esai Motivasi PPKB UI: Dedikasi Bidang Preventif Kesehatan',
-    essayContent: `Sejak duduk di bangku kelas 10, saya menaruh minat mendalam pada integrasi kecerdasan buatan dalam pemrosesan data kesehatan. Saat mengamati sistem pendaftaran puskesmas di daerah saya yang masih mengalami antrean berulang, saya menyadari bahwa efisiensi sistem informasi bukan sekadar kemudahan teknologi, melainkan hak layanan publik yang mendesak.\n\nMelalui keikutsertaan saya dalam Olimpiade Biologi dan pengembangan proyek mini pencegahan stunting sekolah, saya belajar bagaimana pemahaman biologi molekuler dapat memecahkan masalah nyata.\n\nMemilih Fakultas Kedokteran Universitas Indonesia adalah keputusan terencana untuk mendalami profesi dokter di bawah bimbingan para klinisi terbaik tanah air.`,
-    raporSummary: 'Rata-rata Semester 1-5: 93.4 (Biologi 96, Kimia 94, Matematika 92). Peringkat eligible 2 di SMAN 28 Jakarta.',
-    certificates: [
-      { name: 'Medali Perak Olimpiade Sains Nasional (OSN) Biologi', level: 'Nasional', score: 100 },
-      { name: 'Juara 1 Karya Tulis Ilmiah Kesehatan Remaja', level: 'Provinsi', score: 85 },
-      { name: 'Ketua Divisi PMR SMAN 28 Jakarta', level: 'Sekolah', score: 70 },
-    ],
-    checklist: [
-      { task: 'Kirim link grup WA (Mentor + Admin + Mentee)', done: true },
-      { task: 'Sesi konsultasi awal & bedah target', done: true },
-      { task: 'Koreksi esai draf 1 (Google Docs)', done: false },
-      { task: 'Wajib susun Analisis Rekomendasi Pilihan 1 & 2 (VIP)', done: false },
-      { task: 'Simulasi Wawancara 1-on-1 Meet', done: false },
-    ],
-    vipAnalysis: {
-      recommendationPil1: 'Peluang lolos di FK UI sangat kompetitif (rekomendasi kuota sekolah eligible peringkat 1-2). Pertahankan sertifikat OSN Biologi pada slot upload 1.',
-      recommendationPil2: 'Farmasi UI sangat aman sebagai pilihan cadangan linier dengan nilai Kimia 94.',
-      riskNotes: 'Perhatikan riwayat alumni SMAN 28 Jakarta di FK UI tahun lalu ada 3 orang diterima.',
-      submittedAt: 'Belum difinalisasi mentor',
-    },
-  },
-  {
-    id: 'mentee-2',
-    name: 'Arkan Danendra',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-    school: 'SMAN 3 Bandung',
-    targetPtn1: 'Institut Teknologi Bandung',
-    targetProdi1: 'STEI-R (Rekayasa Komputasi)',
-    targetPtn2: 'Universitas Indonesia',
-    targetProdi2: 'Fasilkom UI (Ilmu Komputer)',
-    track: 'SNBP & SSU ITB',
-    packageName: 'Honeycomb',
-    status: 'Jadwal Meet Mendatang',
-    whatsapp: '6281398765432',
-    waGroupLink: 'https://chat.whatsapp.com/sample-group-arkan-itb',
-    zoomLink: 'https://meet.google.com/xyz-uvwx-rst',
-    essayTitle: 'Personal Statement SSU ITB: Arsitektur Cloud & Big Data',
-    essayContent: `Ketertarikan saya pada sistem terdistribusi bermula ketika membangun server lokal untuk olimpiade informatika sekolah. Saya ingin mendalami rekayasa perangkat lunak di STEI ITB untuk berkontribusi pada infrastruktur teknologi Indonesia.`,
-    raporSummary: 'Rata-rata Semester 1-5: 92.8 (Matematika 95, Fisika 93, Bahasa Inggris 94). Peringkat eligible 5 di SMAN 3 Bandung.',
-    certificates: [
-      { name: 'Juara 1 Lomba Web Design Tingkat Provinsi Jabar', level: 'Provinsi', score: 90 },
-      { name: 'Finalis Olimpiade Informatika Nasional', level: 'Nasional', score: 95 },
-    ],
-    checklist: [
-      { task: 'Kirim link grup WA (Mentor + Admin + Mentee)', done: true },
-      { task: 'Panduan kerangka dokumen & esai', done: true },
-      { task: 'Koreksi esai draf 1 (5x putaran revisi)', done: true },
-      { task: 'Sesi Zoom 1 dari 2 sesi', done: false },
-      { task: 'Finalisasi berkas sebelum submit', done: false },
-    ],
-  },
-  {
-    id: 'mentee-3',
-    name: 'Nabila Putri',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80',
-    school: 'SMA Taruna Nusantara',
-    targetPtn1: 'Universitas Gadjah Mada',
-    targetProdi1: 'Ilmu Komunikasi (Fisipol UGM)',
-    targetPtn2: 'Universitas Padjadjaran',
-    targetProdi2: 'Hubungan Masyarakat Unpad',
-    track: 'Jalur Prestasi Mandiri UGM',
-    packageName: 'Nectar',
-    status: 'Selesai Direvisi',
-    whatsapp: '6281122334455',
-    essayTitle: 'Esai Motivasi UGM: Diplomasi Publik & Literasi Media',
-    essayContent: `Media massa memiliki kekuatan diplomasi yang krusial di era disinformasi digital. Memilih Fisipol UGM adalah langkah awal mengasah keahlian komunikasi strategis.`,
-    raporSummary: 'Rata-rata Semester 1-5: 91.2 (Sosiologi 94, Bhs Indonesia 95, Bhs Inggris 96).',
-    certificates: [
-      { name: 'Medali Emas FLS2N Tingkat Nasional Debat Bahasa Inggris', level: 'Nasional', score: 100 },
-    ],
-    checklist: [
-      { task: 'Free konsultasi awal via chat WA', done: true },
-      { task: 'Koreksi dokumen & 2x revisi draf esai', done: true },
-      { task: 'Review final esai', done: true },
-    ],
-  },
-]
-
 const TIER_TO_PACKAGE: Record<string, MenteeItem['packageName']> = {
+  review: 'Nectar',
+  dokumen: 'Honeycomb',
   menyeluruh: 'Queen Bee (Royal Jelly)',
-  dokumen: 'Nectar',
+  intensif: 'Queen Bee (Royal Jelly)',
 }
 
 export default function MentorDashboardPage() {
@@ -260,10 +167,7 @@ export default function MentorDashboardPage() {
 
   // GDocs Editor in Modal
   const [gdocsContent, setGdocsContent] = useState('')
-  const [annotations, setAnnotations] = useState<{ id: string; quote: string; note: string; tag: string }[]>([
-    { id: 'a1', quote: 'anak yang rajin dan berbakti', note: 'Hindari klise, ganti dengan bukti nyata minatmu di bidang kesehatan.', tag: 'HAPUS' },
-    { id: 'a2', quote: 'proyek mini pencegahan stunting', note: 'Sangat bagus! Cantumkan metrik berapa orang yang teredukasi.', tag: 'PERLU BUKTI' },
-  ])
+  const [annotations, setAnnotations] = useState<{ id: string; quote: string; note: string; tag: string }[]>([])
   const [newAnnotationTag, setNewAnnotationTag] = useState('PERBAIKI KALIMAT')
   const [annotationInput, setAnnotationInput] = useState('')
 
@@ -497,7 +401,15 @@ export default function MentorDashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 font-semibold text-gray-900">
-              {filteredMentees.map(m => (
+              {filteredMentees.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-12 px-6 text-center">
+                    <p className="text-xs font-bold text-gray-700">Belum ada mentee yang ditugaskan kepada kamu</p>
+                    <p className="text-[11px] text-gray-400 mt-1">Mentee baru akan muncul di sini secara otomatis setelah pesanan dikonfirmasi oleh Admin.</p>
+                  </td>
+                </tr>
+              ) : (
+                filteredMentees.map(m => (
                 <tr key={m.id} className="hover:bg-amber-50/40 transition-colors">
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-3">
@@ -561,7 +473,7 @@ export default function MentorDashboardPage() {
                     </button>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

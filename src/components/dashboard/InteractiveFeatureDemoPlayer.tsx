@@ -29,35 +29,35 @@ export default function InteractiveFeatureDemoPlayer({
   const currentVideo = videoUrl || '/promo-demos/kalkulator-peluang.webp'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
-      <div className="bg-gray-950 text-white rounded-3xl p-5 md:p-7 max-w-3xl w-full shadow-2xl border border-gray-800 space-y-4 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+      <div className="bg-white text-gray-900 rounded-3xl p-5 md:p-7 max-w-3xl w-full shadow-2xl border border-gray-100 space-y-4 relative">
         {/* Header */}
         <div className="flex items-center justify-between pr-8">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] font-black uppercase text-amber-400 bg-amber-950/80 border border-amber-800/80 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+              <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <Video size={11} /> Screen Record Asli Seluruh Fitur
               </span>
               <span className="text-xs text-gray-400">•</span>
-              <span className="text-xs text-emerald-400 font-bold">100% Real Live Walkthrough</span>
+              <span className="text-xs text-emerald-600 font-bold">100% Real Live Walkthrough</span>
             </div>
-            <h3 className="text-base md:text-xl font-black text-white">{title}</h3>
-            <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
+            <h3 className="text-base md:text-xl font-black text-gray-950">{title}</h3>
+            <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white flex items-center justify-center absolute top-5 right-5"
+            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center absolute top-5 right-5"
           >
             <X size={16} />
           </button>
         </div>
 
         {/* Feature Pill */}
-        <div className="flex items-center gap-2 p-1 bg-gray-900 rounded-xl w-fit border border-gray-800">
+        <div className="flex items-center gap-2 p-1 bg-gray-50 rounded-xl w-fit border border-gray-100">
           <span className="px-3 py-1 text-xs font-black bg-amber-400 text-amber-950 rounded-lg">
             Fitur: {feature}
           </span>
-          <span className="text-xs text-gray-400 font-mono pr-2">
+          <span className="text-xs text-gray-500 font-mono pr-2">
             Durasi {duration} • 60 FPS
           </span>
         </div>
@@ -97,7 +97,7 @@ export default function InteractiveFeatureDemoPlayer({
 
         {/* Footer Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-          <p className="text-xs text-gray-400 font-medium">
+          <p className="text-xs text-gray-500 font-medium">
             Video demo asli fitur ini memperlihatkan interaksi kursor & simulasi live di dashboard otwptn.
           </p>
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -114,7 +114,7 @@ export default function InteractiveFeatureDemoPlayer({
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2.5 rounded-full text-xs font-bold bg-gray-800 hover:bg-gray-700 text-gray-200"
+              className="px-4 py-2.5 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700"
             >
               Tutup
             </button>

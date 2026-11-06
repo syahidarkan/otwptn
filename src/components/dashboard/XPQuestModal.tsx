@@ -159,8 +159,8 @@ export default function XPQuestModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl overflow-hidden border border-gray-100 dark:border-zinc-800 animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
         {/* Header Banner with Mascot */}
         <div className="bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-200 p-6 flex items-center justify-between relative overflow-hidden">
           <div className="flex items-center gap-3.5 z-10">
@@ -197,54 +197,54 @@ export default function XPQuestModal({
 
         {/* Celebration Toast */}
         {celebrationMsg && (
-          <div className="mx-6 mt-4 p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 text-xs font-black flex items-center gap-2 animate-in fade-in border-0 shadow-2xs">
-            <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+          <div className="mx-6 mt-4 p-3 rounded-2xl bg-emerald-50 text-emerald-900 text-xs font-black flex items-center gap-2 animate-in fade-in border border-emerald-100 shadow-2xs">
+            <CheckCircle2 size={16} className="text-emerald-600 flex-shrink-0" />
             <span>{celebrationMsg}</span>
           </div>
         )}
 
         {/* Body Content */}
-        <div className="p-6 overflow-y-auto space-y-5 flex-1 bg-white dark:bg-zinc-900">
+        <div className="p-6 overflow-y-auto space-y-5 flex-1 bg-white">
           {/* XP & Progress Card */}
-          <div className="p-4 rounded-2xl bg-amber-50/90 dark:bg-zinc-800/80 border border-transparent dark:border-amber-500/20 space-y-2.5 shadow-2xs">
-            <div className="flex items-center justify-between text-xs font-extrabold text-amber-950 dark:text-amber-300">
+          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100 space-y-2.5 shadow-2xs">
+            <div className="flex items-center justify-between text-xs font-extrabold text-amber-950">
               <span className="flex items-center gap-1.5">
                 <Zap size={15} className="text-amber-600 fill-amber-500" /> Progress Menuju Level {currentLevel + 1}
               </span>
-              <span className="text-amber-900 dark:text-amber-200 font-black">{currentXP} / 100 XP</span>
+              <span className="text-amber-900 font-black">{currentXP} / 100 XP</span>
             </div>
 
             {/* Animated XP Bar */}
-            <div className="w-full h-3 rounded-full bg-amber-200/70 dark:bg-zinc-700 overflow-hidden p-0.5 border-0">
+            <div className="w-full h-3 rounded-full bg-amber-200/70 overflow-hidden p-0.5 border-0">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-600 transition-all duration-500 shadow-xs"
                 style={{ width: `${Math.min(100, Math.max(5, currentXP))}%` }}
               />
             </div>
-            <p className="text-[11px] text-amber-900 dark:text-amber-300/90 font-semibold leading-relaxed">
+            <p className="text-[11px] text-amber-900 font-semibold leading-relaxed">
               Kumpulkan {100 - currentXP} XP lagi untuk membuka lencana baru & bonus kuota kredit Otbee AI!
             </p>
           </div>
 
           {/* Quick Stats Grid: Streak & Coins */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-3.5 rounded-2xl bg-rose-50/80 dark:bg-rose-950/40 border border-transparent dark:border-rose-900/30 flex items-center gap-3 shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/60 text-rose-600 dark:text-rose-300 flex items-center justify-center flex-shrink-0">
-                <Flame size={20} className="fill-rose-500 text-rose-600 dark:text-rose-300" />
+            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-100 flex items-center gap-3 shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+                <Flame size={20} className="fill-rose-500 text-rose-600" />
               </div>
               <div>
-                <div className="text-[10px] font-bold text-rose-600 dark:text-rose-400 uppercase">Streak Belajar</div>
-                <div className="text-base font-black text-gray-900 dark:text-rose-100">3 Hari Berturut</div>
+                <div className="text-[10px] font-bold text-rose-600 uppercase">Streak Belajar</div>
+                <div className="text-base font-black text-gray-900">3 Hari Berturut</div>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-sky-50/80 dark:bg-sky-950/40 border border-transparent dark:border-sky-900/30 flex items-center gap-3 shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-sky-100 dark:bg-sky-900/60 text-sky-600 dark:text-sky-300 flex items-center justify-center flex-shrink-0">
+            <div className="p-3.5 rounded-2xl bg-sky-50 border border-sky-100 flex items-center gap-3 shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center flex-shrink-0">
                 <Gift size={20} />
               </div>
               <div>
-                <div className="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase">Otbee Coins</div>
-                <div className="text-base font-black text-gray-900 dark:text-sky-100">{currentCoins} Koin</div>
+                <div className="text-[10px] font-bold text-sky-600 uppercase">Otbee Coins</div>
+                <div className="text-base font-black text-gray-900">{currentCoins} Koin</div>
               </div>
             </div>
           </div>
@@ -252,11 +252,11 @@ export default function XPQuestModal({
           {/* Misi Harian Belajar */}
           <div className="space-y-3 pt-1">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-zinc-100 flex items-center gap-1.5">
+              <h4 className="text-xs font-black uppercase tracking-wider text-gray-900 flex items-center gap-1.5">
                 <Award size={15} className="text-amber-500" />
                 Misi Harian Pejuang PTN
               </h4>
-              <span className="text-[10px] font-bold text-gray-400 dark:text-zinc-400">Reset setiap hari</span>
+              <span className="text-[10px] font-bold text-gray-400">Reset setiap hari</span>
             </div>
 
             <div className="space-y-2">
@@ -265,28 +265,28 @@ export default function XPQuestModal({
                   key={quest.id}
                   className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 shadow-2xs ${
                     quest.isClaimed
-                      ? 'bg-gray-50/70 dark:bg-zinc-800/40 border-transparent dark:border-zinc-800 opacity-60'
+                      ? 'bg-gray-50/70 border-gray-100 opacity-60'
                       : quest.isCompleted
-                      ? 'bg-amber-50/90 dark:bg-amber-950/30 border-transparent dark:border-amber-500/30 hover:bg-amber-100/90 dark:hover:bg-amber-900/40'
-                      : 'bg-gray-50/80 dark:bg-zinc-800/80 border-transparent dark:border-zinc-700/50 hover:bg-gray-100 dark:hover:bg-zinc-700/80'
+                      ? 'bg-amber-50/90 border-amber-200 hover:bg-amber-100/90'
+                      : 'bg-gray-50/80 border-gray-100 hover:bg-gray-100'
                   }`}
                 >
                   <div className="min-w-0 flex-1">
-                    <h5 className="text-xs font-extrabold text-gray-900 dark:text-zinc-100 leading-snug">
+                    <h5 className="text-xs font-extrabold text-gray-900 leading-snug">
                       {quest.title}
                     </h5>
                     <div className="flex items-center gap-2 mt-1.5 text-[11px] font-black">
-                      <span className="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-300">
+                      <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900">
                         +{quest.rewardXP} XP
                       </span>
-                      <span className="px-2 py-0.5 rounded-md bg-sky-100 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300">
+                      <span className="px-2 py-0.5 rounded-md bg-sky-100 text-sky-800">
                         +{quest.rewardCoins} Koin
                       </span>
                     </div>
                   </div>
 
                   {quest.isClaimed ? (
-                    <span className="px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-zinc-700 text-gray-500 dark:text-zinc-300 font-bold text-xs flex items-center gap-1">
+                    <span className="px-3 py-1.5 rounded-xl bg-gray-100 text-gray-500 font-bold text-xs flex items-center gap-1">
                       <Check size={12} /> Selesai
                     </span>
                   ) : quest.isCompleted ? (
@@ -300,7 +300,7 @@ export default function XPQuestModal({
                     <a
                       href={quest.actionUrl}
                       onClick={onClose}
-                      className="px-3.5 py-1.5 rounded-xl bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 text-gray-700 dark:text-zinc-200 font-extrabold text-xs transition-colors flex items-center gap-1 flex-shrink-0"
+                      className="px-3.5 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-extrabold text-xs transition-colors flex items-center gap-1 flex-shrink-0"
                     >
                       <span>Mulai</span>
                       <ArrowRight size={12} />

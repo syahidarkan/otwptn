@@ -384,9 +384,12 @@ export default function KomunitasPage() {
         }
         setCuitanList(prev => [newPost, ...prev])
         setNewCuitanText('')
+        showToast('Cuitan berhasil diposting!')
+      } else {
+        showToast(data.error || 'Gagal memposting cuitan. Coba lagi.')
       }
     } catch {
-      // silently fail
+      showToast('Gagal memposting cuitan. Periksa koneksi internetmu.')
     } finally {
       setCuitanLoading(false)
     }
@@ -415,8 +418,8 @@ export default function KomunitasPage() {
     if (!messageText.trim() || !selectedCircleId) return
     const newMsg: MessageItem = {
       id: 'm-' + Date.now(),
-      sender: 'Kamu',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+      sender: myProfile?.name || 'Kamu',
+      avatar: myProfile?.avatar || '',
       ptn: activeCircle?.ptnTarget || 'Target PTN',
       text: messageText.trim(),
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -452,7 +455,7 @@ export default function KomunitasPage() {
       ptnTarget: newCirclePtn.trim() || 'Universitas Pilihan',
       joined: true,
       members: [
-        { name: 'Kamu (Pembuat Circle)', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', ptn: newCirclePtn || 'Target PTN', role: 'Ketua' },
+        { name: myProfile?.name ? `${myProfile.name} (Ketua)` : 'Kamu (Ketua)', avatar: myProfile?.avatar || '', ptn: newCirclePtn || 'Target PTN', role: 'Ketua' },
       ],
     }
     setCircles([newC, ...circles])
@@ -529,12 +532,18 @@ export default function KomunitasPage() {
           {/* Post New Cuitan Box */}
           <div className="p-6 rounded-3xl bg-white shadow-md space-y-4">
             <div className="flex items-start gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
-                alt=""
-                className="w-10 h-10 rounded-full object-cover shadow-2xs"
-              />
+              {myProfile?.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={myProfile.avatar}
+                  alt=""
+                  className="w-10 h-10 rounded-full object-cover shadow-2xs flex-shrink-0"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-amber-400 text-amber-950 font-black text-xs flex items-center justify-center flex-shrink-0 shadow-2xs">
+                  {myProfile?.name ? myProfile.name.slice(0, 2).toUpperCase() : 'PTN'}
+                </div>
+              )}
               <textarea
                 value={newCuitanText}
                 onChange={e => setNewCuitanText(e.target.value)}
@@ -1073,7 +1082,7 @@ export default function KomunitasPage() {
                 Fitur Eksklusif Member Paket
               </h3>
               <p className="text-xs text-gray-600 leading-relaxed mt-2">
-                Pembuatan Circle baru hanya dapat dilakukan oleh pengguna <strong>Paket Review, Reguler, atau VIP Mentorship</strong>. Pengguna gratis tetap dapat bergabung di circle kampus manapun!
+                Pembuatan Circle baru dapat dilakukan oleh pengguna <strong>Akun Premium, Nectar, Honeycomb, atau Royal Jelly</strong>. Pengguna gratis tetap dapat bergabung di circle kampus manapun!
               </p>
             </div>
 

@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
 
 const TIER_STRATEGI_LIMIT: Record<string, number | null> = {
-  free: 1, web_premium: 3, review: 5, dokumen: null, menyeluruh: null, intensif: null,
+  free: 0, web_premium: null, review: null, dokumen: null, menyeluruh: null, intensif: null,
 }
 
 export async function POST(request: Request) {
@@ -12,9 +12,18 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('tier').eq('id', user.id).maybeSingle()
+  const { data: profile } = await supabase.from('profiles').select('tier, role').eq('id', user.id).maybeSingle()
+  const isStaff = profile?.role === 'superadmin' || profile?.role === 'mentor'
   const tier = profile?.tier ?? 'free'
-  const limit = TIER_STRATEGI_LIMIT[tier] ?? null
+
+  if (!isStaff && tier === 'free') {
+    return NextResponse.json({
+      error: 'tier_restricted',
+      message: 'Fitur Atur Strategi hanya tersedia untuk Akun Premium ke atas. Upgrade sekarang untuk membuka analisis strategi prodi.',
+    }, { status: 403 })
+  }
+
+  const limit = isStaff ? null : (TIER_STRATEGI_LIMIT[tier] ?? null)
 
   if (!(await consumeQuota(user.id, 'ai_strategi', limit))) {
     return NextResponse.json({ error: 'quota_exceeded', limit }, { status: 403 })

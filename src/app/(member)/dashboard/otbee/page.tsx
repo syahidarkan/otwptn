@@ -25,6 +25,7 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import SearchInput from '@/components/ui/SearchInput'
+import { completeQuest, awardPoints } from '@/lib/gamification'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -209,6 +210,8 @@ export default function OtbeePage() {
     setMessages(prev => [...prev, { role: 'assistant', content: full }])
     setStreamingText('')
     setSending(false)
+    completeQuest('q-otbee')
+    awardPoints(20, 15, 'Tanya Otbee AI')
     loadConversations()
   }
 

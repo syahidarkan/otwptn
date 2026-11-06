@@ -1,10 +1,10 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
-import { consumeQuota } from '@/lib/security'
+import { consumeQuota, rateLimit } from '@/lib/security'
 import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
 
 const TIER_ESSAY_LIMIT: Record<string, number | null> = {
-  free: 1, web_premium: 3, review: 5, dokumen: 10, menyeluruh: null, intensif: null,
+  free: 1, web_premium: null, review: null, dokumen: null, menyeluruh: null, intensif: null,
 }
 
 export async function POST(request: Request) {
@@ -16,6 +16,17 @@ export async function POST(request: Request) {
   const isStaff = profile?.role === 'superadmin' || profile?.role === 'mentor'
   const tier = profile?.tier ?? 'free'
   const limit = isStaff ? null : TIER_ESSAY_LIMIT[tier]
+
+  if (!isStaff && tier === 'free') {
+    // 1 review per week (7 days = 604800 seconds)
+    const allowed = await rateLimit('essay_free', user.id, 1, 7 * 86400)
+    if (!allowed) {
+      return NextResponse.json({
+        error: 'quota_exceeded',
+        message: 'Batas review esai gratis (1x per minggu) sudah tercapai. Upgrade ke Akun Premium untuk review AI tanpa batas.',
+      }, { status: 403 })
+    }
+  }
 
   const { essay_id, content } = await request.json()
   if (typeof content !== 'string' || content.trim().length < 20 || content.length > 20000) {

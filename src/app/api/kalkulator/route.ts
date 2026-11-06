@@ -1,10 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
-import { consumeQuota } from '@/lib/security'
+import { consumeQuota, rateLimit } from '@/lib/security'
 import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
 
 const TIER_KALKULATOR_LIMIT: Record<string, number | null> = {
-  free: 1, web_premium: 5, review: 10, dokumen: null, menyeluruh: null, intensif: null,
+  free: 1, web_premium: null, review: null, dokumen: null, menyeluruh: null, intensif: null,
 }
 
 export async function POST(request: Request) {
@@ -12,9 +12,21 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('tier').eq('id', user.id).maybeSingle()
+  const { data: profile } = await supabase.from('profiles').select('tier, role').eq('id', user.id).maybeSingle()
+  const isStaff = profile?.role === 'superadmin' || profile?.role === 'mentor'
   const tier = profile?.tier ?? 'free'
-  const limit = TIER_KALKULATOR_LIMIT[tier] ?? null
+  const limit = isStaff ? null : (TIER_KALKULATOR_LIMIT[tier] ?? null)
+
+  if (!isStaff && tier === 'free') {
+    // 1 per week (7 days = 604800 seconds)
+    const allowed = await rateLimit('kalkulator_free', user.id, 1, 7 * 86400)
+    if (!allowed) {
+      return NextResponse.json({
+        error: 'quota_exceeded',
+        message: 'Batas kalkulator gratis (1x per minggu) sudah tercapai. Upgrade ke Akun Premium untuk kalkulator peluang tanpa batas.',
+      }, { status: 403 })
+    }
+  }
 
   if (!(await consumeQuota(user.id, 'ai_kalkulator', limit))) {
     return NextResponse.json({ error: 'quota_exceeded', limit }, { status: 403 })

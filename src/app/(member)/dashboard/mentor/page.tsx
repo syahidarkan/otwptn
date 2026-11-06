@@ -235,8 +235,9 @@ export default function MentorAlumniPage() {
       setIsAdmin(admin)
       if (profile?.school_name) setSchoolName(profile.school_name)
 
-      // Admins and paid users unlock the premium view
-      if (t !== 'free' || admin) {
+      // Only mentor tiers (Nectar, Honeycomb, Royal Jelly) and staff unlock the mentor workspace
+      const isMentorTier = ['review', 'dokumen', 'menyeluruh', 'intensif'].includes(t)
+      if (isMentorTier || admin) {
         const { data: rec } = await supabase
           .from('mentoring')
           .select('mentor_name, mentor_email, wa_group_link, tier, zoom_sessions_total, zoom_sessions_used, revision_count_total, revision_count_used')
@@ -244,9 +245,6 @@ export default function MentorAlumniPage() {
           .maybeSingle()
         if (rec) {
           setMentoringRecord(rec as MentoringRecord)
-          setComments(makeInitialComments(rec.mentor_name ?? 'Mentor Kamu'))
-        } else {
-          setComments(makeInitialComments('Mentor Kamu'))
         }
       }
 
@@ -254,7 +252,8 @@ export default function MentorAlumniPage() {
     })
   }, [supabase])
 
-  const isUnlocked = isAdmin || (tier !== 'free' && tier !== '')
+  const isMentorTier = ['review', 'dokumen', 'menyeluruh', 'intensif'].includes(tier)
+  const isUnlocked = isAdmin || isMentorTier
   const isRealPremium = isUnlocked
 
   function handleFormat(tag: string) {
@@ -1042,7 +1041,18 @@ export default function MentorAlumniPage() {
                   </div>
 
                   <div className="space-y-4 max-h-[560px] overflow-y-auto pr-1">
-                    {comments.map(c => (
+                    {comments.length === 0 ? (
+                      <div className="py-12 px-4 text-center space-y-2">
+                        <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center mx-auto">
+                          <MessageSquare size={18} />
+                        </div>
+                        <p className="text-xs font-bold text-gray-800">Belum Ada Catatan Mentor</p>
+                        <p className="text-[11px] text-gray-500 leading-relaxed">
+                          Tulis atau simpan draf esai kamu di workspace ini. Mentor alumnimu akan memberikan anotasi koreksi dan feedback kalimat per kalimat di sini.
+                        </p>
+                      </div>
+                    ) : (
+                      comments.map(c => (
                       <div
                         key={c.id}
                         className={`p-4 rounded-2xl transition-all ${
@@ -1119,7 +1129,7 @@ export default function MentorAlumniPage() {
                           </div>
                         )}
                       </div>
-                    ))}
+                    )))}
                   </div>
                 </div>
               </div>
@@ -1195,22 +1205,32 @@ export default function MentorAlumniPage() {
                   </div>
                 </div>
 
-                {/* Nilai rapor */}
+                {/* Nilai rapor & Kelengkapan Profil */}
                 <div className="p-8 rounded-3xl bg-white shadow-md space-y-4">
                   <div>
                     <h3 className="text-sm font-black text-gray-900 flex items-center gap-2">
-                      <Scan size={18} className="text-amber-500" aria-hidden /> Nilai Rapor Semester 1-5
+                      <Scan size={18} className="text-amber-500" aria-hidden /> Nilai Rapor Semester 1-5 &amp; Scan OCR
                     </h3>
                     <p className="text-xs text-gray-500 mt-1">
-                      Nilai rapor kamu dikelola di Kalkulator Peluang dan dibaca mentor dari sana.
+                      {tier === 'menyeluruh' || tier === 'intensif' || isAdmin
+                        ? 'Kelola nilai rapor 5 semester, scan berkas OCR otomatis, dan pantau hasil audit linieritas resmi dari mentor alumni.'
+                        : 'Audit rapor mendalam dan analisis linieritas mata pelajaran oleh mentor alumni tersedia eksklusif untuk paket Royal Jelly.'}
                     </p>
                   </div>
-                  <Link
-                    href="/dashboard/kalkulator"
-                    className="btn-brand-primary px-4 py-2 rounded-full text-xs font-black shadow-xs inline-flex items-center gap-1.5"
-                  >
-                    Buka Kalkulator Peluang <ArrowRight size={14} aria-hidden />
-                  </Link>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                      href="/dashboard/rapor-profil"
+                      className="btn-brand-primary px-4 py-2 rounded-full text-xs font-black shadow-xs inline-flex items-center gap-1.5"
+                    >
+                      Buka Rapor &amp; Profil (Royal Jelly) <ArrowRight size={14} aria-hidden />
+                    </Link>
+                    <Link
+                      href="/dashboard/kalkulator"
+                      className="btn btn-outline px-4 py-2 rounded-full text-xs font-bold inline-flex items-center gap-1.5"
+                    >
+                      Buka Kalkulator Peluang
+                    </Link>
+                  </div>
                 </div>
               </div>
 
@@ -1229,10 +1249,10 @@ export default function MentorAlumniPage() {
                   </p>
 
                   <Link
-                    href="/dashboard/dokumen"
+                    href="/dashboard/tracking-jalur"
                     className="w-full py-3 rounded-full text-xs font-black bg-gray-100 hover:bg-gray-200 text-gray-800 flex items-center justify-center gap-2 transition-colors"
                   >
-                    <Upload size={14} aria-hidden /> Kelola Sertifikat di Penyimpanan Dokumen
+                    <Upload size={14} aria-hidden /> Kelola Berkas di Tracking Jalur &amp; Dokumen
                   </Link>
                 </div>
               </div>

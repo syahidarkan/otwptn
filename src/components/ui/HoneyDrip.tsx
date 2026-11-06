@@ -87,43 +87,37 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
 export const HONEY_DRIP_H = 170
 const HONEY_VB_H = BRIDGE_H + 168
 
-// Always-mounted, GPU-only honey layer for page transitions. No video, no canvas, no
-// per-frame pixel work: GlobalPageLoader drives it with Web Animations on the root element.
-export const HoneyOverlay = forwardRef<HTMLDivElement>(function HoneyOverlay(_, ref) {
-  return (
-    <div
-      ref={ref}
-      aria-hidden="true"
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        zIndex: 999997,
-        pointerEvents: 'none',
-        userSelect: 'none',
-        visibility: 'hidden',
-        transformOrigin: 'top left',
-        transform: 'translateY(-110%)',
-        willChange: 'transform',
-        contain: 'layout paint',
-      }}
-    >
+export const HoneyOverlay = forwardRef<HTMLDivElement, { videoRef?: React.RefObject<HTMLVideoElement | null> }>(
+  function HoneyOverlay({ videoRef }, ref) {
+    return (
       <div
+        ref={ref}
+        aria-hidden="true"
         style={{
-          height: '100vh',
-          background: 'linear-gradient(180deg,#fcd34d 0%,#fbbf24 35%,#f59e0b 100%)',
+          position: 'fixed',
+          inset: 0,
+          zIndex: 999997,
+          pointerEvents: 'none',
+          userSelect: 'none',
+          visibility: 'hidden',
+          opacity: 0,
+          transition: 'opacity 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+          background: 'rgba(0, 0, 0, 0.2)',
         }}
-      />
-      <svg
-        viewBox={`0 0 1200 ${HONEY_VB_H}`}
-        preserveAspectRatio="none"
-        width="100%"
-        height={HONEY_DRIP_H}
-        style={{ display: 'block', marginTop: -30, filter: 'drop-shadow(0 6px 8px rgba(120,53,15,0.25))' }}
       >
-        <path d={FULL_BOTTOM_PATH} fill="#f59e0b" />
-      </svg>
-    </div>
-  )
-})
+        <video
+          ref={videoRef}
+          src="/honey-splash-fix.mp4"
+          playsInline
+          muted
+          preload="auto"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+        />
+      </div>
+    )
+  }
+)

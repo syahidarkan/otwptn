@@ -294,15 +294,15 @@ export default function AdminPendaftarPage() {
             </div>
 
             {selected.payment_url && (
-              <div>
-                <p className="text-xs text-brand-muted mb-2">Link Pembayaran DOKU</p>
+              <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/50">
+                <p className="text-xs text-amber-900 font-bold mb-1">Link Pembayaran Mayar / Invoice</p>
                 <a
                   href={selected.payment_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-brand-black font-semibold hover:underline"
+                  className="flex items-center gap-2 text-xs text-amber-900 font-semibold hover:underline break-all"
                 >
-                  <ExternalLink size={14} /> Buka Link Pembayaran
+                  <ExternalLink size={13} /> Buka Link Pembayaran
                 </a>
               </div>
             )}
@@ -312,7 +312,7 @@ export default function AdminPendaftarPage() {
                 <div className="border-t border-brand-gray-2 pt-4 space-y-3">
                   <div>
                     <label className="text-xs font-semibold text-brand-dark block mb-1.5">
-                      Link Grup WhatsApp <span className="text-red-500">*</span>
+                      Link Grup WhatsApp <span className="text-gray-400 font-normal">(opsional, dapat diisi oleh mentor nanti)</span>
                     </label>
                     <input
                       value={waLink}
@@ -355,7 +355,6 @@ export default function AdminPendaftarPage() {
                     onClick={() => handleAction('confirm')}
                     variant="primary"
                     loading={loading}
-                    disabled={!waLink}
                     fullWidth
                   >
                     <span className="inline-flex items-center justify-center gap-1.5"><Check size={14} /> Konfirmasi</span>

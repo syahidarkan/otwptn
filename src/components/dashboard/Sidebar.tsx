@@ -16,6 +16,7 @@ import SidebarPromoCard from './SidebarPromoCard'
 import NotificationPopover from './NotificationPopover'
 import XPQuestModal from './XPQuestModal'
 import { getAllNotifications, EVENT_NOTIF_UPDATE } from '@/lib/notifications'
+import { getUserGamification, EVENT_XP_UPDATED } from '@/lib/gamification'
 
 interface SubNavItem {
   id: string
@@ -74,9 +75,9 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: 'nav-kalkulator', label: 'Kalkulator Peluang', href: '/dashboard/kalkulator', icon: Calculator },
       { id: 'nav-strategi', label: 'Atur Strategi', href: '/dashboard/strategi', icon: Target },
+      { id: 'nav-rapor-profil', label: 'Rapor & Profil (Royal Jelly)', href: '/dashboard/rapor-profil', icon: FileCheck2 },
       { id: 'nav-mentor', label: 'Mentor Alumni', href: '/dashboard/mentor', icon: GraduationCap },
-      { id: 'nav-tracking', label: 'Tracking Jalur', href: '/dashboard/tracking-jalur', icon: Compass },
-      { id: 'nav-dokumen', label: 'Penyimpanan Dokumen', href: '/dashboard/dokumen', icon: FolderLock },
+      { id: 'nav-tracking', label: 'Tracking Jalur & Dokumen', href: '/dashboard/tracking-jalur', icon: Compass },
     ],
   },
   {
@@ -106,9 +107,26 @@ export default function Sidebar() {
 
   // Gamification XP state
   const [xpModalOpen, setXpModalOpen] = useState(false)
-  const [xp, setXp] = useState(75)
+  const [xp, setXp] = useState(45)
   const [level, setLevel] = useState(1)
-  const [coins, setCoins] = useState(250)
+  const [coins, setCoins] = useState(50)
+
+  useEffect(() => {
+    const syncGamification = () => {
+      const g = getUserGamification()
+      setXp(g.xp)
+      setLevel(g.level)
+      setCoins(g.coins)
+    }
+    syncGamification()
+
+    window.addEventListener(EVENT_XP_UPDATED, syncGamification)
+    window.addEventListener('storage', syncGamification)
+    return () => {
+      window.removeEventListener(EVENT_XP_UPDATED, syncGamification)
+      window.removeEventListener('storage', syncGamification)
+    }
+  }, [])
 
   // Default dropdown closed - only opens when clicked by user
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({})

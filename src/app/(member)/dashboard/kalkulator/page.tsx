@@ -34,6 +34,8 @@ import Select from '@/components/ui/Select'
 import SearchablePicker from '@/components/ui/SearchablePicker'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { INDONESIA_PTN_LIST, INDONESIA_JURUSAN_LIST } from '@/lib/indonesiaDirectory'
+import { loadStoredAcademicProfile, saveStoredAcademicProfile } from '@/lib/academicProfile'
+import { completeQuest, awardPoints } from '@/lib/gamification'
 
 interface KalkulatorResult {
   score: number
@@ -307,33 +309,42 @@ export default function KalkulatorPage() {
   const [showStoryModal, setShowStoryModal] = useState(false)
   const [lastSaved, setLastSaved] = useState<string | null>(null)
 
-  // 1. Pulihkan draf tersimpan dari localStorage saat halaman pertama dimuat
+  // 1. Pulihkan draf tersimpan dari profil akademik terpadu saat halaman pertama dimuat
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('otwptn_kalkulator_draft_v1')
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        if (parsed.semesters && Array.isArray(parsed.semesters) && parsed.semesters.length > 0) {
-          setSemesters(parsed.semesters)
+      const profile = loadStoredAcademicProfile()
+      if (profile) {
+        if (profile.semesters && Array.isArray(profile.semesters) && profile.semesters.length > 0) {
+          // If profile has subjects, use them; otherwise default
+          const validSemesters = profile.semesters.some(s => s.subjects && s.subjects.length > 0)
+          if (validSemesters) {
+            setSemesters(profile.semesters)
+          }
         }
-        if (parsed.jurusanSma) setJurusanSma(parsed.jurusanSma)
-        if (parsed.isEligible !== undefined) setIsEligible(parsed.isEligible)
-        if (parsed.eligibleRank) setEligibleRank(parsed.eligibleRank)
-        if (parsed.schoolQuota) setSchoolQuota(parsed.schoolQuota)
-        if (parsed.schoolAccreditation) setSchoolAccreditation(parsed.schoolAccreditation)
-        if (parsed.pilihan1Ptn) setPilihan1Ptn(parsed.pilihan1Ptn)
-        if (parsed.pilihan1Prodi) setPilihan1Prodi(parsed.pilihan1Prodi)
-        if (parsed.pilihan2Ptn) setPilihan2Ptn(parsed.pilihan2Ptn)
-        if (parsed.pilihan2Prodi) setPilihan2Prodi(parsed.pilihan2Prodi)
-        if (parsed.certificates && Array.isArray(parsed.certificates)) setCertificates(parsed.certificates)
-        if (parsed.savedAt) setLastSaved(`Draf dipulihkan (${parsed.savedAt})`)
+        if (profile.jurusanSma) {
+          const j = profile.jurusanSma.toLowerCase()
+          if (j === 'ipa' || j === 'ips' || j === 'merdeka' || j === 'kejuruan') {
+            setJurusanSma(j)
+          } else if (j.includes('mipa') || j.includes('sains')) {
+            setJurusanSma('ipa')
+          }
+        }
+        if (profile.eligibleRank) setEligibleRank(profile.eligibleRank)
+        if (profile.schoolQuota) setSchoolQuota(profile.schoolQuota)
+        if (profile.schoolAccreditation) setSchoolAccreditation(profile.schoolAccreditation)
+        if (profile.pilihan1Ptn) setPilihan1Ptn(profile.pilihan1Ptn)
+        if (profile.pilihan1Prodi) setPilihan1Prodi(profile.pilihan1Prodi)
+        if (profile.pilihan2Ptn) setPilihan2Ptn(profile.pilihan2Ptn)
+        if (profile.pilihan2Prodi) setPilihan2Prodi(profile.pilihan2Prodi)
+        if (profile.certificates && Array.isArray(profile.certificates)) setCertificates(profile.certificates)
+        if (profile.savedAt) setLastSaved(`Data profil akademik tersinkron (${profile.savedAt})`)
       }
     } catch (e) {
       console.warn('Gagal memulihkan draf nilai rapor:', e)
     }
   }, [])
 
-  // 2. Autosave berkala ke localStorage agar input siswa tidak hilang
+  // 2. Autosave berkala ke profil akademik terpadu agar input tersinkronisasi lintas fitur
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
@@ -352,8 +363,8 @@ export default function KalkulatorPage() {
           certificates,
           savedAt: timeStr,
         }
-        localStorage.setItem('otwptn_kalkulator_draft_v1', JSON.stringify(payload))
-        setLastSaved(`Otomatis tersimpan (${timeStr})`)
+        saveStoredAcademicProfile(payload)
+        setLastSaved(`Otomatis tersimpan & tersinkron (${timeStr})`)
       } catch (e) {
         // quota browser
       }
@@ -367,6 +378,7 @@ export default function KalkulatorPage() {
   const confirmResetForm = () => {
     setResetConfirmOpen(false)
     localStorage.removeItem('otwptn_kalkulator_draft_v1')
+    localStorage.removeItem('otwptn_academic_profile_v1')
     setSemesters(Array.from({ length: 5 }, (_, i) => ({ semester: i + 1, subjects: [] })))
     setCertificates([])
     setEligibleRank('')
@@ -556,6 +568,8 @@ export default function KalkulatorPage() {
       } else {
         setResult(data)
       }
+      completeQuest('q-kalkulator')
+      awardPoints(25, 20, 'Kalkulator Peluang')
     } catch {
       setError('Gagal menghitung peluang. Coba beberapa saat lagi.')
     } finally {

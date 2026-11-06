@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { EJALUR_LIST } from '@/lib/ecourseData'
 import {
   BookOpen, Plus, Trash2, Edit3, ExternalLink, Link2, PlayCircle,
   Video, FileText, ChevronDown, Eye, CheckCircle2, Search, Filter,
@@ -58,120 +59,34 @@ interface ModuleItem {
   lessons: LessonItem[]
 }
 
-const INITIAL_MODULES: ModuleItem[] = [
-  {
-    id: 'mod-1',
-    title: 'Strategi Lolos SNBP 2025: Analisis Rasio Keketatan & Kuota Sekolah',
-    description: 'Panduan lengkap membaca peluang lolos SNBP tanpa tes berdasarkan data historis kuota sekolah dan nilai rerata alumni.',
-    category: 'strategi_snbp',
-    tier_access: 'free',
-    order_index: 1,
+const INITIAL_MODULES: ModuleItem[] = EJALUR_LIST.flatMap((jalur, jIdx) =>
+  jalur.stages.map((stage, sIdx) => ({
+    id: `${jalur.id}-${stage.id}`,
+    title: stage.title,
+    description: stage.description || `${jalur.label} - Unit ${stage.id}`,
+    category: jalur.id === 'snbp' ? 'strategi_snbp' : 'mastery_essay',
+    tier_access: stage.lessons.some(l => l.isPremium) ? 'nectar' : 'free',
+    order_index: jIdx * 20 + sIdx + 1,
     thumbnail_url: '/mascot-hd/modul-video.png',
-    file_url: 'https://drive.google.com/file/d/sample-snbp-guide/view',
     is_active: true,
-    lessons: [
-      {
-        id: 'les-101',
-        title: 'Mengenal Sistem Kuota Akreditasi Sekolah (40% vs 25% vs 5%)',
-        description: 'Cara memastikan posisimu masuk dalam kuota eligible sekolah.',
-        content_type: 'video',
-        content_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        duration_text: '12:45',
-        order_index: 1,
-      },
-      {
-        id: 'les-102',
-        title: 'Bedah Aturan Lintas Jurusan & Portofolio Seni Olahraga',
-        description: 'Risiko memilih prodi lintas rumpun dan syarat wajib portofolio.',
-        content_type: 'video',
-        content_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        duration_text: '15:20',
-        order_index: 2,
-      },
-    ],
-  },
-  {
-    id: 'mod-2',
-    title: 'Bedah Rapor 5 Semester: Pola Nilai Konsisten & Indeks Sekolah',
-    description: 'Menilai apakah grafik rapor semester 1 sampai 5 memenuhi kriteria prodi kedokteran, teknik, hukum, dan fkg.',
-    category: 'bedah_rapor',
-    tier_access: 'nectar',
-    order_index: 2,
-    thumbnail_url: '/mascot-hd/kalkulator-peluang.png',
-    file_url: '',
-    is_active: true,
-    lessons: [
-      {
-        id: 'les-201',
-        title: 'Rumus Pembobotan Mapel Pendukung Prodi SNBP 2025',
-        description: 'Tabel mapel utama penentu kelulusan per rumpun ilmu.',
-        content_type: 'video',
-        content_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        duration_text: '18:10',
-        order_index: 1,
-      },
-    ],
-  },
-  {
-    id: 'mod-3',
-    title: 'Mastery Essay PPKB UI & SIMAK: Struktur Star Model & Personal Story',
-    description: 'Teknik menyusun motivation letter dan essay reflektif yang memukau dewan juri seleksi mandiri PTN ternama.',
-    category: 'mastery_essay',
-    tier_access: 'honeycomb',
-    order_index: 3,
-    thumbnail_url: '/mascot-hd/maskot-nulis-essay-meja.png',
-    file_url: 'https://drive.google.com/file/d/sample-essay/view',
-    is_active: true,
-    lessons: [
-      {
-        id: 'les-301',
-        title: 'Formula Hook Pembuka Essay dalam 3 Detik Pertama',
-        description: 'Menghindari klise pembuka essay motivasi.',
-        content_type: 'video',
-        content_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        duration_text: '21:05',
-        order_index: 1,
-      },
-      {
-        id: 'les-302',
-        title: 'Contoh 10 Essay Lolos PPKB UI Fakultas Kedokteran & FH',
-        description: 'Analisis kata per kata draft essay yang terbukti lolos.',
-        content_type: 'pdf',
-        file_url: 'https://drive.google.com/file/d/sample-pdf/view',
-        duration_text: 'PDF 45 Hal',
-        order_index: 2,
-      },
-    ],
-  },
-  {
-    id: 'mod-4',
-    title: 'VIP Masterclass: Simulasi Wawancara Jalur Mandiri & Portfolio Review',
-    description: 'Eksklusif bagi siswa paket Queen Bee VIP bersama para mentor alumni berprestasi.',
-    category: 'wawancara_mandiri',
-    tier_access: 'queen_bee',
-    order_index: 4,
-    thumbnail_url: '/mascot-hd/maskot-fitur-mentor-alumni.png',
-    is_active: true,
-    lessons: [
-      {
-        id: 'les-401',
-        title: 'Pertanyaan Jebakan Pewawancara Dosen & Cara Menjawabnya',
-        description: 'Simulasi interaktif menjawab pertanyaan kelemahan diri dan rencana kontribusi kampus.',
-        content_type: 'video',
-        content_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-        duration_text: '28:30',
-        order_index: 1,
-      },
-    ],
-  },
-]
+    lessons: stage.lessons.map((l, lIdx) => ({
+      id: l.id,
+      title: l.title,
+      description: l.content ? l.content.replace(/<[^>]*>/g, '').slice(0, 120) + '...' : '',
+      content_type: l.type === 'video' ? 'video' : 'text',
+      content_url: l.videoUrl || '',
+      duration_text: l.duration,
+      order_index: lIdx + 1,
+    })),
+  }))
+)
 
 export default function AdminEcoursePage() {
   const [modules, setModules] = useState<ModuleItem[]>(INITIAL_MODULES)
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedTier, setSelectedTier] = useState('all')
-  const [expandedModId, setExpandedModId] = useState<string | null>('mod-1')
+  const [expandedModId, setExpandedModId] = useState<string | null>(INITIAL_MODULES[0]?.id || null)
 
   // Modals
   const [modModalOpen, setModModalOpen] = useState(false)
