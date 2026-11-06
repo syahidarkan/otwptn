@@ -366,7 +366,7 @@ export const HoneyOverlay = forwardRef<
         style={{
           position: 'fixed',
           inset: 0,
-          zIndex: 999999,
+          zIndex: 2147483647,
           pointerEvents: 'none',
           userSelect: 'none',
           visibility: 'hidden',

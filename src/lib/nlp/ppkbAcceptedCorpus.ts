@@ -569,3 +569,4 @@ export const BANNED_CLICHES = [
   'besar harapan saya untuk diterima',
   'saya berjanji akan belajar dengan giat',
 ]
+

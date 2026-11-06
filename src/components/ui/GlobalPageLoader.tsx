@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { usePathname, useSearchParams, useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { HoneyOverlay } from '@/components/ui/HoneyDrip'
 
 type Phase = 'idle' | 'covering' | 'waiting' | 'revealing'
@@ -12,17 +12,16 @@ const HARD_CAP_MS = 5000
 export default function GlobalPageLoader() {
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const routeKey = `${pathname}?${searchParams.toString()}`
 
   const elRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const phaseRef = useRef<Phase>('idle')
   const pendingHrefRef = useRef<string | null>(null)
-  const startKeyRef = useRef(routeKey)
-  const routeKeyRef = useRef(routeKey)
-  routeKeyRef.current = routeKey
+  const startPathRef = useRef(pathname)
+  const pathnameRef = useRef(pathname)
+  pathnameRef.current = pathname
   const routeLoadedRef = useRef(false)
+  const isHoldingAtPeakRef = useRef(false)
   const capTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   function finish() {
@@ -30,6 +29,7 @@ export default function GlobalPageLoader() {
     capTimerRef.current = null
     pendingHrefRef.current = null
     routeLoadedRef.current = false
+    isHoldingAtPeakRef.current = false
     const el = elRef.current
     if (el) {
       el.style.visibility = 'hidden'
@@ -54,29 +54,62 @@ export default function GlobalPageLoader() {
   }
 
   // When the new route commits underneath, flag route as loaded.
-  // The honey overlay remains visibly on top until its drip animation completes naturally.
   useEffect(() => {
-    if (phaseRef.current === 'idle' || routeKey === startKeyRef.current) return
+    if (phaseRef.current === 'idle' || pathname === startPathRef.current) return
     routeLoadedRef.current = true
 
-    // If video has already passed peak drain or finished, reveal cleanly
     const video = videoRef.current
     if (video) {
+      // If the video was held at peak coverage waiting for the page, resume immediately!
+      if (isHoldingAtPeakRef.current || video.paused) {
+        isHoldingAtPeakRef.current = false
+        try {
+          video.play().catch(() => {})
+        } catch {}
+      }
+      // If video already completed its animation, reveal now!
       if (video.ended || video.currentTime >= 2.45) {
         reveal()
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeKey])
+  }, [pathname])
 
   function handleTimeUpdate(time: number) {
-    if (time >= 2.45) {
+    const video = videoRef.current
+    if (!video) return
+
+    // Peak coverage window is 1.18s - 1.35s (honey covers >98% of the screen).
+    // If the route has NOT loaded yet, hold/pause at peak honey so the user stays covered!
+    if (time >= 1.20 && time < 1.35 && !routeLoadedRef.current) {
+      if (!isHoldingAtPeakRef.current) {
+        isHoldingAtPeakRef.current = true
+        try {
+          video.pause()
+        } catch {}
+      }
+      return
+    }
+
+    // Only reveal when the route has ACTUALLY loaded AND the video has finished draining!
+    if (time >= 2.45 && routeLoadedRef.current) {
       reveal()
     }
   }
 
   function handleEnded() {
-    reveal()
+    const video = videoRef.current
+    if (!video) return
+
+    // If route has loaded, reveal immediately
+    if (routeLoadedRef.current) {
+      reveal()
+    } else {
+      // If video reached the end but route is still processing, pause on the last frame
+      // until pathname updates
+      try {
+        video.pause()
+      } catch {}
+    }
   }
 
   function startNav() {
@@ -93,9 +126,12 @@ export default function GlobalPageLoader() {
       if (phaseRef.current === 'waiting') startNav()
       return true
     }
-    startKeyRef.current = routeKeyRef.current
+    startPathRef.current = pathnameRef.current
     routeLoadedRef.current = false
+    isHoldingAtPeakRef.current = false
     phaseRef.current = 'covering'
+
+    // Prefetch immediately so Next.js starts fetching the route bundle right away
     router.prefetch(href)
 
     // Show overlay immediately on click so honey drips in front of current page
@@ -110,17 +146,21 @@ export default function GlobalPageLoader() {
     }
 
     phaseRef.current = 'waiting'
-    // Navigate at 800ms when honey has flooded >95% of the screen so page change is completely hidden behind honey
+
+    // Call startNav at 400ms (when honey has started covering >50% of the screen).
+    // Because router.prefetch was called at t=0, Next.js commits the transition around 800-1100ms,
+    // right when honey is at 90-98% coverage!
     setTimeout(() => {
       if (phaseRef.current === 'waiting') {
         startNav()
       }
-    }, 800)
+    }, 400)
 
+    // Safety watchdog: never leave the overlay visible longer than HARD_CAP_MS
     capTimerRef.current = setTimeout(() => {
       if (phaseRef.current === 'idle') return
       reveal()
-    }, 3500)
+    }, HARD_CAP_MS)
     return true
   }
 
