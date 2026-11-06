@@ -1,11 +1,22 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { MODES, TRACKS, TIERS, TIER_LABELS, getPrice, type Mode, type Track, type Tier } from '@/lib/pricing'
 
-const TIER_PRICES: Record<string, { amount: number; name: string }> = {
-  web_premium: { amount: 49000, name: 'Web Premium' },
-  review: { amount: 99000, name: 'Review' },
-  dokumen: { amount: 199000, name: 'Reguler' },
-  menyeluruh: { amount: 399000, name: 'Intensif' },
+function isMode(v: unknown): v is Mode {
+  return typeof v === 'string' && (MODES as readonly string[]).includes(v)
+}
+function isTrack(v: unknown): v is Track {
+  return typeof v === 'string' && (TRACKS as readonly string[]).includes(v)
+}
+function isTier(v: unknown): v is Tier {
+  return typeof v === 'string' && (TIERS as readonly string[]).includes(v)
+}
+
+function generateInviteCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789' // no 0/O/1/I ambiguity
+  let code = ''
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)]
+  return code
 }
 
 export async function POST(request: Request) {
@@ -13,20 +24,93 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { tier, payment_method = 'mayar' } = await request.json()
-  const tierInfo = TIER_PRICES[tier]
-  if (!tierInfo) return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
+  const {
+    tier,
+    mode = 'individu',
+    track = 'essay',
+    payment_method = 'mayar',
+    referral_code,
+    squad_action,
+    squad_invite_code,
+  } = await request.json()
+
+  if (!isTier(tier)) return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
+  if (!isMode(mode)) return NextResponse.json({ error: 'Invalid mode' }, { status: 400 })
+  if (!isTrack(track)) return NextResponse.json({ error: 'Invalid track' }, { status: 400 })
   if (!['transfer', 'mayar'].includes(payment_method)) {
     return NextResponse.json({ error: 'Invalid payment method' }, { status: 400 })
   }
 
-  // Reuse existing pending order for the same tier (avoids duplicate payment links)
+  const priceEntry = getPrice(mode, track, tier)
+  const tierName = `${TIER_LABELS[tier]}${mode === 'squad' ? ' (Squad)' : ''}`
+
+  // Referral discount only applies to Individu — Squad pricing is already fixed/discounted.
+  let appliedReferralCode: string | null = null
+  let baseAmount = priceEntry.amount
+  if (mode === 'individu' && typeof referral_code === 'string' && referral_code.trim()) {
+    const code = referral_code.trim().toUpperCase()
+    const { data: ambassador } = await supabase
+      .from('profiles')
+      .select('id, referral_code')
+      .eq('referral_code', code)
+      .maybeSingle()
+    if (ambassador && ambassador.id !== user.id && priceEntry.referralAmount) {
+      appliedReferralCode = code
+      baseAmount = priceEntry.referralAmount
+    }
+  }
+
+  // Squad: create a new group, or join an existing one by invite code.
+  let squadGroupId: string | null = null
+  if (mode === 'squad') {
+    if (squad_action === 'join') {
+      if (typeof squad_invite_code !== 'string' || !squad_invite_code.trim()) {
+        return NextResponse.json({ error: 'Kode undangan squad wajib diisi' }, { status: 400 })
+      }
+      const { data: squad } = await supabase
+        .from('squads')
+        .select('id, track, tier, status')
+        .eq('invite_code', squad_invite_code.trim().toUpperCase())
+        .maybeSingle()
+
+      if (!squad) return NextResponse.json({ error: 'Kode undangan squad tidak ditemukan' }, { status: 404 })
+      if (squad.track !== track || squad.tier !== tier) {
+        return NextResponse.json({ error: 'Track/tier squad ini beda sama pilihanmu' }, { status: 400 })
+      }
+      if (squad.status !== 'forming') {
+        return NextResponse.json({ error: 'Squad ini sudah penuh atau sudah berjalan' }, { status: 400 })
+      }
+      const { count: seatCount } = await supabase
+        .from('orders')
+        .select('id', { count: 'exact', head: true })
+        .eq('squad_group_id', squad.id)
+        .in('status', ['pending', 'paid'])
+      if ((seatCount ?? 0) >= 3) {
+        return NextResponse.json({ error: 'Squad ini sudah penuh (maks 3 orang)' }, { status: 400 })
+      }
+      squadGroupId = squad.id
+    } else {
+      const { data: newSquad, error: squadError } = await supabase
+        .from('squads')
+        .insert({ track, tier, invite_code: generateInviteCode(), status: 'forming' })
+        .select('id')
+        .single()
+      if (squadError || !newSquad) {
+        return NextResponse.json({ error: 'Gagal membuat squad' }, { status: 500 })
+      }
+      squadGroupId = newSquad.id
+    }
+  }
+
+  // Reuse existing pending order for the same tier/mode/track (avoids duplicate payment links)
   const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString()
   const { data: existingOrder } = await supabase
     .from('orders')
     .select('id, payment_url, doku_reference')
     .eq('user_id', user.id)
     .eq('tier', tier)
+    .eq('mode', mode)
+    .eq('track', track)
     .eq('status', 'pending')
     .eq('payment_method', payment_method)
     .gte('created_at', thirtyMinutesAgo)
@@ -59,12 +143,16 @@ export async function POST(request: Request) {
 
   // Jago bank transfer: unique amount (base + random 3-digit suffix) for matching
   const uniqueAmount = payment_method === 'transfer'
-    ? tierInfo.amount + Math.floor(Math.random() * 900) + 100
-    : tierInfo.amount
+    ? baseAmount + Math.floor(Math.random() * 900) + 100
+    : baseAmount
 
   const { data: order, error: orderError } = await supabase.from('orders').insert({
     user_id: user.id,
     tier,
+    mode,
+    track,
+    squad_group_id: squadGroupId,
+    referral_code: appliedReferralCode,
     amount: uniqueAmount,
     status: 'pending',
     invoice_number: invoiceNumber,
@@ -85,8 +173,8 @@ export async function POST(request: Request) {
       account_number: process.env.JAGO_ACCOUNT_NUMBER ?? '',
       account_name: process.env.JAGO_ACCOUNT_NAME ?? '',
       amount: uniqueAmount,
-      base_amount: tierInfo.amount,
-      tier_name: tierInfo.name,
+      base_amount: baseAmount,
+      tier_name: tierName,
     })
   }
 
@@ -100,9 +188,9 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        name: `OTWPTN ${tierInfo.name} - ${invoiceNumber}`,
-        description: `Paket ${tierInfo.name} otwptn.com`,
-        amount: tierInfo.amount,
+        name: `OTWPTN ${tierName} - ${invoiceNumber}`,
+        description: `Paket ${tierName} otwptn.com`,
+        amount: baseAmount,
         redirectUrl: `${appUrl}/dashboard?payment=success`,
       }),
     })

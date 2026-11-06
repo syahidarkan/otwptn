@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { Suspense } from 'react'
+import PaymentSuccessBanner from '@/components/dashboard/PaymentSuccessBanner'
 import {
   ArrowRight,
   Rocket,
@@ -129,6 +131,7 @@ const DAYS = ['S', 'S', 'R', 'K', 'J', 'S', 'M']
 
 const TIER_NAME: Record<string, string> = {
   free: 'Free',
+  web_premium: 'Premium',
   review: 'Review',
   dokumen: 'Reguler',
   menyeluruh: 'Intensif',
@@ -162,6 +165,9 @@ export default async function DashboardPage() {
 
   return (
     <div className="w-full px-6 md:px-8 py-8 md:py-10">
+      <Suspense fallback={null}>
+        <PaymentSuccessBanner />
+      </Suspense>
       {/* Top Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="glass-badge text-xs font-black uppercase text-gray-800 tracking-wider">

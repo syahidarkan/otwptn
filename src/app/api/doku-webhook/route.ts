@@ -1,6 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
+import { creditAmbassadorCommission } from '@/lib/commission'
+import { autoAssignIndividuMentor, handleSquadPayment } from '@/lib/mentorAssignment'
 
 function verifyDokuSignature(
   requestBody: string,
@@ -57,11 +59,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
   }
 
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   const { data: order } = await supabase
     .from('orders')
-    .select('id, user_id, tier')
+    .select('id, user_id, tier, referral_code, mode, track, squad_group_id')
     .eq('invoice_number', invoiceNumber)
     .maybeSingle()
 
@@ -73,35 +75,12 @@ export async function POST(request: Request) {
       supabase.from('profiles').update({ tier: order.tier }).eq('id', order.user_id),
     ])
 
-    // Credit ambassador commission if there's a referral on the order
-    const { data: orderFull } = await supabase
-      .from('orders')
-      .select('referral_code')
-      .eq('id', order.id)
-      .maybeSingle()
+    await creditAmbassadorCommission(supabase, order)
 
-    if (orderFull?.referral_code) {
-      const { data: ambassador } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('referral_code', orderFull.referral_code)
-        .maybeSingle()
-
-      if (ambassador) {
-        const commissionRate =
-          order.tier === 'menyeluruh' ? 75000 :
-          order.tier === 'dokumen' ? 35000 :
-          order.tier === 'review' ? 15000 : 10000
-
-        await supabase.from('ambassador_commissions').insert({
-          ambassador_id: ambassador.id,
-          referred_user_id: order.user_id,
-          order_id: order.id,
-          amount: commissionRate,
-          tier_purchased: order.tier,
-          status: 'cleared',
-        })
-      }
+    if (order.mode === 'squad' && order.squad_group_id) {
+      await handleSquadPayment(supabase, { ...order, squad_group_id: order.squad_group_id })
+    } else {
+      await autoAssignIndividuMentor(supabase, order)
     }
   } else if (status === 'FAILED' || status === 'EXPIRED') {
     await supabase.from('orders').update({ status: status.toLowerCase() }).eq('id', order.id)

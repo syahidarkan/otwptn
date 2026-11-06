@@ -1,5 +1,7 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { creditAmbassadorCommission } from '@/lib/commission'
+import { autoAssignIndividuMentor, handleSquadPayment } from '@/lib/mentorAssignment'
 
 // Mayar fires this when a payment link is paid
 // Payload: { event: "payment.received", data: { productId, transactionStatus, customerEmail, ... } }
@@ -35,12 +37,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, skipped: true })
   }
 
-  const supabase = await createClient()
+  // Service-role client: this handler runs unauthenticated (server-to-server) and needs to
+  // read/update other users' rows (profiles, mentor_applications, mentoring, squads) across
+  // RLS boundaries, the same way /api/konfirmasi already does for manual confirmations.
+  const supabase = await createAdminClient()
 
   // Match by Mayar product ID stored in doku_reference (mutually exclusive with DOKU)
   const { data: order } = await supabase
     .from('orders')
-    .select('id, user_id, tier, referral_code, status')
+    .select('id, user_id, tier, referral_code, status, mode, track, squad_group_id')
     .eq('doku_reference', productId)
     .eq('payment_method', 'mayar')
     .maybeSingle()
@@ -59,29 +64,12 @@ export async function POST(request: Request) {
     supabase.from('profiles').update({ tier: order.tier }).eq('id', order.user_id),
   ])
 
-  // Credit ambassador commission if applicable
-  if (order.referral_code) {
-    const { data: ambassador } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('referral_code', order.referral_code)
-      .maybeSingle()
+  await creditAmbassadorCommission(supabase, order)
 
-    if (ambassador) {
-      const commissionRate =
-        order.tier === 'menyeluruh' ? 75000 :
-        order.tier === 'dokumen' ? 35000 :
-        order.tier === 'review' ? 15000 : 10000
-
-      await supabase.from('ambassador_commissions').insert({
-        ambassador_id: ambassador.id,
-        referred_user_id: order.user_id,
-        order_id: order.id,
-        amount: commissionRate,
-        tier_purchased: order.tier,
-        status: 'cleared',
-      })
-    }
+  if (order.mode === 'squad' && order.squad_group_id) {
+    await handleSquadPayment(supabase, { ...order, squad_group_id: order.squad_group_id })
+  } else {
+    await autoAssignIndividuMentor(supabase, order)
   }
 
   console.log(`[mayar-webhook] Order ${order.id} paid, user ${order.user_id} upgraded to ${order.tier}`)
