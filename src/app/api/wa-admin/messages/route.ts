@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
 const WA_URL = process.env.WA_SERVICE_URL || 'https://otwptn.onrender.com'
-const WA_TOKEN = process.env.WA_SERVICE_TOKEN
+const WA_TOKEN = process.env.WA_SERVICE_TOKEN || '44242acf4e0c406e9f485c68b3981246676039babc02c87c582e240ed24de8b7'
 
 function waHeaders(): Record<string, string> {
   return WA_TOKEN ? { 'x-service-token': WA_TOKEN } : {}

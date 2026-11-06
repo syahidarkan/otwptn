@@ -117,18 +117,25 @@ class WAManager extends EventEmitter {
         if (connection === 'close') {
           this.connecting = false
           const statusCode = lastDisconnect?.error?.output?.statusCode
-          const shouldReconnect = statusCode !== DisconnectReason.loggedOut
+          const isLoggedOut = statusCode === DisconnectReason.loggedOut || statusCode === 401 || statusCode === 403
+          const isRestartRequired = statusCode === DisconnectReason.restartRequired || statusCode === 515
 
-          console.log(`[WA] Closed. Code: ${statusCode}. Reconnect: ${shouldReconnect}`)
+          console.log(`[WA] Closed. Code: ${statusCode}. LoggedOut: ${isLoggedOut}. Restart: ${isRestartRequired}`)
           this._setState({ status: 'disconnected', qr: undefined })
 
-          if (shouldReconnect && this.retryCount < 10) {
+          if (isLoggedOut) {
+            console.log('[WA] Session invalid or logged out. Clearing session.')
+            await clearSupabaseSession(supabase)
+            this.retryCount = 0
+            setTimeout(() => this.connect(), 1000)
+          } else if (isRestartRequired) {
+            console.log('[WA] Restart required. Reconnecting immediately.')
+            setTimeout(() => this.connect(), 500)
+          } else if (this.retryCount < 15) {
             this.retryCount++
-            const delay = Math.min(2000 * this.retryCount, 30000)
+            const delay = Math.min(1500 * this.retryCount, 20000)
             console.log(`[WA] Retry ${this.retryCount} in ${delay}ms`)
             setTimeout(() => this.connect(), delay)
-          } else if (statusCode === DisconnectReason.loggedOut) {
-            await clearSupabaseSession(supabase)
           }
         }
       })

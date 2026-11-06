@@ -79,8 +79,17 @@ export default function WhatsAppAdminPage() {
     fetchStatus()
     fetchMessages()
     connectSSE()
+
+    // Resilient periodic sync every 5s so state stays accurate even if SSE reconnects
+    const pollInterval = setInterval(() => {
+      if (isMountedRef.current) {
+        fetchStatus()
+      }
+    }, 5000)
+
     return () => {
       isMountedRef.current = false
+      clearInterval(pollInterval)
       if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current)
       eventSourceRef.current?.close()
     }
@@ -101,7 +110,12 @@ export default function WhatsAppAdminPage() {
     try {
       const res = await fetch('/api/wa-admin/status')
       const data = await res.json()
-      setState(data)
+      if (data && data.status) {
+        setState(prev => ({ ...prev, ...data }))
+        setError(null)
+      } else if (data && data.message) {
+        setError(data.message)
+      }
     } catch {}
   }
 
@@ -109,7 +123,9 @@ export default function WhatsAppAdminPage() {
     try {
       const res = await fetch('/api/wa-admin/messages')
       const data = await res.json()
-      if (data.messages) setMessages(data.messages)
+      if (Array.isArray(data.messages)) {
+        setMessages(data.messages)
+      }
     } catch {}
   }
 
@@ -119,24 +135,36 @@ export default function WhatsAppAdminPage() {
       reconnectTimerRef.current = null
     }
     eventSourceRef.current?.close()
-    const es = new EventSource('/api/wa-admin/events')
-    eventSourceRef.current = es
-    es.addEventListener('state', e => { try { setState(JSON.parse(e.data)) } catch {} })
-    es.addEventListener('message', e => {
-      try {
-        const msg: WAMessage = JSON.parse(e.data)
-        setMessages(prev => [msg, ...prev.slice(0, 199)])
-      } catch {}
-    })
-    es.onerror = () => {
-      es.close()
-      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current)
-      reconnectTimerRef.current = setTimeout(() => {
-        if (isMountedRef.current) {
-          connectSSE()
-        }
-      }, 4000)
-    }
+    try {
+      const es = new EventSource('/api/wa-admin/events')
+      eventSourceRef.current = es
+      es.addEventListener('state', e => {
+        try {
+          const parsed = JSON.parse(e.data)
+          if (parsed && parsed.status) {
+            setState(prev => ({ ...prev, ...parsed }))
+          }
+        } catch {}
+      })
+      es.addEventListener('message', e => {
+        try {
+          const msg: WAMessage = JSON.parse(e.data)
+          setMessages(prev => {
+            if (prev.some(m => m.id === msg.id)) return prev
+            return [msg, ...prev.slice(0, 199)]
+          })
+        } catch {}
+      })
+      es.onerror = () => {
+        es.close()
+        if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current)
+        reconnectTimerRef.current = setTimeout(() => {
+          if (isMountedRef.current) {
+            connectSSE()
+          }
+        }, 6000)
+      }
+    } catch {}
   }
 
   async function doAction(action: string) {
