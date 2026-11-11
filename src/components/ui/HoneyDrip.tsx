@@ -90,18 +90,37 @@ const HONEY_VB_H = BRIDGE_H + 168
 export const HoneyOverlay = forwardRef<
   HTMLDivElement,
   {
+    isRouteLoaded?: boolean
+    onComplete?: () => void
     videoRef?: React.Ref<HTMLVideoElement | null>
     onEnded?: () => void
     onTimeUpdate?: (time: number) => void
   }
 >(
-  function HoneyOverlay({ videoRef, onEnded, onTimeUpdate }, ref) {
+  function HoneyOverlay({ isRouteLoaded = false, onComplete, videoRef, onEnded, onTimeUpdate }, ref) {
     const internalVideoRef = useRef<HTMLVideoElement | null>(null)
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
+    const isRouteLoadedRef = useRef(isRouteLoaded)
+    const onCompleteRef = useRef(onComplete)
     const onEndedRef = useRef(onEnded)
     const onTimeUpdateRef = useRef(onTimeUpdate)
+    isRouteLoadedRef.current = isRouteLoaded
+    onCompleteRef.current = onComplete
     onEndedRef.current = onEnded
     onTimeUpdateRef.current = onTimeUpdate
+
+    // When route loads, if video was holding at peak honey (1.18s), resume draining
+    useEffect(() => {
+      if (isRouteLoaded) {
+        const video = internalVideoRef.current
+        if (video && video.paused && video.currentTime >= 1.10 && video.currentTime < 2.35) {
+          video.playbackRate = 1.25
+          try {
+            video.play().catch(() => {})
+          } catch {}
+        }
+      }
+    }, [isRouteLoaded])
 
     useEffect(() => {
       const video = internalVideoRef.current
@@ -268,6 +287,32 @@ export const HoneyOverlay = forwardRef<
         }
       }
 
+      function checkFrame() {
+        if (!video) return
+        const t = video.currentTime
+
+        // Peak honey coverage is at 1.18s (99.8% screen coverage).
+        // If route has NOT loaded yet, hold video firmly at 1.18s!
+        if (!isRouteLoadedRef.current && t >= 1.18) {
+          if (!video.paused) {
+            try {
+              video.pause()
+              video.currentTime = 1.18
+            } catch {}
+          }
+          return
+        }
+
+        // When route has loaded AND honey has drained off the screen (> 2.40s)
+        if (isRouteLoadedRef.current && (t >= 2.40 || video.ended)) {
+          onCompleteRef.current?.()
+        }
+
+        if (onTimeUpdateRef.current) {
+          onTimeUpdateRef.current(t)
+        }
+      }
+
       function scheduleNextFrame() {
         if (!isDrawing) return
         if ('requestVideoFrameCallback' in HTMLVideoElement.prototype && video) {
@@ -276,7 +321,7 @@ export const HoneyOverlay = forwardRef<
           if (typeof v.requestVideoFrameCallback === 'function') {
             rvfcId = v.requestVideoFrameCallback(() => {
               drawCurrentFrame()
-              handleTimeUpdate()
+              checkFrame()
               scheduleNextFrame()
             })
             return
@@ -284,7 +329,7 @@ export const HoneyOverlay = forwardRef<
         }
         rafId = requestAnimationFrame(() => {
           drawCurrentFrame()
-          handleTimeUpdate()
+          checkFrame()
           scheduleNextFrame()
         })
       }
@@ -321,12 +366,18 @@ export const HoneyOverlay = forwardRef<
       }
 
       function handleTimeUpdate() {
-        if (onTimeUpdateRef.current && video) {
-          onTimeUpdateRef.current(video.currentTime)
-        }
+        checkFrame()
       }
 
       function handleEnded() {
+        if (isRouteLoadedRef.current) {
+          onCompleteRef.current?.()
+        } else if (video) {
+          try {
+            video.pause()
+            video.currentTime = 1.18
+          } catch {}
+        }
         if (onEndedRef.current) {
           onEndedRef.current()
         }

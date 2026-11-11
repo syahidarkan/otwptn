@@ -1,13 +1,8 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { HoneyOverlay } from '@/components/ui/HoneyDrip'
-
-type Phase = 'idle' | 'covering' | 'waiting' | 'revealing'
-
-// Maximum safety ceiling for a transition so overlay never hangs the UI forever
-const HARD_CAP_MS = 15000
 
 export default function GlobalPageLoader() {
   const router = useRouter()
@@ -15,133 +10,65 @@ export default function GlobalPageLoader() {
 
   const elRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const phaseRef = useRef<Phase>('idle')
-  const pendingHrefRef = useRef<string | null>(null)
+  const [isRouteLoaded, setIsRouteLoaded] = useState(false)
+  const isTransitioningRef = useRef(false)
+  const hasCompletedRef = useRef(false)
   const startPathRef = useRef(pathname)
-  const pathnameRef = useRef(pathname)
-  pathnameRef.current = pathname
-  const routeLoadedRef = useRef(false)
-  const isHoldingAtPeakRef = useRef(false)
-  const hasRevealedRef = useRef(false)
-  const capTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const watchdogTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  function finish() {
-    if (capTimerRef.current) clearTimeout(capTimerRef.current)
-    capTimerRef.current = null
-    pendingHrefRef.current = null
-    routeLoadedRef.current = false
-    isHoldingAtPeakRef.current = false
-    hasRevealedRef.current = false
+  function handleComplete() {
+    if (!isTransitioningRef.current || hasCompletedRef.current) return
+    hasCompletedRef.current = true
+
+    if (watchdogTimerRef.current) {
+      clearTimeout(watchdogTimerRef.current)
+      watchdogTimerRef.current = null
+    }
+
     const el = elRef.current
     if (el) {
-      el.style.visibility = 'hidden'
       el.style.opacity = '0'
     }
-    if (videoRef.current) {
-      try {
-        videoRef.current.pause()
-        videoRef.current.playbackRate = 1.0
-        // Set to 0 after visibility is hidden so seeked event never flashes frame 0
-        videoRef.current.currentTime = 0
-      } catch {}
-    }
-    phaseRef.current = 'idle'
-  }
 
-  function reveal() {
-    const el = elRef.current
-    if (!el || phaseRef.current === 'revealing' || phaseRef.current === 'idle' || hasRevealedRef.current) return
-    hasRevealedRef.current = true
-    phaseRef.current = 'revealing'
-    el.style.opacity = '0'
-    setTimeout(finish, 220)
-  }
-
-  // When the new route commits, flag route as loaded and resume honey drain
-  useEffect(() => {
-    if (phaseRef.current === 'idle' || pathname === startPathRef.current || hasRevealedRef.current) return
-    routeLoadedRef.current = true
-
-    const video = videoRef.current
-    if (video) {
-      // If the animation already completed its drain or is past 2.40s, reveal immediately!
-      if (video.ended || video.currentTime >= 2.40) {
-        reveal()
-        return
+    // Clean reset after fade-out completes (220ms)
+    setTimeout(() => {
+      const overlay = elRef.current
+      if (overlay) {
+        overlay.style.visibility = 'hidden'
       }
+      if (videoRef.current) {
+        try {
+          videoRef.current.pause()
+          videoRef.current.playbackRate = 1.0
+          videoRef.current.currentTime = 0
+        } catch {}
+      }
+      setIsRouteLoaded(false)
+      isTransitioningRef.current = false
+      hasCompletedRef.current = false
+    }, 220)
+  }
 
-      // Resume draining off the bottom of the screen at smooth 1.25x speed
-      isHoldingAtPeakRef.current = false
-      video.playbackRate = 1.25
-      try {
-        video.play().catch(() => {})
-      } catch {}
-    }
+  // When pathname changes to destination route, release peak hold to drain honey
+  useEffect(() => {
+    if (!isTransitioningRef.current || pathname === startPathRef.current) return
+    setIsRouteLoaded(true)
   }, [pathname])
 
-  function handleTimeUpdate(time: number) {
-    const video = videoRef.current
-    if (!video || hasRevealedRef.current || phaseRef.current === 'idle') return
-
-    // Route is still loading in background:
-    if (!routeLoadedRef.current) {
-      if (time >= 0.85 && time < 1.10) {
-        video.playbackRate = 0.60
-      } else if (time >= 1.10 && time < 1.30) {
-        video.playbackRate = 0.25
-      } else if (time >= 1.30) {
-        // Hold frame seamlessly right at peak honey coverage (>99.8% coverage)
-        // Keep video paused at 1.30s until routeLoadedRef becomes true
-        if (!isHoldingAtPeakRef.current || !video.paused) {
-          isHoldingAtPeakRef.current = true
-          try {
-            video.pause()
-            video.currentTime = 1.30
-          } catch {}
-        }
-        return
-      }
-    }
-
-    // Once route has loaded AND honey has drained down (>2.40s), reveal new page
-    if (routeLoadedRef.current && (time >= 2.40 || video.ended)) {
-      reveal()
-    }
-  }
-
-  function handleEnded() {
-    const video = videoRef.current
-    if (!video || hasRevealedRef.current) return
-
-    // If route has loaded, reveal immediately. Never replay!
-    if (routeLoadedRef.current) {
-      reveal()
-    } else {
-      try {
-        video.pause()
-        video.currentTime = 1.30
-      } catch {}
-    }
-  }
-
-  function cover(href: string) {
+  function startTransition(href: string) {
     const el = elRef.current
-    if (!el) return false
+    if (!el || isTransitioningRef.current) return
 
-    // If already in transition, do not restart
-    if (phaseRef.current !== 'idle') return false
+    isTransitioningRef.current = true
+    hasCompletedRef.current = false
+    startPathRef.current = pathname
+    setIsRouteLoaded(false)
 
-    pendingHrefRef.current = href
-    startPathRef.current = pathnameRef.current
-    routeLoadedRef.current = false
-    isHoldingAtPeakRef.current = false
-    hasRevealedRef.current = false
-    phaseRef.current = 'waiting'
-
-    // Show overlay immediately on click so honey drips in front of current page
+    // Show overlay immediately
     el.style.visibility = 'visible'
     el.style.opacity = '1'
 
+    // Play video from 0
     if (videoRef.current) {
       try {
         videoRef.current.currentTime = 0
@@ -150,16 +77,16 @@ export default function GlobalPageLoader() {
       } catch {}
     }
 
-    // Trigger Next.js navigation immediately without artificial delays
+    // Trigger router navigation immediately
     router.prefetch(href)
     router.push(href)
 
-    // Safety watchdog: never leave the overlay visible longer than HARD_CAP_MS
-    capTimerRef.current = setTimeout(() => {
-      if (phaseRef.current === 'idle') return
-      reveal()
-    }, HARD_CAP_MS)
-    return true
+    // Watchdog safety timer: 12 seconds
+    watchdogTimerRef.current = setTimeout(() => {
+      if (isTransitioningRef.current) {
+        handleComplete()
+      }
+    }, 12000)
   }
 
   useEffect(() => {
@@ -167,8 +94,8 @@ export default function GlobalPageLoader() {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-      // If transition already running, ignore additional clicks to prevent double execution
-      if (phaseRef.current !== 'idle') return
+      // Strictly ignore any clicks while a transition is already in progress
+      if (isTransitioningRef.current) return
 
       const a = (e.target as HTMLElement | null)?.closest?.('a')
       if (!a) return
@@ -194,8 +121,9 @@ export default function GlobalPageLoader() {
 
       e.preventDefault()
       e.stopPropagation()
-      cover(`${url.pathname}${url.search}${url.hash}`)
+      startTransition(`${url.pathname}${url.search}${url.hash}`)
     }
+
     document.addEventListener('click', onClick, true)
     return () => document.removeEventListener('click', onClick, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -205,8 +133,8 @@ export default function GlobalPageLoader() {
     <HoneyOverlay
       ref={elRef}
       videoRef={videoRef}
-      onTimeUpdate={handleTimeUpdate}
-      onEnded={handleEnded}
+      isRouteLoaded={isRouteLoaded}
+      onComplete={handleComplete}
     />
   )
 }
