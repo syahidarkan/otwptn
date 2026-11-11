@@ -15,13 +15,13 @@ import {
 import { awardXP } from '@/lib/games/gameEngine'
 
 const DAYS = [
-  { label: 'M', day: 0 },
-  { label: 'S', day: 1 },
-  { label: 'S', day: 2 },
-  { label: 'R', day: 3 },
-  { label: 'K', day: 4 },
-  { label: 'J', day: 5 },
-  { label: 'S', day: 6 },
+  { label: 'S', day: 1, name: 'Senin' },
+  { label: 'S', day: 2, name: 'Selasa' },
+  { label: 'R', day: 3, name: 'Rabu' },
+  { label: 'K', day: 4, name: 'Kamis' },
+  { label: 'J', day: 5, name: 'Jumat' },
+  { label: 'S', day: 6, name: 'Sabtu' },
+  { label: 'M', day: 0, name: 'Minggu' },
 ]
 
 export function DashboardStreakCard() {
@@ -29,6 +29,8 @@ export function DashboardStreakCard() {
     streak: 1,
     lastDate: '',
     activeDaysOfWeek: [new Date().getDay()],
+    weekKey: '',
+    monthKey: '',
   })
   const [completedModulesCount, setCompletedModulesCount] = useState(0)
   const [showPosterModal, setShowPosterModal] = useState(false)
