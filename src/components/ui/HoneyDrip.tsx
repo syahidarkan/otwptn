@@ -276,6 +276,7 @@ export const HoneyOverlay = forwardRef<
           if (typeof v.requestVideoFrameCallback === 'function') {
             rvfcId = v.requestVideoFrameCallback(() => {
               drawCurrentFrame()
+              handleTimeUpdate()
               scheduleNextFrame()
             })
             return
@@ -283,6 +284,7 @@ export const HoneyOverlay = forwardRef<
         }
         rafId = requestAnimationFrame(() => {
           drawCurrentFrame()
+          handleTimeUpdate()
           scheduleNextFrame()
         })
       }
@@ -330,6 +332,12 @@ export const HoneyOverlay = forwardRef<
         }
       }
 
+      function handleSeeked() {
+        if (isDrawing) {
+          drawCurrentFrame()
+        }
+      }
+
       video.addEventListener('play', startLoop)
       video.addEventListener('playing', startLoop)
       video.addEventListener('canplay', drawCurrentFrame)
@@ -338,7 +346,7 @@ export const HoneyOverlay = forwardRef<
       video.addEventListener('ended', () => stopLoop(false))
       video.addEventListener('ended', handleEnded)
       video.addEventListener('timeupdate', handleTimeUpdate)
-      video.addEventListener('seeked', drawCurrentFrame)
+      video.addEventListener('seeked', handleSeeked)
 
       if (!video.paused && !video.ended) {
         startLoop()
@@ -352,7 +360,7 @@ export const HoneyOverlay = forwardRef<
         video.removeEventListener('loadeddata', drawCurrentFrame)
         video.removeEventListener('ended', handleEnded)
         video.removeEventListener('timeupdate', handleTimeUpdate)
-        video.removeEventListener('seeked', drawCurrentFrame)
+        video.removeEventListener('seeked', handleSeeked)
         if (gl && buffer) gl.deleteBuffer(buffer)
         if (gl && texture) gl.deleteTexture(texture)
         if (gl && program) gl.deleteProgram(program)
@@ -390,12 +398,12 @@ export const HoneyOverlay = forwardRef<
           muted
           preload="auto"
           style={{
-            position: 'fixed',
-            top: '-9999px',
-            left: '-9999px',
-            width: '320px',
-            height: '180px',
-            opacity: 0.001,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '1px',
+            height: '1px',
+            opacity: 0.01,
             pointerEvents: 'none',
             zIndex: -1,
           }}

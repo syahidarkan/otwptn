@@ -270,10 +270,11 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico?v=3" sizes="any" />
         <link rel="shortcut icon" href="/favicon.png?v=3" type="image/png" />
         <link rel="apple-touch-icon" href="/favicon.png?v=3" />
+        <link rel="preload" href="/honey-fast.mp4" as="video" type="video/mp4" />
         {/* Sync dark mode before first paint - prevents flash */}
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var p=window.location.pathname,pub=['/','/artikel','/upgrade','/panduan','/jalur','/daftar','/login','/register'];var isP=pub.some(function(x){return p===x;})||p.startsWith('/artikel/')||p.startsWith('/jalur/');if(!isP&&localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark');document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();` }} />
         {/* Service Worker for instant offline/repeat caching */}
-        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator && (window.location.protocol==='https:'||window.location.hostname==='localhost')){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}` }} />
+        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator && (window.location.protocol==='https:'||window.location.hostname==='localhost')){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').then(function(reg){if(reg)reg.update();}).catch(function(){});});}` }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

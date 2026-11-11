@@ -1,16 +1,17 @@
-const CACHE_NAME = 'otwptn-cache-v1'
+const CACHE_NAME = 'otwptn-cache-v2'
 const PRECACHE_ASSETS = [
   '/',
+  '/honey-fast.mp4',
   '/favicon.png',
   '/logo-footer.png',
   '/manifest.webmanifest',
-  '/mascot/trophy-graduate.png',
-  '/mascot/glasses-writing-desk.png',
-  '/mascot/ai-robot.png',
-  '/mascot/roadmap-flags.png',
+  '/mascot-hd/mascot-standing.png',
+  '/mascot-hd/mascot-happy.png',
+  '/mascot-hd/mascot-thumbs-up.png',
+  '/mascot-hd/mascot-laptop.png',
 ]
 
-// Install: precache essential static assets
+// Install: precache essential static assets and take control immediately
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -20,7 +21,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting()
 })
 
-// Activate: clean up older cache versions
+// Activate: clean up older cache versions and claim all open clients
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -43,7 +44,7 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(req.url)
 
-  // Never cache API routes, webhooks, or dynamic server auth endpoints
+  // Never cache API routes, webhooks, auth, or cross-origin requests
   if (
     url.pathname.startsWith('/api/') ||
     url.pathname.startsWith('/auth/') ||
@@ -52,11 +53,13 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Cache-First for static immutable Next.js chunks, fonts, images, mascot
+  // Cache-First strategy for static immutable Next.js chunks, fonts, images, mascot, video
   if (
     url.pathname.startsWith('/_next/static/') ||
+    url.pathname.startsWith('/mascot-hd/') ||
     url.pathname.startsWith('/mascot/') ||
-    url.pathname.match(/\.(png|jpg|jpeg|svg|webp|ico|woff2?|mp4)$/)
+    url.pathname === '/honey-fast.mp4' ||
+    url.pathname.match(/\.(png|jpg|jpeg|svg|webp|ico|woff2?|mp4|css|js)$/)
   ) {
     event.respondWith(
       caches.match(req).then((cached) => {
@@ -73,20 +76,24 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Network-First with Stale Cache Fallback for HTML page navigation
+  // Stale-While-Revalidate for HTML page navigations (instant response + background refresh)
   if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(req)
-        .then((res) => {
-          if (res.status === 200) {
-            const clone = res.clone()
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, clone))
-          }
-          return res
-        })
-        .catch(() => caches.match(req).then((cached) => cached || caches.match('/')))
+      caches.match(req).then((cached) => {
+        const fetchPromise = fetch(req)
+          .then((networkRes) => {
+            if (networkRes.status === 200) {
+              const clone = networkRes.clone()
+              caches.open(CACHE_NAME).then((cache) => cache.put(req, clone))
+            }
+            return networkRes
+          })
+          .catch(() => cached || caches.match('/'))
+
+        // If cached page is available, return it immediately for instant navigation
+        return cached || fetchPromise
+      })
     )
     return
   }
 })
-

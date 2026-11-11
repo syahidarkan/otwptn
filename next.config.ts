@@ -62,7 +62,7 @@ const nextConfig: NextConfig = {
       {
         // Never let browsers/CDNs cache API responses (auth-dependent, webhooks, AI output).
         source: "/api/:path*",
-        headers: [{ key: "Cache-Control", value: "no-store" }],
+        headers: [{ key: "Cache-Control", value: "no-store, no-cache, must-revalidate" }],
       },
       {
         // Service worker should never be cached permanently so updates are received immediately
@@ -70,9 +70,24 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }],
       },
       {
-        // Mascot illustrations and public static assets
+        // Mascot HD illustrations and brand assets
+        source: "/mascot-hd/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
+        // Legacy mascot illustrations
         source: "/mascot/:path*",
-        headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }],
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
+        // Honey fast video transition asset
+        source: "/honey-fast.mp4",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
+        // Favicons, icons, and footer brand logos
+        source: "/:file(favicon\\.png|favicon\\.ico|logo-footer\\.png|manifest\\.webmanifest)",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
     ];
   },
