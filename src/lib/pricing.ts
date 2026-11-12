@@ -62,7 +62,7 @@ interface PriceEntry {
 
 // Squad price is fixed per tier regardless of track ("harga tetap, nggak ikut toggle cakupan").
 const SQUAD_PRICES: Record<Tier, PriceEntry> = {
-  web_premium: { weekly: 'Rp1.000/minggu', amount: 19000 },
+  web_premium: { weekly: 'Rp4.750/minggu', amount: 19000 },
   review: { weekly: 'Rp12.500/minggu', amount: 75000 },
   dokumen: { weekly: 'Rp9.900/minggu', amount: 99000 },
   menyeluruh: { weekly: 'Rp19.200/minggu', amount: 249000 },
@@ -71,19 +71,19 @@ const SQUAD_PRICES: Record<Tier, PriceEntry> = {
 export const PRICE_MATRIX: Record<Mode, Record<Track, Record<Tier, PriceEntry>>> = {
   individu: {
     essay: {
-      web_premium: { weekly: 'Rp29.000/bulan', amount: 29000 },
+      web_premium: { weekly: 'Rp7.250/minggu', amount: 29000 },
       review: { weekly: 'Rp14.800/minggu', amount: 89000, referralAmount: 75700 },
       dokumen: { weekly: 'Rp17.900/minggu', amount: 179000, referralAmount: 161100 },
       menyeluruh: { weekly: 'Rp26.800/minggu', amount: 349000, referralAmount: 331600 },
     },
     prestasi: {
-      web_premium: { weekly: 'Rp29.000/bulan', amount: 29000 },
+      web_premium: { weekly: 'Rp7.250/minggu', amount: 29000 },
       review: { weekly: 'Rp14.800/minggu', amount: 89000, referralAmount: 75700 },
       dokumen: { weekly: 'Rp17.900/minggu', amount: 179000, referralAmount: 161100 },
       menyeluruh: { weekly: 'Rp26.800/minggu', amount: 349000, referralAmount: 331600 },
     },
     hybrid: {
-      web_premium: { weekly: 'Rp29.000/bulan', amount: 29000 },
+      web_premium: { weekly: 'Rp7.250/minggu', amount: 29000 },
       review: { weekly: 'Rp18.200/minggu', amount: 109000, referralAmount: 92700 },
       dokumen: { weekly: 'Rp21.900/minggu', amount: 219000, referralAmount: 197100 },
       menyeluruh: { weekly: 'Rp30.700/minggu', amount: 399000, referralAmount: 379100 },

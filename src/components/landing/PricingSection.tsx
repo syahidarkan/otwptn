@@ -13,7 +13,18 @@ const FREE = {
   price: 'Rp0',
   subPrice: 'Gratis selamanya',
   desc: 'Mulai eksplorasi tanpa bayar sepeser pun.',
-  feats: ['Kalkulator Peluang 1x/bulan', 'Chat Otbee AI 3x/hari', 'Essay AI Review 1x/bulan', 'Akses modul preview'],
+  feats: [
+    'Workspace Essay & Draft Editor',
+    'Tracking Jalur Masuk PTN & Kalender',
+    'Brankas Penyimpanan Dokumen & Sertifikat',
+    'Otbee TV (Cari Teman Belajar Live)',
+    'Latihan Mandiri & Mini Games Edukasi',
+    'Komunitas & Linimasa Cuitan PTN',
+    'Direktori & Info Eksklusif Jalur Non-Tes',
+    'Chat Konsultan Otbee AI (akses terbatas)',
+    'Essay AI Review & Scoring (akses terbatas)',
+    'Kalkulator Peluang SNBP & Mandiri (akses terbatas)',
+  ],
   href: '/register',
 }
 
@@ -42,7 +53,15 @@ export default function PricingSection() {
       mode === 'squad'
         ? 'Harga per orang untuk circle bertiga selama 1 bulan. Akses penuh fitur AI & e-course.'
         : 'Akses penuh ke seluruh fitur platform cerdas selama 1 bulan tanpa mentor alumni.',
-    feats: ['Kalkulator & AI Unlimited', 'Bebas buat Circle', 'Unlock 100% modul e-course', 'Buka Atur Strategi'],
+    feats: [
+      'Semua Fitur di Akun Free',
+      'Akses Kalkulator Peluang',
+      'Akses AI Chatbot',
+      'Essay AI Review Unlimited',
+      'Akses Atur Strategi',
+      'Bebas buat Circle',
+      'Unlock 100% modul e-course',
+    ],
     href: '/upgrade',
   }
 
@@ -52,7 +71,11 @@ export default function PricingSection() {
       name: 'Nectar',
       bigPrice: BASE.review.weekly,
       realPrice: `Total ${formatIDR(BASE.review.amount)}${mode === 'squad' ? '/orang' : ''}`,
-      feats: ['Termasuk Akun Premium', '2x Revisi Esai via WA', 'Cek validasi dokumen'],
+      feats: [
+        'Termasuk Akun Premium',
+        '2x Revisi Esai via WA oleh Mentor Alumni',
+        'Cek validasi dokumen oleh Mentor Alumni',
+      ],
       href: '/upgrade',
       highlight: false,
     },
@@ -61,7 +84,12 @@ export default function PricingSection() {
       name: 'Honeycomb',
       bigPrice: BASE.dokumen.weekly,
       realPrice: `Total ${formatIDR(BASE.dokumen.amount)}${mode === 'squad' ? '/orang' : ''}`,
-      feats: ['Termasuk Akun Premium', '5x Putaran Revisi Esai', '2x Sesi Privat Zoom', 'Grup WA Eksklusif'],
+      feats: [
+        'Termasuk Akun Premium',
+        '5x Putaran Revisi Esai oleh Mentor Alumni',
+        '2x Sesi Privat Zoom bersama Mentor Alumni',
+        'Grup WA Eksklusif bersama Mentor Alumni',
+      ],
       href: '/upgrade',
       highlight: true,
     },
@@ -70,7 +98,12 @@ export default function PricingSection() {
       name: 'Royal Jelly',
       bigPrice: BASE.menyeluruh.weekly,
       realPrice: `Total ${formatIDR(BASE.menyeluruh.amount)}${mode === 'squad' ? '/orang' : ''}`,
-      feats: ['Termasuk Akun Premium', 'Unlimited Revisi + Meet', 'Bimbingan dokumen & wawancara', 'Exclusive Trip ke UI'],
+      feats: [
+        'Termasuk Akun Premium',
+        'Unlimited Revisi + Meet bersama Mentor Alumni',
+        'Bimbingan dokumen & wawancara oleh Mentor Alumni',
+        'Exclusive Trip ke UI bersama Mentor Alumni',
+      ],
       href: '/upgrade',
       highlight: false,
     },
