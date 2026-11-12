@@ -1,16 +1,21 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { processPackageReminders } from '@/lib/packageLifecycle'
 
 export async function GET() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  // Trigger lazy reminder check for this mentor in background
+  processPackageReminders(createServiceClient(), user.id).catch(() => {})
+
   // Get mentoring records where mentor_id = current user
   const { data: records } = await supabase
     .from('mentoring')
     .select(`
-      id, tier, wa_group_link, mentor_name, status, zoom_sessions_total, zoom_sessions_used,
+      id, tier, wa_group_link, wa_group_joined_at, package_starts_at, package_expires_at,
+      mentor_name, status, zoom_sessions_total, zoom_sessions_used,
       revision_count_total, revision_count_used, checklist,
       profiles:user_id (id, full_name, avatar_url, school_name, target_ptns, email, phone)
     `)

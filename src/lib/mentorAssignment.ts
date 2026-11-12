@@ -23,6 +23,7 @@ export interface MatchingContext {
   targetFaculty?: string | null
   targetMajor?: string | null
   tier?: string
+  excludeMentorId?: string | null
 }
 
 // Auto-matching 5 tahap resmi OtwPTN:
@@ -114,7 +115,12 @@ export async function findAvailableMentor(
     package: pkgLabel,
   }
 
-  const best = findBestMentorForMentee(menteeProfile, mentorPool)
+  const filteredPool = ctx.excludeMentorId
+    ? mentorPool.filter(m => m.id !== ctx.excludeMentorId)
+    : mentorPool
+  const poolToUse = filteredPool.length > 0 ? filteredPool : mentorPool
+
+  const best = findBestMentorForMentee(menteeProfile, poolToUse)
   if (best) {
     return { mentor_id: best.mentorId, mentor_name: best.mentorName }
   }
@@ -129,6 +135,7 @@ interface OrderForAssignment {
   track: string
   squad_group_id?: string | null
   notes?: string | null
+  excludeMentorId?: string | null
 }
 
 function parseOrderNotes(notes?: string | null): {
@@ -190,6 +197,7 @@ export async function autoAssignIndividuMentor(
     targetFaculty: parsedNotes.target_faculty ?? null,
     targetMajor: parsedNotes.target_major ?? null,
     tier: order.tier,
+    excludeMentorId: order.excludeMentorId ?? null,
   })
   await assignMentorToOrder(supabase, order, mentor)
 }

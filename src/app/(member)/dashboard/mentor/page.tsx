@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import RaporProfilView from '@/components/dashboard/RaporProfilView'
+import PackageCountdownCard from '@/components/dashboard/PackageCountdownCard'
 import {
   Sparkles,
   ShieldCheck,
@@ -190,6 +191,14 @@ export default function MentorAlumniPage() {
 
   function handleExportPDF() {
     window.print()
+  }
+
+  async function handleJoinWaGroup() {
+    if (!mentoringRecord?.wa_group_link) return
+    try {
+      await fetch('/api/package/activate-wa', { method: 'POST' })
+    } catch {}
+    window.open(mentoringRecord.wa_group_link, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -662,14 +671,13 @@ export default function MentorAlumniPage() {
 
               <div className="flex items-center gap-2.5">
                 {mentoringRecord?.wa_group_link ? (
-                  <a
-                    href={mentoringRecord.wa_group_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2.5 rounded-full text-xs font-extrabold bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors flex items-center gap-1.5"
+                  <button
+                    type="button"
+                    onClick={handleJoinWaGroup}
+                    className="px-4 py-2.5 rounded-full text-xs font-extrabold bg-emerald-500 hover:bg-emerald-600 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
                   >
-                    <MessageCircle size={15} className="text-emerald-600" /> WhatsApp Group Mentoring
-                  </a>
+                    <MessageCircle size={15} /> Join Group WA Mentoring
+                  </button>
                 ) : (
                   <span className="text-xs text-gray-400 font-medium">Link WA akan dikirim mentor</span>
                 )}
@@ -682,6 +690,8 @@ export default function MentorAlumniPage() {
               </div>
             </div>
           )}
+
+          <PackageCountdownCard />
 
           {/* Sub-Feature Navigation Tabs */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
@@ -1003,14 +1013,13 @@ export default function MentorAlumniPage() {
                   </div>
 
                   {mentoringRecord?.wa_group_link ? (
-                    <a
-                      href={`${mentoringRecord.wa_group_link}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full btn-brand-primary py-3.5 rounded-full text-xs font-black shadow-md flex items-center justify-center gap-2 mt-4"
+                    <button
+                      type="button"
+                      onClick={handleJoinWaGroup}
+                      className="w-full btn-brand-primary py-3.5 rounded-full text-xs font-black shadow-md flex items-center justify-center gap-2 mt-4 cursor-pointer"
                     >
                       <MessageCircle size={15} /> Kirim Request Jadwal ke Mentor via WA
-                    </a>
+                    </button>
                   ) : (
                     <div className="w-full p-3.5 rounded-2xl bg-amber-50 text-amber-900 text-xs text-center font-semibold mt-4">
                       Link WhatsApp Group akan dikirim mentor setelah assign. Gunakan form ini untuk mencatat preferensi jadwalmu.

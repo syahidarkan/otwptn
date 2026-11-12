@@ -18,6 +18,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 import JalurTracker from '@/components/dashboard/JalurTracker'
+import PackageCountdownCard from '@/components/dashboard/PackageCountdownCard'
 import QuoteCard from '@/components/dashboard/QuoteCard'
 import CardPattern, { type PatternType } from '@/components/ui/CardPattern'
 import AmbientStarsCanvas from '@/components/dashboard/AmbientStarsCanvas'
@@ -189,6 +190,10 @@ export default async function DashboardPage() {
         <p className="text-sm font-medium text-gray-500">
           Siap melanjutkan persiapan hari ini? Mari raih kampus impianmu.
         </p>
+      </div>
+
+      <div className="mb-6">
+        <PackageCountdownCard />
       </div>
 
       {/* Main CTA + Streak Grid */}

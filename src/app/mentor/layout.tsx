@@ -41,12 +41,11 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
   const [mentorAvatar, setMentorAvatar] = useState('/avatars/avatar-2.png')
 
   useEffect(() => {
+    if (pathname === '/mentor/auth' || pathname === '/mentor/apply') return
     const supabase = createClient()
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) {
-        if (pathname !== '/mentor/auth' && pathname !== '/mentor/apply') {
-          router.push('/mentor/auth')
-        }
+        router.push('/mentor/auth')
         return
       }
 
@@ -75,8 +74,8 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
     router.push('/mentor/auth')
   }
 
-  // If on /mentor/auth, render directly without sidebar
-  if (pathname === '/mentor/auth') {
+  // If on /mentor/auth or /mentor/apply, render directly without authenticated mentor sidebar
+  if (pathname === '/mentor/auth' || pathname === '/mentor/apply') {
     return <>{children}</>
   }
 

@@ -16,13 +16,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: `${article.title} | otwptn`,
     description: article.excerpt,
     alternates: {
-      canonical: `https://otwptn.com/artikel/${article.slug}`,
+      canonical: `https://www.otwptn.com/artikel/${article.slug}`,
     },
     openGraph: {
       title: article.title,
       description: article.excerpt,
       type: 'article',
-      url: `https://otwptn.com/artikel/${article.slug}`,
+      url: `https://www.otwptn.com/artikel/${article.slug}`,
       publishedTime: '2026-10-28T08:00:00.000Z',
       authors: [article.author.name],
       tags: article.tags,
@@ -111,6 +111,35 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             </div>
           </div>
         </header>
+
+        {/* Inline High-Conversion CTA Banner (berdasarkan analisis GSC) */}
+        <div className="mb-8 p-5 sm:p-6 rounded-3xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+          <div className="space-y-1">
+            <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-amber-800 bg-amber-200/70 px-2.5 py-0.5 rounded-full">
+              <Sparkles size={11} /> Gratis untuk Pejuang PTN 2026
+            </span>
+            <p className="text-sm font-black text-gray-900">
+              Cek Peluang Lolos &amp; Direktori Jalur Non-Tes PTN Tujuanmu Sekarang
+            </p>
+            <p className="text-xs text-gray-600 font-medium">
+              Hitung rasionalisasi rapor 5 semester, sertifikat, dan keketatan prodi resmi dalam 10 detik.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
+            <Link
+              href="/dashboard/kalkulator"
+              className="btn-brand-primary px-4 py-2.5 rounded-full text-xs font-black shadow-xs inline-flex items-center gap-1.5"
+            >
+              Cek Peluang Gratis <ArrowRight size={13} />
+            </Link>
+            <Link
+              href="/jalur"
+              className="px-4 py-2.5 rounded-full text-xs font-bold bg-white hover:bg-gray-100 text-gray-800 border border-amber-200"
+            >
+              Direktori Jalur
+            </Link>
+          </div>
+        </div>
 
         {/* Lead Excerpt */}
         <div className="p-6 rounded-2xl bg-amber-50/70 border-l-4 border-amber-400 mb-10 text-sm md:text-base font-semibold text-gray-800 leading-relaxed">

@@ -1,7 +1,7 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/security'
 import { NextResponse } from 'next/server'
-import { MODES, TRACKS, TIERS, TIER_LABELS, getPrice, getAddonPrice, getInterSurcharge, type Mode, type Track, type Tier } from '@/lib/pricing'
+import { MODES, TRACKS, TIERS, TIER_LABELS, getPrice, getAddonPrice, getInterSurcharge, getRenewalPrice, type Mode, type Track, type Tier } from '@/lib/pricing'
 import { JALUR_LIST } from '@/lib/constants'
 
 function isMode(v: unknown): v is Mode {
@@ -48,6 +48,8 @@ export async function POST(request: Request) {
     target_ptn,
     target_faculty,
     target_major,
+    is_renewal = false,
+    renewal_mentor_choice = 'same',
   } = await request.json()
 
   if (!isTier(tier)) return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
@@ -106,6 +108,29 @@ export async function POST(request: Request) {
   }
 
   baseAmount += interSurcharge + addonTotal
+
+  // Authoritative server check for renewal discount & mentor choice
+  let validatedRenewal = false
+  let previousMentorId: string | null = null
+  const cleanMentorChoice: 'same' | 'different' = renewal_mentor_choice === 'different' ? 'different' : 'same'
+
+  if (is_renewal) {
+    const [{ data: curProf }, { data: prevPaid }, { data: prevMentoring }] = await Promise.all([
+      db.from('profiles').select('tier').eq('id', user.id).maybeSingle(),
+      db.from('orders').select('id').eq('user_id', user.id).eq('status', 'paid').limit(1),
+      db.from('mentoring').select('mentor_id').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+    ])
+    const hasPaidHistory = (curProf?.tier && curProf.tier !== 'free') || (prevPaid && prevPaid.length > 0)
+    if (hasPaidHistory) {
+      validatedRenewal = true
+      previousMentorId = prevMentoring?.mentor_id ?? null
+      if (tier === 'web_premium') {
+        baseAmount = 25000 + addonTotal
+      } else {
+        baseAmount = getRenewalPrice(tier, baseAmount)
+      }
+    }
+  }
 
   // Sync user's selected/edited target PTN, major, and jalur back to their profile
   const cleanTargetPtn = typeof target_ptn === 'string' ? target_ptn.trim().slice(0, 120) : ''
@@ -200,21 +225,23 @@ export async function POST(request: Request) {
     }
   }
 
-  // Reuse existing pending order for the same tier/mode/track (avoids duplicate payment links)
+  // Reuse existing pending order for the same tier/mode/track (avoids duplicate payment links; skip for renewals)
   const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString()
-  const { data: existingOrder } = await supabase
-    .from('orders')
-    .select('id, payment_url, doku_reference')
-    .eq('user_id', user.id)
-    .eq('tier', tier)
-    .eq('mode', mode)
-    .eq('track', track)
-    .eq('status', 'pending')
-    .eq('payment_method', payment_method)
-    .gte('created_at', thirtyMinutesAgo)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single()
+  const { data: existingOrder } = validatedRenewal
+    ? { data: null }
+    : await supabase
+        .from('orders')
+        .select('id, payment_url, doku_reference')
+        .eq('user_id', user.id)
+        .eq('tier', tier)
+        .eq('mode', mode)
+        .eq('track', track)
+        .eq('status', 'pending')
+        .eq('payment_method', payment_method)
+        .gte('created_at', thirtyMinutesAgo)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
 
   // Only reuse if the stored URL uses the correct Mayar /pl/ format
   if (existingOrder?.payment_url && existingOrder.payment_url.includes('/pl/')) {
@@ -263,6 +290,9 @@ export async function POST(request: Request) {
       target_ptn: cleanTargetPtn || null,
       target_faculty: cleanTargetFaculty || null,
       target_major: cleanTargetMajor || null,
+      is_renewal: validatedRenewal,
+      renewal_mentor_choice: validatedRenewal && tier !== 'web_premium' ? cleanMentorChoice : null,
+      previous_mentor_id: previousMentorId,
     }),
   }).select('id').single()
 

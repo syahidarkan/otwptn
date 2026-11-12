@@ -50,6 +50,9 @@ interface MenteeItem {
   status: 'Perlu Review Esai' | 'Jadwal Meet Mendatang' | 'Analisis Pilihan Siap' | 'Selesai Direvisi'
   whatsapp: string
   waGroupLink?: string
+  waGroupJoinedAt?: string | null
+  packageStartsAt?: string | null
+  packageExpiresAt?: string | null
   zoomLink?: string
   essayTitle: string
   essayContent: string
@@ -114,7 +117,9 @@ export default function MentorDashboardPage() {
         const json = await res.json()
         const ids: Record<string, string> = {}
         const mapped: MenteeItem[] = (json.mentees ?? []).map((record: {
-          id: string; tier: string; wa_group_link?: string; checklist?: { task: string; done: boolean }[];
+          id: string; tier: string; wa_group_link?: string; wa_group_joined_at?: string | null;
+          package_starts_at?: string | null; package_expires_at?: string | null;
+          checklist?: { task: string; done: boolean }[];
           profiles: { id: string; full_name: string; avatar_url?: string; school_name?: string; target_ptns?: string[]; email?: string; phone?: string } | null;
         }) => {
           const p = record.profiles
@@ -134,6 +139,9 @@ export default function MentorDashboardPage() {
             status: 'Analisis Pilihan Siap' as MenteeItem['status'],
             whatsapp: (p?.phone ?? '').replace(/\D/g, ''),
             waGroupLink: record.wa_group_link,
+            waGroupJoinedAt: record.wa_group_joined_at ?? null,
+            packageStartsAt: record.package_starts_at ?? null,
+            packageExpiresAt: record.package_expires_at ?? null,
             essayTitle: 'Esai Motivasi',
             essayContent: '',
             raporSummary: '-',
@@ -462,6 +470,25 @@ export default function MentorDashboardPage() {
                       <span className="w-2 h-2 rounded-full bg-amber-500" />
                       {m.status}
                     </span>
+                    <div className="mt-1">
+                      {m.packageExpiresAt ? (
+                        (() => {
+                          const daysLeft = Math.ceil((new Date(m.packageExpiresAt).getTime() - Date.now()) / (24 * 60 * 60 * 1000))
+                          if (daysLeft <= 0) {
+                            return <span className="text-[10px] font-black text-rose-600">Masa aktif berakhir</span>
+                          }
+                          return (
+                            <span className={`text-[10px] font-bold ${daysLeft <= 7 ? 'text-rose-600' : 'text-emerald-700'}`}>
+                              Sisa {daysLeft} hari (s/d {new Date(m.packageExpiresAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })})
+                            </span>
+                          )
+                        })()
+                      ) : m.waGroupLink ? (
+                        <span className="text-[10px] font-semibold text-amber-700">Menunggu mentee join Grup WA</span>
+                      ) : (
+                        <span className="text-[10px] font-semibold text-rose-600">Segera input link Grup WA</span>
+                      )}
+                    </div>
                   </td>
 
                   <td className="py-4 px-6">

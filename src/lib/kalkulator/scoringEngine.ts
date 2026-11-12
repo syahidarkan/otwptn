@@ -310,3 +310,4 @@ export function calculateDeterministicChance(input: KalkulatorInput): Determinis
     semesterAverages,
   }
 }
+

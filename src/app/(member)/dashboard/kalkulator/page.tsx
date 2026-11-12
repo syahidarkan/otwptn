@@ -866,39 +866,11 @@ export default function KalkulatorPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="text-xs font-bold text-gray-700 mb-1 block">
-                      Peringkat Siswa Eligible Seangkatan
-                    </label>
-                    <input
-                      type="number"
-                      min={1}
-                      value={eligibleRank}
-                      onChange={e => setEligibleRank(e.target.value)}
-                      placeholder="Contoh: Peringkat 5 seangkatan"
-                      className="w-full px-4 py-3 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold text-gray-700 mb-1 block">
-                      Total Kuota Siswa Eligible di Sekolah
-                    </label>
-                    <input
-                      type="number"
-                      min={1}
-                      value={schoolQuota}
-                      onChange={e => setSchoolQuota(e.target.value)}
-                      placeholder="Contoh: Kuota 48 siswa"
-                      className="w-full px-4 py-3 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100">
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-1 pb-4">
                   <span className="text-xs font-bold text-gray-700">Dinyatakan Siswa Eligible?</span>
                   <div className="flex gap-2">
                     <button
+                      type="button"
                       onClick={() => setIsEligible(true)}
                       className={`px-4 py-2 rounded-full text-xs font-black transition-all ${
                         isEligible === true
@@ -909,7 +881,12 @@ export default function KalkulatorPage() {
                       Ya, Masuk Kuota
                     </button>
                     <button
-                      onClick={() => setIsEligible(false)}
+                      type="button"
+                      onClick={() => {
+                        setIsEligible(false)
+                        setEligibleRank('')
+                        setSchoolQuota('')
+                      }}
                       className={`px-4 py-2 rounded-full text-xs font-black transition-all ${
                         isEligible === false
                           ? 'btn-brand-primary'
@@ -920,6 +897,37 @@ export default function KalkulatorPage() {
                     </button>
                   </div>
                 </div>
+
+                {isEligible === true && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-gray-100">
+                    <div>
+                      <label className="text-xs font-bold text-gray-700 mb-1 block">
+                        Peringkat Siswa Eligible Seangkatan
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        value={eligibleRank}
+                        onChange={e => setEligibleRank(e.target.value)}
+                        placeholder="Contoh: Peringkat 5 seangkatan"
+                        className="w-full px-4 py-3 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-gray-700 mb-1 block">
+                        Total Kuota Siswa Eligible di Sekolah
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        value={schoolQuota}
+                        onChange={e => setSchoolQuota(e.target.value)}
+                        placeholder="Contoh: Kuota 48 siswa"
+                        className="w-full px-4 py-3 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </>
           ) : (

@@ -101,3 +101,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Terjadi kesalahan saat mengunggah foto.' }, { status: 500 })
   }
 }
+

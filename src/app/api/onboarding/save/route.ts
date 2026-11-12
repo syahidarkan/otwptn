@@ -1,6 +1,7 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { rateLimit } from '@/lib/security'
+import { getDurationDaysForTier, sendPackageStartedNotifications } from '@/lib/packageLifecycle'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -92,7 +93,45 @@ export async function POST(request: Request) {
       .eq('id', user.id)
   } catch {}
 
-  // 3. Mirror key onboarding fields to auth user_metadata as redundant backup
+  // 3. Cek apakah user memiliki Akun Premium yang menunggu selesai onboarding untuk mulai countdown
+  try {
+    const { data: profCheck } = await db
+      .from('profiles')
+      .select('tier, tier_starts_at, tier_expires_at, pending_activation_tier, email, full_name')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    const nowIso = new Date().toISOString()
+    await db.from('profiles').update({ onboarding_completed_at: nowIso }).eq('id', user.id)
+
+    if (
+      profCheck &&
+      profCheck.tier === 'web_premium' &&
+      (!profCheck.tier_starts_at || profCheck.pending_activation_tier === 'web_premium')
+    ) {
+      const days = getDurationDaysForTier('web_premium')
+      const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
+
+      await db.from('profiles').update({
+        tier_starts_at: nowIso,
+        tier_expires_at: expiresAt,
+        pending_activation_tier: null,
+      }).eq('id', user.id)
+
+      await sendPackageStartedNotifications(db, {
+        userId: user.id,
+        userEmail: profCheck.email || user.email,
+        userName: fullName || profCheck.full_name || user.user_metadata?.full_name,
+        tier: 'web_premium',
+        startsAt: nowIso,
+        expiresAt,
+      })
+    }
+  } catch (actErr) {
+    console.warn('[Onboarding Activation Check]', actErr)
+  }
+
+  // 4. Mirror key onboarding fields to auth user_metadata as redundant backup
   try {
     await db.auth.admin.updateUserById(user.id, {
       user_metadata: {
@@ -114,3 +153,4 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ ok: true })
 }
+

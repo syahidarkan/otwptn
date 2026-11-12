@@ -27,10 +27,23 @@ export const TIER_TAGLINES: Record<Tier, string> = {
 }
 
 export const TIER_PERIOD: Record<Tier, string> = {
-  web_premium: 'Sampai jalur mandiri selesai (±5 bln)',
+  web_premium: 'Berlaku 1 bulan (Rp29rb/bln)',
   review: 'Berlaku 1,5 bulan',
   dokumen: 'Berlaku 2,5 bulan',
   menyeluruh: 'Berlaku 3 bulan',
+}
+
+export const TIER_DURATION_DAYS: Record<string, number> = {
+  web_premium: 30, // 1 bulan
+  review: 45,      // 1,5 bulan
+  dokumen: 75,     // 2,5 bulan
+  menyeluruh: 90,  // 3 bulan
+  intensif: 90,    // 3 bulan
+}
+
+export function getRenewalPrice(tier: Tier, baseAmount: number): number {
+  if (tier === 'web_premium') return 25000
+  return Math.max(10000, baseAmount - 15000)
 }
 
 export const TIER_BADGE: Partial<Record<Tier, string>> = {
@@ -58,19 +71,19 @@ const SQUAD_PRICES: Record<Tier, PriceEntry> = {
 export const PRICE_MATRIX: Record<Mode, Record<Track, Record<Tier, PriceEntry>>> = {
   individu: {
     essay: {
-      web_premium: { weekly: 'Rp1.500/minggu', amount: 29000 },
+      web_premium: { weekly: 'Rp29.000/bulan', amount: 29000 },
       review: { weekly: 'Rp14.800/minggu', amount: 89000, referralAmount: 75700 },
       dokumen: { weekly: 'Rp17.900/minggu', amount: 179000, referralAmount: 161100 },
       menyeluruh: { weekly: 'Rp26.800/minggu', amount: 349000, referralAmount: 331600 },
     },
     prestasi: {
-      web_premium: { weekly: 'Rp1.500/minggu', amount: 29000 },
+      web_premium: { weekly: 'Rp29.000/bulan', amount: 29000 },
       review: { weekly: 'Rp14.800/minggu', amount: 89000, referralAmount: 75700 },
       dokumen: { weekly: 'Rp17.900/minggu', amount: 179000, referralAmount: 161100 },
       menyeluruh: { weekly: 'Rp26.800/minggu', amount: 349000, referralAmount: 331600 },
     },
     hybrid: {
-      web_premium: { weekly: 'Rp2.000/minggu', amount: 39000 },
+      web_premium: { weekly: 'Rp29.000/bulan', amount: 29000 },
       review: { weekly: 'Rp18.200/minggu', amount: 109000, referralAmount: 92700 },
       dokumen: { weekly: 'Rp21.900/minggu', amount: 219000, referralAmount: 197100 },
       menyeluruh: { weekly: 'Rp30.700/minggu', amount: 399000, referralAmount: 379100 },

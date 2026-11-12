@@ -1,22 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import {
   GraduationCap,
-  ShieldCheck,
   Mail,
   Lock,
   User,
   School,
+  BookOpen,
+  Compass,
   ArrowRight,
   CheckCircle2,
   AlertCircle,
+  ShieldAlert,
+  LogOut,
 } from 'lucide-react'
-import { LEGAL_ENTITY } from '@/lib/constants'
+import { LEGAL_ENTITY, JALUR_LIST } from '@/lib/constants'
+import { INDONESIA_PTN_LIST, INDONESIA_JURUSAN_LIST } from '@/lib/indonesiaDirectory'
 
 export default function MentorAuthPage() {
   const router = useRouter()
@@ -25,12 +29,36 @@ export default function MentorAuthPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
+  const [adminSessionEmail, setAdminSessionEmail] = useState<string | null>(null)
 
   // Form states
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
   const [university, setUniversity] = useState('Universitas Indonesia')
+  const [major, setMajor] = useState('')
+  const [track, setTrack] = useState('')
+
+  useEffect(() => {
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) return
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, is_admin, email')
+        .eq('id', data.user.id)
+        .maybeSingle()
+
+      const isAdmin = Boolean(profile?.is_admin || profile?.role === 'superadmin' || profile?.role === 'admin')
+      if (isAdmin) {
+        setAdminSessionEmail(profile?.email || data.user.email || 'Admin')
+      }
+    })
+  }, [supabase])
+
+  async function handleSignOutAdmin() {
+    await supabase.auth.signOut()
+    setAdminSessionEmail(null)
+  }
 
   async function handleAuth(e: React.FormEvent) {
     e.preventDefault()
@@ -44,6 +72,11 @@ export default function MentorAuthPage() {
         setLoading(false)
         return
       }
+      if (!university.trim() || !major.trim() || !track.trim()) {
+        setError('Mohon lengkapi asal PTN, Jurusan, dan Jalur Masuk terlebih dahulu.')
+        setLoading(false)
+        return
+      }
 
       const { data, error: err } = await supabase.auth.signUp({
         email,
@@ -52,6 +85,8 @@ export default function MentorAuthPage() {
           data: {
             full_name: fullName,
             university,
+            major,
+            track,
             role: 'mentor',
           },
         },
@@ -64,20 +99,29 @@ export default function MentorAuthPage() {
       }
 
       if (data.session) {
-        // Auto-create or tag profile as mentor
         await supabase.from('profiles').update({
           full_name: fullName,
           school_name: university,
         }).eq('id', data.session.user.id)
 
+        await supabase.from('mentor_applications').upsert({
+          user_id: data.session.user.id,
+          full_name: fullName,
+          email,
+          university,
+          major,
+          track,
+          status: 'pending',
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' })
+
         router.push('/mentor/apply')
         return
       }
 
-      setSuccessMsg('Pendaftaran mentor berhasil! Silakan cek email kamu untuk konfirmasi atau masuk.')
+      setSuccessMsg('Pendaftaran mentor berhasil! Silakan cek email kamu untuk konfirmasi lalu lengkapi LOA.')
       setLoading(false)
     } else {
-      // Login flow
       const { error: err } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -98,7 +142,7 @@ export default function MentorAuthPage() {
       className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
       style={{ background: 'var(--hero-grad)' }}
     >
-      <div className="w-full max-w-md bg-white/95 backdrop-blur-xl rounded-3xl p-7 sm:p-8 shadow-2xl border border-white/60 space-y-6">
+      <div className="w-full max-w-md bg-white/95 backdrop-blur-xl rounded-3xl p-7 sm:p-8 shadow-2xl border border-white/60 space-y-5">
         {/* Brand Header */}
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-1">
@@ -112,10 +156,26 @@ export default function MentorAuthPage() {
           </h1>
           <p className="text-xs text-gray-500 font-medium leading-relaxed">
             {isRegister
-              ? 'Daftarkan almamater dan LOA kamu untuk mendampingi calon mahasiswa lolos PTN impian.'
+              ? 'Isi identitas PTN, jurusan, jalur masuk, lalu unggah bukti LOA kamu.'
               : 'Akses daftar mentee, jadwal konsultasi Zoom, dan catatan evaluasi esai.'}
           </p>
         </div>
+
+        {adminSessionEmail && (
+          <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-2">
+            <div className="flex items-start gap-2 font-bold">
+              <ShieldAlert size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
+              <span>Kamu sedang login sebagai Admin ({adminSessionEmail}). Keluar dulu jika ingin mendaftar atau masuk dengan akun mentor.</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleSignOutAdmin}
+              className="w-full py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <LogOut size={13} /> Keluar dari Sesi Admin
+            </button>
+          </div>
+        )}
 
         {/* Auth Tabs */}
         <div className="flex p-1 rounded-2xl bg-gray-100 text-xs font-black">
@@ -139,7 +199,6 @@ export default function MentorAuthPage() {
           </button>
         </div>
 
-        {/* Notifications */}
         {error && (
           <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-bold flex items-center gap-2">
             <AlertCircle size={15} className="flex-shrink-0" />
@@ -155,7 +214,7 @@ export default function MentorAuthPage() {
         )}
 
         {/* Form */}
-        <form onSubmit={handleAuth} className="space-y-4">
+        <form onSubmit={handleAuth} className="space-y-3.5">
           {isRegister && (
             <>
               <div>
@@ -168,7 +227,7 @@ export default function MentorAuthPage() {
                     onChange={e => setFullName(e.target.value)}
                     required
                     placeholder="Contoh: Muhammad Ihsan, S.T."
-                    className="w-full pl-10 pr-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 outline-none focus:border-amber-400"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 outline-none focus:border-amber-400"
                   />
                 </div>
               </div>
@@ -177,21 +236,62 @@ export default function MentorAuthPage() {
                 <label className="block text-xs font-bold text-gray-700 mb-1">Asal PTN Almamater</label>
                 <div className="relative">
                   <School size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <select
+                  <input
+                    type="text"
+                    list="mentor-ptn-list"
                     value={university}
                     onChange={e => setUniversity(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 outline-none focus:border-amber-400"
-                  >
-                    <option value="Universitas Indonesia">Universitas Indonesia (UI)</option>
-                    <option value="Institut Teknologi Bandung">Institut Teknologi Bandung (ITB)</option>
-                    <option value="Universitas Gadjah Mada">Universitas Gadjah Mada (UGM)</option>
-                    <option value="Universitas Airlangga">Universitas Airlangga (UNAIR)</option>
-                    <option value="IPB University">IPB University (IPB)</option>
-                    <option value="Universitas Diponegoro">Universitas Diponegoro (UNDIP)</option>
-                    <option value="Institut Teknologi Sepuluh Nopember">ITS Surabaya</option>
-                    <option value="Universitas Padjadjaran">Universitas Padjadjaran (UNPAD)</option>
-                    <option value="Universitas Brawijaya">Universitas Brawijaya (UB)</option>
-                  </select>
+                    required
+                    placeholder="Pilih atau ketik nama PTN..."
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 outline-none focus:border-amber-400"
+                  />
+                  <datalist id="mentor-ptn-list">
+                    {INDONESIA_PTN_LIST.map(p => (
+                      <option key={p.shortName} value={p.name} />
+                    ))}
+                  </datalist>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Jurusan / Program Studi</label>
+                <div className="relative">
+                  <BookOpen size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    list="mentor-jurusan-list"
+                    value={major}
+                    onChange={e => setMajor(e.target.value)}
+                    required
+                    placeholder="Contoh: Ilmu Komputer / Kedokteran"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 outline-none focus:border-amber-400"
+                  />
+                  <datalist id="mentor-jurusan-list">
+                    {INDONESIA_JURUSAN_LIST.map(j => (
+                      <option key={j} value={j} />
+                    ))}
+                  </datalist>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">Jalur Masuk PTN</label>
+                <div className="relative">
+                  <Compass size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    list="mentor-jalur-list"
+                    value={track}
+                    onChange={e => setTrack(e.target.value)}
+                    required
+                    placeholder="Contoh: PPKB UI, Talent Scouting UI, SNBP, IUP UGM"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 outline-none focus:border-amber-400"
+                  />
+                  <datalist id="mentor-jalur-list">
+                    {JALUR_LIST.map(j => (
+                      <option key={j.id} value={j.name} />
+                    ))}
+                  </datalist>
                 </div>
               </div>
             </>
@@ -207,7 +307,7 @@ export default function MentorAuthPage() {
                 onChange={e => setEmail(e.target.value)}
                 required
                 placeholder="email.kamu@alumni.ac.id"
-                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 outline-none focus:border-amber-400"
+                className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 outline-none focus:border-amber-400"
               />
             </div>
           </div>
@@ -222,7 +322,7 @@ export default function MentorAuthPage() {
                 onChange={e => setPassword(e.target.value)}
                 required
                 placeholder="Minimal 8 karakter"
-                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 outline-none focus:border-amber-400"
+                className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 outline-none focus:border-amber-400"
               />
             </div>
           </div>
@@ -237,7 +337,6 @@ export default function MentorAuthPage() {
           </button>
         </form>
 
-        {/* Footer info */}
         <div className="text-center pt-2 border-t border-gray-100 text-[11px] text-gray-400 space-y-1">
           <p>© {new Date().getFullYear()} {LEGAL_ENTITY.brand} Mentor Network</p>
           <Link href="/dashboard" className="text-amber-700 font-bold hover:underline block">

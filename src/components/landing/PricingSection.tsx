@@ -10,11 +10,11 @@ import { PRICE_MATRIX, formatIDR } from '@/lib/pricing'
 const BASE = PRICE_MATRIX.individu.essay
 
 const FREE = { name: 'Akun Gratis', price: 'Rp0', desc: 'Mulai eksplorasi tanpa bayar sepeser pun.', feats: ['Kalkulator Peluang 1x/bulan', 'Chat Otbee AI 3x/hari', 'Essay AI Review 1x/bulan', 'Akses modul preview'], href: '/register' }
-const WEB = { name: 'Akun Premium', price: `${formatIDR(BASE.web_premium.amount)}`, desc: 'Akses penuh ke seluruh fitur platform cerdas tanpa mentor alumni.', feats: ['Kalkulator & AI Unlimited', 'Bebas buat Circle', 'Unlock 100% modul e-course', 'Buka Atur Strategi'], href: '/upgrade' }
+const WEB = { name: 'Akun Premium', price: `${formatIDR(BASE.web_premium.amount)}/bln`, desc: 'Akses penuh ke seluruh fitur platform cerdas selama 1 bulan tanpa mentor alumni.', feats: ['Kalkulator & AI Unlimited', 'Bebas buat Circle', 'Unlock 100% modul e-course', 'Buka Atur Strategi'], href: '/upgrade' }
 const SMALL = [
   { key: 'review', name: 'Nectar', price: `Mulai ${formatIDR(BASE.review.amount)}`, feats: ['Termasuk Akun Premium', '2x Revisi Esai via WA', 'Cek validasi dokumen'], href: '/upgrade', highlight: false },
-  { key: 'reguler', name: 'Honeycomb', price: `Mulai ${formatIDR(BASE.dokumen.amount)}`, feats: ['Termasuk Akun Premium', '5x Putaran Revisi Esai', '2x Sesi Privat Zoom', 'Grup WA Eksklusif'], href: '/upgrade', highlight: false },
-  { key: 'intensif', name: 'Royal Jelly', price: `Mulai ${formatIDR(BASE.menyeluruh.amount)}`, feats: ['Termasuk Akun Premium', 'Unlimited Revisi + Meet', 'Bimbingan dokumen & wawancara', 'Exclusive Trip ke UI'], href: '/upgrade', highlight: true },
+  { key: 'reguler', name: 'Honeycomb', price: `Mulai ${formatIDR(BASE.dokumen.amount)}`, feats: ['Termasuk Akun Premium', '5x Putaran Revisi Esai', '2x Sesi Privat Zoom', 'Grup WA Eksklusif'], href: '/upgrade', highlight: true },
+  { key: 'intensif', name: 'Royal Jelly', price: `Mulai ${formatIDR(BASE.menyeluruh.amount)}`, feats: ['Termasuk Akun Premium', 'Unlimited Revisi + Meet', 'Bimbingan dokumen & wawancara', 'Exclusive Trip ke UI'], href: '/upgrade', highlight: false },
 ]
 
 function Feats({ items }: { items: string[] }) {

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Pusat Artikel & Panduan Masuk PTN Non-Tes | otwptn',
   description: 'Kumpulan artikel, strategi, dan tips lolos seleksi masuk PTN jalur non-tes: SNBP, PPKB UI, SJP IPB, PBUB UGM, dan Seleksi Mandiri Prestasi.',
   alternates: {
-    canonical: 'https://otwptn.com/artikel',
+    canonical: 'https://www.otwptn.com/artikel',
   },
 }
 

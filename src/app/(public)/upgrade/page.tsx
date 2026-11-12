@@ -28,6 +28,7 @@ import { loadStoredAcademicProfile } from '@/lib/academicProfile'
 import {
   MODES,
   TRACKS,
+  getRenewalPrice,
   TIERS,
   TIER_LABELS,
   TIER_TAGLINES,
@@ -77,10 +78,15 @@ export default function UpgradePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [userInfo, setUserInfo] = useState<{ name: string; email: string } | null>(null)
+  const [hasPaidHistory, setHasPaidHistory] = useState(false)
+  const [isRenewal, setIsRenewal] = useState(false)
+  const [renewalMentorChoice, setRenewalMentorChoice] = useState<'same' | 'different'>('same')
 
   useEffect(() => {
-    const ref = new URLSearchParams(window.location.search).get('ref')
+    const params = new URLSearchParams(window.location.search)
+    const ref = params.get('ref')
     if (ref) setReferralCode(ref.trim().toUpperCase().slice(0, 24))
+    if (params.get('renewal') === '1') setIsRenewal(true)
   }, [])
 
   useEffect(() => {
@@ -93,10 +99,13 @@ export default function UpgradePage() {
         })
         supabase
           .from('profiles')
-          .select('target_ptns, target_majors, target_jalurs')
+          .select('tier, target_ptns, target_majors, target_jalurs')
           .eq('id', user.id)
           .maybeSingle()
           .then(({ data: prof }) => {
+            if (prof?.tier && prof.tier !== 'free') {
+              setHasPaidHistory(true)
+            }
             const meta = user.user_metadata || {}
             const stored = loadStoredAcademicProfile()
 
@@ -159,6 +168,8 @@ export default function UpgradePage() {
           target_ptn: targetPtn || undefined,
           target_faculty: targetFaculty || undefined,
           target_major: targetMajor || undefined,
+          is_renewal: isRenewal && hasPaidHistory,
+          renewal_mentor_choice: isRenewal && hasPaidHistory && selection.tier !== 'web_premium' ? renewalMentorChoice : undefined,
         }),
       })
       const data = await res.json()
@@ -181,10 +192,16 @@ export default function UpgradePage() {
   }
 
   const selectedPrice = selection ? getPrice(selection.mode, selection.track, selection.tier) : null
-  const selectedFinalAmount =
+  const baseAfterRef =
     selection?.mode === 'individu' && referralCode.trim() && selectedPrice?.referralAmount
       ? selectedPrice.referralAmount
       : selectedPrice?.amount
+
+  const renewalActive = isRenewal && hasPaidHistory
+  const selectedFinalAmount =
+    selection && renewalActive && baseAfterRef != null
+      ? getRenewalPrice(selection.tier, baseAfterRef)
+      : baseAfterRef
 
   const availableMainJalurs = selection
     ? JALUR_LIST.filter(j => {
@@ -222,6 +239,31 @@ export default function UpgradePage() {
             Dari sekadar cek peluang sendiri sampai digandeng mentor yang udah pernah lolos di jalur yang sama persis. Tinggal pilih seberapa deket kamu mau didampingi, harganya otomatis nyesuain. Diselenggarakan di bawah naungan resmi <strong>{LEGAL_ENTITY.name}</strong>.
           </p>
         </div>
+
+        {/* Banner Promo Perpanjangan Paket (jika user sudah pernah punya paket) */}
+        {hasPaidHistory && (
+          <div className="max-w-2xl mx-auto mb-8 p-4 rounded-2xl bg-amber-50 border border-amber-300 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+            <div className="min-w-0">
+              <p className="text-xs font-black text-amber-950">
+                Promo Perpanjangan Paket Aktif!
+              </p>
+              <p className="text-[11px] text-amber-800 font-medium">
+                Akun Premium hanya Rp25.000/bln, paket mentoring hemat Rp15.000 + bebas pilih mentor sama atau baru.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsRenewal(v => !v)}
+              className={`px-4 py-2 rounded-full text-xs font-black transition-all cursor-pointer ${
+                isRenewal
+                  ? 'bg-amber-500 text-white shadow-xs'
+                  : 'bg-white text-amber-900 border border-amber-300 hover:bg-amber-100'
+              }`}
+            >
+              {isRenewal ? 'Mode Perpanjangan: AKTIF' : 'Aktifkan Harga Perpanjangan'}
+            </button>
+          </div>
+        )}
 
         {/* Langkah 1: Mode Toggle */}
         <div className="max-w-2xl mx-auto mb-8">
@@ -729,6 +771,41 @@ export default function UpgradePage() {
                 </div>
               )}
 
+              {/* Pilihan Mentor saat Perpanjangan Paket Mentoring */}
+              {renewalActive && selection.tier !== 'web_premium' && (
+                <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4 space-y-2.5">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-amber-800">
+                    Pilihan Mentor untuk Perpanjangan
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setRenewalMentorChoice('same')}
+                      className={`p-3 rounded-xl text-left border text-xs font-bold transition-all cursor-pointer ${
+                        renewalMentorChoice === 'same'
+                          ? 'bg-white border-amber-500 text-amber-950 shadow-xs'
+                          : 'bg-white/60 border-amber-200 text-gray-600 hover:bg-white'
+                      }`}
+                    >
+                      <span className="block font-black">Lanjut Mentor yang Sama</span>
+                      <span className="text-[10px] font-medium text-gray-500">Teruskan bimbingan dengan mentor saat ini</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRenewalMentorChoice('different')}
+                      className={`p-3 rounded-xl text-left border text-xs font-bold transition-all cursor-pointer ${
+                        renewalMentorChoice === 'different'
+                          ? 'bg-white border-amber-500 text-amber-950 shadow-xs'
+                          : 'bg-white/60 border-amber-200 text-gray-600 hover:bg-white'
+                      }`}
+                    >
+                      <span className="block font-black">Ganti Mentor Baru</span>
+                      <span className="text-[10px] font-medium text-gray-500">Auto-match ulang dengan mentor berbeda</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Price breakdown */}
               <div className="rounded-2xl bg-gray-50 p-4">
                 <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-3">Rincian Pembayaran</p>
@@ -745,7 +822,7 @@ export default function UpgradePage() {
                   </div>
                   {selectedFinalAmount !== selectedPrice.amount && (
                     <div className="flex justify-between text-emerald-600 font-bold">
-                      <span>Diskon kode referral</span>
+                      <span>{renewalActive ? 'Diskon perpanjangan + referral' : 'Diskon kode referral'}</span>
                       <span>- {formatIDR(selectedPrice.amount - selectedFinalAmount!)}</span>
                     </div>
                   )}
