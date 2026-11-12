@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { HoneyOverlay } from '@/components/ui/HoneyDrip'
 
@@ -13,17 +13,30 @@ export default function GlobalPageLoader() {
   const [isRouteLoaded, setIsRouteLoaded] = useState(false)
   const isTransitioningRef = useRef(false)
   const hasCompletedRef = useRef(false)
-  const startPathRef = useRef(pathname)
+  const startUrlRef = useRef('')
   const watchdogTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const drainFailsafeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  function handleComplete() {
-    if (!isTransitioningRef.current || hasCompletedRef.current) return
-    hasCompletedRef.current = true
-
+  const clearAllTimers = useCallback(() => {
     if (watchdogTimerRef.current) {
       clearTimeout(watchdogTimerRef.current)
       watchdogTimerRef.current = null
     }
+    if (drainFailsafeRef.current) {
+      clearTimeout(drainFailsafeRef.current)
+      drainFailsafeRef.current = null
+    }
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current)
+      pollIntervalRef.current = null
+    }
+  }, [])
+
+  const handleComplete = useCallback(() => {
+    if (!isTransitioningRef.current || hasCompletedRef.current) return
+    hasCompletedRef.current = true
+    clearAllTimers()
 
     const el = elRef.current
     if (el) {
@@ -47,21 +60,43 @@ export default function GlobalPageLoader() {
       isTransitioningRef.current = false
       hasCompletedRef.current = false
     }, 220)
-  }
+  }, [clearAllTimers])
 
-  // When pathname changes to destination route, release peak hold to drain honey
-  useEffect(() => {
-    if (!isTransitioningRef.current || pathname === startPathRef.current) return
+  const markRouteCommitted = useCallback(() => {
+    if (!isTransitioningRef.current) return
     setIsRouteLoaded(true)
-  }, [pathname])
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current)
+      pollIntervalRef.current = null
+    }
+    // Once route commits, drain from 1.16s -> 2.38s takes ~1.0s.
+    // Failsafe ensures the overlay NEVER stays frozen if a browser throttles video resume.
+    if (!drainFailsafeRef.current) {
+      drainFailsafeRef.current = setTimeout(() => {
+        handleComplete()
+      }, 1500)
+    }
+  }, [handleComplete])
 
-  function startTransition(href: string) {
+  // Detect pathname changes via Next.js hook
+  useEffect(() => {
+    if (!isTransitioningRef.current) return
+    const currentFull = typeof window !== 'undefined'
+      ? `${window.location.pathname}${window.location.search}`
+      : pathname
+    if (currentFull !== startUrlRef.current) {
+      markRouteCommitted()
+    }
+  }, [pathname, markRouteCommitted])
+
+  const startTransition = useCallback((href: string) => {
     const el = elRef.current
     if (!el || isTransitioningRef.current) return
 
+    clearAllTimers()
     isTransitioningRef.current = true
     hasCompletedRef.current = false
-    startPathRef.current = pathname
+    startUrlRef.current = `${window.location.pathname}${window.location.search}`
     setIsRouteLoaded(false)
 
     // Show overlay immediately
@@ -81,13 +116,22 @@ export default function GlobalPageLoader() {
     router.prefetch(href)
     router.push(href)
 
-    // Watchdog safety timer: 12 seconds
+    // Poll full URL (pathname + search) every 80ms so query-param or fast navigations never hang
+    pollIntervalRef.current = setInterval(() => {
+      if (!isTransitioningRef.current) return
+      const nowFull = `${window.location.pathname}${window.location.search}`
+      if (nowFull !== startUrlRef.current) {
+        markRouteCommitted()
+      }
+    }, 80)
+
+    // Hard safety cap (4.5s) so overlay never freezes on top of UI under any condition
     watchdogTimerRef.current = setTimeout(() => {
       if (isTransitioningRef.current) {
         handleComplete()
       }
-    }, 12000)
-  }
+    }, 4500)
+  }, [clearAllTimers, handleComplete, markRouteCommitted, router])
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -125,9 +169,11 @@ export default function GlobalPageLoader() {
     }
 
     document.addEventListener('click', onClick, true)
-    return () => document.removeEventListener('click', onClick, true)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    return () => {
+      document.removeEventListener('click', onClick, true)
+      clearAllTimers()
+    }
+  }, [startTransition, clearAllTimers])
 
   return (
     <HoneyOverlay

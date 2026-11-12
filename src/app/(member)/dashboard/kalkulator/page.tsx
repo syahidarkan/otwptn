@@ -43,6 +43,17 @@ interface KalkulatorResult {
   strengths: string[]
   weaknesses: string[]
   tips: string[]
+  formulaName?: string
+  formulaWeights?: { label: string; weightPct: number; achievedPct: number }[]
+  prodiBenchmark?: {
+    ptn: string
+    prodi: string
+    dayaTampung2026: number
+    peminat2025: number
+    keketatan2025: number | null
+    history: Record<string, { p: number; d: number; k: number }>
+  } | null
+  raporTrend?: 'naik' | 'stabil' | 'turun' | 'belum_lengkap'
 }
 
 interface Subject {
@@ -180,6 +191,86 @@ function ResultPanel({
             >
               <Share2 size={15} /> Pamer Skor ke Instagram / TikTok Story
             </button>
+          )}
+
+          {/* Formula Bobot Jalur & Tren Rapor */}
+          {result.formulaName && result.formulaWeights && result.formulaWeights.length > 0 && (
+            <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/60 space-y-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[10px] font-black uppercase tracking-wider text-amber-900">
+                  {result.formulaName}
+                </p>
+                {result.raporTrend && result.raporTrend !== 'belum_lengkap' && (
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    result.raporTrend === 'naik'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : result.raporTrend === 'turun'
+                      ? 'bg-rose-100 text-rose-700'
+                      : 'bg-gray-100 text-gray-700'
+                  }`}>
+                    Tren Rapor: {result.raporTrend.toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <div className="space-y-2">
+                {result.formulaWeights.map((fw, idx) => (
+                  <div key={idx}>
+                    <div className="flex items-center justify-between text-[11px] font-bold text-gray-700 mb-0.5">
+                      <span>{fw.label}</span>
+                      <span className="text-amber-800">{fw.achievedPct}% / bobot {fw.weightPct}%</span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-amber-100 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-amber-500 transition-all"
+                        style={{ width: `${Math.min(100, Math.round((fw.achievedPct / Math.max(1, fw.weightPct)) * 100))}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Benchmark Data SNPMB Prodi (2021-2026) */}
+          {result.prodiBenchmark && (
+            <div className="p-4 rounded-2xl bg-gray-50 border border-gray-200/70 space-y-2">
+              <p className="text-[10px] font-black uppercase tracking-wider text-gray-500">
+                Data Resmi Keketatan Prodi (SNPMB)
+              </p>
+              <p className="text-xs font-extrabold text-gray-900 leading-snug">
+                {result.prodiBenchmark.ptn} - {result.prodiBenchmark.prodi}
+              </p>
+              <div className="grid grid-cols-3 gap-2 pt-1">
+                <div className="p-2 rounded-xl bg-white text-center">
+                  <div className="text-[10px] text-gray-400 font-semibold">Tampung 2026</div>
+                  <div className="text-xs font-black text-gray-900">{result.prodiBenchmark.dayaTampung2026 || '-'}</div>
+                </div>
+                <div className="p-2 rounded-xl bg-white text-center">
+                  <div className="text-[10px] text-gray-400 font-semibold">Peminat 2025</div>
+                  <div className="text-xs font-black text-gray-900">{result.prodiBenchmark.peminat2025 || '-'}</div>
+                </div>
+                <div className="p-2 rounded-xl bg-white text-center">
+                  <div className="text-[10px] text-gray-400 font-semibold">Keketatan 2025</div>
+                  <div className="text-xs font-black text-amber-700">
+                    {result.prodiBenchmark.keketatan2025 != null ? `${result.prodiBenchmark.keketatan2025}%` : '-'}
+                  </div>
+                </div>
+              </div>
+              {Object.keys(result.prodiBenchmark.history || {}).length > 0 && (
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {Object.entries(result.prodiBenchmark.history)
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([yr, st]) => (
+                      <span
+                        key={yr}
+                        className="text-[10px] font-semibold px-2 py-0.5 rounded-lg bg-white text-gray-600 border border-gray-100"
+                      >
+                        {yr}: {st.d}/{st.p} ({st.k}%)
+                      </span>
+                    ))}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Strengths */}
@@ -495,10 +586,37 @@ export default function KalkulatorPage() {
     setLoading(true)
     setResult(null)
 
+    const filledCerts = certificates
+      .filter(c => c.name)
+      .map(c => ({
+        name: c.name,
+        level: c.level,
+        rank: c.rank,
+        year: c.year,
+      }))
+
+    const highestCert = filledCerts.reduce<string | undefined>((best, cur) => {
+      if (!best) return cur.level
+      return (LEVEL_RANK[cur.level] || 0) > (LEVEL_RANK[best] || 0) ? cur.level : best
+    }, undefined)
+
+    const effectivePtn1 = pilihan1Ptn || (!isSnbp ? selectedJalur.ptn : '')
+
     const payload: Record<string, unknown> = {
       jalur_id: targetJalurId || selectedJalur.id,
+      jalur_type: isSnbp ? 'snbp' : 'institusi',
+      target_ptn: effectivePtn1 || selectedJalur.ptn,
+      target_jalur: selectedJalur.name,
+      avg_rapor: Number(avgRapor.toFixed(2)),
+      cert_count: filledCerts.length,
+      cert_highest_level: highestCert,
       class_rank: classRank ? Number(classRank) : undefined,
       class_total: classTotal ? Number(classTotal) : undefined,
+      eligible_rank: eligibleRank ? Number(eligibleRank) : undefined,
+      school_quota: schoolQuota ? Number(schoolQuota) : undefined,
+      school_accreditation: schoolAccreditation || undefined,
+      pilihan_1: effectivePtn1 && pilihan1Prodi ? { ptn: effectivePtn1, prodi: pilihan1Prodi } : undefined,
+      pilihan_2: pilihan2Ptn && pilihan2Prodi ? { ptn: pilihan2Ptn, prodi: pilihan2Prodi } : undefined,
       semesters: semesters.map(s => ({
         semester: s.semester,
         subjects: s.subjects
@@ -509,24 +627,12 @@ export default function KalkulatorPage() {
             grade: Number(sub.grade),
           })),
       })),
-      certificates: certificates
-        .filter(c => c.name)
-        .map(c => ({
-          name: c.name,
-          level: c.level,
-          rank: c.rank,
-          year: c.year,
-        })),
+      certificates: filledCerts,
     }
 
     if (isSnbp) {
-      payload.school_accreditation = schoolAccreditation || undefined
       payload.tka_completed = tkaCompleted
       payload.is_snbp_eligible = isEligible
-      payload.eligible_rank = eligibleRank ? Number(eligibleRank) : undefined
-      payload.school_quota = schoolQuota ? Number(schoolQuota) : undefined
-      payload.pilihan_1 = pilihan1Ptn ? { ptn: pilihan1Ptn, prodi: pilihan1Prodi } : undefined
-      payload.pilihan_2 = pilihan2Ptn ? { ptn: pilihan2Ptn, prodi: pilihan2Prodi } : undefined
     }
 
     try {
@@ -538,31 +644,37 @@ export default function KalkulatorPage() {
       const data = await res.json()
       if (res.status === 403) setQuotaError(data)
       else if (!res.ok) {
-        // Fallback simulated result if OpenAI key is FILL_IN
-        const simulatedScore = Math.min(
-          96,
-          Math.max(48, Math.round(avgRapor > 0 ? avgRapor * 0.95 + certificates.length * 4 : 78))
-        )
+        // Fallback berbeda per kategori jalur jika AI key sedang offline
+        const cat = selectedJalur.category
+        const baseRapor = avgRapor > 0 ? avgRapor : 84
+        const certBonus = Math.min(25, filledCerts.length * (cat === 'prestasi_only' ? 9 : cat === 'hybrid' ? 6 : 3))
+        const raporWeight = cat === 'prestasi_only' ? 0.52 : cat === 'essay_only' ? 0.72 : 0.84
+        const simulatedScore = Math.min(96, Math.max(40, Math.round(baseRapor * raporWeight + certBonus)))
         setResult({
           score: simulatedScore,
+          formulaName: `Formula Jalur ${selectedJalur.name} (${cat.replace('_', ' ').toUpperCase()})`,
           recommendation:
             simulatedScore >= 75
-              ? 'Peluang Sangat Terbuka - Rapor dan prestasimu kompetitif untuk prodi pilihan.'
-              : 'Peluang Moderat - Pertimbangkan alternatif prodi pilihan ke-2 yang lebih rasional.',
+              ? `Peluang Cukup Terbuka untuk ${selectedJalur.name} - Nilai dan profilmu bersaing di jalur ${cat.replace('_', ' ')}.`
+              : `Peluang Moderat di ${selectedJalur.name} - Perkuat komponen utama jalur (${cat === 'prestasi_only' ? 'sertifikat unggulan' : cat === 'essay_only' ? 'indeks rapor & motivasi essay' : 'konsistensi nilai & portofolio'}).`,
           strengths: [
-            `Rerata nilai rapor semester mencapai ${avgRapor > 0 ? avgRapor.toFixed(1) : '88.5'}`,
-            certificates.length > 0
-              ? `${certificates.length} sertifikat pendukung menambah bobot penilaian mandiri`
-              : 'Riwayat konsistensi nilai per mata pelajaran cukup stabil',
+            `Rerata nilai rapor semester mencapai ${avgRapor > 0 ? avgRapor.toFixed(1) : '84.0'}`,
+            filledCerts.length > 0
+              ? `${filledCerts.length} sertifikat tercatat (tertinggi: ${highestCert || 'sekolah'})`
+              : 'Struktur mata pelajaran semester sudah terekam',
           ],
           weaknesses: [
-            classRank && Number(classRank) > 5
-              ? `Peringkat kelas ke-${classRank} berpotensi bersaing ketat dengan siswa satu sekolah`
-              : 'Perlu verifikasi linieritas mata pelajaran pendukung prodi tujuan',
+            cat === 'prestasi_only' && filledCerts.length === 0
+              ? 'Jalur prestasi mensyaratkan sertifikat kejuaraan/kepemimpinan yang terkurasi'
+              : classRank && Number(classRank) > 5
+              ? `Peringkat kelas ke-${classRank} perlu strategi prodi yang tepat`
+              : 'Pastikan kelengkapan nilai seluruh 5 semester agar analisis lebih akurat',
           ],
           tips: [
-            'Pastikan memilih prodi pilihan 1 dengan minat tertinggi dan prodi pilihan 2 sebagai safety net.',
-            'Tulis essay motivasi yang menonjolkan relevansi sertifikat untuk mendongkrak skor akhir.',
+            'Lengkapi Pilihan PTN & Program Studi tujuan agar benchmark keketatan resmi SNPMB ikut terhitung.',
+            cat === 'essay_only' || cat === 'hybrid'
+              ? 'Perkuat keunikan narasi di Essay & Portofolio sebelum finalisasi pendaftaran.'
+              : 'Siapkan pilihan ke-2 dengan daya tampung lebih longgar sebagai jaring pengaman.',
           ],
         })
       } else {
@@ -678,54 +790,54 @@ export default function KalkulatorPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Form Sections */}
         <div className="lg:col-span-2 space-y-5">
+          {/* Prodi Pilihan Card (untuk SNBP maupun Jalur Mandiri/Institusi) */}
+          <div className="p-6 rounded-3xl bg-white shadow-md space-y-4">
+            <div>
+              <h3 className="text-xs font-black uppercase tracking-wider text-gray-400">
+                Pilihan Universitas & Program Studi Tujuan ({selectedJalur.name})
+              </h3>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Pilih target PTN dan Jurusan dari direktori resmi untuk menghitung benchmark keketatan 5 tahun terakhir.
+              </p>
+            </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <SearchablePicker
+                  label="Universitas PTN Pilihan 1 (Utama)"
+                  placeholder={isSnbp ? 'Pilih PTN Pilihan 1...' : selectedJalur.ptn}
+                  value={pilihan1Ptn || (!isSnbp ? selectedJalur.ptn : '')}
+                  onChange={v => setPilihan1Ptn(v)}
+                  options={ptnOptions}
+                />
+                <SearchablePicker
+                  label="Program Studi Pilihan 1 (Utama)"
+                  placeholder="Pilih Jurusan Pilihan 1..."
+                  value={pilihan1Prodi}
+                  onChange={v => setPilihan1Prodi(v)}
+                  options={jurusanOptions}
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                <SearchablePicker
+                  label="Universitas PTN Pilihan 2 (Cadangan / Opsional)"
+                  placeholder="Pilih PTN Pilihan 2..."
+                  value={pilihan2Ptn}
+                  onChange={v => setPilihan2Ptn(v)}
+                  options={ptnOptions}
+                />
+                <SearchablePicker
+                  label="Program Studi Pilihan 2 (Cadangan / Opsional)"
+                  placeholder="Pilih Jurusan Pilihan 2..."
+                  value={pilihan2Prodi}
+                  onChange={v => setPilihan2Prodi(v)}
+                  options={jurusanOptions}
+                />
+              </div>
+            </div>
+          </div>
+
           {isSnbp ? (
             <>
-              {/* Prodi Pilihan Card */}
-              <div className="p-6 rounded-3xl bg-white shadow-md space-y-4">
-                <div>
-                  <h3 className="text-xs font-black uppercase tracking-wider text-gray-400">
-                    Pilihan Universitas & Program Studi SNBP
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Pilih target PTN dan Jurusan dari direktori resmi seluruh perguruan tinggi negeri Indonesia.
-                  </p>
-                </div>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <SearchablePicker
-                      label="Universitas PTN Pilihan 1 (Utama)"
-                      placeholder="Pilih PTN Pilihan 1..."
-                      value={pilihan1Ptn}
-                      onChange={v => setPilihan1Ptn(v)}
-                      options={ptnOptions}
-                    />
-                    <SearchablePicker
-                      label="Program Studi Pilihan 1 (Utama)"
-                      placeholder="Pilih Jurusan Pilihan 1..."
-                      value={pilihan1Prodi}
-                      onChange={v => setPilihan1Prodi(v)}
-                      options={jurusanOptions}
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-                    <SearchablePicker
-                      label="Universitas PTN Pilihan 2 (Cadangan)"
-                      placeholder="Pilih PTN Pilihan 2..."
-                      value={pilihan2Ptn}
-                      onChange={v => setPilihan2Ptn(v)}
-                      options={ptnOptions}
-                    />
-                    <SearchablePicker
-                      label="Program Studi Pilihan 2 (Cadangan)"
-                      placeholder="Pilih Jurusan Pilihan 2..."
-                      value={pilihan2Prodi}
-                      onChange={v => setPilihan2Prodi(v)}
-                      options={jurusanOptions}
-                    />
-                  </div>
-                </div>
-              </div>
-
               {/* Akreditasi & Eligibility SNBP Card */}
               <div className="p-6 rounded-3xl bg-white shadow-md">
                 <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-1">

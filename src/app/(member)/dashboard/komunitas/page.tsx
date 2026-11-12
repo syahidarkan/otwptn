@@ -102,7 +102,7 @@ const INITIAL_CIRCLES: CircleItem[] = [
     onlineCount: 1,
     description: 'Circle khusus pejuang PPKB & SNBP Fasilkom UI. Saling review essay, bedah passing grade rapor, dan sharing sertifikat Puspresnas.',
     ptnTarget: 'Universitas Indonesia (Fasilkom)',
-    joined: true,
+    joined: false,
     isOfficial: true,
     members: [],
   },
@@ -170,45 +170,10 @@ interface CuitanPost {
   liked?: boolean
 }
 
-const INITIAL_CUITAN: CuitanPost[] = [
-  {
-    id: 'post-1',
-    author: 'Fajar Nugraha',
-    handle: '@fajarnug',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-    targetPTN: 'UI · Ilmu Komputer',
-    time: '15m yang lalu',
-    content: 'Alhamdulillah hasil audit rapor 5 semester di otwptn keluar, linieritas prodi tembus 94%! Bismillah PPKB UI tahun ini eligible aman.',
-    likes: 24,
-    replies: 5,
-  },
-  {
-    id: 'post-2',
-    author: 'Keisha Maharani',
-    handle: '@keishamhrn',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80',
-    targetPTN: 'UNAIR · Kedokteran',
-    time: '42m yang lalu',
-    content: 'Teman-teman pejuang FK, sertifikat Puspresnas tingkat provinsi lebih baik ditaruh di slot nomor berapa ya? Ada yang pernah konsul ke mentor?',
-    likes: 18,
-    replies: 7,
-  },
-  {
-    id: 'post-3',
-    author: 'Dinda Ayuningtyas',
-    handle: '@dindaayuu',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-    targetPTN: 'ITB · SBM',
-    time: '2j yang lalu',
-    content: 'Tadi barusan kelar sesi Google Meet 1-on-1 sama Kak Amanda alumni SBM ITB. Hook esai kepemimpinanku langsung dirombak jadi data-driven! Kerasa banget bedanya.',
-    likes: 31,
-    replies: 9,
-  },
-]
-
 export default function KomunitasPage() {
   const { showToast, toastHost } = useToast()
   const supabase = createClient()
+  const [userId, setUserId] = useState<string | null>(null)
   const [tier, setTier] = useState<string>('free')
   const [myProfile, setMyProfile] = useState<{ name: string; avatar: string; targetPTN: string } | null>(null)
   const [mainView, setMainView] = useState<'feed' | 'circle'>('feed')
@@ -325,17 +290,38 @@ export default function KomunitasPage() {
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) return
+      const uid = data.user.id
+      setUserId(uid)
       const { data: profile } = await supabase
         .from('profiles')
         .select('tier, full_name, avatar_url, target_ptns')
-        .eq('id', data.user.id)
+        .eq('id', uid)
         .single()
       if (profile?.tier) setTier(profile.tier)
       setMyProfile({
         name: profile?.full_name || data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Pejuang PTN',
-        avatar: profile?.avatar_url ?? '',
+        avatar: profile?.avatar_url ?? (data.user.user_metadata?.avatar_url as string | undefined) ?? '',
         targetPTN: (profile?.target_ptns as string[] | null)?.[0] ?? '-',
       })
+
+      // Restore only circles explicitly joined or created by this user
+      try {
+        const joinedRaw = localStorage.getItem(`otwptn_joined_circles_${uid}`)
+        const joinedIds: string[] = joinedRaw ? JSON.parse(joinedRaw) : []
+        const customRaw = localStorage.getItem(`otwptn_custom_circles_${uid}`)
+        const customCircles: CircleItem[] = customRaw ? JSON.parse(customRaw) : []
+
+        setCircles(() => {
+          const base = INITIAL_CIRCLES.map(c => ({
+            ...c,
+            joined: Array.isArray(joinedIds) && joinedIds.includes(c.id),
+          }))
+          const validCustom = Array.isArray(customCircles)
+            ? customCircles.map(c => ({ ...c, joined: true }))
+            : []
+          return [...validCustom, ...base]
+        })
+      } catch {}
     })
   }, [supabase])
 
@@ -355,8 +341,8 @@ export default function KomunitasPage() {
           }) => {
             const prof = p.profiles
             const ptn = prof?.target_ptns?.[0] ?? '-'
-            const name = prof?.full_name ?? 'Pejuang PTN'
-            const handle = '@' + name.toLowerCase().replace(/\s+/g, '')
+            const name = (prof?.full_name && prof.full_name.trim()) ? prof.full_name.trim() : 'Pejuang PTN'
+            const handle = '@' + (name.toLowerCase().replace(/[^a-z0-9]/g, '') || 'pejuangptn')
             const elapsed = Math.floor((Date.now() - new Date(p.created_at).getTime()) / 60000)
             const timeStr = elapsed < 1 ? 'Baru saja' : elapsed < 60 ? `${elapsed}m yang lalu` : elapsed < 1440 ? `${Math.floor(elapsed / 60)}j yang lalu` : `${Math.floor(elapsed / 1440)}h yang lalu`
             return {
@@ -397,14 +383,13 @@ export default function KomunitasPage() {
       if (res.ok && data.post) {
         const p = data.post
         const prof = p.profiles
-        // Prefer cached myProfile if the join returned null (e.g. RLS or missing profile row)
-        const name = prof?.full_name ?? myProfile?.name ?? 'Kamu'
+        const rawName = (prof?.full_name && prof.full_name.trim()) ? prof.full_name.trim() : (myProfile?.name || 'Kamu')
         const avatar = prof?.avatar_url ?? myProfile?.avatar ?? ''
         const targetPTN = (prof?.target_ptns as string[] | undefined)?.[0] ?? myProfile?.targetPTN ?? '-'
-        const handle = '@' + name.toLowerCase().replace(/\s+/g, '')
+        const handle = '@' + (rawName.toLowerCase().replace(/[^a-z0-9]/g, '') || 'pejuangptn')
         const newPost: CuitanPost = {
           id: p.id,
-          author: name,
+          author: rawName,
           handle,
           avatar,
           targetPTN,
@@ -443,6 +428,15 @@ export default function KomunitasPage() {
     setCircles(prev =>
       prev.map(c => (c.id === circleId ? { ...c, joined: true, membersCount: c.membersCount + 1 } : c))
     )
+    if (userId) {
+      try {
+        const key = `otwptn_joined_circles_${userId}`
+        const existing: string[] = JSON.parse(localStorage.getItem(key) || '[]')
+        if (!existing.includes(circleId)) {
+          localStorage.setItem(key, JSON.stringify([...existing, circleId]))
+        }
+      } catch {}
+    }
     setSelectedCircleId(circleId)
   }
 
@@ -517,6 +511,13 @@ export default function KomunitasPage() {
       ],
     }
     setCircles([newC, ...circles])
+    if (userId) {
+      try {
+        const key = `otwptn_custom_circles_${userId}`
+        const existing: CircleItem[] = JSON.parse(localStorage.getItem(key) || '[]')
+        localStorage.setItem(key, JSON.stringify([newC, ...existing]))
+      } catch {}
+    }
     setSelectedCircleId(newC.id)
     setCreateModalOpen(false)
     setNewCircleName('')

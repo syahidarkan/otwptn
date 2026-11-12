@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
+import { createClient } from '@/lib/supabase/client'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
 import PadananKataGame from '@/components/games/PadananKataGame'
 import OmegleSection from '@/components/landing/OmegleSection'
@@ -65,97 +66,6 @@ const ALL_PTNS = [
   { id: 'USU', label: 'USU' },
   { id: 'UDAYANA', label: 'UDAYANA' },
   { id: 'UNSOED', label: 'UNSOED' },
-]
-
-const PEER_POOL: PeerProfile[] = [
-  {
-    id: 'p-1',
-    name: 'Dinda Ayuningtyas',
-    school: 'SMAN 3 Bandung',
-    city: 'Bandung',
-    targetPTN: 'Institut Teknologi Bandung (ITB)',
-    targetMajor: 'SBM ITB',
-    streak: 14,
-    topic: 'Fokus Bikin Portofolio & Latsol Matematika',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'p-2',
-    name: 'Fajar Nugraha',
-    school: 'SMAN 8 Jakarta',
-    city: 'Jakarta Selatan',
-    targetPTN: 'Universitas Indonesia (UI)',
-    targetMajor: 'Ilmu Komputer',
-    streak: 21,
-    topic: 'Review Draf Esai PPKB UI Paragraf 3-4',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'p-3',
-    name: 'Keisha Maharani',
-    school: 'MAN 2 Surabaya',
-    city: 'Surabaya',
-    targetPTN: 'Universitas Airlangga (UNAIR)',
-    targetMajor: 'Kedokteran',
-    streak: 18,
-    topic: 'Latihan Biologi Rapor & Bedah Syarat Mandiri',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'p-4',
-    name: 'Bima Pratama',
-    school: 'SMA Taruna Nusantara',
-    city: 'Magelang',
-    targetPTN: 'Universitas Gadjah Mada (UGM)',
-    targetMajor: 'Teknik Sipil',
-    streak: 9,
-    topic: 'Bahas Latsol Fisika & Susun Rencana Belajar 7 Hari',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'p-5',
-    name: 'Nayla Zahira',
-    school: 'SMAN 1 Yogyakarta',
-    city: 'Yogyakarta',
-    targetPTN: 'Universitas Indonesia (UI)',
-    targetMajor: 'Psikologi',
-    streak: 11,
-    topic: 'Menulis Motivation Letter & Brainstorming Ide',
-    avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'p-6',
-    name: 'Raffi Kurniawan',
-    school: 'SMAN 1 Surabaya',
-    city: 'Surabaya',
-    targetPTN: 'Institut Teknologi Sepuluh Nopember (ITS)',
-    targetMajor: 'Informatika ITS',
-    streak: 15,
-    topic: 'Simulasi Seleksi Prestasi Mandiri Rapor',
-    avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'p-7',
-    name: 'Siti Nurhaliza',
-    school: 'SMAN 1 Semarang',
-    city: 'Semarang',
-    targetPTN: 'Universitas Diponegoro (UNDIP)',
-    targetMajor: 'Kesehatan Masyarakat',
-    streak: 8,
-    topic: 'Merapikan Berkas Legalisir & Sertifikat O2SN',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 'p-8',
-    name: 'Alifian Rasyid',
-    school: 'SMAN 3 Malang',
-    city: 'Malang',
-    targetPTN: 'Universitas Brawijaya (UB)',
-    targetMajor: 'Teknologi Informasi',
-    streak: 12,
-    topic: 'Diskusi Nilai Rapor Eligible SNBP',
-    avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=400&q=80',
-  },
 ]
 
 // Canvas animated TV static noise effect for matching state
@@ -229,26 +139,45 @@ export default function CariTemanBelajarPage() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [chatInput, setChatInput] = useState('')
 
-  // Friends List
-  const [friends, setFriends] = useState<PeerProfile[]>([
-    {
-      id: 'f-1',
-      name: 'Dimas Wicaksono',
-      school: 'SMAN 8 Jakarta',
-      city: 'Jakarta',
-      targetPTN: 'Universitas Indonesia',
-      targetMajor: 'Ilmu Komputer',
-      streak: 12,
-      topic: 'Sedang belajar esai',
-      avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80',
-    },
-  ])
+  // Friends List (real user connections, zero dummy users)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [friends, setFriends] = useState<PeerProfile[]>([])
+  const [discoverPeers, setDiscoverPeers] = useState<PeerProfile[]>([])
+  const [peerSearch, setPeerSearch] = useState('')
+  const [peersLoading, setPeersLoading] = useState(false)
   const [addedCurrent, setAddedCurrent] = useState(false)
   const [activeFriendChat, setActiveFriendChat] = useState<PeerProfile | null>(null)
-  const [friendChatMessages, setFriendChatMessages] = useState<Record<string, string[]>>({
-    'f-1': ['Halo! Makasih ya udah belajar bareng kemarin.', 'Sama-sama! Esai kamu udah oke banget kok.'],
-  })
+  const [friendChatMessages, setFriendChatMessages] = useState<Record<string, string[]>>({})
   const [friendChatInput, setFriendChatInput] = useState('')
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      setUserId(user.id)
+      try {
+        const savedFriends = localStorage.getItem(`otwptn_friends_${user.id}`)
+        if (savedFriends) {
+          const parsed = JSON.parse(savedFriends)
+          if (Array.isArray(parsed)) setFriends(parsed)
+        }
+        const savedChats = localStorage.getItem(`otwptn_friend_chats_${user.id}`)
+        if (savedChats) {
+          const parsedChats = JSON.parse(savedChats)
+          if (parsedChats && typeof parsedChats === 'object') setFriendChatMessages(parsedChats)
+        }
+      } catch {}
+    })
+
+    setPeersLoading(true)
+    fetch('/api/teman')
+      .then(r => r.json())
+      .then(d => {
+        if (Array.isArray(d.peers)) setDiscoverPeers(d.peers)
+      })
+      .catch(() => {})
+      .finally(() => setPeersLoading(false))
+  }, [])
 
   // Pomodoro Focus Timer
   const [pomodoroSeconds, setPomodoroSeconds] = useState(25 * 60)
@@ -507,11 +436,22 @@ export default function CariTemanBelajarPage() {
     setAddedCurrent(false)
   }
 
+  function addFriendProfile(peer: PeerProfile) {
+    setFriends(prev => {
+      if (prev.some(f => f.id === peer.id)) return prev
+      const next = [peer, ...prev]
+      if (userId) {
+        try {
+          localStorage.setItem(`otwptn_friends_${userId}`, JSON.stringify(next))
+        } catch {}
+      }
+      return next
+    })
+  }
+
   function handleAddFriend() {
     if (!currentPeer) return
-    if (!friends.some(f => f.id === currentPeer.id)) {
-      setFriends(prev => [currentPeer, ...prev])
-    }
+    addFriendProfile(currentPeer)
     setAddedCurrent(true)
   }
 
@@ -546,12 +486,32 @@ export default function CariTemanBelajarPage() {
 
   function handleSendFriendMessage(friendId: string) {
     if (!friendChatInput.trim()) return
-    setFriendChatMessages(prev => ({
-      ...prev,
-      [friendId]: [...(prev[friendId] || []), friendChatInput.trim()],
-    }))
+    setFriendChatMessages(prev => {
+      const next = {
+        ...prev,
+        [friendId]: [...(prev[friendId] || []), friendChatInput.trim()],
+      }
+      if (userId) {
+        try {
+          localStorage.setItem(`otwptn_friend_chats_${userId}`, JSON.stringify(next))
+        } catch {}
+      }
+      return next
+    })
     setFriendChatInput('')
   }
+
+  const filteredDiscoverPeers = discoverPeers.filter(p => {
+    if (friends.some(f => f.id === p.id)) return false
+    const q = peerSearch.trim().toLowerCase()
+    if (!q) return true
+    return (
+      p.name.toLowerCase().includes(q) ||
+      p.school.toLowerCase().includes(q) ||
+      p.targetPTN.toLowerCase().includes(q) ||
+      p.targetMajor.toLowerCase().includes(q)
+    )
+  })
 
   return (
     <div className="w-full px-6 md:px-8 py-8 md:py-10">
@@ -592,40 +552,106 @@ export default function CariTemanBelajarPage() {
       ) : (
         /* TAB 2: TEMAN SAYA & CHAT */
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Friend List Column */}
-          <div className="p-6 rounded-3xl bg-white shadow-md space-y-4">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-extrabold text-gray-900">Daftar Kontak Teman</h3>
-              <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full">
-                {friends.length} Teman
-              </span>
+          {/* Friend List + Real Peer Discovery Column */}
+          <div className="p-6 rounded-3xl bg-white shadow-md space-y-5">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-extrabold text-gray-900">Daftar Kontak Teman</h3>
+                <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full">
+                  {friends.length} Teman
+                </span>
+              </div>
+
+              {friends.length === 0 ? (
+                <div className="p-4 rounded-2xl bg-gray-50 text-center space-y-1">
+                  <p className="text-xs font-bold text-gray-700">Belum ada teman ditambahkan</p>
+                  <p className="text-[11px] text-gray-500 leading-relaxed">
+                    Tambahkan pejuang PTN terdaftar di bawah ini atau kenalan lewat Live Study Cam.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {friends.map(friend => (
+                    <div
+                      key={friend.id}
+                      onClick={() => setActiveFriendChat(friend)}
+                      className={`p-3.5 rounded-2xl cursor-pointer transition-all flex items-center gap-3 ${
+                        activeFriendChat?.id === friend.id
+                          ? 'bg-amber-100/70 shadow-xs'
+                          : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={friend.avatar || '/avatars/avatar-1.png'}
+                        alt={friend.name}
+                        className="w-11 h-11 rounded-xl object-cover"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-extrabold text-gray-900 truncate">{friend.name}</p>
+                        <p className="text-[11px] text-gray-500 truncate">
+                          {friend.targetPTN} · {friend.targetMajor}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div className="space-y-2">
-              {friends.map(friend => (
-                <div
-                  key={friend.id}
-                  onClick={() => setActiveFriendChat(friend)}
-                  className={`p-3.5 rounded-2xl cursor-pointer transition-all flex items-center gap-3 ${
-                    activeFriendChat?.id === friend.id
-                      ? 'bg-amber-100/70 shadow-xs'
-                      : 'hover:bg-gray-50'
-                  }`}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={friend.avatar}
-                    alt={friend.name}
-                    className="w-11 h-11 rounded-xl object-cover"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-extrabold text-gray-900 truncate">{friend.name}</p>
-                    <p className="text-[11px] text-gray-500 truncate">
-                      {friend.targetPTN} · {friend.targetMajor}
-                    </p>
-                  </div>
+            {/* Real Registered Peers from Supabase */}
+            <div className="pt-4 border-t border-gray-100 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-black uppercase tracking-wider text-gray-500">
+                  Pejuang PTN Terdaftar
+                </h4>
+              </div>
+              <div className="relative">
+                <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  value={peerSearch}
+                  onChange={e => setPeerSearch(e.target.value)}
+                  placeholder="Cari nama, sekolah, atau PTN..."
+                  className="w-full pl-8 pr-3 py-2 rounded-xl bg-gray-50 text-xs font-medium text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
+                />
+              </div>
+
+              {peersLoading ? (
+                <p className="text-[11px] text-gray-400 text-center py-3 animate-pulse">Memuat pejuang PTN...</p>
+              ) : filteredDiscoverPeers.length === 0 ? (
+                <p className="text-[11px] text-gray-400 text-center py-3">Belum ada pengguna lain ditemukan.</p>
+              ) : (
+                <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                  {filteredDiscoverPeers.map(peer => (
+                    <div
+                      key={peer.id}
+                      className="p-3 rounded-2xl bg-gray-50/80 hover:bg-amber-50/50 transition-all flex items-center justify-between gap-2"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={peer.avatar || '/avatars/avatar-1.png'}
+                          alt={peer.name}
+                          className="w-9 h-9 rounded-xl object-cover flex-shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <p className="text-xs font-extrabold text-gray-900 truncate">{peer.name}</p>
+                          <p className="text-[10px] text-gray-500 truncate">
+                            {peer.targetPTN} · {peer.school}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => addFriendProfile(peer)}
+                        className="px-2.5 py-1.5 rounded-full text-[10px] font-black bg-amber-400 hover:bg-amber-300 text-amber-950 flex items-center gap-1 flex-shrink-0 cursor-pointer"
+                      >
+                        <UserPlus size={11} /> Tambah
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           </div>
 

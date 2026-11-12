@@ -13,6 +13,7 @@ interface PaidOrder {
   mode: string | null
   track: string | null
   squad_group_id: string | null
+  notes?: string | null
 }
 
 // Atomically flips pending -> paid. Only the request that wins the flip gets the row back,
@@ -23,7 +24,7 @@ export async function claimOrderPaid(db: SupabaseClient, orderId: string): Promi
     .update({ status: 'paid', paid_at: new Date().toISOString() })
     .eq('id', orderId)
     .in('status', ['pending', 'expired'])
-    .select('id, user_id, tier, amount, referral_code, mode, track, squad_group_id')
+    .select('id, user_id, tier, amount, referral_code, mode, track, squad_group_id, notes')
     .maybeSingle()
   return (data as PaidOrder | null) ?? null
 }

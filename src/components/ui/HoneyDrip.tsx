@@ -109,16 +109,33 @@ export const HoneyOverlay = forwardRef<
     onEndedRef.current = onEnded
     onTimeUpdateRef.current = onTimeUpdate
 
-    // When route loads, if video was holding at peak honey (1.18s), resume draining
+    // When route loads, ensure video resumes draining smoothly without sticking
     useEffect(() => {
-      if (isRouteLoaded) {
-        const video = internalVideoRef.current
-        if (video && video.paused && video.currentTime >= 1.10 && video.currentTime < 2.35) {
-          video.playbackRate = 1.25
+      if (!isRouteLoaded) return
+      const video = internalVideoRef.current
+      if (!video) return
+
+      const tryResume = () => {
+        if (!isRouteLoadedRef.current) return
+        if (video.currentTime >= 2.38 || video.ended) {
+          onCompleteRef.current?.()
+          return
+        }
+        video.playbackRate = 1.25
+        if (video.paused) {
           try {
             video.play().catch(() => {})
           } catch {}
         }
+      }
+
+      tryResume()
+      // Retry briefly in case browser decoder was still finishing pause/seek state
+      const t1 = setTimeout(tryResume, 60)
+      const t2 = setTimeout(tryResume, 180)
+      return () => {
+        clearTimeout(t1)
+        clearTimeout(t2)
       }
     }, [isRouteLoaded])
 
@@ -291,20 +308,27 @@ export const HoneyOverlay = forwardRef<
         if (!video) return
         const t = video.currentTime
 
-        // Peak honey coverage is at 1.18s (99.8% screen coverage).
-        // If route has NOT loaded yet, hold video firmly at 1.18s!
-        if (!isRouteLoadedRef.current && t >= 1.18) {
+        // Peak honey coverage is around 1.16s - 1.20s (99.8% screen coverage).
+        // If route has NOT loaded yet, pause cleanly WITHOUT seeking (avoids decoder stall/freeze).
+        if (!isRouteLoadedRef.current && t >= 1.16) {
           if (!video.paused) {
             try {
               video.pause()
-              video.currentTime = 1.18
             } catch {}
           }
           return
         }
 
-        // When route has loaded AND honey has drained off the screen (> 2.40s)
-        if (isRouteLoadedRef.current && (t >= 2.40 || video.ended)) {
+        // If route HAS loaded and video somehow remained paused, resume immediately
+        if (isRouteLoadedRef.current && video.paused && !video.ended && t < 2.38) {
+          video.playbackRate = 1.25
+          try {
+            video.play().catch(() => {})
+          } catch {}
+        }
+
+        // When route has loaded AND honey has drained off the screen (> 2.38s)
+        if (isRouteLoadedRef.current && (t >= 2.38 || video.ended)) {
           onCompleteRef.current?.()
         }
 
@@ -375,7 +399,6 @@ export const HoneyOverlay = forwardRef<
         } else if (video) {
           try {
             video.pause()
-            video.currentTime = 1.18
           } catch {}
         }
         if (onEndedRef.current) {

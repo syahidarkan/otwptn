@@ -76,21 +76,21 @@ const CHECKPOINTS_DATA: Record<string, Checkpoint[]> = {
       title: 'Pembuatan Akun & Registrasi Portal',
       desc: 'Daftar akun di portal resmi pendaftaran menggunakan NIK, NISN, dan NPSN sekolah.',
       timeline: 'Minggu ke-1 Pendaftaran',
-      status: 'selesai',
+      status: 'akan-datang',
     },
     {
       id: 'cp-2',
       title: 'Pengisian Nilai Rapor & Prestasi',
       desc: 'Input nilai rapor semester 1 s.d. 5 skala 100 untuk mata pelajaran wajib dan pendukung prodi tujuan.',
       timeline: 'Minggu ke-2 Pendaftaran',
-      status: 'sedang-berjalan',
+      status: 'akan-datang',
     },
     {
       id: 'cp-3',
       title: 'Unggah Berkas Persyaratan & Portofolio',
       desc: 'Upload seluruh scan dokumen legalisir, surat rekomendasi, dan portofolio sesuai ketentuan ukuran file.',
       timeline: 'Minggu ke-3 Pendaftaran',
-      status: 'sedang-berjalan',
+      status: 'akan-datang',
     },
     {
       id: 'cp-4',
@@ -128,7 +128,7 @@ export default function TrackingJalurPage() {
   const supabase = createClient()
   const [targetJalurs, setTargetJalurs] = useState<string[]>([])
   const [activeJalurId, setActiveJalurId] = useState<string>('')
-  const [completedSteps, setCompletedSteps] = useState<string[]>(['cp-1'])
+  const [completedSteps, setCompletedSteps] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState<string | null>(null)
 

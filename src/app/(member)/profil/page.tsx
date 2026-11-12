@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import {
@@ -10,6 +10,7 @@ import {
   Lock,
   Sparkles,
   Camera,
+  Upload,
   ShieldCheck,
   Save,
   DollarSign,
@@ -37,6 +38,7 @@ import {
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
 import SearchablePicker from '@/components/ui/SearchablePicker'
 import { useToast } from '@/components/ui/useToast'
+import { loadStoredAcademicProfile, saveStoredAcademicProfile } from '@/lib/academicProfile'
 import {
   INDONESIA_PTN_LIST,
   INDONESIA_JURUSAN_LIST,
@@ -72,6 +74,8 @@ export default function ProfilPage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [avatarToast, setAvatarToast] = useState(false)
+  const [avatarUploading, setAvatarUploading] = useState(false)
+  const avatarInputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'biodata' | 'target' | 'avatar' | 'security'>('biodata')
   const [userTier, setUserTier] = useState<string>('free')
@@ -207,41 +211,91 @@ export default function ProfilPage() {
         .eq('id', data.user.id)
         .maybeSingle()
         .then(({ data: profile }) => {
-          if (profile) {
-            setUserTier(profile.tier || 'free')
-            setIsAdmin(!!profile.is_admin)
-            const targetPtns = (profile.target_ptns as string[]) || []
-            const targetMajors = (profile.target_majors as string[]) || []
-            setForm(prev => {
-              const finalAvatar = profile.avatar_url || prev.avatar
-              if (profile.avatar_url) {
-                try {
-                  localStorage.setItem('otwptn_user_avatar', profile.avatar_url)
-                } catch {}
-              }
-              return {
-                ...prev,
-                full_name: profile.full_name || data.user.user_metadata?.full_name || '',
-                phone: profile.phone || '',
-                school: profile.school || profile.school_name || '',
-                email: data.user.email || profile.email || '',
-                eligible_rank: profile.school_rank_tier || '',
-                province: profile.province || '',
-                target_ptn_1: targetPtns[0] || '',
-                target_prodi_1: targetMajors[0] || '',
-                target_ptn_2: targetPtns[1] || '',
-                target_prodi_2: targetMajors[1] || '',
-                avatar: finalAvatar,
-              }
-            })
-            if (targetPtns[0] && targetMajors[0]) {
-              fetchCampusInsight(targetPtns[0], targetMajors[0])
+          const meta = data.user.user_metadata || {}
+          const storedAcademic = loadStoredAcademicProfile()
+
+          const targetPtns: string[] =
+            (Array.isArray(profile?.target_ptns) && profile.target_ptns.length > 0 ? profile.target_ptns : null) ||
+            (Array.isArray(meta.target_ptns) && meta.target_ptns.length > 0 ? meta.target_ptns : null) ||
+            [storedAcademic?.pilihan1Ptn, storedAcademic?.pilihan2Ptn].filter((x): x is string => Boolean(x))
+
+          const targetMajors: string[] =
+            (Array.isArray(profile?.target_majors) && profile.target_majors.length > 0 ? profile.target_majors : null) ||
+            (Array.isArray(meta.target_majors) && meta.target_majors.length > 0 ? meta.target_majors : null) ||
+            [storedAcademic?.pilihan1Prodi, storedAcademic?.pilihan2Prodi].filter((x): x is string => Boolean(x))
+
+          setUserTier(profile?.tier || 'free')
+          setIsAdmin(!!profile?.is_admin)
+
+          setForm(prev => {
+            const finalAvatar = profile?.avatar_url || (meta.avatar_url as string | undefined) || prev.avatar
+            if (finalAvatar) {
+              try {
+                localStorage.setItem('otwptn_user_avatar', finalAvatar)
+              } catch {}
             }
+            return {
+              ...prev,
+              full_name: profile?.full_name || meta.full_name || '',
+              phone: profile?.phone || '',
+              school: profile?.school || profile?.school_name || (meta.school_name as string | undefined) || storedAcademic?.schoolName || '',
+              email: data.user.email || profile?.email || '',
+              eligible_rank: profile?.school_rank_tier || (meta.school_rank_tier as string | undefined) || '',
+              province: profile?.province || '',
+              target_ptn_1: targetPtns[0] || '',
+              target_prodi_1: targetMajors[0] || '',
+              target_ptn_2: targetPtns[1] || '',
+              target_prodi_2: targetMajors[1] || '',
+              avatar: finalAvatar,
+            }
+          })
+
+          if (targetPtns[0] && targetMajors[0]) {
+            fetchCampusInsight(targetPtns[0], targetMajors[0])
           }
           setLoading(false)
         })
     })
   }, [supabase, router])
+
+  const handleUploadCustomAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      showToast('Format foto harus JPG, PNG, atau WebP.', 'error')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Ukuran foto maksimal 5MB.', 'error')
+      return
+    }
+
+    setAvatarUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/profile/avatar', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok || !data.avatarUrl) {
+        showToast(data.error || 'Gagal mengunggah foto profil.', 'error')
+        return
+      }
+      setForm(prev => ({ ...prev, avatar: data.avatarUrl }))
+      try {
+        localStorage.setItem('otwptn_user_avatar', data.avatarUrl)
+        window.dispatchEvent(new CustomEvent('otwptn_avatar_update', { detail: data.avatarUrl }))
+      } catch {}
+      setAvatarToast(true)
+      setTimeout(() => setAvatarToast(false), 2500)
+      showToast('Foto profil berhasil diunggah!', 'success')
+    } catch {
+      showToast('Koneksi gagal saat mengunggah foto.', 'error')
+    } finally {
+      setAvatarUploading(false)
+    }
+  }
 
   const handleSelectAvatar = async (avatarSrc: string) => {
     setForm(prev => ({ ...prev, avatar: avatarSrc }))
@@ -290,6 +344,9 @@ export default function ProfilPage() {
       return
     }
 
+    const targetPtns = [form.target_ptn_1, form.target_ptn_2].filter(Boolean)
+    const targetMajors = [form.target_prodi_1, form.target_prodi_2].filter(Boolean)
+
     const { error: err } = await supabase
       .from('profiles')
       .update({
@@ -297,10 +354,34 @@ export default function ProfilPage() {
         phone: form.phone,
         school: form.school,
         school_name: form.school,
+        school_rank_tier: form.eligible_rank || null,
+        province: form.province || null,
+        target_ptns: targetPtns,
+        target_majors: targetMajors,
         avatar_url: form.avatar,
         updated_at: new Date().toISOString(),
       })
       .eq('id', user.id)
+
+    await supabase.auth.updateUser({
+      data: {
+        full_name: form.full_name,
+        school_name: form.school,
+        school_rank_tier: form.eligible_rank || null,
+        target_ptns: targetPtns,
+        target_majors: targetMajors,
+        avatar_url: form.avatar,
+      },
+    }).catch(() => {})
+
+    saveStoredAcademicProfile({
+      schoolName: form.school,
+      pilihan1Ptn: form.target_ptn_1,
+      pilihan1Prodi: form.target_prodi_1,
+      pilihan2Ptn: form.target_ptn_2,
+      pilihan2Prodi: form.target_prodi_2,
+      savedAt: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+    })
 
     if (err) {
       setError('Gagal menyimpan perubahan ke server. Namun avatar dan profil lokalmu sudah tersimpan.')
@@ -441,7 +522,7 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
         {[
           { id: 'biodata', label: 'Data Diri & Sekolah', icon: User },
           { id: 'target', label: 'Target PTN & Jurusan (Dossier Karir)', icon: GraduationCap },
-          { id: 'avatar', label: 'Pilih Maskot Otbee', icon: Sparkles },
+          { id: 'avatar', label: 'Foto Profil & Maskot', icon: Sparkles },
           { id: 'security', label: 'Keamanan & Password', icon: Lock },
         ].map(tab => (
           <button
@@ -957,19 +1038,62 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
         </div>
       )}
 
-      {/* TAB 3: PILIH MASKOT OTBEE */}
+      {/* TAB 3: FOTO PROFIL SENDIRI & MASKOT OTBEE */}
       {activeTab === 'avatar' && (
         <div className="p-6 md:p-8 rounded-3xl bg-white shadow-md space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* Custom Photo Upload Card */}
+          <div className="p-5 rounded-3xl bg-amber-50/70 border border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={form.avatar}
+                alt="Foto Profil Saat Ini"
+                className="w-16 h-16 rounded-full object-cover border-2 border-amber-400 bg-white shadow-xs flex-shrink-0"
+              />
+              <div>
+                <h3 className="text-sm font-black text-gray-900">Upload Foto Profil Sendiri</h3>
+                <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">
+                  Gunakan foto pribadimu (JPG, PNG, atau WebP, maks 5MB). Langsung tampil di Komunitas, Cari Teman, dan Sidebar.
+                </p>
+              </div>
+            </div>
+            <div className="flex-shrink-0 w-full sm:w-auto">
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleUploadCustomAvatar}
+              />
+              <button
+                type="button"
+                disabled={avatarUploading}
+                onClick={() => avatarInputRef.current?.click()}
+                className="w-full sm:w-auto btn-brand-primary px-5 py-2.5 rounded-full text-xs font-black shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+              >
+                {avatarUploading ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" /> Mengunggah...
+                  </>
+                ) : (
+                  <>
+                    <Upload size={14} /> Upload Foto dari Perangkat
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-gray-100">
             <div>
-              <h3 className="text-sm font-black text-gray-900">Pilih Avatar Maskot Otbee (18 Pilihan HD)</h3>
+              <h3 className="text-sm font-black text-gray-900">Atau Pilih Avatar Maskot Otbee (18 Pilihan HD)</h3>
               <p className="text-xs text-gray-500 mt-1">
                 Klik avatar pilihanmu. Avatar langsung tersimpan dan otomatis tampil di profil bar, sidebar, dan room belajar.
               </p>
             </div>
             {avatarToast && (
               <span className="px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-900 font-black text-xs flex items-center gap-1.5 animate-in fade-in self-start sm:self-auto">
-                <CheckCircle2 size={14} className="text-emerald-600" /> Avatar Aktif Diperbarui!
+                <CheckCircle2 size={14} className="text-emerald-600" /> Foto Profil Diperbarui!
               </span>
             )}
           </div>

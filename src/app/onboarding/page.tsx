@@ -14,6 +14,7 @@ import { fireConfetti } from './_components/confetti'
 import { playSfx, playFanfare } from './_components/sfx'
 import Select from '@/components/ui/Select'
 import { getFacultyNamesForPtn, getMajorsForFaculty } from '@/lib/facultyMajorDirectory'
+import { saveStoredAcademicProfile } from '@/lib/academicProfile'
 
 // ── PTN list ─────────────────────────────────────────────────────────────────
 
@@ -1067,37 +1068,59 @@ export default function OnboardingPage() {
       }
 
       const filledChoices = (form.target_choices || []).filter(c => c.ptn && c.ptn.trim() !== '')
-      const targetPtns = filledChoices.map(c => c.ptn)
-      const targetMajors = filledChoices.map(c => c.major)
+      const targetPtns = filledChoices.map(c => c.ptn).filter(Boolean)
+      const targetMajors = filledChoices.map(c => c.major).filter(Boolean)
+      const finalTargetPtns = targetPtns.length > 0 ? targetPtns : form.target_ptns
+      const finalTargetMajors = targetMajors.length > 0 ? targetMajors : (form.target_majors ? [form.target_majors] : [])
 
-      await supabase.from('profiles').update({
-        full_name: form.full_name,
-        school_name: form.school_name,
-        school_rank_tier: form.school_rank_tier || null,
-        target_ptns: targetPtns.length > 0 ? targetPtns : form.target_ptns,
-        target_majors: targetMajors.length > 0 ? targetMajors : (form.target_majors ? [form.target_majors] : []),
-        target_choices: filledChoices,
-        target_jalurs: [form.jalur_tujuan],
-        jalur_tujuan: form.jalur_tujuan,
-        avg_rapor: computedAvg || null,
-        rapor_per_semester: semFilled.length > 0 ? form.rapor_per_semester : null,
-        cert_count: form.cert_count ? parseInt(form.cert_count) : (form.prestasi_list.length || 0),
-        cert_highest_level: form.cert_highest_level || null,
-        prestasi_items: prestasiPayload,
-        essay_draft: form.essay_draft || null,
-        learning_styles: form.learning_styles,
-        biggest_challenge: form.biggest_challenge,
-        daily_question_target: form.daily_study_hours,
-        study_days_per_week: studyDaysCount,
-        commitment_text: commitmentSentence,
-        motivation_text: form.motivation_text || null,
-        ambassador_code: form.ambassador_code || null,
-        target_score: form.confidence,
-        onboarding_completed: true,
-      }).eq('id', user.id)
+      const res = await fetch('/api/onboarding/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: form.full_name,
+          school_name: form.school_name,
+          school_rank_tier: form.school_rank_tier || null,
+          target_ptns: finalTargetPtns,
+          target_majors: finalTargetMajors,
+          target_choices: filledChoices,
+          target_jalurs: form.jalur_tujuan ? [form.jalur_tujuan] : [],
+          jalur_tujuan: form.jalur_tujuan,
+          avg_rapor: computedAvg || null,
+          rapor_per_semester: semFilled.length > 0 ? form.rapor_per_semester : null,
+          cert_count: form.cert_count ? parseInt(form.cert_count) : (form.prestasi_list.length || 0),
+          cert_highest_level: form.cert_highest_level || null,
+          prestasi_items: prestasiPayload,
+          essay_draft: form.essay_draft || null,
+          learning_styles: form.learning_styles,
+          biggest_challenge: form.biggest_challenge,
+          daily_question_target: form.daily_study_hours,
+          study_days_per_week: studyDaysCount,
+          commitment_text: commitmentSentence,
+          motivation_text: form.motivation_text || null,
+          ambassador_code: form.ambassador_code || null,
+          target_score: form.confidence,
+        }),
+      })
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        console.error('[Onboarding Save API Failed]', errData)
+      }
 
       if (typeof window !== 'undefined') {
         localStorage.setItem(`otwptn_onboarding_done_${user.id}`, 'true')
+        if (form.jalur_tujuan) {
+          localStorage.setItem('otwptn_target_jalurs', JSON.stringify([form.jalur_tujuan]))
+        }
+        saveStoredAcademicProfile({
+          schoolName: form.school_name,
+          pilihan1Ptn: filledChoices[0]?.ptn || finalTargetPtns[0] || '',
+          pilihan1Prodi: filledChoices[0]?.major || finalTargetMajors[0] || '',
+          pilihan2Ptn: filledChoices[1]?.ptn || finalTargetPtns[1] || '',
+          pilihan2Prodi: filledChoices[1]?.major || finalTargetMajors[1] || '',
+          jurusanSma: form.peminatan || 'ipa',
+          savedAt: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        })
       }
     } catch (err) {
       console.error('Error completing onboarding save:', err)
@@ -1132,7 +1155,7 @@ export default function OnboardingPage() {
 
       {/* Main content - NO overflow clipping so mascot can extend freely */}
       <div className="flex flex-col items-center px-4 pt-7 pb-10" style={{ position: 'relative', zIndex: 1, minHeight: '100vh' }}>
-      <div className="w-full max-w-md relative z-10">
+      <div className={`w-full relative z-10 transition-all duration-300 ${step === 7 ? 'max-w-xl' : 'max-w-md'}`}>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           {showBackArrow ? (
@@ -1379,8 +1402,8 @@ export default function OnboardingPage() {
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                          <div>
+                        <div className="grid grid-cols-1 gap-3">
+                          <div className="w-full">
                             <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
                               1. Kampus / PTN {isRequired && <span className="text-red-500">*</span>}
                             </label>
@@ -1393,11 +1416,12 @@ export default function OnboardingPage() {
                               options={allPtnOpts}
                               placeholder="Pilih Kampus PTN"
                               searchable
-                              size="sm"
+                              size="md"
+                              className="w-full"
                             />
                           </div>
 
-                          <div>
+                          <div className="w-full">
                             <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
                               2. Fakultas {isRequired && <span className="text-red-500">*</span>}
                             </label>
@@ -1411,11 +1435,12 @@ export default function OnboardingPage() {
                               placeholder={choice.ptn ? 'Pilih Fakultas' : 'Pilih kampus dulu'}
                               disabled={!choice.ptn}
                               searchable
-                              size="sm"
+                              size="md"
+                              className="w-full"
                             />
                           </div>
 
-                          <div>
+                          <div className="w-full">
                             <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
                               3. Jurusan / Prodi {isRequired && <span className="text-red-500">*</span>}
                             </label>
@@ -1429,7 +1454,8 @@ export default function OnboardingPage() {
                               placeholder={choice.faculty ? 'Pilih Jurusan' : 'Pilih fakultas dulu'}
                               disabled={!choice.faculty}
                               searchable
-                              size="sm"
+                              size="md"
+                              className="w-full"
                             />
                           </div>
                         </div>

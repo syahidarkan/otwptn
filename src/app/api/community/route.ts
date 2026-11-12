@@ -8,8 +8,59 @@ export async function GET(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const db = createServiceClient()
+
+  // Helper to resolve missing/empty profile name from auth user metadata
+  async function enrichMissingAuthors(rows: Record<string, unknown>[]) {
+    const missingIds = Array.from(
+      new Set(
+        rows
+          .filter(r => {
+            const prof = r.profiles as { full_name?: string | null } | null
+            return !prof || !prof.full_name || !prof.full_name.trim()
+          })
+          .map(r => r.user_id as string)
+          .filter(Boolean)
+      )
+    )
+    if (missingIds.length === 0) return
+
+    const fallbackMap = new Map<string, { full_name: string; avatar_url: string | null }>()
+    await Promise.all(
+      missingIds.slice(0, 20).map(async uid => {
+        try {
+          const { data } = await db.auth.admin.getUserById(uid)
+          const u = data?.user
+          if (u) {
+            const name =
+              (u.user_metadata?.full_name as string | undefined)?.trim() ||
+              (u.user_metadata?.name as string | undefined)?.trim() ||
+              (u.email ? u.email.split('@')[0] : '') ||
+              'Pejuang PTN'
+            const avatar = (u.user_metadata?.avatar_url as string | undefined) || null
+            fallbackMap.set(uid, { full_name: name, avatar_url: avatar })
+          }
+        } catch {}
+      })
+    )
+
+    for (const r of rows) {
+      const uid = r.user_id as string
+      const prof = (r.profiles as Record<string, unknown> | null) ?? {}
+      const fallback = fallbackMap.get(uid)
+      if (fallback && (!(prof.full_name as string | undefined)?.trim())) {
+        r.profiles = {
+          ...prof,
+          id: uid,
+          full_name: fallback.full_name,
+          avatar_url: (prof.avatar_url as string | null) ?? fallback.avatar_url,
+        }
+      }
+    }
+  }
+
   if (postId) {
-    const { data: replies, error } = await supabase
+    const { data: replies, error } = await db
       .from('community_post_replies')
       .select(`
         id,
@@ -25,10 +76,12 @@ export async function GET(request: Request) {
       console.error('[Community Replies GET]', error)
       return NextResponse.json({ replies: [] })
     }
-    return NextResponse.json({ replies: replies ?? [] })
+    const list = (replies ?? []) as Record<string, unknown>[]
+    await enrichMissingAuthors(list)
+    return NextResponse.json({ replies: list })
   }
 
-  const { data: posts, error } = await supabase
+  const { data: posts, error } = await db
     .from('community_posts')
     .select(`
       *,
@@ -42,7 +95,10 @@ export async function GET(request: Request) {
     console.error('[Community GET]', error)
   }
 
-  const mapped = (posts ?? []).map((p: Record<string, unknown>) => {
+  const postRows = (posts ?? []) as Record<string, unknown>[]
+  await enrichMissingAuthors(postRows)
+
+  const mapped = postRows.map((p: Record<string, unknown>) => {
     const repliesCount = Array.isArray(p.community_post_replies) && p.community_post_replies[0]
       ? (p.community_post_replies[0] as { count: number }).count
       : 0

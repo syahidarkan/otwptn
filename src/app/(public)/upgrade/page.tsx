@@ -22,6 +22,9 @@ import {
 import { LEGAL_ENTITY, JALUR_LIST } from '@/lib/constants'
 import { createClient } from '@/lib/supabase/client'
 import Select from '@/components/ui/Select'
+import { INDONESIA_PTN_LIST, INDONESIA_JURUSAN_LIST } from '@/lib/indonesiaDirectory'
+import { getFacultyNamesForPtn, getMajorsForFaculty, getFacultyForMajor } from '@/lib/facultyMajorDirectory'
+import { loadStoredAcademicProfile } from '@/lib/academicProfile'
 import {
   MODES,
   TRACKS,
@@ -68,6 +71,9 @@ export default function UpgradePage() {
   const [selection, setSelection] = useState<Selection | null>(null)
   const [mainJalur, setMainJalur] = useState<string>('')
   const [addonJalurs, setAddonJalurs] = useState<string[]>([])
+  const [targetPtn, setTargetPtn] = useState<string>('')
+  const [targetFaculty, setTargetFaculty] = useState<string>('')
+  const [targetMajor, setTargetMajor] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [userInfo, setUserInfo] = useState<{ name: string; email: string } | null>(null)
@@ -85,6 +91,43 @@ export default function UpgradePage() {
           name: user.user_metadata?.full_name ?? user.user_metadata?.name ?? 'Pengguna',
           email: user.email ?? '',
         })
+        supabase
+          .from('profiles')
+          .select('target_ptns, target_majors, target_jalurs')
+          .eq('id', user.id)
+          .maybeSingle()
+          .then(({ data: prof }) => {
+            const meta = user.user_metadata || {}
+            const stored = loadStoredAcademicProfile()
+
+            const ptn =
+              (Array.isArray(prof?.target_ptns) && prof.target_ptns[0]) ||
+              (Array.isArray(meta.target_ptns) && meta.target_ptns[0]) ||
+              stored?.pilihan1Ptn ||
+              ''
+            const major =
+              (Array.isArray(prof?.target_majors) && prof.target_majors[0]) ||
+              (Array.isArray(meta.target_majors) && meta.target_majors[0]) ||
+              stored?.pilihan1Prodi ||
+              ''
+            const jalur =
+              (Array.isArray(prof?.target_jalurs) && prof.target_jalurs[0]) ||
+              (Array.isArray(meta.target_jalurs) && meta.target_jalurs[0]) ||
+              ''
+
+            const choiceFac = Array.isArray(meta.target_choices) && meta.target_choices[0]?.faculty
+              ? meta.target_choices[0].faculty
+              : ''
+
+            if (ptn) setTargetPtn(ptn)
+            if (major) {
+              setTargetMajor(major)
+              setTargetFaculty(choiceFac || getFacultyForMajor(major, ptn))
+            } else if (choiceFac) {
+              setTargetFaculty(choiceFac)
+            }
+            if (jalur) setMainJalur(jalur)
+          })
       }
     })
   }, [])
@@ -113,6 +156,9 @@ export default function UpgradePage() {
           squad_invite_code: selection.mode === 'squad' && squadAction === 'join' ? squadInviteCode.trim() : undefined,
           main_jalur: mainJalur || undefined,
           addon_jalurs: selection.tier !== 'web_premium' ? addonJalurs : [],
+          target_ptn: targetPtn || undefined,
+          target_faculty: targetFaculty || undefined,
+          target_major: targetMajor || undefined,
         }),
       })
       const data = await res.json()
@@ -518,6 +564,86 @@ export default function UpgradePage() {
                   </div>
                 )}
               </div>
+
+              {/* Target PTN, Fakultas & Jurusan (otomatis terisi dari profil, bisa diubah & langsung sinkron) */}
+              {selection.tier !== 'web_premium' && (
+                <div className="rounded-2xl bg-gray-50 p-4 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-gray-400">
+                      Target PTN &amp; Jurusan Kamu (Untuk Auto-Match Mentor)
+                    </p>
+                    <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+                      Sinkron Profil
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-gray-500 leading-snug">
+                    Terisi otomatis dari profilmu. Jika diubah di sini, data profil akunmu juga ikut diperbarui.
+                  </p>
+
+                  <div className="space-y-2">
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                        Target PTN Utama
+                      </label>
+                      <Select
+                        value={targetPtn}
+                        onChange={v => {
+                          setTargetPtn(v)
+                          setTargetFaculty('')
+                          setTargetMajor('')
+                        }}
+                        options={INDONESIA_PTN_LIST.map(p => ({
+                          value: p.name,
+                          label: p.name,
+                          sublabel: p.shortName,
+                        }))}
+                        placeholder="Pilih Kampus PTN"
+                        searchable
+                        size="sm"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                        Fakultas Tujuan
+                      </label>
+                      <Select
+                        value={targetFaculty}
+                        onChange={v => {
+                          setTargetFaculty(v)
+                          setTargetMajor('')
+                        }}
+                        options={(targetPtn ? getFacultyNamesForPtn(targetPtn) : []).map(f => ({
+                          value: f,
+                          label: f,
+                        }))}
+                        placeholder={targetPtn ? 'Pilih Fakultas' : 'Pilih PTN dulu'}
+                        disabled={!targetPtn}
+                        searchable
+                        size="sm"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                        Jurusan / Program Studi
+                      </label>
+                      <Select
+                        value={targetMajor}
+                        onChange={v => setTargetMajor(v)}
+                        options={(
+                          targetPtn && targetFaculty
+                            ? getMajorsForFaculty(targetPtn, targetFaculty)
+                            : INDONESIA_JURUSAN_LIST
+                        ).map(m => ({ value: m, label: m }))}
+                        placeholder="Pilih Jurusan / Prodi"
+                        searchable
+                        size="sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Addon Jalurs (Hanya untuk paket bermentor) */}
               {selection.tier !== 'web_premium' && (

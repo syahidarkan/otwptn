@@ -36,101 +36,6 @@ import {
   GraduationCap,
 } from 'lucide-react'
 
-interface MentorProfile {
-  name: string
-  univ: string
-  univCode: 'UI' | 'ITB' | 'UGM' | 'ITS' | 'UNAIR'
-  major: string
-  track: string
-  avatar: string
-  specialty: string
-  rating: number
-  gradYear: string
-  menteeCount: number
-  sampleNote: string
-}
-
-const MENTOR_ROSTER: MentorProfile[] = [
-  {
-    name: 'Rayhan Fadillah, S.Kom.',
-    univ: 'Universitas Indonesia',
-    univCode: 'UI',
-    major: 'Fasilkom UI (Ilmu Komputer)',
-    track: 'Lolos PPKB UI & SNBP',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-    specialty: 'Bedah Essay PPKB UI & SIMAK Rapor',
-    rating: 4.98,
-    gradYear: 'Alumni UI 2024',
-    menteeCount: 42,
-    sampleNote: 'Kalimat pembuka esai harus menonjolkan intellectual curiosity kamu tentang rekayasa perangkat lunak, bukan sekadar cerita umum hobi coding.',
-  },
-  {
-    name: 'Amanda Putri, S.M.',
-    univ: 'Institut Teknologi Bandung',
-    univCode: 'ITB',
-    major: 'Sekolah Bisnis dan Manajemen (SBM ITB)',
-    track: 'Lolos Seleksi Mandiri Nilai Rapor',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80',
-    specialty: 'Koreksi Essay SBM & Portofolio Kepemimpinan',
-    rating: 4.96,
-    gradYear: 'Alumni ITB 2023',
-    menteeCount: 38,
-    sampleNote: 'Ubah narasi kepanitiaan jadi data driven: cantumkan revenue yang dicapai dan tim 40 orang yang kamu pimpin untuk membuktikan leadership.',
-  },
-  {
-    name: 'dr. Farhan Ramadhan',
-    univ: 'Universitas Gadjah Mada',
-    univCode: 'UGM',
-    major: 'Fakultas Kedokteran (FKKMK UGM)',
-    track: 'Lolos SNBP Kedokteran Peringkat 1',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
-    specialty: 'Rasionalisasi Nilai Rapor Saintek & Kedokteran',
-    rating: 4.99,
-    gradYear: 'Alumni UGM 2022',
-    menteeCount: 51,
-    sampleNote: 'Nilai Biologi dan Kimia kamu semester 3-5 sangat konsisten di 94+. Kita tonjolkan linieritas ini pada esai kontribusi bidang preventif.',
-  },
-  {
-    name: 'Nadhira Syarif, S.T.',
-    univ: 'Institut Teknologi Sepuluh Nopember',
-    univCode: 'ITS',
-    major: 'Teknik Sipil ITS',
-    track: 'Lolos Mandiri Prestasi ITS',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80',
-    specialty: 'Pemilihan Prodi Teknik & Sertifikat Puspresnas',
-    rating: 4.95,
-    gradYear: 'Alumni ITS 2024',
-    menteeCount: 34,
-    sampleNote: 'Sertifikat lomba rancang jembatan nasional kamu memiliki bobot tier-1 di ITS. Wajib ditaruh di slot nomor 1 di berkas pendaftaran.',
-  },
-  {
-    name: 'Cut Sarah, S.Hub.Int.',
-    univ: 'Universitas Indonesia',
-    univCode: 'UI',
-    major: 'Hubungan Internasional UI',
-    track: 'Lolos Talent Scouting KKI & PPKB',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-    specialty: 'Essay Bahasa Inggris & Wawancara Internasional',
-    rating: 4.97,
-    gradYear: 'Alumni UI 2024',
-    menteeCount: 29,
-    sampleNote: 'Strong thesis statement needed in paragraph 1. Connect current geopolitical ASEAN case with your academic vision in UI.',
-  },
-  {
-    name: 'Kevin Pratama, S.Ked.',
-    univ: 'Universitas Airlangga',
-    univCode: 'UNAIR',
-    major: 'Pendidikan Dokter Unair',
-    track: 'Lolos SNBP Kedokteran Unair',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80',
-    specialty: 'Rasionalisasi Kuota Sekolah & Medali Olimpiade',
-    rating: 4.98,
-    gradYear: 'Alumni Unair 2023',
-    menteeCount: 44,
-    sampleNote: 'Riwayat alumni SMAN kamu di FK Unair 3 tahun berturut-turut sangat solid. Kita fokus optimalkan esai komitmen dokter daerah.',
-  },
-]
-
 interface EssayComment {
   id: string
   mentorName: string
@@ -189,10 +94,6 @@ export default function MentorAlumniPage() {
   const [, setLoading] = useState(true)
   const [mentoringRecord, setMentoringRecord] = useState<MentoringRecord | null>(null)
   const [activeTab, setActiveTab] = useState<'workspace' | 'profile-rapor' | 'booking'>('workspace')
-
-  // University Filter for Mentor Roster
-  const [univFilter, setUnivFilter] = useState<'Semua' | 'UI' | 'ITB' | 'UGM' | 'ITS' | 'UNAIR'>('Semua')
-  const [selectedMentorModal, setSelectedMentorModal] = useState<MentorProfile | null>(null)
 
   // Interactive Live Google Meet Simulation
   const [activeAnnotationIdx, setActiveAnnotationIdx] = useState<number>(0)
@@ -290,11 +191,6 @@ export default function MentorAlumniPage() {
   function handleExportPDF() {
     window.print()
   }
-
-  const filteredMentors =
-    univFilter === 'Semua'
-      ? MENTOR_ROSTER
-      : MENTOR_ROSTER.filter(m => m.univCode === univFilter)
 
   return (
     <div className="w-full px-6 md:px-8 py-8 md:py-10 space-y-10">
@@ -593,102 +489,7 @@ export default function MentorAlumniPage() {
             </div>
           </div>
 
-          {/* 4. DIREKTORI MENTOR ALUMNI: CLEAN GRID WITH FILTER */}
-          <div className="rounded-3xl bg-white p-8 shadow-md space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl md:text-2xl font-black text-gray-900">
-                  Jajaran Mentor Alumni Kami
-                </h2>
-                <p className="text-xs text-gray-500">
-                  Alumni berprestasi dari universitas top yang telah melalui jalur non-tes.
-                </p>
-              </div>
-
-              <Link
-                href="/upgrade"
-                className="btn-brand-primary px-5 py-2.5 rounded-full text-xs font-black shadow-xs self-start sm:self-auto"
-              >
-                Pilih Mentormu Sekarang
-              </Link>
-            </div>
-
-            {/* University Filter Chips */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-              {(['Semua', 'UI', 'ITB', 'UGM', 'ITS', 'UNAIR'] as const).map(u => (
-                <button
-                  key={u}
-                  onClick={() => setUnivFilter(u)}
-                  className={`px-4 py-2 rounded-full text-xs font-black whitespace-nowrap transition-all ${
-                    univFilter === u
-                      ? 'btn-brand-primary'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {u === 'Semua' ? 'Semua Kampus' : `Kampus ${u}`}
-                </button>
-              ))}
-            </div>
-
-            {/* Mentors Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filteredMentors.map((m, idx) => (
-                <div
-                  key={idx}
-                  className="rounded-3xl bg-gray-50/80 p-5 flex flex-col justify-between hover:bg-amber-50/50 transition-all hover-lift space-y-4"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3.5">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={m.avatar}
-                        alt={m.name}
-                        className="w-14 h-14 rounded-2xl object-cover shadow-xs flex-shrink-0"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-1">
-                          <h4 className="text-xs font-black text-gray-950 truncate">{m.name}</h4>
-                          <span className="text-[11px] font-bold text-amber-700 flex items-center gap-0.5">
-                            <Star size={11} fill="currentColor" /> {m.rating}
-                          </span>
-                        </div>
-                        <p className="text-xs font-black text-amber-900 mt-0.5">{m.univ}</p>
-                        <p className="text-[11px] text-gray-500 truncate">{m.major}</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5 text-[11px] pt-1 border-t border-gray-200/50">
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-500">Jalur Masuk:</span>
-                        <span className="font-bold text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-full text-[10px] flex items-center gap-1">
-                          <Check size={10} /> {m.track}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-500">Fokus:</span>
-                        <span className="font-bold text-gray-800 text-[10px] truncate max-w-[170px]">
-                          {m.specialty}
-                        </span>
-                      </div>
-                    </div>
-
-                    <p className="p-3 rounded-xl bg-white shadow-xs text-[11px] italic text-gray-700 font-serif border-l-2 border-amber-400">
-                      &ldquo;{m.sampleNote}&rdquo;
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => setSelectedMentorModal(m)}
-                    className="w-full py-2.5 rounded-full text-xs font-bold bg-white hover:bg-gray-100 text-gray-900 shadow-xs transition-colors flex items-center justify-center gap-1.5"
-                  >
-                    <MessageSquare size={13} className="text-amber-600" /> Lihat Portofolio Mentor
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 5. SUCCESS STORIES */}
+          {/* 4. SUCCESS STORIES */}
           <div className="space-y-4">
             <div>
               <h2 className="text-xl md:text-2xl font-black text-gray-900">
@@ -1263,78 +1064,6 @@ export default function MentorAlumniPage() {
               </div>
             </div>
           )}
-        </div>
-      )}
-
-      {/* Mentor Dossier Preview Modal */}
-      {selectedMentorModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
-          <div className="bg-white rounded-3xl p-7 max-w-lg w-full shadow-2xl relative space-y-5">
-            <button
-              onClick={() => setSelectedMentorModal(null)}
-              className="absolute top-5 right-5 text-gray-400 hover:text-gray-700"
-            >
-              <X size={20} />
-            </button>
-
-            <div className="flex items-center gap-4">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={selectedMentorModal.avatar}
-                alt={selectedMentorModal.name}
-                className="w-14 h-14 rounded-2xl object-cover shadow-xs"
-              />
-              <div>
-                <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full">
-                  <Check size={11} className="text-amber-700" /> Alumni Terverifikasi
-                </span>
-                <h3 className="text-base font-black text-gray-950 mt-1">{selectedMentorModal.name}</h3>
-                <p className="text-xs font-bold text-amber-900">{selectedMentorModal.univ}</p>
-                <p className="text-[11px] text-gray-500">{selectedMentorModal.major} · {selectedMentorModal.gradYear}</p>
-              </div>
-            </div>
-
-            <div className="space-y-2.5 text-xs bg-gray-50 p-4 rounded-2xl">
-              <div className="flex justify-between">
-                <span className="text-gray-500">Jalur Masuk:</span>
-                <span className="font-black text-emerald-700">{selectedMentorModal.track}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Spesialisasi Review:</span>
-                <span className="font-bold text-gray-900">{selectedMentorModal.specialty}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Rating Mentee:</span>
-                <span className="font-black text-amber-600 flex items-center gap-1">
-                  <Star size={12} fill="currentColor" /> {selectedMentorModal.rating} ({selectedMentorModal.menteeCount} mentee lolos)
-                </span>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-[11px] font-black uppercase text-gray-400 tracking-wider mb-2">
-                Contoh Standar Anotasi Esai oleh Mentor Ini:
-              </p>
-              <div className="p-3.5 rounded-2xl bg-amber-50/80 border-l-2 border-amber-400 text-xs text-gray-800 font-serif italic">
-                &ldquo;{selectedMentorModal.sampleNote}&rdquo;
-              </div>
-            </div>
-
-            <div className="pt-2 flex items-center gap-3">
-              <Link
-                href="/upgrade"
-                className="flex-1 btn-brand-primary py-3 rounded-full text-xs font-black text-center shadow-md"
-              >
-                Pilih Mentor Ini
-              </Link>
-              <button
-                onClick={() => setSelectedMentorModal(null)}
-                className="px-5 py-3 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700"
-              >
-                Tutup
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

@@ -45,6 +45,9 @@ export async function POST(request: Request) {
     squad_invite_code,
     main_jalur,
     addon_jalurs = [],
+    target_ptn,
+    target_faculty,
+    target_major,
   } = await request.json()
 
   if (!isTier(tier)) return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
@@ -103,6 +106,44 @@ export async function POST(request: Request) {
   }
 
   baseAmount += interSurcharge + addonTotal
+
+  // Sync user's selected/edited target PTN, major, and jalur back to their profile
+  const cleanTargetPtn = typeof target_ptn === 'string' ? target_ptn.trim().slice(0, 120) : ''
+  const cleanTargetFaculty = typeof target_faculty === 'string' ? target_faculty.trim().slice(0, 150) : ''
+  const cleanTargetMajor = typeof target_major === 'string' ? target_major.trim().slice(0, 150) : ''
+  const cleanMainJalur = typeof main_jalur === 'string' ? main_jalur.trim() : ''
+
+  if (cleanTargetPtn || cleanTargetMajor || cleanMainJalur) {
+    const { data: existingProf } = await db
+      .from('profiles')
+      .select('target_ptns, target_majors, target_jalurs')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    const profUpdate: Record<string, unknown> = { updated_at: new Date().toISOString() }
+    if (cleanTargetPtn) {
+      const prevPtns = Array.isArray(existingProf?.target_ptns) ? existingProf.target_ptns : []
+      profUpdate.target_ptns = [cleanTargetPtn, ...prevPtns.filter((p: string) => p !== cleanTargetPtn)].slice(0, 4)
+    }
+    if (cleanTargetMajor) {
+      const prevMajs = Array.isArray(existingProf?.target_majors) ? existingProf.target_majors : []
+      profUpdate.target_majors = [cleanTargetMajor, ...prevMajs.filter((m: string) => m !== cleanTargetMajor)].slice(0, 4)
+    }
+    if (cleanMainJalur) {
+      const prevJalurs = Array.isArray(existingProf?.target_jalurs) ? existingProf.target_jalurs : []
+      profUpdate.target_jalurs = [cleanMainJalur, ...prevJalurs.filter((j: string) => j !== cleanMainJalur)].slice(0, 6)
+    }
+    await db.from('profiles').update(profUpdate).eq('id', user.id)
+
+    await db.auth.admin.updateUserById(user.id, {
+      user_metadata: {
+        ...user.user_metadata,
+        ...(profUpdate.target_ptns ? { target_ptns: profUpdate.target_ptns } : {}),
+        ...(profUpdate.target_majors ? { target_majors: profUpdate.target_majors } : {}),
+        ...(profUpdate.target_jalurs ? { target_jalurs: profUpdate.target_jalurs } : {}),
+      },
+    }).catch(() => {})
+  }
 
   // Squad: create a new group, or join an existing one by invite code.
   let squadGroupId: string | null = null
@@ -219,6 +260,9 @@ export async function POST(request: Request) {
       addon_jalurs: validAddons,
       inter_surcharge: interSurcharge,
       addon_total: addonTotal,
+      target_ptn: cleanTargetPtn || null,
+      target_faculty: cleanTargetFaculty || null,
+      target_major: cleanTargetMajor || null,
     }),
   }).select('id').single()
 

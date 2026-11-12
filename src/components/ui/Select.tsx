@@ -86,7 +86,7 @@ export default function Select({
       >
         <span
           style={{ fontSize }}
-          className={`truncate flex-1 font-semibold ${selected ? 'text-gray-900' : 'text-gray-400'}`}
+          className={`flex-1 font-semibold leading-snug break-words text-left ${selected ? 'text-gray-900' : 'text-gray-400'}`}
         >
           {selected ? selected.label : placeholder}
         </span>
@@ -141,9 +141,9 @@ export default function Select({
                   }`}
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold truncate leading-snug">{o.label}</p>
+                    <p className="text-xs font-semibold leading-snug break-words">{o.label}</p>
                     {o.sublabel && (
-                      <p className="text-[11px] text-gray-400 truncate mt-0.5">{o.sublabel}</p>
+                      <p className="text-[11px] text-gray-400 leading-snug mt-0.5">{o.sublabel}</p>
                     )}
                   </div>
                   {o.badge && (
