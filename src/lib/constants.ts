@@ -19,7 +19,8 @@ export const JALUR_LIST: JalurStatic[] = [
   { id: 'smits-flat-its', name: 'SMITS FLAT ITS', ptn: 'Institut Teknologi Sepuluh Nopember', category: 'essay_only' },
 
   // PRESTASI ONLY
-  { id: 'sjp-ui', name: 'Seleksi Jalur Prestasi (SJP) UI', ptn: 'Universitas Indonesia', category: 'prestasi_only', closed: true },
+  { id: 'sjp-ui', name: 'Seleksi Jalur Prestasi (SJP) UI', ptn: 'Universitas Indonesia', category: 'prestasi_only' },
+  { id: 'pbub-ugm', name: 'PBUB UGM (Bibit Unggul Berprestasi)', ptn: 'Universitas Gadjah Mada', category: 'prestasi_only' },
   { id: 'sbub-undip', name: 'SBUB UNDIP', ptn: 'Universitas Diponegoro', category: 'prestasi_only' },
   { id: 'smup-unpad', name: 'SMUP Minat & Bakat UNPAD', ptn: 'Universitas Padjadjaran', category: 'prestasi_only' },
   { id: 'smub-prestasi-ub', name: 'SMUB Prestasi UB', ptn: 'Universitas Brawijaya', category: 'prestasi_only' },

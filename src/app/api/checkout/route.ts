@@ -91,14 +91,23 @@ export async function POST(request: Request) {
     }
   }
 
-  // Check addon jalurs
+  // Check addon jalurs (wajib 1 kategori yang sama dengan jalur utama)
+  const expectedAddonCategory =
+    mainJalurObj && mainJalurObj.category !== 'snbp'
+      ? mainJalurObj.category
+      : track === 'hybrid'
+      ? 'hybrid'
+      : track === 'prestasi'
+      ? 'prestasi_only'
+      : 'essay_only'
+
   let addonTotal = 0
   const validAddons: string[] = []
   if (Array.isArray(addon_jalurs)) {
     for (const addonId of addon_jalurs) {
       if (typeof addonId === 'string') {
         const found = JALUR_LIST.find(j => j.id === addonId)
-        if (found && found.id !== main_jalur) {
+        if (found && found.id !== main_jalur && found.category === expectedAddonCategory) {
           validAddons.push(found.id)
           const addonTrack: Track = found.category === 'hybrid' ? 'hybrid' : (found.category === 'prestasi_only' ? 'prestasi' : 'essay')
           addonTotal += getAddonPrice(addonTrack, found.isInter)

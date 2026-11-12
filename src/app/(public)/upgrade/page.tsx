@@ -203,16 +203,24 @@ export default function UpgradePage() {
       ? getRenewalPrice(selection.tier, baseAfterRef)
       : baseAfterRef
 
-  const availableMainJalurs = selection
-    ? JALUR_LIST.filter(j => {
-        if (selection.track === 'essay') return j.category === 'essay_only' || j.category === 'snbp'
-        if (selection.track === 'prestasi') return j.category === 'prestasi_only'
-        if (selection.track === 'hybrid') return j.category === 'hybrid'
-        return true
-      })
-    : []
+  // Tampilkan seluruh jalur PTN agar jalur seperti SJP UI, PPKB UI, PBUB UGM, dll selalu tersedia
+  const availableMainJalurs = selection ? JALUR_LIST : []
 
   const selectedMainJalurObj = JALUR_LIST.find(j => j.id === mainJalur)
+  const effectiveAddonCategory: 'essay_only' | 'prestasi_only' | 'hybrid' =
+    selectedMainJalurObj && selectedMainJalurObj.category !== 'snbp'
+      ? selectedMainJalurObj.category
+      : selection?.track === 'hybrid'
+      ? 'hybrid'
+      : selection?.track === 'prestasi'
+      ? 'prestasi_only'
+      : 'essay_only'
+
+  const availableAddonJalurs = selection
+    ? JALUR_LIST.filter(
+        j => j.id !== mainJalur && j.id !== 'snbp' && j.category === effectiveAddonCategory
+      )
+    : []
   const isInterMain = selectedMainJalurObj?.isInter && selection?.tier !== 'web_premium'
   const interSurcharge = isInterMain ? getInterSurcharge(selection!.tier) : 0
 
@@ -590,14 +598,35 @@ export default function UpgradePage() {
                   value={mainJalur}
                   onChange={newJalur => {
                     setMainJalur(newJalur)
-                    setAddonJalurs(prev => prev.filter(id => id !== newJalur))
+                    const picked = JALUR_LIST.find(j => j.id === newJalur)
+                    if (picked && picked.category !== 'snbp') {
+                      const nextTrack: Track =
+                        picked.category === 'hybrid'
+                          ? 'hybrid'
+                          : picked.category === 'prestasi_only'
+                          ? 'prestasi'
+                          : 'essay'
+                      if (selection && !(selection.mode === 'squad' && nextTrack === 'hybrid')) {
+                        setSelection({ ...selection, track: nextTrack })
+                        setTrack(nextTrack)
+                      }
+                      setAddonJalurs(prev =>
+                        prev.filter(id => {
+                          const aj = JALUR_LIST.find(x => x.id === id)
+                          return aj && aj.id !== newJalur && aj.category === picked.category
+                        })
+                      )
+                    } else {
+                      setAddonJalurs(prev => prev.filter(id => id !== newJalur))
+                    }
                   }}
                   options={availableMainJalurs.map(j => ({
                     value: j.id,
                     label: `${j.name} - ${j.ptn}`,
-                    badge: j.isInter ? '⭐ IUP/Inter' : undefined,
+                    badge: j.isInter ? '⭐ IUP/Inter' : j.category === 'prestasi_only' ? 'Prestasi' : j.category === 'hybrid' ? 'Hybrid' : j.category === 'essay_only' ? 'Essay' : 'SNBP',
                   }))}
                   placeholder="Pilih Jalur PTN Utama"
+                  searchable
                   size="sm"
                 />
                 {isInterMain && (
@@ -687,53 +716,59 @@ export default function UpgradePage() {
                 </div>
               )}
 
-              {/* Addon Jalurs (Hanya untuk paket bermentor) */}
+              {/* Addon Jalurs (Hanya 1 kategori yang sama dengan jalur utama) */}
               {selection.tier !== 'web_premium' && (
                 <div className="rounded-2xl bg-gray-50 p-4 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] font-black uppercase tracking-wider text-gray-400">
-                      Tambah Jalur Pilihan Lain (Add-On)
+                      Tambah Jalur Pilihan Lain ({effectiveAddonCategory === 'essay_only' ? 'Essay Only' : effectiveAddonCategory === 'prestasi_only' ? 'Prestasi Only' : 'Hybrid'})
                     </p>
                     <span className="text-[10px] text-gray-400 font-semibold">Opsional</span>
                   </div>
                   <p className="text-[11px] text-gray-500 leading-snug">
-                    Ingin mentor alumni juga mereview dan membedah berkasmu di jalur PTN lainnya? Kuota bimbingan berlaku kumulatif untuk semua jalur yang kamu pilih.
+                    Add-on hanya menampilkan jalur dalam kategori yang sama dengan jalur utamamu agar bimbingan tetap fokus dan efektif.
                   </p>
                   <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
-                    {JALUR_LIST.filter(j => j.id !== mainJalur && j.id !== 'snbp').map(j => {
-                      const isSelected = addonJalurs.includes(j.id)
-                      const t: Track = j.category === 'hybrid' ? 'hybrid' : (j.category === 'prestasi_only' ? 'prestasi' : 'essay')
-                      const cost = getAddonPrice(t, j.isInter)
-                      return (
-                        <label
-                          key={j.id}
-                          className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition-colors ${
-                            isSelected
-                              ? 'bg-amber-50 border-amber-300 text-amber-950 font-bold'
-                              : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-100/70'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={e => {
-                                if (e.target.checked) setAddonJalurs(prev => [...prev, j.id])
-                                else setAddonJalurs(prev => prev.filter(x => x !== j.id))
-                              }}
-                              className="rounded border-gray-300 text-amber-600 focus:ring-amber-500 h-4 w-4"
-                            />
-                            <div>
-                              <span>{j.name}</span>
-                              <span className="text-[10px] block text-gray-400 font-medium">{j.ptn}</span>
+                    {availableAddonJalurs.length === 0 ? (
+                      <p className="text-[11px] text-gray-400 italic py-2">
+                        Tidak ada jalur tambahan lain pada kategori ini.
+                      </p>
+                    ) : (
+                      availableAddonJalurs.map(j => {
+                        const isSelected = addonJalurs.includes(j.id)
+                        const t: Track = j.category === 'hybrid' ? 'hybrid' : (j.category === 'prestasi_only' ? 'prestasi' : 'essay')
+                        const cost = getAddonPrice(t, j.isInter)
+                        return (
+                          <label
+                            key={j.id}
+                            className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition-colors ${
+                              isSelected
+                                ? 'bg-amber-50 border-amber-300 text-amber-950 font-bold'
+                                : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-100/70'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={e => {
+                                  if (e.target.checked) setAddonJalurs(prev => [...prev, j.id])
+                                  else setAddonJalurs(prev => prev.filter(x => x !== j.id))
+                                }}
+                                className="rounded border-gray-300 text-amber-600 focus:ring-amber-500 h-4 w-4"
+                              />
+                              <div>
+                                <span>{j.name}</span>
+                                <span className="text-[10px] block text-gray-400 font-medium">{j.ptn}</span>
+                              </div>
                             </div>
-                          </div>
-                          <span className="text-[10px] font-extrabold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-full">
-                            +{formatIDR(cost)}
-                          </span>
-                        </label>
-                      )
-                    })}
+                            <span className="text-[10px] font-extrabold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-full">
+                              +{formatIDR(cost)}
+                            </span>
+                          </label>
+                        )
+                      })
+                    )}
                   </div>
                 </div>
               )}
@@ -842,17 +877,6 @@ export default function UpgradePage() {
                     <span>Total yang dibayar</span>
                     <span className="text-amber-700">{formatIDR(selectedTotalToPay)}</span>
                   </div>
-                </div>
-              </div>
-
-              {/* Payment methods - informational only, NOT clickable cards */}
-              <div className="rounded-2xl bg-gray-50 p-4">
-                <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-2">Metode Pembayaran yang Tersedia</p>
-                <p className="text-xs text-gray-600 font-semibold mb-2">Dibayar lewat Mayar - pilih metode di halaman pembayaran:</p>
-                <div className="flex flex-wrap gap-2">
-                  {['Virtual Account (BCA, Mandiri, BNI, BRI, BSI)', 'QRIS semua e-wallet', 'GoPay / OVO / Dana / ShopeePay', 'Kartu Kredit/Debit Visa & Mastercard'].map(m => (
-                    <span key={m} className="text-[10px] font-semibold text-gray-500 bg-white border border-gray-200 px-2.5 py-1 rounded-full">{m}</span>
-                  ))}
                 </div>
               </div>
             </div>
