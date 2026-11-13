@@ -2,83 +2,52 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { HoneyOverlay } from '@/components/ui/HoneyDrip'
+import { HoneyOverlay, HoneyOverlayHandle } from '@/components/ui/HoneyDrip'
 
 export default function GlobalPageLoader() {
-  const router = useRouter()
+  const router   = useRouter()
   const pathname = usePathname()
 
-  const elRef = useRef<HTMLDivElement>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const [isRouteLoaded, setIsRouteLoaded] = useState(false)
+  const overlayRef         = useRef<HoneyOverlayHandle>(null)
   const isTransitioningRef = useRef(false)
-  const hasCompletedRef = useRef(false)
-  const startUrlRef = useRef('')
-  const watchdogTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const drainFailsafeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const hasCompletedRef    = useRef(false)
+  const startUrlRef        = useRef('')
+  const watchdogTimerRef   = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const drainFailsafeRef   = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pollIntervalRef    = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const clearAllTimers = useCallback(() => {
-    if (watchdogTimerRef.current) {
-      clearTimeout(watchdogTimerRef.current)
-      watchdogTimerRef.current = null
-    }
-    if (drainFailsafeRef.current) {
-      clearTimeout(drainFailsafeRef.current)
-      drainFailsafeRef.current = null
-    }
-    if (pollIntervalRef.current) {
-      clearInterval(pollIntervalRef.current)
-      pollIntervalRef.current = null
-    }
+    if (watchdogTimerRef.current)  { clearTimeout(watchdogTimerRef.current);   watchdogTimerRef.current  = null }
+    if (drainFailsafeRef.current)  { clearTimeout(drainFailsafeRef.current);   drainFailsafeRef.current  = null }
+    if (pollIntervalRef.current)   { clearInterval(pollIntervalRef.current);   pollIntervalRef.current   = null }
   }, [])
 
   const handleComplete = useCallback(() => {
     if (!isTransitioningRef.current || hasCompletedRef.current) return
-    hasCompletedRef.current = true
+    hasCompletedRef.current  = true
+    isTransitioningRef.current = false
     clearAllTimers()
-
-    const el = elRef.current
-    if (el) {
-      el.style.opacity = '0'
-    }
-
-    // Clean reset after fade-out completes (220ms)
-    setTimeout(() => {
-      const overlay = elRef.current
-      if (overlay) {
-        overlay.style.visibility = 'hidden'
-      }
-      if (videoRef.current) {
-        try {
-          videoRef.current.pause()
-          videoRef.current.playbackRate = 1.0
-          videoRef.current.currentTime = 0
-        } catch {}
-      }
-      setIsRouteLoaded(false)
-      isTransitioningRef.current = false
-      hasCompletedRef.current = false
-    }, 220)
+    // HoneyOverlay handles its own hide/clear internally; nothing extra needed here.
   }, [clearAllTimers])
 
   const markRouteCommitted = useCallback(() => {
     if (!isTransitioningRef.current) return
-    setIsRouteLoaded(true)
     if (pollIntervalRef.current) {
       clearInterval(pollIntervalRef.current)
       pollIntervalRef.current = null
     }
-    // Once route commits, drain from 1.16s -> 2.38s takes ~1.0s.
-    // Failsafe ensures the overlay NEVER stays frozen if a browser throttles video resume.
+    // Tell canvas to start drain phase
+    overlayRef.current?.routeCommitted()
+
+    // Failsafe: if canvas drain somehow stalls, force complete after 2s
     if (!drainFailsafeRef.current) {
       drainFailsafeRef.current = setTimeout(() => {
         handleComplete()
-      }, 1500)
+      }, 2000)
     }
   }, [handleComplete])
 
-  // Detect pathname changes via Next.js hook
+  // Detect pathname change via Next.js hook
   useEffect(() => {
     if (!isTransitioningRef.current) return
     const currentFull = typeof window !== 'undefined'
@@ -90,33 +59,21 @@ export default function GlobalPageLoader() {
   }, [pathname, markRouteCommitted])
 
   const startTransition = useCallback((href: string) => {
-    const el = elRef.current
-    if (!el || isTransitioningRef.current) return
+    if (isTransitioningRef.current) return
 
     clearAllTimers()
     isTransitioningRef.current = true
-    hasCompletedRef.current = false
+    hasCompletedRef.current    = false
     startUrlRef.current = `${window.location.pathname}${window.location.search}`
-    setIsRouteLoaded(false)
 
-    // Show overlay immediately
-    el.style.visibility = 'visible'
-    el.style.opacity = '1'
+    // Start canvas animation; callback fires when screen is fully covered
+    overlayRef.current?.startAnimation(() => {
+      // Screen covered — navigate now
+      router.prefetch(href)
+      router.push(href)
+    })
 
-    // Play video from 0
-    if (videoRef.current) {
-      try {
-        videoRef.current.currentTime = 0
-        videoRef.current.playbackRate = 1.0
-        videoRef.current.play().catch(() => {})
-      } catch {}
-    }
-
-    // Trigger router navigation immediately
-    router.prefetch(href)
-    router.push(href)
-
-    // Poll full URL (pathname + search) every 80ms so query-param or fast navigations never hang
+    // Poll full URL every 80ms to catch query-param / fast navigations
     pollIntervalRef.current = setInterval(() => {
       if (!isTransitioningRef.current) return
       const nowFull = `${window.location.pathname}${window.location.search}`
@@ -125,20 +82,18 @@ export default function GlobalPageLoader() {
       }
     }, 80)
 
-    // Hard safety cap (4.5s) so overlay never freezes on top of UI under any condition
+    // Hard safety cap (5s) so overlay never freezes
     watchdogTimerRef.current = setTimeout(() => {
       if (isTransitioningRef.current) {
         handleComplete()
       }
-    }, 4500)
+    }, 5000)
   }, [clearAllTimers, handleComplete, markRouteCommitted, router])
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-
-      // Strictly ignore any clicks while a transition is already in progress
       if (isTransitioningRef.current) return
 
       const a = (e.target as HTMLElement | null)?.closest?.('a')
@@ -177,9 +132,7 @@ export default function GlobalPageLoader() {
 
   return (
     <HoneyOverlay
-      ref={elRef}
-      videoRef={videoRef}
-      isRouteLoaded={isRouteLoaded}
+      ref={overlayRef}
       onComplete={handleComplete}
     />
   )
