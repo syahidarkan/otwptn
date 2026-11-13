@@ -134,7 +134,7 @@ function EcourseContent() {
   }
 
   return (
-    <div className="w-full min-h-screen relative bg-white">
+    <div className="w-full min-h-screen relative bg-white dark:bg-[#0f1013] text-slate-900 dark:text-slate-100 transition-colors">
       {/* Main Container */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Top Jalur Switcher Pill */}

@@ -206,11 +206,24 @@ html.dark:not(:has(.public-light-theme)) [style*="var(--bg)"] {
 }
 
 html.dark:not(:has(.public-light-theme)) .bg-white,
+html.dark:not(:has(.public-light-theme)) .bg-white\/95,
+html.dark:not(:has(.public-light-theme)) .bg-white\/90,
+html.dark:not(:has(.public-light-theme)) .bg-white\/85,
+html.dark:not(:has(.public-light-theme)) .bg-white\/80,
+html.dark:not(:has(.public-light-theme)) .bg-white\/75,
+html.dark:not(:has(.public-light-theme)) .bg-white\/70,
 html.dark:not(:has(.public-light-theme)) .card,
 html.dark:not(:has(.public-light-theme)) .glass-panel {
   background-color: #1c1d22 !important;
   background-image: none !important;
   color: #f3f4f6 !important;
+  border-color: #2c2d33 !important;
+}
+
+html.dark:not(:has(.public-light-theme)) .border-white,
+html.dark:not(:has(.public-light-theme)) .border-white\/90,
+html.dark:not(:has(.public-light-theme)) .border-white\/80,
+html.dark:not(:has(.public-light-theme)) .border-white\/70 {
   border-color: #2c2d33 !important;
 }
 
@@ -232,7 +245,20 @@ html.dark:not(:has(.public-light-theme)) .bg-gray-100 {
   border-color: #2c2d33 !important;
 }
 
-html.dark:not(:has(.public-light-theme)) :is(.text-gray-900, .text-gray-950, .text-brand-black, h1, h2, h3, h4, h5):not(.feature-header-golden):not(.feature-header-golden *):not([style*="#fffbeb"]):not([style*="#fffbeb"] *) {
+html.dark:not(:has(.public-light-theme)) :is(.text-gray-900, .text-gray-950, .text-brand-black, h1, h2, h3, h4, h5):not(
+  .feature-header-golden,
+  .feature-header-golden *,
+  [class*="from-amber"],
+  [class*="from-amber"] *,
+  [class*="bg-amber-"],
+  [class*="bg-amber-"] *,
+  [class*="from-yellow"],
+  [class*="from-yellow"] *,
+  [class*="bg-yellow-"],
+  [class*="bg-yellow-"] *,
+  [style*="#fffbeb"],
+  [style*="#fffbeb"] *
+) {
   color: #f9fafb !important;
 }
 
@@ -257,15 +283,84 @@ html.dark:not(:has(.public-light-theme)) [style*="#fffbeb"] span {
   color: #0f172a !important;
 }
 
-html.dark:not(:has(.public-light-theme)) :is(.text-gray-800, .text-gray-700):not(.feature-header-golden *):not([style*="#fffbeb"] *) {
+/* Ensure deep crisp contrast on all amber, yellow, and golden surfaces */
+html.dark:not(:has(.public-light-theme)) :is(
+  .feature-header-golden,
+  [class*="from-amber"],
+  [class*="bg-amber-300"],
+  [class*="bg-amber-400"],
+  [class*="bg-amber-500"],
+  [class*="from-yellow"],
+  [class*="bg-yellow-300"],
+  [class*="bg-yellow-400"]
+) :is(.text-gray-950, .text-gray-900, .text-amber-950, .text-amber-900, h1, h2, h3, h4, h5, strong, b) {
+  color: #0f172a !important;
+}
+
+.feature-header-golden .bg-emerald-50,
+html.dark .feature-header-golden .bg-emerald-50,
+html.dark:not(:has(.public-light-theme)) .feature-header-golden .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+  color: #065f46 !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+.feature-header-golden .bg-gray-100,
+html.dark .feature-header-golden .bg-gray-100,
+html.dark:not(:has(.public-light-theme)) .feature-header-golden .bg-gray-100 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  color: #374151 !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+html.dark:not(:has(.public-light-theme)) :is(.text-gray-800, .text-gray-700):not(
+  .feature-header-golden,
+  .feature-header-golden *,
+  [class*="from-amber"],
+  [class*="from-amber"] *,
+  [class*="bg-amber-"],
+  [class*="bg-amber-"] *,
+  [class*="from-yellow"],
+  [class*="from-yellow"] *,
+  [class*="bg-yellow-"],
+  [class*="bg-yellow-"] *,
+  [style*="#fffbeb"],
+  [style*="#fffbeb"] *
+) {
   color: #e4e4e7 !important;
 }
 
-html.dark:not(:has(.public-light-theme)) :is(.text-gray-600, .text-gray-500):not(.feature-header-golden *):not([style*="#fffbeb"] *) {
+html.dark:not(:has(.public-light-theme)) :is(.text-gray-600, .text-gray-500):not(
+  .feature-header-golden,
+  .feature-header-golden *,
+  [class*="from-amber"],
+  [class*="from-amber"] *,
+  [class*="bg-amber-"],
+  [class*="bg-amber-"] *,
+  [class*="from-yellow"],
+  [class*="from-yellow"] *,
+  [class*="bg-yellow-"],
+  [class*="bg-yellow-"] *,
+  [style*="#fffbeb"],
+  [style*="#fffbeb"] *
+) {
   color: #a1a1aa !important;
 }
 
-html.dark:not(:has(.public-light-theme)) .text-gray-400:not(.feature-header-golden *):not([style*="#fffbeb"] *) {
+html.dark:not(:has(.public-light-theme)) .text-gray-400:not(
+  .feature-header-golden,
+  .feature-header-golden *,
+  [class*="from-amber"],
+  [class*="from-amber"] *,
+  [class*="bg-amber-"],
+  [class*="bg-amber-"] *,
+  [class*="from-yellow"],
+  [class*="from-yellow"] *,
+  [class*="bg-yellow-"],
+  [class*="bg-yellow-"] *,
+  [style*="#fffbeb"],
+  [style*="#fffbeb"] *
+) {
   color: #71717a !important;
 }
 
@@ -340,8 +435,8 @@ html.dark .hover-lift span {
 }
 
 /* Logo dark mode swap */
-html.dark:not(:has(.public-light-theme)) img.logo-adaptive[src="/logo.png"] {
-  content: url('/logo-dark.png');
+html.dark:not(:has(.public-light-theme)) img.logo-adaptive[src*="/logo.png"] {
+  content: url('/logo-dark.png?v=3');
 }
 
 /* Additional dark mode fixes */
@@ -909,11 +1004,36 @@ html.dark:not(:has(.public-light-theme)) .bg-orange-50 {
 }
 
 /* Text color overrides for colored text in dark mode */
-html.dark:not(:has(.public-light-theme)) .text-gray-950 {
+html.dark:not(:has(.public-light-theme)) .text-gray-950:not(
+  .feature-header-golden,
+  .feature-header-golden *,
+  [class*="from-amber"],
+  [class*="from-amber"] *,
+  [class*="bg-amber-"],
+  [class*="bg-amber-"] *,
+  [class*="from-yellow"],
+  [class*="from-yellow"] *,
+  [class*="bg-yellow-"],
+  [class*="bg-yellow-"] *,
+  [style*="#fffbeb"],
+  [style*="#fffbeb"] *
+) {
   color: #f9fafb !important;
 }
-html.dark:not(:has(.public-light-theme)) .text-amber-900,
-html.dark:not(:has(.public-light-theme)) .text-amber-950 {
+html.dark:not(:has(.public-light-theme)) :is(.text-amber-900, .text-amber-950):not(
+  .feature-header-golden,
+  .feature-header-golden *,
+  [class*="from-amber"],
+  [class*="from-amber"] *,
+  [class*="bg-amber-"],
+  [class*="bg-amber-"] *,
+  [class*="from-yellow"],
+  [class*="from-yellow"] *,
+  [class*="bg-yellow-"],
+  [class*="bg-yellow-"] *,
+  [style*="#fffbeb"],
+  [style*="#fffbeb"] *
+) {
   color: #fde68a !important;
 }
 html.dark:not(:has(.public-light-theme)) .text-sky-800,

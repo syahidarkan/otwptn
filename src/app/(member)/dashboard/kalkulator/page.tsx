@@ -764,13 +764,25 @@ export default function KalkulatorPage() {
       >
         <div className="flex flex-wrap items-center gap-2">
           {lastSaved && (
-            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/50">
+            <span
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border shadow-xs"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.92)',
+                color: '#065f46',
+                borderColor: 'rgba(16, 185, 129, 0.4)',
+              }}
+            >
               <CheckCircle2 size={12} className="text-emerald-600" /> {lastSaved}
             </span>
           )}
           <button
             onClick={handleResetForm}
-            className="px-3 py-1.5 rounded-full text-[11px] font-bold text-gray-500 hover:text-rose-600 bg-gray-100 hover:bg-rose-50 transition-colors flex items-center gap-1 cursor-pointer"
+            className="px-3 py-1.5 rounded-full text-[11px] font-bold border hover:bg-rose-50 transition-colors flex items-center gap-1 cursor-pointer shadow-xs"
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.92)',
+              color: '#374151',
+              borderColor: 'rgba(0, 0, 0, 0.12)',
+            }}
             title="Reset form & bersihkan draf"
           >
             <RotateCcw size={11} /> Reset

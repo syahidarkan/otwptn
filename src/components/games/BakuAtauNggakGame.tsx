@@ -95,9 +95,9 @@ export default function BakuAtauNggakGame({ initialMode = 'solo', onExit }: Prop
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto rounded-3xl backdrop-blur-2xl bg-white/90 border border-white/90 shadow-[0_12px_40px_rgba(0,0,0,0.06)] overflow-hidden">
+    <div className="w-full max-w-2xl mx-auto rounded-3xl backdrop-blur-2xl bg-white/90 dark:bg-[#16171b] border border-white/90 dark:border-[#27272a] shadow-[0_12px_40px_rgba(0,0,0,0.06)] overflow-hidden transition-colors">
       {/* Header Bar with Otbee Mascot */}
-      <div className="px-6 py-4 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-200 text-gray-950 flex items-center justify-between border-b border-amber-300/40">
+      <div className="feature-header-golden px-6 py-4 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-200 text-gray-950 flex items-center justify-between border-b border-amber-300/40">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-white/80 p-1 flex items-center justify-center shadow-xs">
             <Image
@@ -109,10 +109,10 @@ export default function BakuAtauNggakGame({ initialMode = 'solo', onExit }: Prop
             />
           </div>
           <div>
-            <h3 className="text-sm sm:text-base font-black tracking-tight text-gray-950">
+            <h3 className="text-sm sm:text-base font-black tracking-tight" style={{ color: '#0f172a' }}>
               Wordle Baku (Kamus PUEBI)
             </h3>
-            <p className="text-[11px] text-gray-800 font-bold">
+            <p className="text-[11px] font-bold" style={{ color: '#1e293b' }}>
               Tebak kata baku KBBI yang sering salah ditulis di esai
             </p>
           </div>
@@ -215,7 +215,7 @@ export default function BakuAtauNggakGame({ initialMode = 'solo', onExit }: Prop
                 placeholder={`Tebak kata baku (${curWord.letterCount} huruf)...`}
                 value={guessInput}
                 onChange={e => setGuessInput(e.target.value.toUpperCase())}
-                className="flex-1 px-4 py-3.5 rounded-2xl border-2 border-gray-200 focus:border-amber-400 outline-none uppercase font-mono font-black text-sm tracking-widest text-center bg-white shadow-xs transition-colors"
+                className="flex-1 px-4 py-3.5 rounded-2xl border-2 border-gray-200 dark:border-[#2e313d] focus:border-amber-400 outline-none uppercase font-mono font-black text-sm tracking-widest text-center bg-white dark:bg-[#1a1b22] text-gray-950 dark:text-white shadow-xs transition-colors"
                 autoFocus
               />
               <button
@@ -234,7 +234,7 @@ export default function BakuAtauNggakGame({ initialMode = 'solo', onExit }: Prop
                 {attempts.map((att, idx) => (
                   <span
                     key={idx}
-                    className="px-2.5 py-1 rounded-xl text-xs font-mono font-black bg-rose-50 text-rose-700 border border-rose-200 line-through shadow-2xs"
+                    className="px-2.5 py-1 rounded-xl text-xs font-mono font-black bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 line-through shadow-2xs"
                   >
                     {att}
                   </span>
@@ -244,8 +244,8 @@ export default function BakuAtauNggakGame({ initialMode = 'solo', onExit }: Prop
           </form>
         ) : (
           /* Game Over / Won State */
-          <div className="p-6 rounded-3xl bg-amber-50/80 border border-amber-300 text-center space-y-4 shadow-sm">
-            <div className="w-16 h-16 rounded-2xl bg-white shadow-sm mx-auto flex items-center justify-center">
+          <div className="p-6 rounded-3xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700/50 text-center space-y-4 shadow-sm transition-colors">
+            <div className="w-16 h-16 rounded-2xl bg-white dark:bg-[#1c1d22] shadow-sm mx-auto flex items-center justify-center">
               {isWon ? (
                 <CheckCircle2 size={36} className="text-emerald-500" />
               ) : (
@@ -254,17 +254,17 @@ export default function BakuAtauNggakGame({ initialMode = 'solo', onExit }: Prop
             </div>
 
             <div>
-              <h4 className="text-lg font-black text-gray-950">
+              <h4 className="text-lg font-black text-gray-950 dark:text-white">
                 {isWon ? 'Tebakan Tepat! Kata Baku Terkuak!' : 'Kesempatan Habis!'}
               </h4>
-              <p className="text-xs text-gray-600 font-medium mt-1">
+              <p className="text-xs text-gray-600 dark:text-slate-300 font-medium mt-1">
                 Bentuk baku yang benar adalah{' '}
-                <strong className="text-emerald-700 font-black text-sm">{curWord.targetWord}</strong>{' '}
+                <strong className="text-emerald-700 dark:text-emerald-400 font-black text-sm">{curWord.targetWord}</strong>{' '}
                 (bukan {curWord.commonMistake}).
               </p>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-white border border-amber-200 text-xs text-gray-800 font-semibold italic">
+            <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1e2028] border border-amber-200 dark:border-amber-700/50 text-xs text-gray-800 dark:text-slate-200 font-semibold italic">
               &ldquo;{curWord.exampleSentence.replace('___', curWord.targetWord)}&rdquo;
             </div>
 
@@ -278,7 +278,7 @@ export default function BakuAtauNggakGame({ initialMode = 'solo', onExit }: Prop
               {onExit && (
                 <button
                   onClick={onExit}
-                  className="px-5 py-3 rounded-2xl bg-white border border-gray-200 text-gray-800 font-bold text-xs transition-all cursor-pointer"
+                  className="px-5 py-3 rounded-2xl bg-white dark:bg-[#1a1b22] border border-gray-200 dark:border-zinc-700 text-gray-800 dark:text-slate-200 font-bold text-xs transition-all cursor-pointer"
                 >
                   Kembali
                 </button>

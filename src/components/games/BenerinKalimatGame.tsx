@@ -87,9 +87,9 @@ export default function BenerinKalimatGame({ onExit }: Props) {
 
   if (!currentQ && !isGameOver) {
     return (
-      <div className="w-full max-w-2xl mx-auto rounded-3xl backdrop-blur-2xl bg-white/85 border border-white/90 p-10 text-center shadow-[0_12px_40px_rgba(0,0,0,0.06)] space-y-3">
+      <div className="w-full max-w-2xl mx-auto rounded-3xl backdrop-blur-2xl bg-white/85 dark:bg-[#16171b] border border-white/90 dark:border-[#27272a] p-10 text-center shadow-[0_12px_40px_rgba(0,0,0,0.06)] space-y-3 transition-colors">
         <div className="w-8 h-8 border-3 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-sm font-bold text-gray-700">Memuat bank soal Arena PBM...</p>
+        <p className="text-sm font-bold text-gray-700 dark:text-slate-300">Memuat bank soal Arena PBM...</p>
       </div>
     )
   }
@@ -240,7 +240,7 @@ export default function BenerinKalimatGame({ onExit }: Props) {
 
   if (isGameOver) {
     return (
-      <div className="w-full max-w-xl mx-auto rounded-3xl backdrop-blur-2xl bg-white/90 border border-white/90 p-8 text-center text-gray-950 shadow-[0_16px_50px_rgba(0,0,0,0.08)] space-y-6">
+      <div className="w-full max-w-xl mx-auto rounded-3xl backdrop-blur-2xl bg-white/90 dark:bg-[#16171b] border border-white/90 dark:border-[#27272a] p-8 text-center text-gray-950 dark:text-white shadow-[0_16px_50px_rgba(0,0,0,0.08)] space-y-6 transition-colors">
         <div className="w-20 h-20 rounded-3xl bg-amber-400/20 border border-amber-400/40 p-2 flex items-center justify-center mx-auto shadow-md">
           <Image
             src="/mascot/trophy-graduate.png"
@@ -251,21 +251,21 @@ export default function BenerinKalimatGame({ onExit }: Props) {
           />
         </div>
         <div>
-          <h3 className="text-2xl font-black text-gray-950 tracking-tight">Arena Kuis PBM Selesai!</h3>
-          <p className="text-xs text-gray-600 font-semibold mt-1">
+          <h3 className="text-2xl font-black text-gray-950 dark:text-white tracking-tight">Arena Kuis PBM Selesai!</h3>
+          <p className="text-xs text-gray-600 dark:text-slate-300 font-semibold mt-1">
             Kamu berhasil menyelesaikan sesi latihan perbaikan kalimat PBM.
           </p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-amber-50/80 border border-amber-300 flex items-center justify-around">
+        <div className="p-5 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/50 flex items-center justify-around">
           <div>
-            <span className="text-[11px] font-bold text-amber-800 uppercase block">Total Skor</span>
-            <span className="text-2xl font-black text-gray-950 font-mono">{score}</span>
+            <span className="text-[11px] font-bold text-amber-800 dark:text-amber-400 uppercase block">Total Skor</span>
+            <span className="text-2xl font-black text-gray-950 dark:text-white font-mono">{score}</span>
           </div>
-          <div className="h-8 w-px bg-amber-200" />
+          <div className="h-8 w-px bg-amber-200 dark:bg-amber-800/60" />
           <div>
-            <span className="text-[11px] font-bold text-amber-800 uppercase block">Bonus XP</span>
-            <span className="text-2xl font-black text-amber-600 font-mono">+25 XP</span>
+            <span className="text-[11px] font-bold text-amber-800 dark:text-amber-400 uppercase block">Bonus XP</span>
+            <span className="text-2xl font-black text-amber-600 dark:text-amber-400 font-mono">+25 XP</span>
           </div>
         </div>
 
@@ -295,9 +295,9 @@ export default function BenerinKalimatGame({ onExit }: Props) {
   const categoryLabel = currentQ.subtopik || (isKalimatHapus ? 'Kalimat Berlebihan' : 'Ejaan & Tata Bahasa')
 
   return (
-    <div className="w-full max-w-2xl mx-auto rounded-3xl backdrop-blur-2xl bg-white/90 border border-white/90 shadow-[0_12px_40px_rgba(0,0,0,0.06)] p-6 sm:p-8 space-y-6">
+    <div className="w-full max-w-2xl mx-auto rounded-3xl backdrop-blur-2xl bg-white/90 dark:bg-[#16171b] border border-white/90 dark:border-[#27272a] shadow-[0_12px_40px_rgba(0,0,0,0.06)] p-6 sm:p-8 space-y-6 transition-colors">
       {/* Header with Otbee Mascot Badge */}
-      <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+      <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-[#27272a]">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl bg-amber-400/20 border border-amber-400/30 p-1 flex items-center justify-center flex-shrink-0">
             <Image
@@ -309,10 +309,10 @@ export default function BenerinKalimatGame({ onExit }: Props) {
             />
           </div>
           <div>
-            <h3 className="text-sm sm:text-base font-black text-gray-950 tracking-tight">
+            <h3 className="text-sm sm:text-base font-black text-gray-950 dark:text-white tracking-tight">
               {showPembahasan ? 'Layar Pembahasan Solusi' : 'Arena Kuis PBM (Benerin Kalimat)'}
             </h3>
-            <p className="text-[11px] text-gray-500 font-semibold truncate">
+            <p className="text-[11px] text-gray-500 dark:text-slate-400 font-semibold truncate">
               {showPembahasan
                 ? 'Analisis kaidah ejaan & alasan pembetulan'
                 : 'Pilih perbaikan kalimat paling efektif sesuai PUEBI'}
@@ -322,7 +322,7 @@ export default function BenerinKalimatGame({ onExit }: Props) {
 
         <div className="flex items-center gap-2">
           {!showPembahasan && (
-            <span className="px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 font-mono font-black text-xs flex items-center gap-1.5 shadow-2xs">
+            <span className="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-300 font-mono font-black text-xs flex items-center gap-1.5 shadow-2xs">
               <Clock size={13} className="text-amber-600" />
               <span>{timeLeft}s</span>
             </span>
@@ -400,7 +400,7 @@ export default function BenerinKalimatGame({ onExit }: Props) {
                     <button
                       key={oIdx}
                       onClick={() => handleSelectOption(opt)}
-                      className="bg-white hover:bg-amber-50/60 border border-gray-200 hover:border-amber-400 text-gray-800 font-black p-4 rounded-2xl text-center text-xs sm:text-sm transition-all cursor-pointer shadow-xs hover:scale-[1.01]"
+                      className="bg-white dark:bg-[#1a1b22] hover:bg-amber-50/60 dark:hover:bg-amber-950/30 border border-gray-200 dark:border-[#2e313d] hover:border-amber-400 text-gray-800 dark:text-slate-100 font-black p-4 rounded-2xl text-center text-xs sm:text-sm transition-all cursor-pointer shadow-xs hover:scale-[1.01]"
                     >
                       {opt.text}
                     </button>
@@ -413,7 +413,7 @@ export default function BenerinKalimatGame({ onExit }: Props) {
                   <button
                     key={oIdx}
                     onClick={() => handleSelectOption(opt)}
-                    className="w-full bg-white hover:bg-amber-50/60 border border-gray-200 hover:border-amber-400 text-gray-900 font-black py-3.5 px-4 rounded-2xl text-center text-xs sm:text-sm transition-all cursor-pointer shadow-xs hover:scale-[1.01]"
+                    className="w-full bg-white dark:bg-[#1a1b22] hover:bg-amber-50/60 dark:hover:bg-amber-950/30 border border-gray-200 dark:border-[#2e313d] hover:border-amber-400 text-gray-900 dark:text-slate-100 font-black py-3.5 px-4 rounded-2xl text-center text-xs sm:text-sm transition-all cursor-pointer shadow-xs hover:scale-[1.01]"
                   >
                     {opt.text}
                   </button>

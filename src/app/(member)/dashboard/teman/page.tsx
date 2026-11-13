@@ -529,7 +529,7 @@ export default function CariTemanBelajarPage() {
           className={`px-5 py-2.5 rounded-full text-xs font-extrabold flex items-center gap-2 transition-all ${
             activeTab === 'study-cam'
               ? 'btn-brand-primary'
-              : 'bg-white text-gray-700 shadow-xs hover:bg-gray-50'
+              : 'bg-white dark:bg-[#1c1d22] text-gray-700 dark:text-slate-200 border border-gray-100 dark:border-[#2c2d33] shadow-xs hover:bg-gray-50 dark:hover:bg-[#23252b]'
           }`}
         >
           <Video size={16} /> Live Study Cam (Otbee TV)
@@ -540,7 +540,7 @@ export default function CariTemanBelajarPage() {
           className={`px-5 py-2.5 rounded-full text-xs font-extrabold flex items-center gap-2 transition-all ${
             activeTab === 'friends-list'
               ? 'btn-brand-primary'
-              : 'bg-white text-gray-700 shadow-xs hover:bg-gray-50'
+              : 'bg-white dark:bg-[#1c1d22] text-gray-700 dark:text-slate-200 border border-gray-100 dark:border-[#2c2d33] shadow-xs hover:bg-gray-50 dark:hover:bg-[#23252b]'
           }`}
         >
           <Users size={16} /> Teman Saya & Chat ({friends.length})

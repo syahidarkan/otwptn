@@ -410,9 +410,9 @@ export default function PadananKataGame({
 
   return (
     <div className="w-full max-w-4xl mx-auto my-4 md:my-8 px-4 sm:px-6">
-      <div className="relative rounded-3xl backdrop-blur-2xl bg-white/90 border border-white/90 shadow-[0_12px_40px_rgba(0,0,0,0.06)] overflow-hidden">
+      <div className="relative rounded-3xl backdrop-blur-2xl bg-white/90 dark:bg-[#16171b] border border-white/90 dark:border-[#27272a] shadow-[0_12px_40px_rgba(0,0,0,0.06)] overflow-hidden transition-colors text-slate-900 dark:text-slate-100">
         {/* TOP STATUS BAR */}
-        <div className="p-4 sm:p-5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-200 text-gray-950 flex items-center justify-between gap-4 border-b border-amber-300/40">
+        <div className="feature-header-golden p-4 sm:p-5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-200 text-gray-950 flex items-center justify-between gap-4 border-b border-amber-300/40">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-white/80 p-1 flex items-center justify-center flex-shrink-0 shadow-xs">
               <Image
@@ -425,12 +425,15 @@ export default function PadananKataGame({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-black text-gray-950 tracking-tight">Arena Kuis PPU & PBM</h3>
-                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-white text-gray-950 shadow-2xs">
+                <h3 className="text-sm font-black tracking-tight" style={{ color: '#0f172a' }}>Arena Kuis PPU & PBM</h3>
+                <span
+                  className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-2xs"
+                  style={{ backgroundColor: '#ffffff', color: '#0f172a' }}
+                >
                   {opponentPreset ? 'Duel Study Cam' : mode === 'solo' ? 'Latihan Solo' : mode === 'matching' ? 'Live Match' : 'Battle Room'}
                 </span>
               </div>
-              <p className="text-[11px] text-gray-800 font-bold">
+              <p className="text-[11px] font-bold" style={{ color: '#1e293b' }}>
                 {opponentPreset
                   ? `Bertarung melawan ${opponentPreset.name}`
                   : mode === 'solo'
@@ -537,10 +540,10 @@ export default function PadananKataGame({
                     className="object-contain"
                   />
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-black text-gray-950 tracking-tight">
+                <h2 className="text-2xl sm:text-3xl font-black text-gray-950 dark:text-white tracking-tight">
                   Pilih Mode Permainan
                 </h2>
-                <p className="text-xs sm:text-sm text-gray-600 font-medium leading-relaxed">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-400 font-medium leading-relaxed">
                   Uji kemampuan analogi, kosakata baku PUEBI, dan pembetulan kalimat PBM. Kumpulkan skor dan buka kartu kekuatan!
                 </p>
               </div>
@@ -555,15 +558,15 @@ export default function PadananKataGame({
                   }}
                   className={`p-5 rounded-2xl border-2 text-left transition-all ${
                     mode === 'solo'
-                      ? 'border-amber-400 bg-amber-50/60 shadow-md scale-102'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
+                      ? 'border-amber-400 bg-amber-50/60 dark:bg-amber-950/40 shadow-md scale-102 ring-2 ring-amber-300/40'
+                      : 'border-gray-200 dark:border-zinc-800 bg-white dark:bg-[#1a1b22] hover:border-gray-300 dark:hover:border-zinc-700'
                   }`}
                 >
                   <div className="w-10 h-10 rounded-xl bg-amber-400 text-gray-950 flex items-center justify-center font-black mb-3">
                     <User size={20} />
                   </div>
-                  <h4 className="text-sm font-black text-gray-950">Latihan Sendiri (Solo)</h4>
-                  <p className="text-[11px] text-gray-500 mt-1">
+                  <h4 className="text-sm font-black text-gray-950 dark:text-white">Latihan Mandiri (Solo)</h4>
+                  <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-1">
                     Murni latihan mandiri tanpa lawan. Pilih topik bebas dan uji kecepatanmu.
                   </p>
                 </button>
@@ -576,15 +579,15 @@ export default function PadananKataGame({
                   }}
                   className={`p-5 rounded-2xl border-2 text-left transition-all ${
                     mode === 'matching'
-                      ? 'border-amber-400 bg-amber-50/60 dark:bg-amber-950/30 shadow-md scale-102'
-                      : 'border-gray-200 dark:border-zinc-800 bg-white dark:bg-[#1a1b22] hover:border-gray-300'
+                      ? 'border-amber-400 bg-amber-50/60 dark:bg-amber-950/40 shadow-md scale-102 ring-2 ring-amber-300/40'
+                      : 'border-gray-200 dark:border-zinc-800 bg-white dark:bg-[#1a1b22] hover:border-gray-300 dark:hover:border-zinc-700'
                   }`}
                 >
                   <div className="w-10 h-10 rounded-xl bg-purple-500 text-white flex items-center justify-center font-black mb-3">
                     <Sparkles size={20} />
                   </div>
                   <h4 className="text-sm font-black text-gray-950 dark:text-white">Cari Lawan (Matching)</h4>
-                  <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-1">
                     Bertarung live dengan pejuang PTN lain secara acak dengan kartu power-up.
                   </p>
                 </button>
@@ -597,15 +600,15 @@ export default function PadananKataGame({
                   }}
                   className={`p-5 rounded-2xl border-2 text-left transition-all ${
                     mode === 'room'
-                      ? 'border-amber-400 bg-amber-50/60 dark:bg-amber-950/30 shadow-md scale-102'
-                      : 'border-gray-200 dark:border-zinc-800 bg-white dark:bg-[#1a1b22] hover:border-gray-300'
+                      ? 'border-amber-400 bg-amber-50/60 dark:bg-amber-950/40 shadow-md scale-102 ring-2 ring-amber-300/40'
+                      : 'border-gray-200 dark:border-zinc-800 bg-white dark:bg-[#1a1b22] hover:border-gray-300 dark:hover:border-zinc-700'
                   }`}
                 >
                   <div className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center font-black mb-3">
                     <Share2 size={20} />
                   </div>
                   <h4 className="text-sm font-black text-gray-950 dark:text-white">Ajak Teman (Kode Room)</h4>
-                  <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-[11px] text-gray-500 dark:text-slate-400 mt-1">
                     Bikin room private atau masukkan kode teman belajarmu untuk duel langsung.
                   </p>
                 </button>
@@ -727,7 +730,7 @@ export default function PadananKataGame({
 
         {/* 2. COUNTDOWN OVERLAY (3... 2... 1... GO!) */}
         {gameState === 'countdown' && (
-          <div className="p-16 text-center space-y-6 flex flex-col items-center justify-center min-h-[420px] bg-gradient-to-b from-amber-50/60 to-white">
+          <div className="p-16 text-center space-y-6 flex flex-col items-center justify-center min-h-[420px] bg-gradient-to-b from-amber-50/60 to-white dark:from-[#181920] dark:to-[#16171b] transition-colors">
             <motion.div
               key={countdown}
               initial={{ scale: 0.5, opacity: 0 }}
@@ -740,10 +743,10 @@ export default function PadananKataGame({
             </motion.div>
 
             <div className="space-y-1">
-              <h3 className="text-xl font-black text-gray-900">
+              <h3 className="text-xl font-black text-gray-900 dark:text-white">
                 {countdown === 0 ? 'Waktunya Duel!' : 'Bersiap di Arena...'}
               </h3>
-              <p className="text-xs text-gray-500 font-medium">
+              <p className="text-xs text-gray-500 dark:text-slate-400 font-medium">
                 Jawab cepat dan tepat untuk mengumpulkan skor tertinggi!
               </p>
             </div>
@@ -865,7 +868,7 @@ export default function PadananKataGame({
             </div>
 
             {/* QUESTION CARD (WITH FROZEN & BLUR SABOTAGE OVERLAYS) */}
-            <div className="relative rounded-3xl border border-white/90 bg-white/90 backdrop-blur-xl shadow-md overflow-hidden min-h-[220px]">
+            <div className="relative rounded-3xl border border-white/90 dark:border-[#27272a] bg-white/90 dark:bg-[#1c1d22] backdrop-blur-xl shadow-md overflow-hidden min-h-[220px] transition-colors">
               {/* SABOTAGE OVERLAY: FREEZE */}
               {isFrozen && (
                 <div className="absolute inset-0 z-30 bg-cyan-950/70 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center text-white animate-pulse">
@@ -1145,30 +1148,30 @@ export default function PadananKataGame({
                   return (
                     <div
                       key={idx}
-                      className="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-xs space-y-2"
+                      className="p-4 rounded-2xl bg-gray-50 dark:bg-[#1e2028] border border-gray-200 dark:border-[#2e313d] text-xs space-y-2 transition-colors"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-black text-gray-900">
+                        <span className="font-black text-gray-900 dark:text-white">
                           {idx + 1}. {q.prompt}
                         </span>
                         {isCorrect ? (
-                          <span className="text-emerald-600 font-black flex items-center gap-1">
-                            <CheckCircle2 size={13} className="text-emerald-600" /> Benar
+                          <span className="text-emerald-600 dark:text-emerald-400 font-black flex items-center gap-1">
+                            <CheckCircle2 size={13} className="text-emerald-600 dark:text-emerald-400" /> Benar
                           </span>
                         ) : (
-                          <span className="text-rose-500 font-black flex items-center gap-1">
-                            <XCircle size={13} className="text-rose-500" /> Salah / Waktu Habis
+                          <span className="text-rose-500 dark:text-rose-400 font-black flex items-center gap-1">
+                            <XCircle size={13} className="text-rose-500 dark:text-rose-400" /> Salah / Waktu Habis
                           </span>
                         )}
                       </div>
 
-                      <p className="text-gray-700 font-medium">{q.question}</p>
+                      <p className="text-gray-700 dark:text-slate-300 font-medium">{q.question}</p>
 
-                      <div className="p-2.5 rounded-xl bg-white border border-gray-200 space-y-1">
-                        <p className="text-emerald-700 font-black">
+                      <div className="p-2.5 rounded-xl bg-white dark:bg-[#16171b] border border-gray-200 dark:border-[#2e313d] space-y-1">
+                        <p className="text-emerald-700 dark:text-emerald-400 font-black">
                           Kunci Jawaban: {q.options[q.correctIndex]}
                         </p>
-                        <p className="text-gray-600 leading-relaxed">
+                        <p className="text-gray-600 dark:text-slate-400 leading-relaxed">
                           <strong>Pembahasan:</strong> {q.explanation}
                         </p>
                       </div>

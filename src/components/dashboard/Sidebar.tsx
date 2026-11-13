@@ -271,7 +271,7 @@ export default function Sidebar() {
             <img src="/favicon.png" alt="otwptn" className="transition-transform hover:scale-105" style={{ width: 32, height: 32 }} />
           ) : (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={isDark ? '/logo-dark.png' : '/logo.png'} alt="otwptn" className="logo-adaptive transition-transform hover:scale-105" style={{ height: 40, width: 'auto' }} />
+            <img src={isDark ? '/logo-dark.png?v=3' : '/logo.png?v=3'} alt="otwptn" className="logo-adaptive transition-transform hover:scale-105" style={{ height: 40, width: 'auto' }} />
           )}
         </Link>
         <button
@@ -549,9 +549,9 @@ export default function Sidebar() {
               onClick={() => setProfileMenuOpen(false)}
             />
             <div
-              className="absolute left-3 right-3 bottom-[calc(100%+8px)] z-50 rounded-3xl bg-white shadow-2xl p-4 text-gray-900 animate-in fade-in slide-in-from-bottom-2 duration-200"
+              className="absolute left-3 right-3 bottom-[calc(100%+8px)] z-50 rounded-3xl bg-white dark:bg-[#1a1b22] border border-gray-100 dark:border-[#2e313d] shadow-2xl p-4 text-gray-900 dark:text-slate-100 animate-in fade-in slide-in-from-bottom-2 duration-200 transition-colors"
               style={{
-                boxShadow: '0 20px 48px -8px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)',
+                boxShadow: '0 20px 48px -8px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.06)',
                 maxHeight: '80vh',
                 overflowY: 'auto',
                 minWidth: '220px',
@@ -563,10 +563,10 @@ export default function Sidebar() {
                   setProfileMenuOpen(false)
                   setXpModalOpen(true)
                 }}
-                className="flex items-center gap-3 pb-3 p-2 -mx-2 rounded-2xl hover:bg-amber-50/60 transition-colors cursor-pointer group"
+                className="flex items-center gap-3 pb-3 p-2 -mx-2 rounded-2xl hover:bg-amber-50/60 dark:hover:bg-amber-950/30 transition-colors cursor-pointer group"
                 title="Buka Pusat XP & Misi Harian"
               >
-                <div className="w-11 h-11 rounded-full bg-amber-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <div className="w-11 h-11 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center overflow-hidden flex-shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={avatar}
@@ -575,17 +575,17 @@ export default function Sidebar() {
                   />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-sm font-black text-gray-900 group-hover:text-amber-950 truncate">
+                  <h4 className="text-sm font-black text-gray-900 dark:text-white group-hover:text-amber-950 dark:group-hover:text-amber-300 truncate">
                     {name || 'Pejuang PTN'}
                   </h4>
-                  <div className="flex items-center justify-between text-[11px] text-gray-500 mt-0.5">
-                    <span className="flex items-center gap-1 font-bold text-amber-600">
+                  <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-slate-400 mt-0.5">
+                    <span className="flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400">
                       <Star size={12} className="fill-amber-400 text-amber-500" /> Level {level}
                     </span>
-                    <span className="font-semibold text-gray-400">{xp} dari 100 XP</span>
+                    <span className="font-semibold text-gray-400 dark:text-slate-500">{xp} dari 100 XP</span>
                   </div>
                   {/* XP Progress Bar */}
-                  <div className="w-full h-1.5 rounded-full bg-gray-100 mt-1 overflow-hidden">
+                  <div className="w-full h-1.5 rounded-full bg-gray-100 dark:bg-[#2e313d] mt-1 overflow-hidden">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-300"
                       style={{ width: `${Math.min(100, Math.max(5, xp))}%` }}
@@ -600,67 +600,67 @@ export default function Sidebar() {
                   setProfileMenuOpen(false)
                   setXpModalOpen(true)
                 }}
-                className="flex items-center justify-between px-3 py-2 rounded-2xl bg-gray-50 hover:bg-amber-50/80 transition-colors cursor-pointer mb-3"
+                className="flex items-center justify-between px-3 py-2 rounded-2xl bg-gray-50 dark:bg-[#23252f] hover:bg-amber-50/80 dark:hover:bg-amber-950/40 border border-transparent dark:border-[#2e313d] transition-colors cursor-pointer mb-3"
                 title="Buka Misi Koin Otbee"
               >
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-amber-200 text-amber-900 flex items-center justify-center">
-                    <Coins size={13} className="text-amber-800" />
+                  <div className="w-6 h-6 rounded-full bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 flex items-center justify-center">
+                    <Coins size={13} className="text-amber-800 dark:text-amber-300" />
                   </div>
-                  <span className="text-sm font-extrabold text-gray-900">{coins} Koin</span>
+                  <span className="text-sm font-extrabold text-gray-900 dark:text-white">{coins} Koin</span>
                 </div>
-                <div className="flex items-center gap-1 text-[11px] font-bold text-amber-800">
+                <div className="flex items-center gap-1 text-[11px] font-bold text-amber-800 dark:text-amber-300">
                   <span>Misi</span>
                   <ArrowRight size={13} />
                 </div>
               </div>
 
-              <div className="h-px bg-gray-100 my-2" />
+              <div className="h-px bg-gray-100 dark:bg-[#2e313d] my-2" />
 
               {/* Menu Items List */}
               <div className="space-y-0.5">
                 <Link
                   href="/profil"
                   onClick={() => setProfileMenuOpen(false)}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-[#23252f] hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
-                  <UserCircle2 size={17} className="text-gray-600" />
+                  <UserCircle2 size={17} className="text-gray-600 dark:text-slate-400" />
                   Profil & Target PTN
                 </Link>
 
                 <Link
                   href="/dashboard/leaderboard"
                   onClick={() => setProfileMenuOpen(false)}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-[#23252f] hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
-                  <BarChart3 size={17} className="text-gray-600" />
+                  <BarChart3 size={17} className="text-gray-600 dark:text-slate-400" />
                   Papan peringkat
                 </Link>
 
                 <Link
                   href="/dashboard/ambassador"
                   onClick={() => setProfileMenuOpen(false)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 hover:bg-amber-50 hover:text-amber-950 transition-colors group"
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 hover:text-amber-950 dark:hover:text-amber-200 transition-colors group"
                 >
                   <div className="flex items-center gap-3">
                     <Users size={17} className="text-amber-600 group-hover:scale-110 transition-transform" />
                     <span>Student Ambassador</span>
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 px-2 py-0.5 rounded-full">
                     Komisi Tunai
                   </span>
                 </Link>
 
                 <button
                   onClick={toggleDarkMode}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors text-left"
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-[#23252f] hover:text-gray-900 dark:hover:text-white transition-colors text-left"
                 >
                   <div className="flex items-center gap-3">
-                    <Moon size={17} className={isDark ? 'text-amber-500 fill-amber-400' : 'text-gray-600'} />
+                    <Moon size={17} className={isDark ? 'text-amber-500 fill-amber-400' : 'text-gray-600 dark:text-slate-400'} />
                     <span>Mode Gelap</span>
                   </div>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                    isDark ? 'bg-amber-400 text-amber-950 font-black' : 'bg-gray-100 text-gray-500'
+                    isDark ? 'bg-amber-400 text-amber-950 font-black' : 'bg-gray-100 dark:bg-[#2e313d] text-gray-500 dark:text-slate-400'
                   }`}>
                     {isDark ? 'Aktif' : 'Off'}
                   </span>
@@ -673,13 +673,13 @@ export default function Sidebar() {
                       (window as any).startOtbeeTour()
                     }
                   }}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition-colors text-left"
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 hover:text-amber-900 dark:hover:text-amber-200 transition-colors text-left"
                 >
                   <div className="flex items-center gap-3">
                     <HelpCircle size={17} className="text-amber-600" />
                     <span>Panduan Tur Fitur</span>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200">
                     Mulai
                   </span>
                 </button>
@@ -687,14 +687,14 @@ export default function Sidebar() {
                 <Link
                   href="/dashboard/laporan"
                   onClick={() => setProfileMenuOpen(false)}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-[#23252f] hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
-                  <MessageSquare size={17} className="text-gray-600" />
+                  <MessageSquare size={17} className="text-gray-600 dark:text-slate-400" />
                   Saran & Laporan
                 </Link>
               </div>
 
-              <div className="h-px bg-gray-100 my-2" />
+              <div className="h-px bg-gray-100 dark:bg-[#2e313d] my-2" />
 
               {/* Logout Option */}
               <button
@@ -709,9 +709,9 @@ export default function Sidebar() {
                   } catch {}
                   window.location.href = '/login'
                 }}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-black text-rose-600 hover:bg-rose-50 transition-colors text-left"
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-black text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors text-left"
               >
-                <LogOut size={17} className="text-rose-600" />
+                <LogOut size={17} className="text-rose-600 dark:text-rose-400" />
                 Keluar
               </button>
             </div>
@@ -726,7 +726,7 @@ export default function Sidebar() {
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14" style={{ background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={isDark ? '/logo-dark.png' : '/logo.png'} alt="otwptn" className="logo-adaptive" style={{ height: 39, width: 'auto' }} />
+        <img src={isDark ? '/logo-dark.png?v=3' : '/logo.png?v=3'} alt="otwptn" className="logo-adaptive" style={{ height: 39, width: 'auto' }} />
         <button onClick={() => setMobileOpen(true)} aria-label="Buka menu" style={{ color: 'var(--fg)' }}>
           <Menu size={22} />
         </button>

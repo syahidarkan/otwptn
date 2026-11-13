@@ -65,16 +65,22 @@ export default function LatihanPage() {
       />
 
       {/* Gamified Study Cam Integration Banner with Frosted Glass & Mascot */}
-      <div className="relative rounded-3xl backdrop-blur-2xl bg-gradient-to-r from-amber-400/90 via-amber-300/85 to-amber-200/90 border border-white/80 p-6 md:p-7 shadow-[0_12px_36px_rgba(245,158,11,0.18)] flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden">
+      <div className="feature-header-golden relative rounded-3xl backdrop-blur-2xl bg-gradient-to-r from-amber-400/90 via-amber-300/85 to-amber-200/90 border border-white/80 p-6 md:p-7 shadow-[0_12px_36px_rgba(245,158,11,0.18)] flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden text-slate-950">
         <div className="space-y-2 text-center md:text-left relative z-10">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 backdrop-blur-md text-xs font-black text-amber-950 shadow-xs">
             <Flame size={14} className="text-amber-600 fill-amber-600 animate-pulse" />
             <span>Tantangan Duel Berhadiah XP & Ranking</span>
           </div>
-          <h3 className="text-lg md:text-2xl font-black text-gray-950 tracking-tight">
+          <h3
+            className="text-lg md:text-2xl font-black tracking-tight"
+            style={{ color: '#0f172a' }}
+          >
             Nongkrong Sambil Battle Edukasi di Study Cam!
           </h3>
-          <p className="text-xs md:text-sm text-gray-900 max-w-xl font-semibold leading-relaxed">
+          <p
+            className="text-xs md:text-sm max-w-xl font-semibold leading-relaxed"
+            style={{ color: '#1e293b' }}
+          >
             Sedang video call bareng pejuang PTN lain? Klik tombol Tantang Battle langsung di layar kamera Study Cam atau bagikan kode room-mu untuk adu kecepatan!
           </p>
         </div>
@@ -100,13 +106,13 @@ export default function LatihanPage() {
       </div>
 
       {/* Glassmorphic Game Tabs Navigation */}
-      <div className="p-1.5 rounded-3xl backdrop-blur-xl bg-white/70 border border-white/80 shadow-sm flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+      <div className="p-1.5 rounded-3xl backdrop-blur-xl bg-white/70 dark:bg-[#16171b] border border-white/80 dark:border-[#27272a] shadow-sm flex items-center gap-1.5 overflow-x-auto scrollbar-none transition-colors">
         <button
           onClick={() => setActiveTab('padanan-kata')}
           className={`px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 flex-shrink-0 cursor-pointer ${
             activeTab === 'padanan-kata'
               ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 shadow-sm'
-              : 'text-gray-600 hover:text-gray-950 hover:bg-white/60'
+              : 'text-gray-600 dark:text-slate-400 hover:text-gray-950 dark:hover:text-white hover:bg-white/60 dark:hover:bg-[#23252c]'
           }`}
         >
           <Zap size={15} /> 1. Padanan Kata (PPU)
@@ -117,7 +123,7 @@ export default function LatihanPage() {
           className={`px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 flex-shrink-0 cursor-pointer ${
             activeTab === 'baku-atau-nggak'
               ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 shadow-sm'
-              : 'text-gray-600 hover:text-gray-950 hover:bg-white/60'
+              : 'text-gray-600 dark:text-slate-400 hover:text-gray-950 dark:hover:text-white hover:bg-white/60 dark:hover:bg-[#23252c]'
           }`}
         >
           <Sparkles size={15} /> 2. Wordle Baku (PUEBI)
@@ -128,7 +134,7 @@ export default function LatihanPage() {
           className={`px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 flex-shrink-0 cursor-pointer ${
             activeTab === 'benerin-kalimat'
               ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 shadow-sm'
-              : 'text-gray-600 hover:text-gray-950 hover:bg-white/60'
+              : 'text-gray-600 dark:text-slate-400 hover:text-gray-950 dark:hover:text-white hover:bg-white/60 dark:hover:bg-[#23252c]'
           }`}
         >
           <BookOpen size={15} /> 3. Benerin Kalimat (PBM)
@@ -139,7 +145,7 @@ export default function LatihanPage() {
           className={`px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 flex-shrink-0 cursor-pointer ${
             activeTab === 'campuran-battle'
               ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 shadow-sm'
-              : 'text-gray-600 hover:text-gray-950 hover:bg-white/60'
+              : 'text-gray-600 dark:text-slate-400 hover:text-gray-950 dark:hover:text-white hover:bg-white/60 dark:hover:bg-[#23252c]'
           }`}
         >
           <Shuffle size={15} /> Kuis Acak Campuran
@@ -150,7 +156,7 @@ export default function LatihanPage() {
           className={`px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 flex-shrink-0 cursor-pointer ${
             activeTab === 'leaderboard'
               ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-gray-950 shadow-sm'
-              : 'text-gray-600 hover:text-gray-950 hover:bg-white/60'
+              : 'text-gray-600 dark:text-slate-400 hover:text-gray-950 dark:hover:text-white hover:bg-white/60 dark:hover:bg-[#23252c]'
           }`}
         >
           <Trophy size={15} /> Leaderboard
@@ -165,8 +171,8 @@ export default function LatihanPage() {
         {activeTab === 'campuran-battle' && <PadananKataGame initialCategory="mixed" />}
 
         {activeTab === 'leaderboard' && (
-          <div className="max-w-3xl mx-auto rounded-3xl backdrop-blur-2xl bg-white/85 border border-white/90 shadow-[0_12px_40px_rgba(0,0,0,0.06)] p-6 md:p-8 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+          <div className="max-w-3xl mx-auto rounded-3xl backdrop-blur-2xl bg-white/85 dark:bg-[#16171b] border border-white/90 dark:border-[#27272a] shadow-[0_12px_40px_rgba(0,0,0,0.06)] p-6 md:p-8 space-y-6 transition-colors">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100 dark:border-[#27272a]">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-amber-400/20 border border-amber-400/40 p-1 flex items-center justify-center flex-shrink-0">
                   <Image
@@ -178,16 +184,16 @@ export default function LatihanPage() {
                   />
                 </div>
                 <div>
-                  <h3 className="text-lg md:text-xl font-black text-gray-900 tracking-tight">
+                  <h3 className="text-lg md:text-xl font-black text-gray-900 dark:text-white tracking-tight">
                     Top Pejuang PPU & PBM Pekan Ini
                   </h3>
-                  <p className="text-xs text-gray-500 font-medium">
+                  <p className="text-xs text-gray-500 dark:text-slate-400 font-medium">
                     Akumulasi poin kemenangan dari duel arena dan latihan harian.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 self-start sm:self-auto px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-900 text-xs font-black">
+              <div className="flex items-center gap-1.5 self-start sm:self-auto px-3.5 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-300 text-xs font-black">
                 <Crown size={14} className="text-amber-500 fill-amber-500" />
                 <span>Peringkat Teratas</span>
               </div>
@@ -199,12 +205,12 @@ export default function LatihanPage() {
                   key={item.id}
                   className={`p-4 rounded-2xl border transition-all flex items-center justify-between gap-4 ${
                     idx === 0
-                      ? 'backdrop-blur-md bg-amber-50/80 border-amber-300 shadow-sm ring-1 ring-amber-300/50'
+                      ? 'backdrop-blur-md bg-amber-50/80 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700/60 shadow-sm ring-1 ring-amber-300/50'
                       : idx === 1
-                      ? 'bg-slate-50/80 border-slate-200'
+                      ? 'bg-slate-50/80 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800'
                       : idx === 2
-                      ? 'bg-amber-50/40 border-amber-200/60'
-                      : 'bg-white/70 border-gray-100 hover:bg-white'
+                      ? 'bg-amber-50/40 dark:bg-amber-950/20 border-amber-200/60 dark:border-amber-800/40'
+                      : 'bg-white/70 dark:bg-[#1c1d22] border-gray-100 dark:border-[#27272a] hover:bg-white dark:hover:bg-[#23252c]'
                   }`}
                 >
                   <div className="flex items-center gap-3.5">
@@ -213,33 +219,33 @@ export default function LatihanPage() {
                         idx === 0
                           ? 'bg-gradient-to-tr from-amber-400 to-amber-300 text-gray-950 font-black'
                           : idx === 1
-                          ? 'bg-gray-200 text-gray-800'
+                          ? 'bg-gray-200 dark:bg-zinc-700 text-gray-800 dark:text-zinc-200'
                           : idx === 2
-                          ? 'bg-amber-100 text-amber-900'
-                          : 'bg-gray-100 text-gray-500 font-bold'
+                          ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200'
+                          : 'bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 font-bold'
                       }`}
                     >
                       {idx + 1}
                     </span>
 
-                    <div className="w-10 h-10 rounded-full bg-white p-0.5 border border-gray-200 shadow-xs flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    <div className="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 p-0.5 border border-gray-200 dark:border-zinc-700 shadow-xs flex items-center justify-center flex-shrink-0 overflow-hidden">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={item.avatar} alt="" className="w-full h-full object-cover" />
                     </div>
 
                     <div>
-                      <h4 className="text-xs md:text-sm font-black text-gray-900">{item.name}</h4>
-                      <p className="text-[11px] text-gray-500 font-semibold">
-                        {item.school} • <span className="text-amber-700 font-black">{item.tier}</span>
+                      <h4 className="text-xs md:text-sm font-black text-gray-900 dark:text-white">{item.name}</h4>
+                      <p className="text-[11px] text-gray-500 dark:text-slate-400 font-semibold">
+                        {item.school} • <span className="text-amber-700 dark:text-amber-400 font-black">{item.tier}</span>
                       </p>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-sm md:text-base font-black text-gray-950 block font-mono">
+                    <span className="text-sm md:text-base font-black text-gray-950 dark:text-white block font-mono">
                       {item.score} Poin
                     </span>
-                    <span className="text-[10px] text-emerald-600 font-extrabold">
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-extrabold">
                       {item.winRate}% Menang
                     </span>
                   </div>
