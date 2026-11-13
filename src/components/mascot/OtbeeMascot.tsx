@@ -10,6 +10,7 @@ export type OtbeeAnimation =
   | 'spin'
   | 'wave'
   | 'jump'
+  | 'salto'
   | 'celebrate'
   | 'thinking'
   | 'none'
@@ -69,6 +70,15 @@ const KEYFRAMES = `
   92% { transform: translateY(0px) scaleX(1.05) scaleY(0.96); }
   100% { transform: translateY(0) scaleX(1) scaleY(1); }
 }
+@keyframes otbee-salto {
+  0% { transform: translateY(0) rotate(0deg) scale(1); }
+  15% { transform: translateY(8px) rotate(-12deg) scaleX(1.22) scaleY(0.78); }
+  45% { transform: translateY(-75px) rotate(190deg) scaleX(0.88) scaleY(1.18); }
+  70% { transform: translateY(-65px) rotate(320deg) scale(0.95); }
+  85% { transform: translateY(-10px) rotate(360deg) scaleX(0.96) scaleY(1.06); }
+  93% { transform: translateY(0) rotate(360deg) scaleX(1.2) scaleY(0.8); }
+  100% { transform: translateY(0) rotate(360deg) scale(1); }
+}
 @keyframes otbee-celebrate {
   0% { transform: rotate(0deg) translateY(0) scale(1); }
   20% { transform: rotate(180deg) translateY(-15px) scale(1.08); }
@@ -116,6 +126,10 @@ const ANIMATION_STYLES: Record<OtbeeAnimation, React.CSSProperties> = {
   jump: {
     animation: 'otbee-jump 1.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite',
     transformOrigin: 'bottom center',
+  },
+  salto: {
+    animation: 'otbee-salto 0.85s cubic-bezier(0.34, 1.3, 0.64, 1) both',
+    transformOrigin: 'center center',
   },
   celebrate: {
     animation: 'otbee-celebrate 1.6s ease-in-out infinite',

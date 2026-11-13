@@ -7,6 +7,7 @@ import CustomerServiceWidget from '@/components/chat/CustomerServiceWidget'
 import GlobalPageLoader from '@/components/ui/GlobalPageLoader'
 import AdminSwitcher from '@/components/ui/AdminSwitcher'
 import FloatingMascotLoader from '@/components/mascot/FloatingMascotLoader'
+import { OtbeeMascotProvider } from '@/components/mascot/OtbeeMascotContext'
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -282,11 +283,13 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col antialiased bg-bg text-fg font-sans">
         <ThemeHydrator />
-        {children}
-        <AdminSwitcher />
-        <FloatingMascotLoader />
-        <CustomerServiceWidget />
-        <GlobalPageLoader />
+        <OtbeeMascotProvider>
+          {children}
+          <AdminSwitcher />
+          <FloatingMascotLoader />
+          <CustomerServiceWidget />
+          <GlobalPageLoader />
+        </OtbeeMascotProvider>
       </body>
     </html>
   )
