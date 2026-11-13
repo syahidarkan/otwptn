@@ -548,7 +548,24 @@ export default function CariTemanBelajarPage() {
       </div>
 
       {activeTab === 'study-cam' ? (
-        <OmegleSection />
+        <OmegleSection
+          onBattleInvite={matchedPeer => {
+            if (matchedPeer) {
+              setCurrentPeer({
+                id: matchedPeer.id,
+                name: matchedPeer.name,
+                school: matchedPeer.school,
+                city: matchedPeer.city,
+                targetPTN: matchedPeer.targetPTN,
+                targetMajor: 'Siswa Pejuang PTN',
+                streak: 9,
+                topic: 'Fokus Belajar & Latsol',
+                avatar: '',
+              })
+            }
+            setShowBattleModal(true)
+          }}
+        />
       ) : (
         /* TAB 2: TEMAN SAYA & CHAT */
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -679,12 +696,25 @@ export default function CariTemanBelajarPage() {
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => setActiveTab('study-cam')}
-                      className="btn-brand-primary text-xs !py-2 !px-4 inline-flex items-center gap-1.5"
-                    >
-                      <Video size={14} /> Ajak On-Cam
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCurrentPeer(activeFriendChat)
+                          setShowBattleModal(true)
+                        }}
+                        className="px-3.5 py-2 rounded-full text-xs font-black bg-amber-400 hover:bg-amber-300 text-amber-950 flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                      >
+                        <Swords size={14} /> Ajak Battle
+                      </button>
+
+                      <button
+                        onClick={() => setActiveTab('study-cam')}
+                        className="btn-brand-primary text-xs !py-2 !px-4 inline-flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Video size={14} /> Ajak On-Cam
+                      </button>
+                    </div>
                   </div>
 
                   {/* Messages Feed */}

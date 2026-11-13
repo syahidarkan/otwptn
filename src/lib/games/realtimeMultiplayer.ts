@@ -88,6 +88,7 @@ export function subscribeToBattleRoom(
   callbacks: {
     onPlayerJoin: (player: PlayerState) => void
     onGameStart: () => void
+    onGameInit?: (data: { questions: any[]; category: string }) => void
     onOpponentAnswer: (data: { score: number; qIndex: number; isCorrect: boolean }) => void
     onAttacked: (data: { powerUp: PowerUpType; attackerName: string }) => void
     onOpponentLeave: () => void
@@ -96,6 +97,7 @@ export function subscribeToBattleRoom(
   channel: RealtimeChannel
   sendJoin: () => void
   sendReady: () => void
+  sendGameInit: (questions: any[], category: string) => void
   sendAnswer: (score: number, qIndex: number, isCorrect: boolean) => void
   sendAttack: (powerUp: PowerUpType) => void
   leave: () => void
@@ -116,6 +118,9 @@ export function subscribeToBattleRoom(
     })
     .on('broadcast', { event: 'player_ready' }, () => {
       callbacks.onGameStart()
+    })
+    .on('broadcast', { event: 'game_init' }, ({ payload }) => {
+      callbacks.onGameInit?.(payload)
     })
     .on('broadcast', { event: 'player_answer' }, ({ payload }) => {
       callbacks.onOpponentAnswer(payload)
@@ -152,6 +157,14 @@ export function subscribeToBattleRoom(
     })
   }
 
+  const sendGameInit = (questions: any[], category: string) => {
+    channel.send({
+      type: 'broadcast',
+      event: 'game_init',
+      payload: { questions, category },
+    })
+  }
+
   const sendAnswer = (score: number, qIndex: number, isCorrect: boolean) => {
     channel.send({
       type: 'broadcast',
@@ -176,6 +189,7 @@ export function subscribeToBattleRoom(
     channel,
     sendJoin,
     sendReady,
+    sendGameInit,
     sendAnswer,
     sendAttack,
     leave,

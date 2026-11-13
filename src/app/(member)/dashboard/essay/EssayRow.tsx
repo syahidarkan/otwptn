@@ -74,28 +74,29 @@ export default function EssayRow({ id, title, targetPtn, targetJalur, latestScor
   return (
     <Link
       href={`/dashboard/essay/${id}`}
-      className="rounded-3xl bg-white shadow-md hover:shadow-xl transition-all p-5 flex items-center gap-4 group hover:-translate-y-0.5"
+      prefetch={true}
+      className="rounded-3xl bg-white dark:bg-[#1c1d22] border border-transparent dark:border-[#2c2d33] shadow-md hover:shadow-xl dark:hover:border-amber-500/40 transition-all p-5 flex items-center gap-4 group hover:-translate-y-0.5"
     >
-      <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 bg-amber-100 text-amber-700 shadow-xs">
+      <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 shadow-xs">
         <FileText size={20} />
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 mb-1">
-          <p className="text-sm font-extrabold text-gray-900 truncate group-hover:text-amber-900">
+          <p className="text-sm font-extrabold text-gray-900 dark:text-white truncate group-hover:text-amber-900 dark:group-hover:text-amber-300 transition-colors">
             {title}
           </p>
           {targetPtn && (
-            <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full">
+            <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border border-amber-200/60 dark:border-amber-700/50 px-2.5 py-0.5 rounded-full">
               {targetPtn}
             </span>
           )}
         </div>
-        <p className="text-xs text-gray-500 truncate font-medium">
+        <p className="text-xs text-gray-500 dark:text-gray-400 truncate font-medium">
           {targetJalur ? `Jalur: ${targetJalur}` : 'Belum diatur jalur seleksi'}
         </p>
       </div>
       {latestScore != null && (
-        <div className="flex items-center gap-1.5 flex-shrink-0 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 font-black text-xs">
+        <div className="flex items-center gap-1.5 flex-shrink-0 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 font-black text-xs border border-amber-200/50 dark:border-amber-700/50">
           <Star size={13} fill="currentColor" stroke="none" /> {Math.round(latestScore)}/100
         </div>
       )}
@@ -104,7 +105,7 @@ export default function EssayRow({ id, title, targetPtn, targetJalur, latestScor
           onClick={handleDuplicate}
           disabled={busy}
           aria-label="Duplikat essay"
-          className="p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+          className="p-2 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#282a35] transition-colors"
         >
           <Copy size={16} />
         </button>
@@ -115,7 +116,7 @@ export default function EssayRow({ id, title, targetPtn, targetJalur, latestScor
             setConfirming(true)
           }}
           aria-label="Hapus essay"
-          className="p-2 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors"
+          className="p-2 rounded-xl text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
         >
           <Trash2 size={16} />
         </button>

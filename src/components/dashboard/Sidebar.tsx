@@ -337,12 +337,13 @@ export default function Sidebar() {
                       <Link
                         id={id}
                         href={href}
+                        prefetch={true}
                         onClick={() => setMobileOpen(false)}
                         title={label}
                         className={`flex items-center justify-center py-2.5 rounded-xl text-sm font-extrabold transition-all border shadow-sm ${
                           isParentActive
-                            ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 border-amber-500 shadow-md ring-2 ring-amber-300/60'
-                            : 'bg-gradient-to-r from-amber-50 via-amber-100 to-yellow-100 text-amber-950 border-amber-300/80 hover:border-amber-400 hover:shadow-md'
+                            ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 border-amber-500 shadow-md ring-2 ring-amber-300/60 dark:ring-amber-500/50'
+                            : 'bg-gradient-to-r from-amber-50 via-amber-100 to-yellow-100 dark:from-amber-950/40 dark:via-amber-900/30 dark:to-yellow-950/40 text-amber-950 dark:text-amber-200 border-amber-300/80 dark:border-amber-500/30 hover:border-amber-400 dark:hover:border-amber-500/60 hover:shadow-md'
                         }`}
                       >
                         <div className="w-6 h-6 rounded-lg bg-amber-400 text-amber-950 flex items-center justify-center flex-shrink-0">
@@ -353,11 +354,12 @@ export default function Sidebar() {
                       <Link
                         id={id}
                         href={href}
+                        prefetch={true}
                         onClick={() => setMobileOpen(false)}
                         className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-extrabold transition-all border shadow-sm group ${
                           isParentActive
-                            ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 border-amber-500 shadow-md ring-2 ring-amber-300/60'
-                            : 'bg-gradient-to-r from-amber-50 via-amber-100 to-yellow-100 text-amber-950 border-amber-300/80 hover:border-amber-400 hover:shadow-md'
+                            ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 border-amber-500 shadow-md ring-2 ring-amber-300/60 dark:ring-amber-500/50'
+                            : 'bg-gradient-to-r from-amber-50 via-amber-100 to-yellow-100 dark:from-amber-950/40 dark:via-amber-900/30 dark:to-yellow-950/40 text-amber-950 dark:text-amber-200 border-amber-300/80 dark:border-amber-500/30 hover:border-amber-400 dark:hover:border-amber-500/60 hover:shadow-md'
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
@@ -366,7 +368,7 @@ export default function Sidebar() {
                           </div>
                           <span className="truncate tracking-tight font-black">{label}</span>
                         </div>
-                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-950 text-amber-300 shadow-2xs">
+                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-950 text-amber-300 dark:bg-amber-400/20 dark:text-amber-300 dark:border dark:border-amber-500/30 shadow-2xs">
                           VIP 1-ON-1
                         </span>
                       </Link>
@@ -375,6 +377,7 @@ export default function Sidebar() {
                     <Link
                       id={id}
                       href={href}
+                      prefetch={true}
                       onClick={() => setMobileOpen(false)}
                       title={collapsed ? label : undefined}
                       className={`flex items-center ${collapsed ? 'justify-center px-0 py-2.5' : 'gap-3 px-3 py-2'} rounded-xl text-sm font-semibold transition-colors`}

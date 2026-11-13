@@ -23,11 +23,11 @@ export default async function EssayListPage() {
 
       <div className="flex flex-col gap-3">
         {!essays || essays.length === 0 ? (
-          <div className="rounded-3xl bg-white shadow-md p-10 text-center">
+          <div className="rounded-3xl bg-white dark:bg-[#1c1d22] border border-transparent dark:border-[#2c2d33] shadow-md p-10 text-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/fitur/essay-ai-review.png" alt="" className="mx-auto mb-4 filter drop-shadow-xs" style={{ height: 140, width: 'auto' }} />
-            <p className="text-base font-extrabold text-gray-900 mb-1">Belum ada essay</p>
-            <p className="text-xs text-gray-500">Klik &ldquo;Essay Baru&rdquo; untuk mulai menulis dan dapatkan review AI</p>
+            <p className="text-base font-extrabold text-gray-900 dark:text-white mb-1">Belum ada essay</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Klik &ldquo;Essay Baru&rdquo; untuk mulai menulis dan dapatkan review AI</p>
           </div>
         ) : essays.map(e => {
           const latestScore = Array.isArray(e.essay_feedback) && e.essay_feedback.length > 0

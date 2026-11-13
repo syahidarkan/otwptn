@@ -460,15 +460,15 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
   const charCount = editor.storage.characterCount?.characters() ?? 0
 
   return (
-    <div className="w-full min-h-screen flex flex-col bg-slate-200/90 text-slate-900 font-sans">
+    <div className="w-full min-h-screen flex flex-col bg-slate-200/90 dark:bg-[#0c0d10] text-slate-900 dark:text-slate-100 font-sans transition-colors">
       
-      {/* 1. TOP HEADER BAR: ALWAYS HIGH CONTRAST */}
-      <header className="no-print sticky top-0 z-30 bg-white border-b border-slate-200 px-4 md:px-6 py-2.5 shadow-xs flex items-center justify-between gap-4">
+      {/* 1. TOP HEADER BAR: CRISP CONTRAST IN BOTH LIGHT & DARK MODE */}
+      <header className="no-print sticky top-0 z-30 bg-white dark:bg-[#16171b] border-b border-slate-200 dark:border-[#27272a] px-4 md:px-6 py-2.5 shadow-xs flex items-center justify-between gap-4 transition-colors">
         {/* Left: Back & Title */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <Link
             href="/dashboard/essay"
-            className="w-9 h-9 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors flex-shrink-0"
+            className="w-9 h-9 rounded-full hover:bg-slate-100 dark:hover:bg-[#23252b] flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors flex-shrink-0"
             title="Kembali ke Daftar Essay"
           >
             <ArrowLeft size={18} />
@@ -481,21 +481,20 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                 onChange={e => setTitle(e.target.value)}
                 onBlur={() => save(true)}
                 placeholder="Judul Personal Statement / Essay..."
-                className="text-base font-black text-slate-950 bg-transparent outline-none hover:bg-slate-50 px-2 py-0.5 rounded-lg focus:ring-2 focus:ring-amber-400 w-full max-w-md truncate"
-                style={{ color: '#090d16' }}
+                className="text-base font-black text-slate-950 dark:text-white bg-transparent outline-none hover:bg-slate-50 dark:hover:bg-[#22242b] px-2 py-0.5 rounded-lg focus:ring-2 focus:ring-amber-400 w-full max-w-md truncate transition-colors"
               />
-              <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex-shrink-0">
-                <Cloud size={12} className="text-emerald-600" /> Tersimpan
+              <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-2.5 py-0.5 rounded-full flex-shrink-0">
+                <Cloud size={12} className="text-emerald-600 dark:text-emerald-400" /> Tersimpan
               </span>
             </div>
 
             {/* Sub-bar: Targets & Last Saved */}
-            <div className="flex items-center gap-2 text-xs font-semibold pl-2 pt-0.5 text-slate-600">
-              <span className="text-amber-900 font-bold">{targetPtn}</span>
+            <div className="flex items-center gap-2 text-xs font-semibold pl-2 pt-0.5 text-slate-600 dark:text-slate-400">
+              <span className="text-amber-800 dark:text-amber-400 font-bold">{targetPtn}</span>
               <span>·</span>
-              <span className="text-slate-700">{targetJalur}</span>
+              <span className="text-slate-700 dark:text-slate-300">{targetJalur}</span>
               <span>·</span>
-              <span className="text-slate-400 font-normal text-[11px]">Tersimpan {lastSavedTime}</span>
+              <span className="text-slate-400 dark:text-slate-500 font-normal text-[11px]">Tersimpan {lastSavedTime}</span>
             </div>
           </div>
         </div>
@@ -506,10 +505,9 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
           {feedback && (
             <button
               onClick={() => setSidebarOpen(true)}
-              className="px-3.5 py-1.5 rounded-full text-xs font-black shadow-xs flex items-center gap-1.5 cursor-pointer"
-              style={{ background: '#fef3c7', color: scoreColor(feedback.overall), border: '1px solid #fde68a' }}
+              className="px-3.5 py-1.5 rounded-full text-xs font-black shadow-xs flex items-center gap-1.5 cursor-pointer bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 hover:scale-105 transition-all"
             >
-              <Sparkles size={13} className="text-amber-600" />
+              <Sparkles size={13} className="text-amber-600 dark:text-amber-400" />
               Skor AI: {Math.round(feedback.overall)}/100
             </button>
           )}
@@ -528,7 +526,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
           <button
             onClick={() => save()}
             disabled={saving}
-            className="px-4 py-2 rounded-full text-xs font-bold bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 flex items-center gap-1.5 shadow-2xs cursor-pointer"
+            className="px-4 py-2 rounded-full text-xs font-bold bg-white dark:bg-[#20222a] border border-slate-300 dark:border-[#30333f] hover:bg-slate-50 dark:hover:bg-[#282a35] text-slate-800 dark:text-slate-200 flex items-center gap-1.5 shadow-2xs cursor-pointer transition-colors"
           >
             <Save size={14} />
             <span className="hidden sm:inline">{saving ? 'Menyimpan...' : 'Simpan'}</span>
@@ -538,55 +536,55 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
           <div className="relative">
             <button
               onClick={() => setExportMenuOpen(o => !o)}
-              className="px-4 py-2 rounded-full text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300 flex items-center gap-1.5 shadow-2xs cursor-pointer transition-colors"
+              className="px-4 py-2 rounded-full text-xs font-bold bg-slate-100 dark:bg-[#20222a] hover:bg-slate-200 dark:hover:bg-[#2a2c38] text-slate-900 dark:text-slate-200 border border-slate-300 dark:border-[#30333f] flex items-center gap-1.5 shadow-2xs cursor-pointer transition-colors"
               title="Unduh & Export Dokumen"
             >
-              <Download size={14} className="text-amber-700" />
+              <Download size={14} className="text-amber-600 dark:text-amber-400" />
               <span>Export</span>
             </button>
 
             {exportMenuOpen && (
-              <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 space-y-1 animate-in fade-in slide-in-from-top-1 text-xs">
+              <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-56 bg-white dark:bg-[#1a1b22] rounded-2xl shadow-xl border border-slate-200 dark:border-[#2f313c] p-2 space-y-1 animate-in fade-in slide-in-from-top-1 text-xs">
                 <button
                   onClick={handleExportDoc}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-amber-50 text-slate-800 font-bold transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-amber-50 dark:hover:bg-[#252733] text-slate-800 dark:text-slate-200 font-bold transition-colors cursor-pointer"
                 >
-                  <FileText size={15} className="text-blue-600" />
+                  <FileText size={15} className="text-blue-600 dark:text-blue-400" />
                   <div>
                     <p className="leading-tight">Unduh Microsoft Word</p>
-                    <span className="text-[10px] text-slate-400 font-normal">Format .DOCX / .DOC</span>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">Format .DOCX / .DOC</span>
                   </div>
                 </button>
 
                 <button
                   onClick={handleExportPdf}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-amber-50 text-slate-800 font-bold transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-amber-50 dark:hover:bg-[#252733] text-slate-800 dark:text-slate-200 font-bold transition-colors cursor-pointer"
                 >
-                  <Printer size={15} className="text-rose-600" />
+                  <Printer size={15} className="text-rose-600 dark:text-rose-400" />
                   <div>
                     <p className="leading-tight">Cetak / Simpan PDF</p>
-                    <span className="text-[10px] text-slate-400 font-normal">Cetak lembar A4 bersih</span>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">Cetak lembar A4 bersih</span>
                   </div>
                 </button>
 
                 <button
                   onClick={handleExportTxt}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-amber-50 text-slate-800 font-bold transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-amber-50 dark:hover:bg-[#252733] text-slate-800 dark:text-slate-200 font-bold transition-colors cursor-pointer"
                 >
-                  <FileDown size={15} className="text-emerald-600" />
+                  <FileDown size={15} className="text-emerald-600 dark:text-emerald-400" />
                   <div>
                     <p className="leading-tight">Unduh Teks Polos</p>
-                    <span className="text-[10px] text-slate-400 font-normal">Format .TXT</span>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">Format .TXT</span>
                   </div>
                 </button>
 
-                <div className="border-t border-slate-100 my-1" />
+                <div className="border-t border-slate-100 dark:border-[#2a2c38] my-1" />
 
                 <button
                   onClick={handleCopyText}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-slate-100 text-slate-700 font-semibold transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left hover:bg-slate-100 dark:hover:bg-[#252733] text-slate-700 dark:text-slate-300 font-semibold transition-colors cursor-pointer"
                 >
-                  {copiedText ? <Check size={15} className="text-emerald-600" /> : <Copy size={15} />}
+                  {copiedText ? <Check size={15} className="text-emerald-600 dark:text-emerald-400" /> : <Copy size={15} />}
                   <span>{copiedText ? 'Teks Tersalin!' : 'Salin Semua Teks'}</span>
                 </button>
               </div>
@@ -596,13 +594,13 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
       </header>
 
       {/* 2. GOOGLE DOCS TOOLBAR: FORMATTING & WORD COUNT */}
-      <div className="no-print sticky top-[57px] z-20 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 md:px-6 py-1.5 flex items-center justify-between gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-        <div className="flex items-center gap-1 min-w-max text-slate-700">
+      <div className="no-print sticky top-[57px] z-20 bg-white/95 dark:bg-[#16171b]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#27272a] px-4 md:px-6 py-1.5 flex items-center justify-between gap-2 overflow-x-auto transition-colors" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex items-center gap-1 min-w-max text-slate-700 dark:text-slate-300">
           {/* Undo / Redo */}
           <button
             onClick={() => editor.chain().focus().undo().run()}
             disabled={!editor.can().undo()}
-            className="p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-30 cursor-pointer text-slate-700"
+            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#23252c] disabled:opacity-30 cursor-pointer text-slate-700 dark:text-slate-300"
             title="Undo (Ctrl+Z)"
           >
             <Undo size={15} />
@@ -610,19 +608,21 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
           <button
             onClick={() => editor.chain().focus().redo().run()}
             disabled={!editor.can().redo()}
-            className="p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-30 cursor-pointer text-slate-700"
+            className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#23252c] disabled:opacity-30 cursor-pointer text-slate-700 dark:text-slate-300"
             title="Redo (Ctrl+Y)"
           >
             <Redo size={15} />
           </button>
 
-          <div className="w-px h-5 bg-slate-200 mx-1" />
+          <div className="w-px h-5 bg-slate-200 dark:bg-[#2c2e38] mx-1" />
 
           {/* Heading Style buttons */}
           <button
             onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
             className={`p-1.5 rounded-lg text-xs font-black transition-colors cursor-pointer ${
-              editor.isActive('heading', { level: 1 }) ? 'bg-amber-100 text-amber-950' : 'hover:bg-slate-100 text-slate-700'
+              editor.isActive('heading', { level: 1 })
+                ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-950 dark:text-amber-300'
+                : 'hover:bg-slate-100 dark:hover:bg-[#23252c] text-slate-700 dark:text-slate-300'
             }`}
             title="Heading 1"
           >
@@ -631,20 +631,24 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
           <button
             onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
             className={`p-1.5 rounded-lg text-xs font-black transition-colors cursor-pointer ${
-              editor.isActive('heading', { level: 2 }) ? 'bg-amber-100 text-amber-950' : 'hover:bg-slate-100 text-slate-700'
+              editor.isActive('heading', { level: 2 })
+                ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-950 dark:text-amber-300'
+                : 'hover:bg-slate-100 dark:hover:bg-[#23252c] text-slate-700 dark:text-slate-300'
             }`}
             title="Heading 2"
           >
             <Heading2 size={15} />
           </button>
 
-          <div className="w-px h-5 bg-slate-200 mx-1" />
+          <div className="w-px h-5 bg-slate-200 dark:bg-[#2c2e38] mx-1" />
 
           {/* Formatting: Bold, Italic, Lists */}
           <button
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive('bold') ? 'bg-amber-100 text-amber-950 font-black' : 'hover:bg-slate-100 text-slate-700'
+              editor.isActive('bold')
+                ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-950 dark:text-amber-300 font-black'
+                : 'hover:bg-slate-100 dark:hover:bg-[#23252c] text-slate-700 dark:text-slate-300'
             }`}
             title="Tebal (Ctrl+B)"
           >
@@ -653,7 +657,9 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
           <button
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive('italic') ? 'bg-amber-100 text-amber-950 font-black' : 'hover:bg-slate-100 text-slate-700'
+              editor.isActive('italic')
+                ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-950 dark:text-amber-300 font-black'
+                : 'hover:bg-slate-100 dark:hover:bg-[#23252c] text-slate-700 dark:text-slate-300'
             }`}
             title="Miring (Ctrl+I)"
           >
@@ -662,7 +668,9 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
           <button
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive('bulletList') ? 'bg-amber-100 text-amber-950' : 'hover:bg-slate-100 text-slate-700'
+              editor.isActive('bulletList')
+                ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-950 dark:text-amber-300'
+                : 'hover:bg-slate-100 dark:hover:bg-[#23252c] text-slate-700 dark:text-slate-300'
             }`}
             title="Daftar Poin"
           >
@@ -671,7 +679,9 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
           <button
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-              editor.isActive('orderedList') ? 'bg-amber-100 text-amber-950' : 'hover:bg-slate-100 text-slate-700'
+              editor.isActive('orderedList')
+                ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-950 dark:text-amber-300'
+                : 'hover:bg-slate-100 dark:hover:bg-[#23252c] text-slate-700 dark:text-slate-300'
             }`}
             title="Daftar Angka"
           >
@@ -680,30 +690,30 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {/* Word Counter & Word Goal */}
-        <div className="flex items-center gap-3 text-xs text-slate-600 font-bold min-w-max">
-          <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-900 font-mono border border-slate-200">
+        <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400 font-bold min-w-max">
+          <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-[#20222a] text-slate-900 dark:text-slate-200 font-mono border border-slate-200 dark:border-[#2f313c]">
             {wordCount} kata
           </span>
-          <span className="text-slate-500 hidden sm:inline">({charCount} karakter)</span>
+          <span className="text-slate-500 dark:text-slate-500 hidden sm:inline">({charCount} karakter)</span>
         </div>
       </div>
 
       {/* 3. MAIN WORKSPACE: WHITE PAPER CANVAS & AI SIDEBAR */}
       <div className="flex-1 flex overflow-hidden">
         
-        {/* CENTER: Google Docs Clean White Paper Sheet Canvas */}
+        {/* CENTER: Clean Desk Canvas Surround */}
         <div
           ref={editorRef}
-          className="flex-1 overflow-y-auto py-8 md:py-12 px-4 md:px-8 flex justify-center bg-slate-200/80"
+          className="flex-1 overflow-y-auto py-8 md:py-12 px-4 md:px-8 flex justify-center bg-slate-200/80 dark:bg-[#0c0d10] transition-colors"
         >
           {/* THE PAPER SHEET: ALWAYS PURE WHITE WITH PURE BLACK TEXT */}
           <div
             id="printable-essay-paper"
-            className="rounded-2xl shadow-xl border border-slate-300/80 w-full max-w-3xl min-h-[920px] p-8 md:p-16 flex flex-col justify-between transition-all"
+            className="rounded-2xl shadow-xl border border-slate-300/80 dark:border-white/10 w-full max-w-3xl min-h-[920px] p-8 md:p-16 flex flex-col justify-between transition-all"
             style={{
               backgroundColor: '#ffffff',
               color: '#0f172a',
-              boxShadow: '0 20px 40px -15px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06)'
+              boxShadow: '0 20px 40px -15px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.06)'
             }}
           >
             <div>
@@ -735,18 +745,26 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
 
         {/* RIGHT: AI REVIEW RESULTS SIDEBAR */}
         {sidebarOpen && (
-          <aside className="no-print w-80 md:w-96 bg-white border-l border-slate-200 flex flex-col h-full shadow-lg z-10 flex-shrink-0 animate-in slide-in-from-right duration-200">
+          <aside className="no-print w-80 md:w-96 bg-white dark:bg-[#16171b] border-l border-slate-200 dark:border-[#27272a] flex flex-col h-full shadow-xl z-10 flex-shrink-0 animate-in slide-in-from-right duration-200 transition-colors">
             {/* Sidebar Header */}
-            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 flex-shrink-0 bg-slate-50/50">
-              <div className="flex items-center gap-2">
-                <Sparkles size={16} className="text-amber-600" />
-                <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">
-                  Hasil Review Otbee AI
-                </h3>
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-[#27272a] px-5 py-4 flex-shrink-0 bg-slate-50/70 dark:bg-[#1a1b22] transition-colors">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-amber-400/20 dark:bg-amber-400/10 border border-amber-400/40 flex items-center justify-center flex-shrink-0">
+                  <Sparkles size={15} className="text-amber-600 dark:text-amber-400" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                      Hasil Review Otbee AI
+                    </h3>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  </div>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Evaluasi 4 Pilar Kelolosan PTN</p>
+                </div>
               </div>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#252733] transition-colors"
                 title="Tutup Kolom Review"
               >
                 <X size={16} />
@@ -756,81 +774,135 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
             {/* TAB CONTENT: AI REVIEW RESULTS */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {error && (
-                <div className="p-3.5 rounded-xl bg-red-50 text-red-700 text-xs font-semibold flex items-center gap-2 border border-red-200">
-                  <AlertCircle size={15} className="flex-shrink-0 text-red-600" />
+                <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs font-semibold flex items-center gap-2 border border-red-200 dark:border-red-800/60">
+                  <AlertCircle size={15} className="flex-shrink-0 text-red-600 dark:text-red-400" />
                   <span>{error}</span>
                 </div>
               )}
 
               {!feedback ? (
-                <div className="text-center py-12 px-4">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 mx-auto flex items-center justify-center mb-3">
-                    <Sparkles size={24} />
+                /* REDESIGNED RICH EMPTY STATE */
+                <div className="py-2 px-1 space-y-4">
+                  {/* Hero Badge Banner */}
+                  <div className="rounded-2xl p-5 bg-gradient-to-br from-amber-400/15 via-yellow-400/10 to-transparent border border-amber-300/60 dark:border-amber-500/30 text-center relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full blur-2xl pointer-events-none" />
+                    
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-300 text-amber-950 mx-auto flex items-center justify-center mb-3 shadow-md shadow-amber-500/20">
+                      <Sparkles size={26} strokeWidth={2.4} />
+                    </div>
+
+                    <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400/20 text-amber-800 dark:text-amber-300 border border-amber-400/30 mb-2">
+                      Review Engine v2.4
+                    </span>
+
+                    <h4 className="text-sm font-black text-slate-900 dark:text-white">
+                      Belum Ada Review AI
+                    </h4>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
+                      Dapatkan skor kelolosan otomatis dan rekomendasi paragraf per paragraf dengan benchmark 100+ esai lolos PPKB UI.
+                    </p>
+
+                    <button
+                      onClick={handleReviewAI}
+                      disabled={reviewing}
+                      className="mt-4 w-full py-3 px-5 rounded-xl font-black text-xs bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-neutral-950 shadow-md shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                    >
+                      <Sparkles size={15} className={reviewing ? 'animate-spin' : ''} />
+                      <span>{reviewing ? 'Menganalisis Draf Esai...' : 'Mulai Review Sekarang'}</span>
+                    </button>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2 font-medium">
+                      Estimasi durasi: ~5 detik
+                    </p>
                   </div>
-                  <h4 className="text-sm font-black text-slate-900">Belum Ada Review AI</h4>
-                  <p className="text-xs text-slate-500 mt-1.5 mb-5 max-w-xs mx-auto leading-relaxed">
-                    Tulis esaimu di lembar dokumen, lalu klik &ldquo;Review dengan AI&rdquo; untuk mendapatkan evaluasi 4 dimensi seketika.
-                  </p>
-                  <button
-                    onClick={handleReviewAI}
-                    disabled={reviewing}
-                    className="btn btn-primary text-xs font-black px-5 py-2.5 rounded-full shadow-sm"
-                  >
-                    {reviewing ? 'Menganalisis...' : 'Mulai Review Sekarang'}
-                  </button>
+
+                  {/* 4 Dimension Breakdown Teaser */}
+                  <div className="rounded-2xl p-4 bg-slate-50 dark:bg-[#1e2028] border border-slate-200/80 dark:border-[#2d303b] space-y-2.5">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      4 Pilar Evaluasi Kelolosan:
+                    </p>
+                    
+                    <div className="grid grid-cols-2 gap-2 text-[11px]">
+                      <div className="p-2.5 rounded-xl bg-white dark:bg-[#252733] border border-slate-200/60 dark:border-[#323644]">
+                        <p className="font-extrabold text-slate-900 dark:text-white">1. Struktur STAR</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">Alur masalah, aksi nyata, dan hasil terukur</p>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-white dark:bg-[#252733] border border-slate-200/60 dark:border-[#323644]">
+                        <p className="font-extrabold text-slate-900 dark:text-white">2. Tata Bahasa</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">PUEBI resmi, ejaan baku, &amp; keefektifan kalimat</p>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-white dark:bg-[#252733] border border-slate-200/60 dark:border-[#323644]">
+                        <p className="font-extrabold text-slate-900 dark:text-white">3. Relevansi Prodi</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">Kesesuaian minat dan kurikulum fakultas target</p>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-white dark:bg-[#252733] border border-slate-200/60 dark:border-[#323644]">
+                        <p className="font-extrabold text-slate-900 dark:text-white">4. Orisinalitas</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">Bebas kalimat klise, gaya autentik personal</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pro Tip Box */}
+                  <div className="p-3.5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-700/40 text-xs">
+                    <p className="font-black text-amber-900 dark:text-amber-300 text-[11px] flex items-center gap-1.5 mb-1">
+                      <span>💡</span> Tips Menulis Esai Unggul:
+                    </p>
+                    <p className="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                      Ketik minimal 100 kata agar Otbee AI dapat mengukur irama retorika, kepadatan verba aksi, dan keselarasan isu tren 5 tahun secara presisi.
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <>
                   {/* Overall Score Card */}
-                  <div className="card p-5 rounded-2xl bg-gradient-to-br from-amber-50/60 to-yellow-50/60 border border-amber-200/80 shadow-2xs text-center">
-                    <p className="text-[11px] font-black text-amber-900 uppercase tracking-wider">
+                  <div className="card p-5 rounded-2xl bg-gradient-to-br from-amber-50/60 to-yellow-50/60 dark:from-amber-950/40 dark:to-yellow-950/30 border border-amber-200/80 dark:border-amber-700/50 shadow-2xs text-center transition-colors">
+                    <p className="text-[11px] font-black text-amber-900 dark:text-amber-300 uppercase tracking-wider">
                       Skor Total Kelolosan
                     </p>
                     <div className="text-4xl font-black my-1.5" style={{ color: scoreColor(feedback.overall) }}>
-                      {Math.round(feedback.overall)}<span className="text-base text-slate-400 font-normal">/100</span>
+                      {Math.round(feedback.overall)}<span className="text-base text-slate-400 dark:text-slate-500 font-normal">/100</span>
                     </div>
-                    <p className="text-xs text-slate-700 font-medium leading-relaxed mt-2 pt-2 border-t border-amber-200/60">
+                    <p className="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed mt-2 pt-2 border-t border-amber-200/60 dark:border-amber-700/40">
                       {feedback.feedback}
                     </p>
                   </div>
 
                   {/* NLP Benchmark vs 100 Accepted PPKB UI Essays */}
                   {feedback.nlpBenchmark && (
-                    <div className="p-4 rounded-2xl bg-white border border-amber-300/80 shadow-xs space-y-3.5">
-                      <div className="flex items-center justify-between border-b border-amber-100 pb-2.5">
+                    <div className="p-4 rounded-2xl bg-white dark:bg-[#1e2029] border border-amber-300/80 dark:border-amber-500/40 shadow-xs space-y-3.5 transition-colors">
+                      <div className="flex items-center justify-between border-b border-amber-100 dark:border-amber-900/50 pb-2.5">
                         <div className="flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                          <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-wider">
+                          <h4 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-wider">
                             Benchmark NLP Esai Lolos PPKB UI
                           </h4>
                         </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
                           100 Esai
                         </span>
                       </div>
 
                       {/* Rank & Similarity Grid */}
                       <div className="grid grid-cols-2 gap-2 text-center">
-                        <div className="p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/60">
-                          <p className="text-[10px] font-bold text-slate-500 uppercase">Kemiripan Korpus</p>
-                          <p className="text-lg font-black text-amber-900 mt-0.5">
+                        <div className="p-2.5 rounded-xl bg-amber-50/70 dark:bg-[#252834] border border-amber-200/60 dark:border-amber-600/30">
+                          <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Kemiripan Korpus</p>
+                          <p className="text-lg font-black text-amber-900 dark:text-amber-300 mt-0.5">
                             {feedback.nlpBenchmark.similarityScore}%
                           </p>
-                          <p className="text-[10px] text-slate-500 truncate" title={feedback.nlpBenchmark.topMatchingMajor}>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate" title={feedback.nlpBenchmark.topMatchingMajor}>
                             {feedback.nlpBenchmark.topMatchingMajor}
                           </p>
                         </div>
-                        <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-                          <p className="text-[10px] font-bold text-slate-500 uppercase">Posisi Persentil</p>
-                          <p className="text-lg font-black text-slate-900 mt-0.5">
+                        <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#252834] border border-slate-200 dark:border-[#353847]">
+                          <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Posisi Persentil</p>
+                          <p className="text-lg font-black text-slate-900 dark:text-white mt-0.5">
                             Top {100 - feedback.nlpBenchmark.benchmarkRankPercentile}%
                           </p>
                           <span className={`inline-block text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
                             feedback.nlpBenchmark.verdict === 'Sangat Menjanjikan'
-                              ? 'bg-emerald-100 text-emerald-800'
+                              ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
                               : feedback.nlpBenchmark.verdict === 'Cukup Kompetitif'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-amber-100 text-amber-800'
+                              ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300'
+                              : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'
                           }`}>
                             {feedback.nlpBenchmark.verdict}
                           </span>
@@ -840,12 +912,12 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                       {/* STAR Action & Quantification Density */}
                       <div className="space-y-1.5 pt-1">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-bold text-slate-700 text-[11px]">Kepadatan Aksi STAR</span>
-                          <span className="font-mono font-black text-amber-800 text-[11px]">
+                          <span className="font-bold text-slate-700 dark:text-slate-300 text-[11px]">Kepadatan Aksi STAR</span>
+                          <span className="font-mono font-black text-amber-800 dark:text-amber-400 text-[11px]">
                             {feedback.nlpBenchmark.starScore}/100
                           </span>
                         </div>
-                        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-slate-100 dark:bg-[#2c2e3b] rounded-full overflow-hidden">
                           <div
                             className="h-full bg-amber-500 rounded-full"
                             style={{ width: `${feedback.nlpBenchmark.starScore}%` }}
@@ -854,18 +926,18 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                         {feedback.nlpBenchmark.starActionVerbs.length > 0 ? (
                           <div className="flex flex-wrap gap-1 mt-1.5">
                             {feedback.nlpBenchmark.starActionVerbs.slice(0, 5).map(verb => (
-                              <span key={verb} className="text-[10px] font-medium bg-amber-50 text-amber-800 border border-amber-200/80 px-2 py-0.5 rounded-md">
+                              <span key={verb} className="text-[10px] font-medium bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-700/50 px-2 py-0.5 rounded-md">
                                 {verb}
                               </span>
                             ))}
                           </div>
                         ) : (
-                          <p className="text-[10px] text-amber-700 italic">Belum terdeteksi verba aksi aktif (merancang, memimpin, menguji).</p>
+                          <p className="text-[10px] text-amber-700 dark:text-amber-400 italic">Belum terdeteksi verba aksi aktif (merancang, memimpin, menguji).</p>
                         )}
                         {feedback.nlpBenchmark.metricsFound.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-1">
                             {feedback.nlpBenchmark.metricsFound.slice(0, 4).map(metric => (
-                              <span key={metric} className="text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-md">
+                              <span key={metric} className="text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 px-2 py-0.5 rounded-md">
                                 {metric}
                               </span>
                             ))}
@@ -875,14 +947,14 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
 
                       {/* Alur & Irama Kalimat (Rhetorical Cadence) */}
                       {typeof feedback.nlpBenchmark.sentenceFlowScore === 'number' && (
-                        <div className="space-y-1.5 pt-2 border-t border-amber-100/80">
+                        <div className="space-y-1.5 pt-2 border-t border-amber-100/80 dark:border-[#2f313f]">
                           <div className="flex items-center justify-between text-xs">
-                            <span className="font-bold text-slate-700 text-[11px]">Irama &amp; Variasi Kalimat</span>
-                            <span className="font-mono font-black text-amber-800 text-[11px]">
+                            <span className="font-bold text-slate-700 dark:text-slate-300 text-[11px]">Irama &amp; Variasi Kalimat</span>
+                            <span className="font-mono font-black text-amber-800 dark:text-amber-400 text-[11px]">
                               {feedback.nlpBenchmark.sentenceFlowScore}/100
                             </span>
                           </div>
-                          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div className="w-full h-1.5 bg-slate-100 dark:bg-[#2c2e3b] rounded-full overflow-hidden">
                             <div
                               className="h-full bg-amber-500 rounded-full"
                               style={{ width: `${feedback.nlpBenchmark.sentenceFlowScore}%` }}
@@ -890,12 +962,12 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                           </div>
                           <div className="flex flex-wrap items-center gap-1.5 mt-1 text-[10px]">
                             {feedback.nlpBenchmark.avgSentenceLength && (
-                              <span className="font-medium bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">
+                              <span className="font-medium bg-slate-100 dark:bg-[#282a36] text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md">
                                 Rata-rata {feedback.nlpBenchmark.avgSentenceLength} kata/kalimat
                               </span>
                             )}
                             {feedback.nlpBenchmark.runawaySentencesCount && feedback.nlpBenchmark.runawaySentencesCount > 0 ? (
-                              <span className="font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-md">
+                              <span className="font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 px-2 py-0.5 rounded-md">
                                 {feedback.nlpBenchmark.runawaySentencesCount} kalimat &gt;42 kata
                               </span>
                             ) : null}
@@ -903,7 +975,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                           {feedback.nlpBenchmark.transitionWordsFound && feedback.nlpBenchmark.transitionWordsFound.length > 0 && (
                             <div className="flex flex-wrap gap-1 mt-1">
                               {feedback.nlpBenchmark.transitionWordsFound.slice(0, 3).map(tw => (
-                                <span key={tw} className="text-[9px] font-medium bg-blue-50 text-blue-800 border border-blue-200 px-1.5 py-0.5 rounded-md">
+                                <span key={tw} className="text-[9px] font-medium bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 px-1.5 py-0.5 rounded-md">
                                   {tw}
                                 </span>
                               ))}
@@ -914,13 +986,13 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
 
                       {/* Relevansi Isu & Tren Strategis 5 Tahun (2021-2026) */}
                       {feedback.nlpBenchmark.temporalAnalysis && (
-                        <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2 text-xs">
+                        <div className="p-3 rounded-2xl bg-amber-50/70 dark:bg-[#252834] border border-amber-200/80 dark:border-amber-600/30 space-y-2 text-xs">
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-slate-800 text-[11px] flex items-center gap-1.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
+                            <span className="font-bold text-slate-800 dark:text-slate-200 text-[11px] flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-600 dark:bg-amber-400" />
                               Relevansi Isu Strategis (5 Tahun)
                             </span>
-                            <span className="font-mono font-black text-amber-900 text-[11px]">
+                            <span className="font-mono font-black text-amber-900 dark:text-amber-300 text-[11px]">
                               {feedback.nlpBenchmark.temporalAnalysis.temporalScore}/100
                             </span>
                           </div>
@@ -928,13 +1000,13 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                           <div className="flex flex-wrap items-center gap-1.5">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
                               feedback.nlpBenchmark.temporalAnalysis.temporalScore >= 75
-                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                                : 'bg-blue-100 text-blue-800 border border-blue-200'
+                                ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
+                                : 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60'
                             }`}>
                               {feedback.nlpBenchmark.temporalAnalysis.trendAlignment}
                             </span>
                             {feedback.nlpBenchmark.temporalAnalysis.detectedYearEra && (
-                              <span className="text-[10px] text-slate-600 font-medium">
+                              <span className="text-[10px] text-slate-600 dark:text-slate-400 font-medium">
                                 Era: {feedback.nlpBenchmark.temporalAnalysis.detectedYearEra}
                               </span>
                             )}
@@ -943,14 +1015,14 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                           {feedback.nlpBenchmark.temporalAnalysis.matchedThemes.length > 0 && (
                             <div className="flex flex-wrap gap-1 pt-0.5">
                               {feedback.nlpBenchmark.temporalAnalysis.matchedThemes.map(th => (
-                                <span key={th} className="text-[9px] font-semibold bg-white text-slate-800 border border-amber-200 px-2 py-0.5 rounded-md">
+                                <span key={th} className="text-[9px] font-semibold bg-white dark:bg-[#1a1b22] text-slate-800 dark:text-slate-200 border border-amber-200 dark:border-[#353847] px-2 py-0.5 rounded-md">
                                   {th}
                                 </span>
                               ))}
                             </div>
                           )}
 
-                          <p className="text-[10px] text-slate-600 leading-relaxed border-t border-amber-200/50 pt-1.5">
+                          <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed border-t border-amber-200/50 dark:border-[#323644] pt-1.5">
                             {feedback.nlpBenchmark.temporalAnalysis.advice}
                           </p>
                         </div>
@@ -958,15 +1030,15 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
 
                       {/* Evaluasi Alur Retorika 5 Paragraf */}
                       {feedback.nlpBenchmark.rhetoricalStages && feedback.nlpBenchmark.rhetoricalStages.length > 0 && (
-                        <div className="p-3 rounded-2xl bg-white border border-slate-200 space-y-2 text-xs">
+                        <div className="p-3 rounded-2xl bg-white dark:bg-[#20222b] border border-slate-200 dark:border-[#303340] space-y-2 text-xs">
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-slate-800 text-[11px]">
+                            <span className="font-bold text-slate-800 dark:text-slate-200 text-[11px]">
                               Alur Retorika 5 Paragraf
                             </span>
                             <button
                               type="button"
                               onClick={() => setShowRhetoricalStages(!showRhetoricalStages)}
-                              className="text-[10px] font-bold text-amber-700 hover:text-amber-900 underline cursor-pointer"
+                              className="text-[10px] font-bold text-amber-700 dark:text-amber-400 hover:text-amber-900 underline cursor-pointer"
                             >
                               {showRhetoricalStages ? 'Ringkas' : 'Detail Tahap'}
                             </button>
@@ -975,20 +1047,20 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                           {showRhetoricalStages ? (
                             <div className="space-y-2 pt-1">
                               {feedback.nlpBenchmark.rhetoricalStages.map(st => (
-                                <div key={st.stage} className="p-2 rounded-xl bg-slate-50 border border-slate-100 space-y-0.5 text-[10px]">
+                                <div key={st.stage} className="p-2 rounded-xl bg-slate-50 dark:bg-[#262835] border border-slate-100 dark:border-[#333646] space-y-0.5 text-[10px]">
                                   <div className="flex items-center justify-between font-bold">
-                                    <span className="text-slate-800">{st.label}</span>
+                                    <span className="text-slate-800 dark:text-slate-200">{st.label}</span>
                                     <span className={`px-1.5 py-0.2 rounded-md ${
                                       st.status === 'Optimal'
-                                        ? 'bg-emerald-100 text-emerald-800'
+                                        ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
                                         : st.status === 'Cukup Kuat'
-                                        ? 'bg-blue-100 text-blue-800'
-                                        : 'bg-amber-100 text-amber-800'
+                                        ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300'
+                                        : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300'
                                     }`}>
                                       {st.status}
                                     </span>
                                   </div>
-                                  <p className="text-slate-600 leading-snug">{st.feedback}</p>
+                                  <p className="text-slate-600 dark:text-slate-400 leading-snug">{st.feedback}</p>
                                 </div>
                               ))}
                             </div>
@@ -1013,30 +1085,30 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                       )}
 
                       {/* Rujukan Esai Lolos PPKB Terdekat */}
-                      <div className="p-2.5 rounded-xl bg-amber-50/60 border border-amber-200 text-xs space-y-1.5">
+                      <div className="p-2.5 rounded-xl bg-amber-50/60 dark:bg-[#252834] border border-amber-200 dark:border-amber-600/30 text-xs space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-black text-amber-900 uppercase tracking-wider">
+                          <span className="text-[10px] font-black text-amber-900 dark:text-amber-300 uppercase tracking-wider">
                             Rujukan Korpus Lolos Terdekat
                           </span>
                           <button
                             type="button"
                             onClick={() => setShowCorpusReference(!showCorpusReference)}
-                            className="text-[10px] font-bold text-amber-800 hover:text-amber-950 underline cursor-pointer"
+                            className="text-[10px] font-bold text-amber-800 dark:text-amber-400 hover:text-amber-950 underline cursor-pointer"
                           >
                             {showCorpusReference ? 'Tutup' : 'Lihat Narasi'}
                           </button>
                         </div>
                         {feedback.nlpBenchmark.matchedAuthorContext && (
-                          <p className="text-[10px] font-semibold text-slate-800">
+                          <p className="text-[10px] font-semibold text-slate-800 dark:text-slate-200">
                             {feedback.nlpBenchmark.matchedAuthorContext}
                           </p>
                         )}
-                        <p className="text-[10px] text-slate-600 italic leading-relaxed border-l-2 border-amber-400 pl-2">
+                        <p className="text-[10px] text-slate-600 dark:text-slate-400 italic leading-relaxed border-l-2 border-amber-400 pl-2">
                           &quot;{feedback.nlpBenchmark.matchedWinningExcerpt}&quot;
                         </p>
                         {showCorpusReference && feedback.nlpBenchmark.matchedFullTextSnippet && (
-                          <div className="mt-2 pt-2 border-t border-amber-200/60 text-[10px] text-slate-700 leading-relaxed bg-white/80 p-2 rounded-lg">
-                            <p className="font-bold text-slate-900 mb-1">Cuplikan Esai Lengkap:</p>
+                          <div className="mt-2 pt-2 border-t border-amber-200/60 dark:border-amber-700/40 text-[10px] text-slate-700 dark:text-slate-300 leading-relaxed bg-white/80 dark:bg-[#1a1b22] p-2 rounded-lg">
+                            <p className="font-bold text-slate-900 dark:text-white mb-1">Cuplikan Esai Lengkap:</p>
                             <p className="whitespace-pre-line">{feedback.nlpBenchmark.matchedFullTextSnippet}</p>
                           </div>
                         )}
@@ -1044,18 +1116,18 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
 
                       {/* Banned Clichés Alert / Pass */}
                       {feedback.nlpBenchmark.clichesFound.length > 0 ? (
-                        <div className="p-2.5 rounded-xl bg-red-50/80 border border-red-200 text-xs">
-                          <div className="flex items-center gap-1.5 text-red-800 font-bold text-[11px] mb-1">
-                            <AlertCircle size={13} className="text-red-600 flex-shrink-0" />
+                        <div className="p-2.5 rounded-xl bg-red-50/80 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 text-xs">
+                          <div className="flex items-center gap-1.5 text-red-800 dark:text-red-300 font-bold text-[11px] mb-1">
+                            <AlertCircle size={13} className="text-red-600 dark:text-red-400 flex-shrink-0" />
                             <span>Frasa Klise Terdeteksi ({feedback.nlpBenchmark.clichesFound.length})</span>
                           </div>
-                          <p className="text-[10px] text-red-700 leading-snug">
+                          <p className="text-[10px] text-red-700 dark:text-red-300 leading-snug">
                             Hindari: &quot;{feedback.nlpBenchmark.clichesFound.slice(0, 2).join('&quot;, &quot;')}&quot;. Kurator seleksi langsung menandai esai dengan pembuka ini sebagai kurang unik.
                           </p>
                         </div>
                       ) : (
-                        <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] font-bold text-emerald-800 flex items-center gap-1.5">
-                          <CheckCircle2 size={13} className="text-emerald-600 flex-shrink-0" />
+                        <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                          <CheckCircle2 size={13} className="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                           <span>0 Frasa Klise - Gaya bahasa autentik &amp; orisinal</span>
                         </div>
                       )}
@@ -1064,7 +1136,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
 
                   {/* 4 Dimension Bars */}
                   <div>
-                    <p className="text-[11px] font-black text-slate-500 uppercase tracking-wider mb-2.5">
+                    <p className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5">
                       Analisis 4 Dimensi Esai
                     </p>
                     <div className="space-y-2.5">
@@ -1074,14 +1146,14 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                         { key: 'argument', label: 'Kekuatan Argumen', score: feedback.argument },
                         { key: 'language', label: 'Tata Bahasa & Diksi', score: feedback.language },
                       ].map(dim => (
-                        <div key={dim.key} className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-xs">
+                        <div key={dim.key} className="p-3 rounded-xl bg-slate-50 dark:bg-[#1f212a] border border-slate-200/70 dark:border-[#2f3240] text-xs">
                           <div className="flex items-center justify-between font-bold mb-1.5">
-                            <span className="text-slate-800">{dim.label}</span>
+                            <span className="text-slate-800 dark:text-slate-200">{dim.label}</span>
                             <span className="font-mono font-black" style={{ color: scoreColor(dim.score) }}>
                               {Math.round(dim.score)}/100
                             </span>
                           </div>
-                          <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                          <div className="w-full h-2 bg-slate-200 dark:bg-[#2c2f3d] rounded-full overflow-hidden">
                             <div
                               className="h-full rounded-full transition-all duration-500"
                               style={{ width: `${dim.score}%`, background: scoreColor(dim.score) }}
@@ -1095,7 +1167,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                   {/* AI Highlighted Issues */}
                   {feedback.issues && feedback.issues.length > 0 && (
                     <div>
-                      <p className="text-[11px] font-black uppercase tracking-wider text-slate-500 mb-2.5">
+                      <p className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2.5">
                         Sorotan Kalimat & Rekomendasi ({feedback.issues.length})
                       </p>
                       <div className="space-y-2.5">
@@ -1105,17 +1177,17 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                             onClick={() => focusIssueInEditor(i)}
                             className={`p-3.5 rounded-2xl border transition-all cursor-pointer text-xs ${
                               activeIssueIndex === i
-                                ? 'bg-amber-50/70 border-amber-400 shadow-md ring-2 ring-amber-300'
-                                : 'bg-slate-50 border-slate-200 hover:border-slate-300'
+                                ? 'bg-amber-50/70 dark:bg-amber-950/40 border-amber-400 shadow-md ring-2 ring-amber-300 dark:ring-amber-500/50'
+                                : 'bg-slate-50 dark:bg-[#1f212a] border-slate-200 dark:border-[#2f3240] hover:border-slate-300 dark:hover:border-slate-600'
                             }`}
                           >
-                            <span className="text-[10px] font-black uppercase text-amber-900 bg-amber-100 px-2 py-0.5 rounded-md inline-block mb-1.5">
+                            <span className="text-[10px] font-black uppercase text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 rounded-md inline-block mb-1.5">
                               {CATEGORY_LABEL[issue.category] || issue.category}
                             </span>
-                            <p className="italic text-slate-600 text-[11px] my-1 font-serif border-l-2 border-amber-400 pl-2">
+                            <p className="italic text-slate-600 dark:text-slate-400 text-[11px] my-1 font-serif border-l-2 border-amber-400 pl-2">
                               &ldquo;{issue.quote}&rdquo;
                             </p>
-                            <p className="font-semibold text-slate-900 leading-relaxed mt-1.5">
+                            <p className="font-semibold text-slate-900 dark:text-white leading-relaxed mt-1.5">
                               {issue.comment}
                             </p>
                           </div>
@@ -1127,13 +1199,13 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                   {/* General Suggestions */}
                   {feedback.suggestions && feedback.suggestions.length > 0 && (
                     <div className="pt-2">
-                      <p className="text-[11px] font-black uppercase tracking-wider text-slate-500 mb-2">
+                      <p className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                         Saran Penyempurnaan Umum
                       </p>
                       <div className="space-y-2">
                         {feedback.suggestions.map((sug, i) => (
-                          <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-start gap-2">
-                            <span className="w-4 h-4 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <div key={i} className="p-3 rounded-xl bg-slate-50 dark:bg-[#1f212a] border border-slate-200 dark:border-[#2f3240] text-xs text-slate-700 dark:text-slate-300 flex items-start gap-2">
+                            <span className="w-4 h-4 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">
                               {i + 1}
                             </span>
                             <p className="leading-relaxed font-medium">{sug}</p>

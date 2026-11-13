@@ -114,10 +114,9 @@ export default function PadananKataGame({
 
   // Setup / Initialize Game Questions
   const prepareGame = (targetMode: ModeType = mode, targetCategory: CategoryType = category) => {
-    // Multiplayer uses mixed question pool automatically
-    const catToLoad = targetMode === 'solo' ? targetCategory : 'mixed'
-    const loaded = getQuizQuestions(catToLoad, 8)
+    const loaded = getQuizQuestions(targetCategory, 8)
     setQuestions(loaded)
+    setCategory(targetCategory)
     setQIndex(0)
     setScore(0)
     setStreak(0)
@@ -178,6 +177,12 @@ export default function PadananKataGame({
         },
         onGameStart: () => {
           triggerCountdown()
+        },
+        onGameInit: data => {
+          if (data?.questions && data.questions.length > 0) {
+            setQuestions(data.questions)
+            if (data.category) setCategory(data.category as CategoryType)
+          }
         },
         onOpponentAnswer: data => {
           setOpponentScore(data.score)
@@ -240,11 +245,13 @@ export default function PadananKataGame({
 
   // Start Button Clicked from Lobby
   const handleStartGame = () => {
-    prepareGame(mode, category)
+    const loaded = getQuizQuestions(category, 8)
+    setQuestions(loaded)
     if (mode === 'solo') {
       triggerCountdown()
     } else {
       if (realtimeRef.current) {
+        realtimeRef.current.sendGameInit(loaded, category)
         realtimeRef.current.sendReady()
       }
       triggerCountdown()
@@ -565,19 +572,19 @@ export default function PadananKataGame({
                 <button
                   onClick={() => {
                     setMode('matching')
-                    prepareGame('matching', 'mixed')
+                    prepareGame('matching', category)
                   }}
                   className={`p-5 rounded-2xl border-2 text-left transition-all ${
                     mode === 'matching'
-                      ? 'border-amber-400 bg-amber-50/60 shadow-md scale-102'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
+                      ? 'border-amber-400 bg-amber-50/60 dark:bg-amber-950/30 shadow-md scale-102'
+                      : 'border-gray-200 dark:border-zinc-800 bg-white dark:bg-[#1a1b22] hover:border-gray-300'
                   }`}
                 >
                   <div className="w-10 h-10 rounded-xl bg-purple-500 text-white flex items-center justify-center font-black mb-3">
                     <Sparkles size={20} />
                   </div>
-                  <h4 className="text-sm font-black text-gray-950">Cari Lawan (Matching)</h4>
-                  <p className="text-[11px] text-gray-500 mt-1">
+                  <h4 className="text-sm font-black text-gray-950 dark:text-white">Cari Lawan (Matching)</h4>
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
                     Bertarung live dengan pejuang PTN lain secara acak dengan kartu power-up.
                   </p>
                 </button>
@@ -586,86 +593,89 @@ export default function PadananKataGame({
                 <button
                   onClick={() => {
                     setMode('room')
-                    prepareGame('room', 'mixed')
+                    prepareGame('room', category)
                   }}
                   className={`p-5 rounded-2xl border-2 text-left transition-all ${
                     mode === 'room'
-                      ? 'border-amber-400 bg-amber-50/60 shadow-md scale-102'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
+                      ? 'border-amber-400 bg-amber-50/60 dark:bg-amber-950/30 shadow-md scale-102'
+                      : 'border-gray-200 dark:border-zinc-800 bg-white dark:bg-[#1a1b22] hover:border-gray-300'
                   }`}
                 >
                   <div className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center font-black mb-3">
                     <Share2 size={20} />
                   </div>
-                  <h4 className="text-sm font-black text-gray-950">Ajak Teman (Kode Room)</h4>
-                  <p className="text-[11px] text-gray-500 mt-1">
+                  <h4 className="text-sm font-black text-gray-950 dark:text-white">Ajak Teman (Kode Room)</h4>
+                  <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
                     Bikin room private atau masukkan kode teman belajarmu untuk duel langsung.
                   </p>
                 </button>
               </div>
 
-              {/* If Solo Mode: Category Picker */}
-              {mode === 'solo' && (
-                <div className="max-w-xl mx-auto p-5 rounded-2xl bg-gray-50 border border-gray-200 text-left space-y-3">
-                  <span className="text-xs font-black text-gray-900 block uppercase tracking-wider">
-                    Pilih Materi Kuis Solo:
+              {/* Category Picker for ALL MODES (Solo, Matching, Room) */}
+              <div className="max-w-xl mx-auto p-5 rounded-2xl bg-gray-50 dark:bg-[#181920] border border-gray-200 dark:border-zinc-800 text-left space-y-3 transition-colors">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-gray-900 dark:text-white block uppercase tracking-wider">
+                    Pilih Kategori Soal:
                   </span>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <button
-                      onClick={() => {
-                        setCategory('padanan')
-                        prepareGame('solo', 'padanan')
-                      }}
-                      className={`p-2.5 rounded-xl text-xs font-black transition-all border ${
-                        category === 'padanan'
-                          ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
-                          : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
-                      }`}
-                    >
-                      1. Padanan Kata
-                    </button>
-                    <button
-                      onClick={() => {
-                        setCategory('baku')
-                        prepareGame('solo', 'baku')
-                      }}
-                      className={`p-2.5 rounded-xl text-xs font-black transition-all border ${
-                        category === 'baku'
-                          ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
-                          : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
-                      }`}
-                    >
-                      2. Kata Baku
-                    </button>
-                    <button
-                      onClick={() => {
-                        setCategory('kalimat')
-                        prepareGame('solo', 'kalimat')
-                      }}
-                      className={`p-2.5 rounded-xl text-xs font-black transition-all border ${
-                        category === 'kalimat'
-                          ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
-                          : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
-                      }`}
-                    >
-                      3. Benerin Kalimat
-                    </button>
-                    <button
-                      onClick={() => {
-                        setCategory('mixed')
-                        prepareGame('solo', 'mixed')
-                      }}
-                      className={`p-2.5 rounded-xl text-xs font-black transition-all border ${
-                        category === 'mixed'
-                          ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
-                          : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
-                      }`}
-                    >
-                      Acak Campuran
-                    </button>
-                  </div>
+                  <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-100/70 dark:bg-amber-950/60 px-2 py-0.5 rounded-full">
+                    Tersedia untuk Solo &amp; Duel Lawan
+                  </span>
                 </div>
-              )}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <button
+                    onClick={() => {
+                      setCategory('padanan')
+                      prepareGame(mode, 'padanan')
+                    }}
+                    className={`p-2.5 rounded-xl text-xs font-black transition-all border cursor-pointer ${
+                      category === 'padanan'
+                        ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
+                        : 'bg-white dark:bg-[#22242c] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-800'
+                    }`}
+                  >
+                    1. Padanan Kata (PPU)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCategory('baku')
+                      prepareGame(mode, 'baku')
+                    }}
+                    className={`p-2.5 rounded-xl text-xs font-black transition-all border cursor-pointer ${
+                      category === 'baku'
+                        ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
+                        : 'bg-white dark:bg-[#22242c] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-800'
+                    }`}
+                  >
+                    2. Kata Baku (PUEBI)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCategory('kalimat')
+                      prepareGame(mode, 'kalimat')
+                    }}
+                    className={`p-2.5 rounded-xl text-xs font-black transition-all border cursor-pointer ${
+                      category === 'kalimat'
+                        ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
+                        : 'bg-white dark:bg-[#22242c] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-800'
+                    }`}
+                  >
+                    3. Benerin Kalimat (PBM)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCategory('mixed')
+                      prepareGame(mode, 'mixed')
+                    }}
+                    className={`p-2.5 rounded-xl text-xs font-black transition-all border cursor-pointer ${
+                      category === 'mixed'
+                        ? 'bg-amber-400 text-gray-950 border-amber-500 shadow-xs'
+                        : 'bg-white dark:bg-[#22242c] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-800'
+                    }`}
+                  >
+                    4. Acak Campuran
+                  </button>
+                </div>
+              </div>
 
               {/* If Room Mode: Room Code Box */}
               {mode === 'room' && (

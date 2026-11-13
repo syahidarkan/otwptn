@@ -6,3 +6,4 @@ alter table profiles
   add column if not exists rapor_per_semester jsonb,
   add column if not exists essay_draft text,
   add column if not exists ambassador_code text;
+

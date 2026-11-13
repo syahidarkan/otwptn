@@ -38,7 +38,11 @@ function StaticNoise() {
   )
 }
 
-export default function OmegleSection() {
+interface OmegleSectionProps {
+  onBattleInvite?: (peer?: PeerInfo | null) => void
+}
+
+export default function OmegleSection({ onBattleInvite }: OmegleSectionProps = {}) {
   const [phase, setPhase] = useState<'idle' | 'searching' | 'connecting' | 'connected' | 'timeout'>('idle')
   const [peer, setPeer] = useState<PeerInfo | null>(null)
   const [micOn, setMicOn] = useState(false)
@@ -504,12 +508,22 @@ export default function OmegleSection() {
               Stop
             </button>
             {phase === 'connected' && (
-              <Link
-                href="/dashboard/latihan"
-                className="flex items-center gap-1.5 px-4 py-2 sm:py-2.5 rounded-full text-xs font-black transition-all hover:scale-105 bg-amber-400 text-gray-950 shadow-md"
-              >
-                <Swords size={14} /> Tantang Battle PPU
-              </Link>
+              onBattleInvite ? (
+                <button
+                  type="button"
+                  onClick={() => onBattleInvite(peer)}
+                  className="flex items-center gap-1.5 px-4 py-2 sm:py-2.5 rounded-full text-xs font-black transition-all hover:scale-105 bg-amber-400 text-gray-950 shadow-md cursor-pointer"
+                >
+                  <Swords size={14} /> Tantang Battle PPU
+                </button>
+              ) : (
+                <Link
+                  href="/dashboard/latihan"
+                  className="flex items-center gap-1.5 px-4 py-2 sm:py-2.5 rounded-full text-xs font-black transition-all hover:scale-105 bg-amber-400 text-gray-950 shadow-md"
+                >
+                  <Swords size={14} /> Tantang Battle PPU
+                </Link>
+              )
             )}
             <div className="hidden sm:block w-px h-6 mx-1" style={{ background: 'rgba(255,255,255,0.1)' }} />
             <button onClick={toggleMic}
