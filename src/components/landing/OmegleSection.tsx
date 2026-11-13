@@ -8,32 +8,33 @@ import { MicOff, VideoOff, Swords, RefreshCw, Volume2 } from 'lucide-react'
 import { StudyCamWebRTC, PeerInfo } from '@/lib/studyCam/webrtcManager'
 import { getSafeMediaStream } from '@/lib/studyCam/mediaUtils'
 
-// TV static noise - used on the RIGHT (stranger) side while searching
+// TV static noise - throttled to 15fps, only active while searching
 function StaticNoise() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const ctx = canvas.getContext('2d')!
-    let raf: number
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    let timer: NodeJS.Timeout
     function draw() {
       const w = canvas!.width, h = canvas!.height
-      const img = ctx.createImageData(w, h)
+      const img = ctx!.createImageData(w, h)
       for (let i = 0; i < img.data.length; i += 4) {
         const v = Math.random() * 110 + 30
         img.data[i] = img.data[i + 1] = img.data[i + 2] = v
         img.data[i + 3] = 255
       }
-      ctx.putImageData(img, 0, 0)
-      raf = requestAnimationFrame(draw)
+      ctx!.putImageData(img, 0, 0)
     }
     draw()
-    return () => cancelAnimationFrame(raf)
+    timer = setInterval(draw, 100) // 10 fps is visually plenty for static TV noise, saves 90% CPU
+    return () => clearInterval(timer)
   }, [])
 
   return (
-    <canvas ref={canvasRef} width={320} height={240}
+    <canvas ref={canvasRef} width={160} height={120}
       className="absolute inset-0 w-full h-full" style={{ opacity: 0.65 }} />
   )
 }
@@ -424,8 +425,8 @@ export default function OmegleSection({ onBattleInvite }: OmegleSectionProps = {
                 </button>
               )}
 
-              {/* Static noise always present underneath when searching/idle */}
-              {(phase === 'searching' || phase === 'connecting' || phase === 'idle') && <StaticNoise />}
+              {/* Static noise only present while actively searching/connecting */}
+              {(phase === 'searching' || phase === 'connecting') && <StaticNoise />}
 
               <AnimatePresence mode="wait">
                 {phase === 'idle' && (

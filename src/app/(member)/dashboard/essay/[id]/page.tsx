@@ -772,7 +772,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
             </div>
 
             {/* TAB CONTENT: AI REVIEW RESULTS */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 pb-36 space-y-4" style={{ overscrollBehavior: 'contain' }}>
               {error && (
                 <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 text-xs font-semibold flex items-center gap-2 border border-red-200 dark:border-red-800/60">
                   <AlertCircle size={15} className="flex-shrink-0 text-red-600 dark:text-red-400" />
@@ -782,7 +782,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
 
               {!feedback ? (
                 /* REDESIGNED RICH EMPTY STATE */
-                <div className="py-2 px-1 space-y-4">
+                <div className="py-2 px-1 space-y-4 pb-12">
                   {/* Hero Badge Banner */}
                   <div className="rounded-2xl p-5 bg-gradient-to-br from-amber-400/15 via-yellow-400/10 to-transparent border border-amber-300/60 dark:border-amber-500/30 text-center relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full blur-2xl pointer-events-none" />
@@ -816,7 +816,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                   </div>
 
                   {/* 4 Dimension Breakdown Teaser */}
-                  <div className="rounded-2xl p-4 bg-slate-50 dark:bg-[#1e2028] border border-slate-200/80 dark:border-[#2d303b] space-y-2.5">
+                  <div className="rounded-2xl p-4 bg-slate-50 dark:bg-[#1e2028] border border-slate-200/80 dark:border-[#2d303b] space-y-2.5 shadow-2xs">
                     <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
                       4 Pilar Evaluasi Kelolosan:
                     </p>
@@ -841,9 +841,9 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                     </div>
                   </div>
 
-                  {/* Pro Tip Box */}
-                  <div className="p-3.5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-700/40 text-xs">
-                    <p className="font-black text-amber-900 dark:text-amber-300 text-[11px] flex items-center gap-1.5 mb-1">
+                  {/* Pro Tip Box with Clean Bottom Framing */}
+                  <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-700/40 text-xs shadow-xs mb-8">
+                    <p className="font-black text-amber-900 dark:text-amber-300 text-[11px] flex items-center gap-1.5 mb-1.5">
                       <span>💡</span> Tips Menulis Esai Unggul:
                     </p>
                     <p className="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
@@ -1198,7 +1198,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
 
                   {/* General Suggestions */}
                   {feedback.suggestions && feedback.suggestions.length > 0 && (
-                    <div className="pt-2">
+                    <div className="pt-2 pb-12">
                       <p className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                         Saran Penyempurnaan Umum
                       </p>

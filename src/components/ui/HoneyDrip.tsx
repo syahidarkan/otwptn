@@ -258,14 +258,14 @@ export const HoneyOverlay = forwardRef<
         if (!video || !canvas) return
         if (video.readyState < 2) return
 
-        // Fixed internal render buffer (1280x720) to ensure lightning-fast WebGL rendering with zero memory thrashing
-        if (canvas.width !== 1280 || canvas.height !== 720) {
-          canvas.width = 1280
-          canvas.height = 720
+        // Lightweight internal render buffer (854x480) for silky 60fps with zero frame drops
+        if (canvas.width !== 854 || canvas.height !== 480) {
+          canvas.width = 854
+          canvas.height = 480
         }
 
         if (gl && program && texture) {
-          gl.viewport(0, 0, 1280, 720)
+          gl.viewport(0, 0, 854, 480)
           gl.useProgram(program)
 
           if (uScaleLoc) gl.uniform2f(uScaleLoc, 1.0, 1.0)
@@ -281,25 +281,8 @@ export const HoneyOverlay = forwardRef<
         } else {
           const ctx = canvas.getContext('2d')
           if (ctx) {
-            ctx.clearRect(0, 0, 1280, 720)
-            ctx.drawImage(video, 0, 0, 1280, 720)
-            try {
-              const imgData = ctx.getImageData(0, 0, 1280, 720)
-              const data = imgData.data
-              for (let i = 0; i < data.length; i += 4) {
-                const r = data[i]
-                const g = data[i + 1]
-                const b = data[i + 2]
-                const minC = Math.min(r, g, b)
-                if (minC > 235) {
-                  data[i + 3] = 0
-                } else if (minC > 195) {
-                  const a = (235 - minC) / 40
-                  data[i + 3] = Math.round(data[i + 3] * a)
-                }
-              }
-              ctx.putImageData(imgData, 0, 0)
-            } catch {}
+            ctx.clearRect(0, 0, 854, 480)
+            ctx.drawImage(video, 0, 0, 854, 480)
           }
         }
       }
@@ -319,16 +302,16 @@ export const HoneyOverlay = forwardRef<
           return
         }
 
-        // If route HAS loaded and video somehow remained paused, resume immediately
-        if (isRouteLoadedRef.current && video.paused && !video.ended && t < 2.38) {
-          video.playbackRate = 1.25
+        // If route HAS loaded and video somehow remained paused, resume immediately with smooth speed
+        if (isRouteLoadedRef.current && video.paused && !video.ended && t < 2.35) {
+          video.playbackRate = 1.35
           try {
             video.play().catch(() => {})
           } catch {}
         }
 
-        // When route has loaded AND honey has drained off the screen (> 2.38s)
-        if (isRouteLoadedRef.current && (t >= 2.38 || video.ended)) {
+        // When route has loaded AND honey has drained off the screen (> 2.35s)
+        if (isRouteLoadedRef.current && (t >= 2.35 || video.ended)) {
           onCompleteRef.current?.()
         }
 

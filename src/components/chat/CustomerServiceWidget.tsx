@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 import {
   MessageCircle, X, Send, Sparkles, ShieldCheck, Mail,
   ChevronDown, Bot, RefreshCw, ExternalLink
@@ -68,6 +69,7 @@ function formatChatText(content: string) {
 }
 
 export default function CustomerServiceWidget() {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [showTeaser, setShowTeaser] = useState(true)
   const [inputMessage, setInputMessage] = useState('')
@@ -142,6 +144,11 @@ export default function CustomerServiceWidget() {
       e.preventDefault()
       handleSendMessage()
     }
+  }
+
+  // Do not render on full-screen editor workspace or admin to prevent blocking tools & sidebars
+  if (pathname?.startsWith('/dashboard/essay/') || pathname?.startsWith('/admin')) {
+    return null
   }
 
   return (
