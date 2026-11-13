@@ -66,7 +66,7 @@ export default function FeatureHeader({
   // Default: Signature Warm Golden Honeycomb Card (Identical to "Lanjutkan Essay-mu" on Home)
   return (
     <div
-      className="rounded-3xl p-6 md:p-8 relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8 shadow-md transition-all"
+      className="feature-header-golden rounded-3xl p-6 md:p-8 relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8 shadow-md transition-all text-slate-950"
       style={{
         background: 'linear-gradient(135deg, #fffbeb 0%, #fef08a 40%, #ffd400 100%)',
       }}
@@ -86,10 +86,16 @@ export default function FeatureHeader({
       />
 
       <div className="relative z-10 max-w-xl">
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 mb-1.5">
+        <h1
+          className="text-2xl md:text-3xl font-black tracking-tight mb-1.5"
+          style={{ color: '#0f172a' }}
+        >
           {title}
         </h1>
-        <p className="text-sm font-medium leading-relaxed text-gray-800/85 mb-4 max-w-lg">
+        <p
+          className="text-sm font-semibold leading-relaxed mb-4 max-w-lg"
+          style={{ color: 'rgba(15, 23, 42, 0.85)' }}
+        >
           {subtitle}
         </p>
         {children && <div className="mt-2 flex flex-wrap gap-2.5">{children}</div>}

@@ -271,7 +271,7 @@ export default function Sidebar() {
             <img src="/favicon.png" alt="otwptn" className="transition-transform hover:scale-105" style={{ width: 32, height: 32 }} />
           ) : (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img src="/logo.png" alt="otwptn" className="logo-adaptive transition-transform hover:scale-105" style={{ height: 40, width: 'auto' }} />
+            <img src={isDark ? '/logo-dark.png' : '/logo.png'} alt="otwptn" className="logo-adaptive transition-transform hover:scale-105" style={{ height: 40, width: 'auto' }} />
           )}
         </Link>
         <button
@@ -726,7 +726,7 @@ export default function Sidebar() {
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14" style={{ background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="otwptn" className="logo-adaptive" style={{ height: 39, width: 'auto' }} />
+        <img src={isDark ? '/logo-dark.png' : '/logo.png'} alt="otwptn" className="logo-adaptive" style={{ height: 39, width: 'auto' }} />
         <button onClick={() => setMobileOpen(true)} aria-label="Buka menu" style={{ color: 'var(--fg)' }}>
           <Menu size={22} />
         </button>

@@ -200,7 +200,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
         {/* Card 1: Lanjutkan Essay-mu (Golden Amber Luxury Pattern) */}
         <div
-          className="lg:col-span-2 rounded-3xl p-7 md:p-8 relative overflow-hidden flex flex-col justify-between min-h-[230px] shadow-md transition-all hover:shadow-lg"
+          className="feature-header-golden lg:col-span-2 rounded-3xl p-7 md:p-8 relative overflow-hidden flex flex-col justify-between min-h-[230px] shadow-md transition-all hover:shadow-lg text-slate-950"
           style={{
             background: 'linear-gradient(135deg, #fffbeb 0%, #fef08a 40%, #ffd400 100%)',
           }}

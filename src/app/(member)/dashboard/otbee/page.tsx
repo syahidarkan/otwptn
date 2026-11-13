@@ -233,21 +233,21 @@ export default function OtbeePage() {
             animate={{ opacity: 1, x: 0, width: 288 }}
             exit={{ opacity: 0, x: -20, width: 0 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="hidden md:flex flex-col flex-shrink-0 rounded-3xl backdrop-blur-2xl bg-white/80 border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-4 relative z-10 overflow-hidden"
+            className="hidden md:flex flex-col flex-shrink-0 rounded-3xl backdrop-blur-2xl bg-white/80 dark:bg-[#16171b]/95 border border-white/80 dark:border-[#27272a] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-4 relative z-10 overflow-hidden text-slate-800 dark:text-slate-100"
           >
             {/* Sidebar Header */}
-            <div className="flex items-center justify-between pb-3 px-1 border-b border-gray-100">
+            <div className="flex items-center justify-between pb-3 px-1 border-b border-gray-100 dark:border-[#27272a]">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-amber-400/20 flex items-center justify-center text-amber-700">
+                <div className="w-7 h-7 rounded-xl bg-amber-400/20 flex items-center justify-center text-amber-700 dark:text-amber-400">
                   <MessageSquare size={15} />
                 </div>
-                <h2 className="text-xs font-black uppercase tracking-wider text-gray-900">
+                <h2 className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-white">
                   Riwayat Diskusi
                 </h2>
               </div>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="w-7 h-7 rounded-xl flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-100/80 transition-colors cursor-pointer"
+                className="w-7 h-7 rounded-xl flex items-center justify-center text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-[#23252c] transition-colors cursor-pointer"
                 aria-label="Tutup panel riwayat"
               >
                 <PanelLeftClose size={15} />
@@ -271,7 +271,7 @@ export default function OtbeePage() {
                 value={search}
                 onChange={setSearch}
                 placeholder="Cari topik diskusi..."
-                className="w-full !rounded-2xl !bg-gray-50/80 !border-gray-200/80 !text-xs !py-2"
+                className="w-full !rounded-2xl !bg-gray-50/80 dark:!bg-[#22242b] !border-gray-200/80 dark:!border-[#2e313c] !text-xs !py-2 text-slate-900 dark:text-white"
               />
             </div>
 
@@ -280,12 +280,12 @@ export default function OtbeePage() {
               {loading ? (
                 <div className="text-center py-10 space-y-2">
                   <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto" />
-                  <p className="text-[11px] font-bold text-gray-400">Memuat riwayat...</p>
+                  <p className="text-[11px] font-bold text-gray-400 dark:text-slate-500">Memuat riwayat...</p>
                 </div>
               ) : filteredConversations.length === 0 ? (
                 <div className="text-center py-10 px-4 space-y-1">
-                  <p className="text-xs font-bold text-gray-500">Belum ada obrolan</p>
-                  <p className="text-[10px] text-gray-400">Tanyakan apapun seputar strategi lolos PTN impianmu.</p>
+                  <p className="text-xs font-bold text-gray-500 dark:text-slate-400">Belum ada obrolan</p>
+                  <p className="text-[10px] text-gray-400 dark:text-slate-500">Tanyakan apapun seputar strategi lolos PTN impianmu.</p>
                 </div>
               ) : (
                 filteredConversations.map(c => (
@@ -294,8 +294,8 @@ export default function OtbeePage() {
                     onClick={() => openConversation(c)}
                     className={`w-full text-left px-3.5 py-2.5 rounded-2xl text-xs transition-all flex items-center justify-between gap-2 cursor-pointer ${
                       activeId === c.id
-                        ? 'bg-amber-400/20 text-amber-950 font-black border border-amber-400/40 shadow-xs'
-                        : 'text-gray-700 hover:bg-gray-100/70 font-semibold'
+                        ? 'bg-amber-400/20 text-amber-950 dark:text-amber-300 font-black border border-amber-400/40 shadow-xs'
+                        : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100/70 dark:hover:bg-[#23252c] font-semibold'
                     }`}
                   >
                     <span className="truncate flex-1">{c.title || 'Percakapan Baru'}</span>
@@ -308,7 +308,7 @@ export default function OtbeePage() {
             </div>
 
             {/* Sidebar Footer Badge */}
-            <div className="pt-3 border-t border-gray-100 flex items-center gap-2 text-[10px] text-gray-500 font-bold">
+            <div className="pt-3 border-t border-gray-100 dark:border-[#27272a] flex items-center gap-2 text-[10px] text-gray-500 dark:text-slate-400 font-bold">
               <ShieldCheck size={13} className="text-emerald-500 flex-shrink-0" />
               <span>Privasi data & draft esai terenkripsi aman</span>
             </div>
@@ -317,14 +317,14 @@ export default function OtbeePage() {
       </AnimatePresence>
 
       {/* Main chat arena - Glassmorphic Container */}
-      <div className="flex-1 min-w-0 flex flex-col rounded-3xl backdrop-blur-2xl bg-white/80 border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.05)] overflow-hidden relative z-10">
+      <div className="flex-1 min-w-0 flex flex-col rounded-3xl backdrop-blur-2xl bg-white/80 dark:bg-[#16171b]/95 border border-white/80 dark:border-[#27272a] shadow-[0_8px_30px_rgb(0,0,0,0.05)] overflow-hidden relative z-10 text-slate-800 dark:text-slate-100">
         {/* Sleek Topbar */}
-        <div className="flex items-center justify-between px-5 md:px-7 py-3.5 border-b border-gray-100/80 bg-white/60 backdrop-blur-md">
+        <div className="flex items-center justify-between px-5 md:px-7 py-3.5 border-b border-gray-100/80 dark:border-[#27272a] bg-white/60 dark:bg-[#1a1b22]/90 backdrop-blur-md">
           <div className="flex items-center gap-3">
             {!sidebarOpen && (
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="hidden md:flex w-8 h-8 rounded-xl items-center justify-center text-gray-500 hover:text-black hover:bg-gray-100 transition-colors cursor-pointer"
+                className="hidden md:flex w-8 h-8 rounded-xl items-center justify-center text-gray-500 dark:text-slate-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#23252c] transition-colors cursor-pointer"
                 aria-label="Buka panel riwayat"
                 title="Buka Riwayat Diskusi"
               >
@@ -342,20 +342,20 @@ export default function OtbeePage() {
                   className="object-contain drop-shadow"
                 />
               </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white ring-1 ring-emerald-500/20" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white dark:border-[#16171b] ring-1 ring-emerald-500/20" />
             </div>
 
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-black text-gray-900 tracking-tight">Otbee AI</span>
-                <span className="px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-900 text-[10px] font-black uppercase tracking-wider border border-amber-400/30">
+                <span className="text-sm font-black text-gray-900 dark:text-white tracking-tight">Otbee AI</span>
+                <span className="px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-900 dark:text-amber-300 text-[10px] font-black uppercase tracking-wider border border-amber-400/30">
                   Tutor SNBP & UTBK
                 </span>
               </div>
-              <p className="text-[11px] font-bold text-gray-500 flex items-center gap-1.5 mt-0.5">
+              <p className="text-[11px] font-bold text-gray-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
                 <span>Rasionalisasi Nilai & Pembimbing Esai</span>
-                <span className="w-1 h-1 rounded-full bg-gray-300" />
-                <span className="text-emerald-600 font-black">Aktif Siaga</span>
+                <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-zinc-600" />
+                <span className="text-emerald-600 dark:text-emerald-400 font-black">Aktif Siaga</span>
               </p>
             </div>
           </div>
@@ -363,7 +363,7 @@ export default function OtbeePage() {
           <div className="flex items-center gap-2">
             <button
               onClick={startNew}
-              className="px-3 py-1.5 rounded-xl bg-gray-100/80 hover:bg-gray-200/80 text-gray-700 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-gray-100/80 dark:bg-[#23252c] hover:bg-gray-200/80 dark:hover:bg-[#2e313c] text-gray-700 dark:text-slate-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
             >
               <RotateCcw size={13} />
               <span className="hidden sm:inline">Reset Sesi</span>
@@ -394,10 +394,10 @@ export default function OtbeePage() {
                   </div>
                 </motion.div>
 
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
                   Halo Pejuang PTN! Ada yang mau kamu diskusikan?
                 </h1>
-                <p className="text-xs sm:text-sm font-semibold text-gray-600 max-w-xl mx-auto leading-relaxed">
+                <p className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-slate-300 max-w-xl mx-auto leading-relaxed">
                   Otbee siap bantu cek rasionalisasi nilai rapor, bedah struktur esai motivasi, hingga strategi memilih kombinasi prodi pilihan 1 & 2.
                 </p>
               </div>
@@ -409,7 +409,7 @@ export default function OtbeePage() {
                   return (
                     <div
                       key={idx}
-                      className="rounded-2xl p-4 bg-white/70 backdrop-blur-md border border-white/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-3"
+                      className="rounded-2xl p-4 bg-white/70 dark:bg-[#1e2028] backdrop-blur-md border border-white/90 dark:border-[#2e313d] shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-3"
                     >
                       <div className="flex items-center gap-2">
                         <div
@@ -417,7 +417,7 @@ export default function OtbeePage() {
                         >
                           <Icon size={14} className="stroke-[2.5]" />
                         </div>
-                        <h3 className="text-xs font-black text-gray-900 truncate">{cat.category}</h3>
+                        <h3 className="text-xs font-black text-gray-900 dark:text-white truncate">{cat.category}</h3>
                       </div>
 
                       <div className="space-y-2">
@@ -425,12 +425,12 @@ export default function OtbeePage() {
                           <button
                             key={pIdx}
                             onClick={() => handleSend(p)}
-                            className="w-full text-left p-2.5 rounded-xl bg-gray-50/80 hover:bg-amber-50 text-gray-800 text-[11px] font-bold leading-snug border border-gray-200/50 hover:border-amber-300 transition-all flex items-start justify-between gap-1 group cursor-pointer"
+                            className="w-full text-left p-2.5 rounded-xl bg-gray-50/80 dark:bg-[#252834] hover:bg-amber-50 dark:hover:bg-amber-950/40 text-gray-800 dark:text-slate-200 text-[11px] font-bold leading-snug border border-gray-200/50 dark:border-[#353846] hover:border-amber-300 dark:hover:border-amber-600/50 transition-all flex items-start justify-between gap-1 group cursor-pointer"
                           >
                             <span>{p}</span>
                             <ArrowRight
                               size={12}
-                              className="text-gray-400 group-hover:text-amber-600 flex-shrink-0 mt-0.5 transition-transform group-hover:translate-x-0.5"
+                              className="text-gray-400 dark:text-slate-500 group-hover:text-amber-600 dark:group-hover:text-amber-400 flex-shrink-0 mt-0.5 transition-transform group-hover:translate-x-0.5"
                             />
                           </button>
                         ))}
@@ -465,7 +465,7 @@ export default function OtbeePage() {
                       className={`text-xs sm:text-sm leading-relaxed px-5 py-4 whitespace-pre-wrap ${
                         m.role === 'user'
                           ? 'bg-gradient-to-r from-amber-400 via-amber-400 to-amber-500 text-gray-950 font-bold rounded-3xl rounded-tr-xs shadow-md shadow-amber-400/10'
-                          : 'backdrop-blur-xl bg-white/95 border border-white/90 text-gray-900 rounded-3xl rounded-tl-xs shadow-sm font-medium'
+                          : 'backdrop-blur-xl bg-white/95 dark:bg-[#1e2028] border border-white/90 dark:border-[#2e313d] text-gray-900 dark:text-slate-100 rounded-3xl rounded-tl-xs shadow-sm font-medium'
                       }`}
                     >
                       {m.content}
@@ -475,16 +475,16 @@ export default function OtbeePage() {
                     {m.role === 'assistant' && (
                       <button
                         onClick={() => copyToClipboard(m.content, i)}
-                        className="absolute bottom-2 right-2 p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                        className="absolute bottom-2 right-2 p-1.5 rounded-lg bg-gray-100 dark:bg-[#252834] hover:bg-gray-200 dark:hover:bg-[#2e313d] text-gray-500 dark:text-slate-400 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
                         title="Salin jawaban"
                       >
-                        {copiedIdx === i ? <Check size={12} className="text-emerald-600" /> : <Copy size={12} />}
+                        {copiedIdx === i ? <Check size={12} className="text-emerald-600 dark:text-emerald-400" /> : <Copy size={12} />}
                       </button>
                     )}
                   </div>
 
                   {m.role === 'user' && (
-                    <div className="w-8 h-8 rounded-2xl bg-gray-900 text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">
+                    <div className="w-8 h-8 rounded-2xl bg-gray-900 dark:bg-amber-400 text-white dark:text-amber-950 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs font-black">
                       <User size={15} />
                     </div>
                   )}
@@ -503,7 +503,7 @@ export default function OtbeePage() {
                       className="object-contain animate-pulse"
                     />
                   </div>
-                  <div className="max-w-[85%] sm:max-w-[78%] backdrop-blur-xl bg-white/95 border border-white/90 text-gray-900 rounded-3xl rounded-tl-xs shadow-sm p-5 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap font-medium">
+                  <div className="max-w-[85%] sm:max-w-[78%] backdrop-blur-xl bg-white/95 dark:bg-[#1e2028] border border-white/90 dark:border-[#2e313d] text-gray-900 dark:text-slate-100 rounded-3xl rounded-tl-xs shadow-sm p-5 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap font-medium">
                     {streamingText}
                     <span className="inline-block w-1.5 h-4 bg-amber-500 ml-1 animate-pulse" />
                   </div>
@@ -522,7 +522,7 @@ export default function OtbeePage() {
                       className="object-contain animate-bounce"
                     />
                   </div>
-                  <div className="px-4 py-3 rounded-2xl bg-white/90 border border-white/90 shadow-sm text-gray-600 text-xs font-bold flex items-center gap-2">
+                  <div className="px-4 py-3 rounded-2xl bg-white/90 dark:bg-[#1e2028] border border-white/90 dark:border-[#2e313d] shadow-sm text-gray-600 dark:text-slate-300 text-xs font-bold flex items-center gap-2">
                     <span className="flex gap-1">
                       <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="w-2 h-2 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -537,7 +537,7 @@ export default function OtbeePage() {
         </div>
 
         {/* Input Bar Dock - Elevated Glass Floating Capsule */}
-        <div className="px-4 sm:px-6 md:px-8 pb-4 pt-2 bg-gradient-to-t from-white via-white/90 to-transparent">
+        <div className="px-4 sm:px-6 md:px-8 pb-4 pt-2 bg-gradient-to-t from-white via-white/90 to-transparent dark:from-[#16171b] dark:via-[#16171b]/90 dark:to-transparent">
           <div className="max-w-3xl mx-auto">
             {quotaError ? (
               <div className="flex items-center justify-between gap-3 p-4 rounded-3xl bg-amber-400/15 border border-amber-400/40 shadow-sm">
@@ -546,8 +546,8 @@ export default function OtbeePage() {
                     <Lock size={15} />
                   </div>
                   <div>
-                    <h4 className="text-xs font-black text-gray-950">Kuota Harian Otbee AI Habis</h4>
-                    <p className="text-[11px] text-gray-700 font-semibold">
+                    <h4 className="text-xs font-black text-gray-950 dark:text-white">Kuota Harian Otbee AI Habis</h4>
+                    <p className="text-[11px] text-gray-700 dark:text-slate-300 font-semibold">
                       Akun Free memiliki kuota terbatas. Upgrade ke Akun Premium untuk akses tanpa batas.
                     </p>
                   </div>
@@ -560,7 +560,7 @@ export default function OtbeePage() {
                 </Link>
               </div>
             ) : (
-              <div className="rounded-3xl backdrop-blur-2xl bg-white/95 border border-gray-200/80 shadow-[0_12px_40px_rgba(0,0,0,0.08)] p-2 transition-all focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-400/20">
+              <div className="rounded-3xl backdrop-blur-2xl bg-white/95 dark:bg-[#1e2028] border border-gray-200/80 dark:border-[#2e313d] shadow-[0_12px_40px_rgba(0,0,0,0.08)] p-2 transition-all focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-400/20">
                 <div className="flex items-end gap-2 px-2 py-1">
                   <textarea
                     ref={textareaRef}
@@ -579,7 +579,7 @@ export default function OtbeePage() {
                     }}
                     placeholder="Tulis pertanyaanmu seputar SNBP, essay, rapor, atau UTBK..."
                     disabled={sending}
-                    className="flex-1 bg-transparent text-xs sm:text-sm font-semibold outline-none text-gray-900 placeholder:text-gray-400 resize-none max-h-28 py-1.5 leading-relaxed"
+                    className="flex-1 bg-transparent text-xs sm:text-sm font-semibold outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 resize-none max-h-28 py-1.5 leading-relaxed"
                   />
 
                   <button
@@ -594,7 +594,7 @@ export default function OtbeePage() {
               </div>
             )}
 
-            <div className="flex items-center justify-center gap-2 mt-2 text-[10px] text-gray-400 font-bold">
+            <div className="flex items-center justify-center gap-2 mt-2 text-[10px] text-gray-400 dark:text-slate-500 font-bold">
               <span>Otbee ditenagai kecerdasan buatan & bank data rasionalisasi PTN 2026/2027</span>
             </div>
           </div>

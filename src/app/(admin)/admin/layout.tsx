@@ -97,7 +97,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex items-center justify-between px-5 pt-6 pb-5 flex-shrink-0">
         <Link href="/admin" className="flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="otwptn" className="logo-adaptive transition-transform hover:scale-105" style={{ height: 45, width: 'auto' }} />
+          <img src={isDark ? '/logo-dark.png' : '/logo.png'} alt="otwptn" className="logo-adaptive transition-transform hover:scale-105" style={{ height: 45, width: 'auto' }} />
           <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-400 text-amber-950 uppercase tracking-wider">
             Admin
           </span>
@@ -206,7 +206,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <Link href="/admin" className="flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="otwptn" className="logo-adaptive" style={{ height: 26, width: 'auto' }} />
+          <img src={isDark ? '/logo-dark.png' : '/logo.png'} alt="otwptn" className="logo-adaptive" style={{ height: 26, width: 'auto' }} />
           <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-400 text-amber-950 uppercase">
             Admin
           </span>
