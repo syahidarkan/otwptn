@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
-import Image from 'next/image'
 import {
   X, Send, Sparkles, ShieldCheck, Mail, Bot
 } from 'lucide-react'
+import { OtbeeVectorHead, default as OtbeeVectorMascot } from '@/components/mascot/OtbeeVectorMascot'
 
 interface Message {
   id: string
@@ -257,30 +257,14 @@ export default function CustomerServiceWidget() {
               }}
             />
 
-            {/* Inner Circular Frame cropping strictly to Otbee's HEAD (No neck/torso) */}
+            {/* Inner Circular Frame with pure vector Otbee HEAD (strictly no neck/torso) */}
             <div
-              className="relative w-14 h-14 rounded-full bg-gradient-to-b from-amber-50 to-amber-100/90 overflow-hidden border-2 border-white/95 shadow-inner flex items-center justify-center"
+              className="relative w-14 h-14 rounded-full bg-gradient-to-b from-amber-50 to-amber-100/90 overflow-hidden border-2 border-white/95 shadow-inner flex items-center justify-center p-1"
               style={{
                 animation: 'otbee-head-bob 3.2s ease-in-out infinite',
               }}
             >
-              <div
-                className="relative w-16 h-16 pointer-events-none"
-                style={{
-                  marginTop: '12px', // Shift up so only head/goggles/eyes/antennae are framed
-                  transform: 'scale(1.22)',
-                }}
-              >
-                <Image
-                  src="/mascot-hd/otbee-logo-head.png"
-                  alt="Otbee Head"
-                  width={64}
-                  height={64}
-                  className="w-full h-full object-contain object-top"
-                  priority
-                  unoptimized
-                />
-              </div>
+              <OtbeeVectorHead size={46} />
             </div>
 
             {/* Online Green Pulsing Indicator */}
@@ -305,22 +289,14 @@ export default function CustomerServiceWidget() {
               <span className="text-xl">⭐</span>
             </div>
 
-            {/* Full Otbee Performing Salto */}
+            {/* Full Vector Otbee Performing Salto */}
             <div
               className="relative w-24 h-24"
               style={{
                 animation: 'otbee-salto-anim 0.85s cubic-bezier(0.25, 1, 0.5, 1) forwards',
               }}
             >
-              <Image
-                src="/mascot-hd/maskot-lolos-ptn-loncat.png"
-                alt="Otbee Salto"
-                width={96}
-                height={96}
-                className="w-full h-full object-contain"
-                priority
-                unoptimized
-              />
+              <OtbeeVectorMascot pov="front" action="salto" size={96} />
             </div>
           </div>
         )}
@@ -371,19 +347,8 @@ export default function CustomerServiceWidget() {
                 {/* 2D Otbee CS Avatar Badge (Dissolved target from salto) */}
                 <div
                   className="relative w-20 h-20 rounded-2xl bg-gradient-to-b from-white via-amber-50 to-amber-100/70 p-1 shadow-md border-2 border-white flex-shrink-0 overflow-hidden flex items-center justify-center"
-                  style={{
-                    animation: 'otbee-head-bob 3s ease-in-out infinite',
-                  }}
                 >
-                  <Image
-                    src="/mascot-hd/support-headset.png"
-                    alt="Otbee CS 2D"
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-contain filter drop-shadow-sm"
-                    priority
-                    unoptimized
-                  />
+                  <OtbeeVectorMascot pov="front" action="wave" size={72} />
                   <div className="absolute bottom-1 right-1">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 block border-2 border-white shadow-xs" />
                   </div>
@@ -414,14 +379,7 @@ export default function CustomerServiceWidget() {
                 >
                   {msg.role === 'assistant' && (
                     <div className="w-7 h-7 rounded-full bg-amber-100 p-0.5 flex-shrink-0 flex items-center justify-center shadow-3xs overflow-hidden">
-                      <Image
-                        src="/mascot-hd/otbee-logo-head.png"
-                        alt="Otbee"
-                        width={28}
-                        height={28}
-                        className="w-full h-full object-contain"
-                        unoptimized
-                      />
+                      <OtbeeVectorHead size={24} />
                     </div>
                   )}
 
@@ -448,14 +406,7 @@ export default function CustomerServiceWidget() {
               {isTyping && (
                 <div className="flex gap-2.5 items-center">
                   <div className="w-7 h-7 rounded-full bg-amber-100 p-0.5 flex-shrink-0 flex items-center justify-center overflow-hidden">
-                    <Image
-                      src="/mascot-hd/otbee-logo-head.png"
-                      alt="Otbee"
-                      width={28}
-                      height={28}
-                      className="w-full h-full object-contain"
-                      unoptimized
-                    />
+                    <OtbeeVectorHead size={24} />
                   </div>
                   <div className="bg-white rounded-2xl p-3 rounded-tl-none border border-gray-100 shadow-xs flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" />

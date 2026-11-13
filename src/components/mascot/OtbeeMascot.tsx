@@ -1,7 +1,7 @@
 'use client'
 
-import Image from 'next/image'
-import { useState, useEffect, useId } from 'react'
+import React from 'react'
+import OtbeeVectorMascot, { MascotPOV, MascotPoseAction } from './OtbeeVectorMascot'
 
 export type OtbeeAnimation =
   | 'idle'
@@ -17,6 +17,8 @@ export type OtbeeAnimation =
 
 export interface OtbeeMascotProps {
   pose?: string
+  pov?: MascotPOV
+  action?: MascotPoseAction
   size?: number
   animation?: OtbeeAnimation
   className?: string
@@ -25,124 +27,55 @@ export interface OtbeeMascotProps {
   onHover?: () => void
 }
 
-const KEYFRAMES = `
-@keyframes otbee-idle-float {
-  0%, 100% { transform: translateY(0px) rotate(-1deg) scale(1); }
-  50% { transform: translateY(-10px) rotate(1.5deg) scale(1.02); }
-}
-@keyframes otbee-bounce {
-  0% { transform: translateY(0) scaleX(1) scaleY(1); }
-  20% { transform: translateY(-18px) scaleX(0.95) scaleY(1.08); }
-  40% { transform: translateY(0px) scaleX(1.1) scaleY(0.9); }
-  55% { transform: translateY(-8px) scaleX(0.98) scaleY(1.04); }
-  70% { transform: translateY(0px) scaleX(1.04) scaleY(0.97); }
-  85% { transform: translateY(-3px) scaleX(1) scaleY(1); }
-  100% { transform: translateY(0) scaleX(1) scaleY(1); }
-}
-@keyframes otbee-shake {
-  0%, 100% { transform: translateX(0) rotate(0deg); }
-  15% { transform: translateX(-8px) rotate(-3deg); }
-  30% { transform: translateX(8px) rotate(3deg); }
-  45% { transform: translateX(-6px) rotate(-2deg); }
-  60% { transform: translateX(6px) rotate(2deg); }
-  75% { transform: translateX(-3px) rotate(-1deg); }
-  90% { transform: translateX(3px) rotate(1deg); }
-}
-@keyframes otbee-spin {
-  0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(180deg) scale(1.1); }
-  100% { transform: rotate(360deg) scale(1); }
-}
-@keyframes otbee-wave {
-  0%, 100% { transform: rotate(0deg) translateY(0); }
-  20% { transform: rotate(-12deg) translateY(-4px); }
-  40% { transform: rotate(12deg) translateY(-6px); }
-  60% { transform: rotate(-8deg) translateY(-3px); }
-  80% { transform: rotate(8deg) translateY(-2px); }
-}
-@keyframes otbee-jump {
-  0% { transform: translateY(0) scaleX(1) scaleY(1); }
-  15% { transform: translateY(4px) scaleX(1.12) scaleY(0.88); }
-  35% { transform: translateY(-30px) scaleX(0.92) scaleY(1.1); }
-  55% { transform: translateY(-30px) scaleX(0.92) scaleY(1.1); }
-  70% { transform: translateY(0px) scaleX(1.14) scaleY(0.86); }
-  82% { transform: translateY(-10px) scaleX(0.97) scaleY(1.05); }
-  92% { transform: translateY(0px) scaleX(1.05) scaleY(0.96); }
-  100% { transform: translateY(0) scaleX(1) scaleY(1); }
-}
-@keyframes otbee-salto {
-  0% { transform: translateY(0) rotate(0deg) scale(1); }
-  15% { transform: translateY(8px) rotate(-12deg) scaleX(1.22) scaleY(0.78); }
-  45% { transform: translateY(-75px) rotate(190deg) scaleX(0.88) scaleY(1.18); }
-  70% { transform: translateY(-65px) rotate(320deg) scale(0.95); }
-  85% { transform: translateY(-10px) rotate(360deg) scaleX(0.96) scaleY(1.06); }
-  93% { transform: translateY(0) rotate(360deg) scaleX(1.2) scaleY(0.8); }
-  100% { transform: translateY(0) rotate(360deg) scale(1); }
-}
-@keyframes otbee-celebrate {
-  0% { transform: rotate(0deg) translateY(0) scale(1); }
-  20% { transform: rotate(180deg) translateY(-15px) scale(1.08); }
-  40% { transform: rotate(360deg) translateY(0px) scale(1); }
-  55% { transform: rotate(360deg) translateY(-10px) scaleX(0.95) scaleY(1.08); }
-  70% { transform: rotate(360deg) translateY(0px) scaleX(1.1) scaleY(0.9); }
-  85% { transform: rotate(360deg) translateY(-4px) scale(1); }
-  100% { transform: rotate(360deg) translateY(0) scale(1); }
-}
-@keyframes otbee-thinking {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  25% { transform: translateY(-5px) rotate(2deg); }
-  50% { transform: translateY(-3px) rotate(-3deg); }
-  75% { transform: translateY(-6px) rotate(1deg); }
-}
-@keyframes otbee-wing-flutter {
-  0%, 100% { transform: scaleX(1); }
-  25% { transform: scaleX(0.88); }
-  50% { transform: scaleX(1.05); }
-  75% { transform: scaleX(0.92); }
-}
-@keyframes otbee-slide-in {
-  from { transform: translateY(60px) scale(0.7); opacity: 0; }
-  to { transform: translateY(0) scale(1); opacity: 1; }
-}
-`
+/**
+ * Maps legacy pose names / strings to vector POV
+ */
+function mapPoseToPOV(pose?: string, explicitPov?: MascotPOV): MascotPOV {
+  if (explicitPov) return explicitPov
+  if (!pose) return 'front'
 
-const ANIMATION_STYLES: Record<OtbeeAnimation, React.CSSProperties> = {
-  idle: {
-    animation: 'otbee-idle-float 3s ease-in-out infinite',
-  },
-  bounce: {
-    animation: 'otbee-bounce 1.2s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite',
-  },
-  shake: {
-    animation: 'otbee-shake 0.6s ease-in-out infinite',
-  },
-  spin: {
-    animation: 'otbee-spin 1s ease-in-out infinite',
-  },
-  wave: {
-    animation: 'otbee-wave 1.5s ease-in-out infinite',
-    transformOrigin: 'bottom center',
-  },
-  jump: {
-    animation: 'otbee-jump 1.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite',
-    transformOrigin: 'bottom center',
-  },
-  salto: {
-    animation: 'otbee-salto 0.85s cubic-bezier(0.34, 1.3, 0.64, 1) both',
-    transformOrigin: 'center center',
-  },
-  celebrate: {
-    animation: 'otbee-celebrate 1.6s ease-in-out infinite',
-    transformOrigin: 'center',
-  },
-  thinking: {
-    animation: 'otbee-thinking 4s ease-in-out infinite',
-  },
-  none: {},
+  const p = pose.toLowerCase()
+  if (p.includes('kanan') || p.includes('right')) return 'right'
+  if (p.includes('kiri') || p.includes('left')) return 'left'
+  if (p.includes('belakang') || p.includes('back')) return 'back'
+  if (p.includes('atas') || p.includes('top')) return 'top'
+  if (p.includes('bawah') || p.includes('bottom')) return 'bottom'
+  if (p.includes('tiga-perempat') || p.includes('3-4') || p.includes('3/4')) return '3/4'
+  return 'front'
 }
 
+/**
+ * Maps animation types to vector actions
+ */
+function mapAnimationToAction(anim?: OtbeeAnimation, explicitAction?: MascotPoseAction): MascotPoseAction {
+  if (explicitAction) return explicitAction
+  if (!anim) return 'idle'
+
+  switch (anim) {
+    case 'bounce':
+    case 'jump':
+      return 'bounce'
+    case 'salto':
+      return 'salto'
+    case 'wave':
+      return 'wave'
+    case 'celebrate':
+      return 'cheer'
+    case 'thinking':
+      return 'thinking'
+    default:
+      return 'idle'
+  }
+}
+
+/**
+ * Pure Hardcoded 2D Otbee Mascot
+ * Zero PNGs, 100% procedural SVG, responsive to all POVs & animations.
+ */
 export default function OtbeeMascot({
   pose = 'maskot-pov-depan-front',
+  pov,
+  action,
   size = 120,
   animation = 'idle',
   className = '',
@@ -150,66 +83,19 @@ export default function OtbeeMascot({
   onClick,
   onHover,
 }: OtbeeMascotProps) {
-  const [hovered, setHovered] = useState(false)
-  const uid = useId().replace(/:/g, '')
-
-  const animStyle = ANIMATION_STYLES[animation] ?? {}
-
-  const hoverScale: React.CSSProperties = hovered
-    ? { transform: 'scale(1.08)', transition: 'transform 0.2s ease' }
-    : {}
+  const resolvedPOV = mapPoseToPOV(pose, pov)
+  const resolvedAction = mapAnimationToAction(animation, action)
 
   return (
-    <>
-      <style>{KEYFRAMES}</style>
-      <div
-        id={`otbee-${uid}`}
-        className={`relative inline-block select-none cursor-${onClick ? 'pointer' : 'default'} ${className}`}
-        style={{
-          width: size,
-          height: size,
-          ...style,
-        }}
-        onMouseEnter={() => { setHovered(true); onHover?.() }}
-        onMouseLeave={() => setHovered(false)}
-        onClick={onClick}
-      >
-        {/* Wing flutter overlay */}
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            inset: 0,
-            animation: 'otbee-wing-flutter 0.4s ease-in-out infinite',
-            pointerEvents: 'none',
-            zIndex: 1,
-          }}
-        />
-        {/* Main sprite */}
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            ...animStyle,
-            ...(hovered && animation === 'none' ? hoverScale : {}),
-          }}
-        >
-          <Image
-            src={`/mascot-hd/${pose}.png`}
-            alt="Otbee mascot"
-            width={size}
-            height={size}
-            priority={false}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              ...(hovered ? { transform: 'scale(1.08)', transition: 'transform 0.2s ease' } : {}),
-            }}
-            unoptimized
-          />
-        </div>
-      </div>
-    </>
+    <OtbeeVectorMascot
+      pov={resolvedPOV}
+      action={resolvedAction}
+      size={size}
+      className={className}
+      style={style}
+      onClick={onClick}
+      onHover={onHover}
+    />
   )
 }
+export { OtbeeVectorMascot }

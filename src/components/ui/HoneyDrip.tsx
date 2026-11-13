@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
+import { forwardRef, useEffect, useRef } from 'react'
 
 interface HoneyDripProps {
   mode?: 'separator' | 'fullscreen'
@@ -60,6 +60,7 @@ const FULL_DRIPS: DripDef[] = [
   { cx: 1050, hw: 52, len: 148 },
   { cx: 1150, hw: 48, len: 136 },
 ]
+const FULL_BOTTOM_PATH = honeyBottomPath(FULL_DRIPS, 1200, BRIDGE_H)
 
 export default function HoneyDrip({ mode = 'separator', className = '', height = 90 }: HoneyDripProps) {
   if (mode === 'fullscreen') return null
@@ -84,295 +85,354 @@ export default function HoneyDrip({ mode = 'separator', className = '', height =
 }
 
 export const HONEY_DRIP_H = 170
-// kept for any existing imports
-const _HONEY_VB_H = BRIDGE_H + 168
-void _HONEY_VB_H
-
-// ---------------------------------------------------------------------------
-// Canvas 2D drip drawing helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Draw the honey shape on a 2D canvas.
- *
- * @param ctx         - Canvas 2D context (ctx.setTransform already applied for DPR)
- * @param cw          - logical canvas width  (physical / dpr)
- * @param ch          - logical canvas height (physical / dpr)
- * @param baseY       - Y of the flat body bottom edge (drips hang below this)
- * @param waveProg    - progress 0..1 for drip-wave oscillation
- * @param sheenOffset - 0..1 offset for sheen movement
- */
-function drawHoney(
-  ctx: CanvasRenderingContext2D,
-  cw: number,
-  ch: number,
-  baseY: number,
-  waveProg: number,
-  sheenOffset: number,
-) {
-  ctx.save()
-
-  const scale = cw / 1200
-
-  // Build the fill path: top-left -> top-right -> along baseY with drips -> close
-  ctx.beginPath()
-  ctx.moveTo(0, 0)
-  ctx.lineTo(cw, 0)
-  ctx.lineTo(cw, baseY)
-
-  // Draw drips right-to-left so winding is consistent for fill
-  const sorted = [...FULL_DRIPS].sort((a, b) => b.cx - a.cx)
-  for (const { cx, hw, len } of sorted) {
-    const phase  = (cx / 1200) * Math.PI * 2
-    const wobble = Math.sin(waveProg * Math.PI * 2 + phase) * len * 0.07
-
-    const sCx  = cx * scale
-    const sHw  = hw * scale
-    const sLen = (len + wobble) * scale
-
-    const nw   = sHw * 0.38
-    const ny   = baseY + sLen * 0.27
-    const bw   = sHw * 0.92
-    const by   = baseY + sLen * 0.65
-    const tr   = sHw * 0.11
-    const tipY = baseY + sLen
-
-    ctx.lineTo(sCx + sHw, baseY)
-    ctx.bezierCurveTo(sCx+sHw, baseY+sLen*0.06, sCx+nw,  ny-sLen*0.03, sCx+nw,  ny)
-    ctx.bezierCurveTo(sCx+nw,  ny+(by-ny)*0.55,  sCx+bw,  by-5*scale,   sCx+bw,  by)
-    ctx.bezierCurveTo(sCx+bw,  tipY-(tipY-by)*0.20, sCx+tr, tipY-3*scale, sCx,   tipY)
-    ctx.bezierCurveTo(sCx-tr,  tipY-3*scale, sCx-bw, tipY-(tipY-by)*0.20, sCx-bw, by)
-    ctx.bezierCurveTo(sCx-bw,  by-5*scale,   sCx-nw, ny+(by-ny)*0.55,  sCx-nw, ny)
-    ctx.bezierCurveTo(sCx-nw,  ny-sLen*0.03, sCx-sHw, baseY+sLen*0.06, sCx-sHw, baseY)
-  }
-
-  ctx.lineTo(0, baseY)
-  ctx.closePath()
-
-  // Main amber gradient
-  const grad = ctx.createLinearGradient(0, 0, 0, baseY + 20)
-  grad.addColorStop(0,   '#d97706')
-  grad.addColorStop(0.5, '#f59e0b')
-  grad.addColorStop(1,   '#fbbf24')
-  ctx.fillStyle = grad
-  ctx.fill()
-
-  // Drip-edge softening overlay
-  const edgeGrad = ctx.createLinearGradient(0, Math.max(0, baseY - 20), 0, baseY + 60)
-  edgeGrad.addColorStop(0, 'rgba(253,230,138,0)')
-  edgeGrad.addColorStop(0.4, 'rgba(253,230,138,0.25)')
-  edgeGrad.addColorStop(1,   'rgba(253,230,138,0)')
-  ctx.fillStyle = edgeGrad
-  ctx.fill()
-
-  // Sheen stripes clipped to honey shape
-  ctx.save()
-  ctx.clip()
-  const stripeW   = cw * 0.14
-  const stripeGap = cw * 0.46
-  for (let i = 0; i < 2; i++) {
-    const rawX = (sheenOffset * cw * 0.55 + i * stripeGap) % (cw + stripeW) - stripeW
-    ctx.save()
-    ctx.translate(rawX + stripeW / 2, baseY / 2)
-    ctx.rotate(-0.28)
-    const sg = ctx.createLinearGradient(-stripeW / 2, 0, stripeW / 2, 0)
-    sg.addColorStop(0,   'rgba(255,255,255,0)')
-    sg.addColorStop(0.5, 'rgba(255,255,255,0.055)')
-    sg.addColorStop(1,   'rgba(255,255,255,0)')
-    ctx.fillStyle = sg
-    ctx.fillRect(-stripeW / 2, -ch, stripeW, ch * 2)
-    ctx.restore()
-  }
-  ctx.restore()
-
-  // Top gloss bar
-  const glossH = Math.min(baseY, 10)
-  if (glossH > 0) {
-    const glossGrad = ctx.createLinearGradient(0, 0, 0, glossH)
-    glossGrad.addColorStop(0, 'rgba(255,255,255,0.20)')
-    glossGrad.addColorStop(1, 'rgba(255,255,255,0)')
-    ctx.fillStyle = glossGrad
-    ctx.fillRect(0, 0, cw, glossH)
-  }
-
-  ctx.restore()
-}
-
-// ---------------------------------------------------------------------------
-// Animation phases (ms)
-// ---------------------------------------------------------------------------
-const PHASE_FILL_MS  = 600
-const PHASE_HOLD_MS  = 200
-const PHASE_DRAIN_MS = 800
-
-export interface HoneyOverlayHandle {
-  /**
-   * Start the transition. `onRouteReady` is called when the screen is fully
-   * covered (safe to push the new route).
-   */
-  startAnimation: (onRouteReady: () => void) => void
-  /** Call when Next.js confirms the route has committed; kicks off drain. */
-  routeCommitted: () => void
-}
+const HONEY_VB_H = BRIDGE_H + 168
 
 export const HoneyOverlay = forwardRef<
-  HoneyOverlayHandle,
-  { onComplete?: () => void }
+  HTMLDivElement,
+  {
+    isRouteLoaded?: boolean
+    onComplete?: () => void
+    videoRef?: React.Ref<HTMLVideoElement | null>
+    onEnded?: () => void
+    onTimeUpdate?: (time: number) => void
+  }
 >(
-  function HoneyOverlay({ onComplete }, ref) {
-    const canvasRef      = useRef<HTMLCanvasElement | null>(null)
-    const wrapRef        = useRef<HTMLDivElement | null>(null)
-    const rafRef         = useRef(0)
-    const startTimeRef   = useRef(0)
-    const phaseRef       = useRef<'idle' | 'fill' | 'hold' | 'drain'>('idle')
-    const onCompleteRef  = useRef(onComplete)
-    const onRouteReadyRef = useRef<(() => void) | null>(null)
+  function HoneyOverlay({ isRouteLoaded = false, onComplete, videoRef, onEnded, onTimeUpdate }, ref) {
+    const internalVideoRef = useRef<HTMLVideoElement | null>(null)
+    const canvasRef = useRef<HTMLCanvasElement | null>(null)
+    const isRouteLoadedRef = useRef(isRouteLoaded)
+    const onCompleteRef = useRef(onComplete)
+    const onEndedRef = useRef(onEnded)
+    const onTimeUpdateRef = useRef(onTimeUpdate)
+    isRouteLoadedRef.current = isRouteLoaded
     onCompleteRef.current = onComplete
+    onEndedRef.current = onEnded
+    onTimeUpdateRef.current = onTimeUpdate
 
-    function resizeCanvas() {
-      const canvas = canvasRef.current
-      if (!canvas) return
-      const dpr = window.devicePixelRatio || 1
-      canvas.width  = Math.round(window.innerWidth  * dpr)
-      canvas.height = Math.round(window.innerHeight * dpr)
-      canvas.style.width  = `${window.innerWidth}px`
-      canvas.style.height = `${window.innerHeight}px`
-    }
+    // When route loads, ensure video resumes draining smoothly without sticking
+    useEffect(() => {
+      if (!isRouteLoaded) return
+      const video = internalVideoRef.current
+      if (!video) return
+
+      const tryResume = () => {
+        if (!isRouteLoadedRef.current) return
+        if (video.currentTime >= 2.38 || video.ended) {
+          onCompleteRef.current?.()
+          return
+        }
+        video.playbackRate = 1.25
+        if (video.paused) {
+          try {
+            video.play().catch(() => {})
+          } catch {}
+        }
+      }
+
+      tryResume()
+      // Retry briefly in case browser decoder was still finishing pause/seek state
+      const t1 = setTimeout(tryResume, 60)
+      const t2 = setTimeout(tryResume, 180)
+      return () => {
+        clearTimeout(t1)
+        clearTimeout(t2)
+      }
+    }, [isRouteLoaded])
 
     useEffect(() => {
-      resizeCanvas()
-      window.addEventListener('resize', resizeCanvas)
-      return () => window.removeEventListener('resize', resizeCanvas)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    function clearCanvas() {
+      const video = internalVideoRef.current
       const canvas = canvasRef.current
-      if (!canvas) return
-      const ctx = canvas.getContext('2d')
-      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height)
-    }
+      if (!video || !canvas) return
 
-    function stopLoop() {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current)
-        rafRef.current = 0
+      let gl: WebGLRenderingContext | null = null
+      let program: WebGLProgram | null = null
+      let texture: WebGLTexture | null = null
+      let buffer: WebGLBuffer | null = null
+      let uScaleLoc: WebGLUniformLocation | null = null
+      let uOffsetLoc: WebGLUniformLocation | null = null
+      let rafId = 0
+      let rvfcId = 0
+      let isDrawing = false
+
+      try {
+        gl = (canvas.getContext('webgl', {
+          alpha: true,
+          premultipliedAlpha: true,
+          antialias: true,
+        }) || canvas.getContext('experimental-webgl', {
+          alpha: true,
+          premultipliedAlpha: true,
+        })) as WebGLRenderingContext | null
+      } catch {
+        gl = null
       }
-    }
 
-    function runFrame(now: number) {
-      const canvas = canvasRef.current
-      const wrap   = wrapRef.current
-      if (!canvas || !wrap) return
+      if (gl) {
+        const vsSource = `
+          attribute vec2 a_pos;
+          varying vec2 v_uv;
+          uniform vec2 u_scale;
+          uniform vec2 u_offset;
+          void main() {
+            gl_Position = vec4(a_pos, 0.0, 1.0);
+            vec2 uv = (a_pos + 1.0) * 0.5;
+            uv.y = 1.0 - uv.y;
+            v_uv = uv * u_scale + u_offset;
+          }
+        `
+        const fsSource = `
+          precision mediump float;
+          uniform sampler2D u_tex;
+          varying vec2 v_uv;
+          void main() {
+            if (v_uv.x < 0.0 || v_uv.x > 1.0 || v_uv.y < 0.0 || v_uv.y > 1.0) {
+              gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+              return;
+            }
+            vec4 c = texture2D(u_tex, v_uv);
+            float minC = min(min(c.r, c.g), c.b);
+            float t = clamp((minC - 0.75) / (0.92 - 0.75), 0.0, 1.0);
+            float a = 1.0 - (t * t * (3.0 - 2.0 * t));
+            if (a <= 0.002) {
+              gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+              return;
+            }
+            vec3 unblended = clamp((c.rgb - vec3(1.0 - a)) / max(a, 0.04), 0.0, 1.0);
+            gl_FragColor = vec4(unblended * a, a);
+          }
+        `
 
-      const elapsed = now - startTimeRef.current
-      const dpr = window.devicePixelRatio || 1
-      const cw  = canvas.width  / dpr
-      const ch  = canvas.height / dpr
-
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
-
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      ctx.clearRect(0, 0, cw, ch)
-
-      const sheenOffset = (now / 3000) % 1
-      const waveProg    = (now / 1000) % 1
-
-      // Max drip extension below baseY (at 1200px reference width, max is 168px)
-      const maxDrip = 168 * (cw / 1200)
-
-      if (phaseRef.current === 'fill') {
-        const pct  = Math.min(elapsed / PHASE_FILL_MS, 1)
-        // ease in-out cubic
-        const ease = pct < 0.5 ? 4*pct*pct*pct : 1 - Math.pow(-2*pct+2,3)/2
-        const baseY = -maxDrip + (ch + maxDrip) * ease
-        drawHoney(ctx, cw, ch, baseY, waveProg, sheenOffset)
-
-        if (elapsed >= PHASE_FILL_MS) {
-          phaseRef.current  = 'hold'
-          startTimeRef.current = now
-          // Notify caller: safe to navigate
-          const cb = onRouteReadyRef.current
-          onRouteReadyRef.current = null
-          cb?.()
+        const createShader = (glCtx: WebGLRenderingContext, type: number, source: string) => {
+          const s = glCtx.createShader(type)
+          if (!s) return null
+          glCtx.shaderSource(s, source)
+          glCtx.compileShader(s)
+          if (!glCtx.getShaderParameter(s, glCtx.COMPILE_STATUS)) {
+            glCtx.deleteShader(s)
+            return null
+          }
+          return s
         }
-      } else if (phaseRef.current === 'hold') {
-        drawHoney(ctx, cw, ch, ch, waveProg, sheenOffset)
-        if (elapsed >= PHASE_HOLD_MS) {
-          phaseRef.current  = 'drain'
-          startTimeRef.current = now
+
+        const vs = createShader(gl, gl.VERTEX_SHADER, vsSource)
+        const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource)
+        if (vs && fs) {
+          program = gl.createProgram()
+          if (program) {
+            gl.attachShader(program, vs)
+            gl.attachShader(program, fs)
+            gl.linkProgram(program)
+            if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
+              gl.useProgram(program)
+              uScaleLoc = gl.getUniformLocation(program, 'u_scale')
+              uOffsetLoc = gl.getUniformLocation(program, 'u_offset')
+              const aPosLoc = gl.getAttribLocation(program, 'a_pos')
+
+              buffer = gl.createBuffer()
+              gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+              const vertices = new Float32Array([
+                -1, -1,
+                 1, -1,
+                -1,  1,
+                 1,  1,
+              ])
+              gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)
+              gl.enableVertexAttribArray(aPosLoc)
+              gl.vertexAttribPointer(aPosLoc, 2, gl.FLOAT, false, 0, 0)
+
+              texture = gl.createTexture()
+              gl.bindTexture(gl.TEXTURE_2D, texture)
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+              gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+
+              gl.enable(gl.BLEND)
+              gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+            }
+          }
         }
-      } else if (phaseRef.current === 'drain') {
-        const pct  = Math.min(elapsed / PHASE_DRAIN_MS, 1)
-        // smoothstep
-        const ease = pct * pct * (3 - 2 * pct)
-        const baseY = ch - (ch + maxDrip) * ease
-        if (baseY > -maxDrip) {
-          drawHoney(ctx, cw, ch, baseY, waveProg, sheenOffset)
+      }
+
+      function drawCurrentFrame() {
+        if (!video || !canvas) return
+        if (video.readyState < 2) return
+
+        // Lightweight internal render buffer (854x480) for silky 60fps with zero frame drops
+        if (canvas.width !== 854 || canvas.height !== 480) {
+          canvas.width = 854
+          canvas.height = 480
         }
-        if (pct >= 1) {
-          // Fade overlay, then clean up
-          wrap.style.opacity = '0'
-          stopLoop()
-          phaseRef.current = 'idle'
-          setTimeout(() => {
-            const w = wrapRef.current
-            if (w) w.style.visibility = 'hidden'
-            clearCanvas()
+
+        if (gl && program && texture) {
+          gl.viewport(0, 0, 854, 480)
+          gl.useProgram(program)
+
+          if (uScaleLoc) gl.uniform2f(uScaleLoc, 1.0, 1.0)
+          if (uOffsetLoc) gl.uniform2f(uOffsetLoc, 0.0, 0.0)
+
+          gl.bindTexture(gl.TEXTURE_2D, texture)
+          try {
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video)
+            gl.clearColor(0, 0, 0, 0)
+            gl.clear(gl.COLOR_BUFFER_BIT)
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+          } catch {}
+        } else {
+          const ctx = canvas.getContext('2d')
+          if (ctx) {
+            ctx.clearRect(0, 0, 854, 480)
+            ctx.drawImage(video, 0, 0, 854, 480)
+          }
+        }
+      }
+
+      let completionFired = false
+
+      function checkFrame() {
+        if (!video) return
+        const t = video.currentTime
+
+        // Peak honey coverage is around 1.16s - 1.20s (99.8% screen coverage).
+        // If route has NOT loaded yet, pause cleanly WITHOUT seeking (avoids decoder stall/freeze).
+        if (!isRouteLoadedRef.current && t >= 1.16) {
+          if (!video.paused) {
+            try {
+              video.pause()
+            } catch {}
+          }
+          return
+        }
+
+        // If route HAS loaded and video somehow remained paused, resume immediately with smooth speed
+        if (isRouteLoadedRef.current && video.paused && !video.ended && t < 2.35) {
+          video.playbackRate = 1.35
+          try {
+            video.play().catch(() => {})
+          } catch {}
+        }
+
+        // When route has loaded AND honey has drained off the screen (> 2.35s)
+        if (isRouteLoadedRef.current && (t >= 2.35 || video.ended)) {
+          if (!completionFired) {
+            completionFired = true
             onCompleteRef.current?.()
-          }, 240)
-          return
+          }
         }
-      } else {
-        return
+
+        if (onTimeUpdateRef.current) {
+          onTimeUpdateRef.current(t)
+        }
       }
 
-      rafRef.current = requestAnimationFrame(runFrame)
-    }
-
-    useImperativeHandle(ref, () => ({
-      startAnimation(onRouteReady: () => void) {
-        // Prevent double-play
-        if (phaseRef.current !== 'idle') return
-
-        const wrap = wrapRef.current
-        if (!wrap) return
-
-        // Reduced motion: skip entirely
-        if (typeof window !== 'undefined' &&
-            window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          onRouteReady()
-          setTimeout(() => onCompleteRef.current?.(), 0)
-          return
+      function scheduleNextFrame() {
+        if (!isDrawing) return
+        if ('requestVideoFrameCallback' in HTMLVideoElement.prototype && video) {
+          // Cast to any for requestVideoFrameCallback support
+          const v = video as unknown as { requestVideoFrameCallback?: (cb: () => void) => number }
+          if (typeof v.requestVideoFrameCallback === 'function') {
+            rvfcId = v.requestVideoFrameCallback(() => {
+              drawCurrentFrame()
+              checkFrame()
+              scheduleNextFrame()
+            })
+            return
+          }
         }
+        rafId = requestAnimationFrame(() => {
+          drawCurrentFrame()
+          checkFrame()
+          scheduleNextFrame()
+        })
+      }
 
-        stopLoop()
-        clearCanvas()
-        resizeCanvas()
+      function startLoop() {
+        completionFired = false
+        if (isDrawing) return
+        isDrawing = true
+        drawCurrentFrame()
+        scheduleNextFrame()
+      }
 
-        onRouteReadyRef.current = onRouteReady
-        phaseRef.current = 'fill'
-        wrap.style.visibility = 'visible'
-        wrap.style.opacity = '1'
-
-        startTimeRef.current = performance.now()
-        rafRef.current = requestAnimationFrame(runFrame)
-      },
-
-      routeCommitted() {
-        // If still filling, let fill finish naturally; hold will auto-advance to drain.
-        // If currently in hold phase, skip to drain immediately.
-        if (phaseRef.current === 'hold') {
-          phaseRef.current = 'drain'
-          startTimeRef.current = performance.now()
+      function stopLoop(clear = false) {
+        isDrawing = false
+        if (rafId) {
+          cancelAnimationFrame(rafId)
+          rafId = 0
         }
-      },
-    }))
+        if (rvfcId && video) {
+          const v = video as unknown as { cancelVideoFrameCallback?: (id: number) => void }
+          if (typeof v.cancelVideoFrameCallback === 'function') {
+            try { v.cancelVideoFrameCallback(rvfcId) } catch {}
+          }
+          rvfcId = 0
+        }
+        if (clear) {
+          if (gl) {
+            gl.clearColor(0, 0, 0, 0)
+            gl.clear(gl.COLOR_BUFFER_BIT)
+          } else {
+            const ctx = canvas?.getContext('2d')
+            if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height)
+          }
+        }
+      }
+
+      function handleTimeUpdate() {
+        checkFrame()
+      }
+
+      function handleEnded() {
+        if (isRouteLoadedRef.current) {
+          onCompleteRef.current?.()
+        } else if (video) {
+          try {
+            video.pause()
+          } catch {}
+        }
+        if (onEndedRef.current) {
+          onEndedRef.current()
+        }
+      }
+
+      function handleSeeked() {
+        if (isDrawing) {
+          drawCurrentFrame()
+        }
+      }
+
+      video.addEventListener('play', startLoop)
+      video.addEventListener('playing', startLoop)
+      video.addEventListener('canplay', drawCurrentFrame)
+      video.addEventListener('loadeddata', drawCurrentFrame)
+      video.addEventListener('pause', () => stopLoop(false))
+      video.addEventListener('ended', () => stopLoop(false))
+      video.addEventListener('ended', handleEnded)
+      video.addEventListener('timeupdate', handleTimeUpdate)
+      video.addEventListener('seeked', handleSeeked)
+
+      if (!video.paused && !video.ended) {
+        startLoop()
+      }
+
+      return () => {
+        stopLoop(true)
+        video.removeEventListener('play', startLoop)
+        video.removeEventListener('playing', startLoop)
+        video.removeEventListener('canplay', drawCurrentFrame)
+        video.removeEventListener('loadeddata', drawCurrentFrame)
+        video.removeEventListener('ended', handleEnded)
+        video.removeEventListener('timeupdate', handleTimeUpdate)
+        video.removeEventListener('seeked', handleSeeked)
+        if (gl && buffer) gl.deleteBuffer(buffer)
+        if (gl && texture) gl.deleteTexture(texture)
+        if (gl && program) gl.deleteProgram(program)
+      }
+    }, [])
 
     return (
       <div
-        ref={wrapRef}
+        ref={ref}
         aria-hidden="true"
         style={{
           position: 'fixed',
@@ -386,11 +446,38 @@ export const HoneyOverlay = forwardRef<
           background: 'transparent',
         }}
       >
+        <video
+          ref={(node) => {
+            internalVideoRef.current = node
+            if (!videoRef) return
+            if (typeof videoRef === 'function') {
+              videoRef(node)
+            } else if ('current' in videoRef) {
+              ;(videoRef as React.MutableRefObject<HTMLVideoElement | null>).current = node
+            }
+          }}
+          src="/honey-fast.mp4"
+          playsInline
+          muted
+          preload="auto"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '1px',
+            height: '1px',
+            opacity: 0.01,
+            pointerEvents: 'none',
+            zIndex: -1,
+          }}
+        />
         <canvas
           ref={canvasRef}
           style={{
             position: 'absolute',
             inset: 0,
+            width: '100%',
+            height: '100%',
             display: 'block',
             pointerEvents: 'none',
           }}
