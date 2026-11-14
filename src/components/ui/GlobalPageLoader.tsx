@@ -108,18 +108,23 @@ export default function GlobalPageLoader() {
     engineRef.current?.start()
     otbeeBrain.emit({ type: 'nav-start' })
 
-    // Trigger router navigation immediately
+    // Prefetch route immediately in background network
     router.prefetch(href)
-    router.push(href)
 
-    // Poll full URL (pathname + search) every 80ms so query-param or fast navigations never hang
+    // Push route once screen is covered by the honey curtain (~280ms)
+    // This completely eliminates Main Thread navigation freeze during the inflow animation!
+    setTimeout(() => {
+      router.push(href)
+    }, 280)
+
+    // Poll full URL (pathname + search) every 50ms so query-param or fast navigations never hang
     pollIntervalRef.current = setInterval(() => {
       if (!isTransitioningRef.current) return
       const nowFull = `${window.location.pathname}${window.location.search}`
       if (nowFull !== startUrlRef.current) {
         markRouteCommitted()
       }
-    }, 80)
+    }, 50)
 
     // Hard safety cap (4.5s) so overlay never freezes on top of UI under any condition
     watchdogTimerRef.current = setTimeout(() => {
