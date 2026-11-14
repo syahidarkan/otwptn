@@ -195,15 +195,30 @@ export function createController(d: ControllerDeps) {
     d.pop.animate([{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.15)', opacity: 0 }], { duration: 260, easing: 'ease-in', fill: 'forwards' })
   }
 
+  // scanning the whole new page (every element's rect + every text glyph) is the heaviest thing this
+  // module does; running it synchronously right after a navigation - exactly when the new page is still
+  // settling - was the main cause of the visible freeze/jank on every route change. requestIdleCallback
+  // pushes that work to a moment the browser isn't busy painting/compositing (falls back to a timeout on
+  // Safari, which has no requestIdleCallback).
+  const idle: (fn: () => void) => void = typeof window.requestIdleCallback === 'function'
+    ? fn => window.requestIdleCallback(fn, { timeout: 220 })
+    : fn => setTimeout(fn, 1)
+
   const spawnWhenReady = (cfg: MascotConfig | null) => {
     const my = ++spawnTok
     let tries = 0
+    let busy = false
     const iv = setInterval(() => {
       if (disposed || my !== spawnTok) { clearInterval(iv); return }
-      if (overlayVisible() || document.readyState !== 'complete') return
+      if (busy || overlayVisible() || document.readyState !== 'complete') return
       if (++tries > 50) { clearInterval(iv); return }
-      const pk = pickSpot(scanSurfaces({ scale: scale() }), { band: [0.5, 0.8], scale: scale() })
-      if (pk) { clearInterval(iv); spawn(pk, cfg) }
+      busy = true
+      idle(() => {
+        busy = false
+        if (disposed || my !== spawnTok) return
+        const pk = pickSpot(scanSurfaces({ scale: scale() }), { band: [0.5, 0.8], scale: scale() })
+        if (pk) { clearInterval(iv); spawn(pk, cfg) }
+      })
     }, 260)
   }
 
@@ -528,48 +543,64 @@ export function createController(d: ControllerDeps) {
       const curY_v = curY - window.scrollY
       const curX_v = curX - window.scrollX
 
-      // Scan surfaces to find the nearest object/landing pad below (Hukum Gravitasi)
+      // Fisika Gravitasi Murni:
+      // Garis jatuh adalah vertikal ke bawah pada koordinat curX_v saat dilepas.
+      // Hanya permukaan yang horizontal range-nya [xa, xb] MENGECEGAT koordinat curX_v
+      // dan berada di bawah (y > curY_v) yang dapat menjadi tatakan pendaratan.
       const cands = scanSurfaces({ scale: scale() })
-      const below = cands
-        .filter(c => c.y > curY_v + 15 && c.xb > 30)
-        .map(c => {
-          const midX = (c.xa + c.xb) / 2
-          const dx = Math.abs(midX - curX_v)
-          const dy = c.y - curY_v
-          return { c, dy, dx }
+      const footMargin = 12 * scale()
+
+      // Cari permukaan yang berada persis di jalur vertikal jatuh ke bawah
+      const verticalHits = cands
+        .filter(c => {
+          if (c.y <= curY_v + 12) return false
+          // Harus berpotongan dengan posisi horizontal X maskot (tidak boleh melompat ke objek di samping)
+          return curX_v >= (c.xa - footMargin) && curX_v <= (c.xb + footMargin)
         })
-        .sort((a, b) => (a.dy + a.dx * 0.4) - (b.dy + b.dx * 0.4))
+        .sort((a, b) => a.y - b.y) // Urutkan dari yang paling atas (pertama kali ditabrak benda yang jatuh)
 
       let targetX = curX
-      let targetY = curY
+      let targetY = window.scrollY + window.innerHeight - 36 * scale()
       let foundAnchor: Anchor | null = null
 
-      if (below.length > 0) {
-        const best = below[0]
-        const landX_v = clamp(curX_v, best.c.xa + 20, best.c.xb - 20)
-        const validated = best.c.make(landX_v)
+      for (const cand of verticalHits) {
+        // Clamp sedikit hanya agar posisi kaki tidak offset keluar batas fisik elemen yang ditabrak
+        const clampedX_v = clamp(curX_v, cand.xa + 6, cand.xb - 6)
+        const validated = cand.make(clampedX_v)
         if (validated) {
           foundAnchor = validated.anchor
           targetX = validated.x + window.scrollX
           targetY = validated.y + window.scrollY
-        } else {
-          targetX = landX_v + window.scrollX
-          targetY = best.c.y + window.scrollY
+          break
         }
-      } else {
-        targetY = window.scrollY + window.innerHeight - 30
+      }
+
+      // Jika tidak ada elemen yang mencegat di jalur vertikal ke bawah,
+      // gravitasi menjatuhkan maskot lurus ke bawah di koordinat X yang SAMA PERSIS (tanpa geser ke kiri/kanan!)
+      if (!foundAnchor) {
+        targetX = curX
+        targetY = Math.max(curY + 20, window.scrollY + window.innerHeight - 36 * scale())
+        const fixedX = targetX
+        const fixedY = targetY
+        foundAnchor = {
+          kind: 'edge',
+          el: document.body,
+          resolve: () => ({ x: fixedX, y: fixedY }),
+        }
       }
 
       const fallDist = targetY - curY
-      if (fallDist > 15) {
+      if (fallDist > 12) {
         play('jumpAir')
-        const dur = Math.max(260, Math.min(800, Math.sqrt(fallDist / 500) * 550))
+        const dur = Math.max(240, Math.min(800, Math.sqrt(fallDist / 450) * 480))
         const startX = curX
         const startY = curY
         const currentTok = ++token
 
         await tween(dur, currentTok, p => {
+          // Percepatan gravitasi (kuadratik p*p)
           const y = startY + fallDist * (p * p)
+          // X lurus kebawah
           const x = startX + (targetX - startX) * p
           place({ x, y })
         })
