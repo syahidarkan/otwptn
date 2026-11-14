@@ -56,7 +56,6 @@ export default function CustomerServiceWidget() {
   const figAvatar = useRef<OtbeeHandle>(null)
   const heroAvatarRef = useRef<OtbeeHandle>(null)
   const openingRef = useRef(false)
-  const [showTeaser, setShowTeaser] = useState(true)
   const [inputMessage, setInputMessage] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
   const [isTyping, setIsTyping] = useState(false)
@@ -75,7 +74,6 @@ export default function CustomerServiceWidget() {
   const handleOpenChat = () => {
     if (openingRef.current || isOpen) return
     openingRef.current = true
-    setShowTeaser(false)
     setStage(true)
     // wait one frame so the stage is mounted
     requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -222,27 +220,6 @@ export default function CustomerServiceWidget() {
       `}</style>
 
       <div id="cs-chat-widget" className="fixed z-30 bottom-5 right-5 sm:bottom-6 sm:right-6 font-sans">
-        {/* Floating Teaser Callout */}
-        {!isOpen && !stage && showTeaser && (
-          <div className="hidden sm:block absolute bottom-[calc(100%+14px)] right-0 bg-white rounded-2xl p-3 shadow-xl border border-amber-200/90 w-64 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <button
-              onClick={() => setShowTeaser(false)}
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 cursor-pointer"
-            >
-              <X size={12} />
-            </button>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-black uppercase text-amber-900 tracking-wider">
-                Otbee CS AI Aktif
-              </span>
-            </div>
-            <p className="text-xs font-bold text-gray-800 leading-snug">
-              Ada pertanyaan seputar OtwPTN & seleksi non-tes? Tanya AI kami yuk!
-            </p>
-          </div>
-        )}
-
         {/* 1. RESTING STATE: just Otbee's head (no neck, no body) */}
         {!isOpen && (
           <button

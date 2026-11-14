@@ -2,17 +2,20 @@
 
 /**
  * HoneyTransition - page-transition overlay that plays back the REAL honey splash video, frame by frame,
- * from a single hardcoded sprite sheet (public/honey-sheet.webp: 10x8 grid, 78 frames, 640x360 each,
- * pre-keyed to alpha so it composites over any page without carrying its old white background).
+ * from 78 hardcoded native-resolution frames (public/honey-frames/f00..f77.webp - same 1280x720 the source
+ * honey-fast.mp4 was shot at, pre-keyed to alpha so it composites over any page without its old white
+ * background). Each frame is its own small file rather than one giant sprite sheet, specifically so no
+ * single image ever exceeds the max canvas/image dimensions some mobile browsers enforce.
  *
- * Why a sprite sheet instead of a <video> or procedural canvas drawing:
- *  - It IS the original honey-fast.mp4 footage (same 78 frames, same 30fps), so it looks pixel-identical
- *    to the video that was used before - nothing is redrawn from scratch.
+ * Why individual frame images instead of a <video> or procedural canvas drawing:
+ *  - It IS the original honey-fast.mp4 footage at full resolution, so it looks exactly like the video that
+ *    was used before - nothing is redrawn from scratch, and nothing is downscaled below the source's own
+ *    720p ceiling.
  *  - Per frame, rendering is a single ctx.drawImage() blit - drastically cheaper than either decoding a
- *    video every frame or (as the previous procedural version did) rebuilding gradients, paths and dozens
- *    of bubble radial-gradients every frame. That per-frame cost was the main source of the jank/freeze
- *    during navigation.
- *  - One decoded image, reused for every transition for the rest of the session (cached after first load).
+ *    video every frame or (as the earlier procedural version did) rebuilding gradients, paths and dozens
+ *    of bubble radial-gradients every frame. That per-frame cost was the main source of jank during
+ *    navigation.
+ *  - All 78 images are decoded once and reused for every transition for the rest of the session.
  *
  *   IN    frames 0..FILL_END play forward as the honey floods the screen (matches the video's fill-in)
  *   HOLD  frozen on the fully-covered frame while the next route loads (Otbee flies about on top)
@@ -30,10 +33,8 @@ interface Props {
   engineRef?: React.Ref<HoneyHandle>
 }
 
-const SHEET_SRC = '/honey-sheet.webp'
-const COLS = 10
-const CELL_W = 640
-const CELL_H = 360
+const FRAME_COUNT = 78
+const FRAME_SRC = (i: number) => `/honey-frames/f${String(i).padStart(2, '0')}.webp`
 const FPS = 30
 /** index of the frame where the honey fully covers the screen (measured from the source video) */
 const FILL_END = 39
@@ -42,18 +43,20 @@ const DRAIN_END = 77
 /** minimum time to hold on the full-coverage frame, so a very fast route load never looks like a flash cut */
 const MIN_HOLD = 0.15
 
-let sheetPromise: Promise<HTMLImageElement> | null = null
-function loadSheet(): Promise<HTMLImageElement> {
-  if (!sheetPromise) {
-    sheetPromise = new Promise((resolve, reject) => {
-      const img = new Image()
-      img.decoding = 'async'
-      img.onload = () => resolve(img)
-      img.onerror = reject
-      img.src = SHEET_SRC
-    })
+let framesPromise: Promise<HTMLImageElement[]> | null = null
+function loadFrames(): Promise<HTMLImageElement[]> {
+  if (!framesPromise) {
+    framesPromise = Promise.all(
+      Array.from({ length: FRAME_COUNT }, (_, i) => new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image()
+        img.decoding = 'async'
+        img.onload = () => resolve(img)
+        img.onerror = reject
+        img.src = FRAME_SRC(i)
+      })),
+    )
   }
-  return sheetPromise
+  return framesPromise
 }
 
 export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOverlay({ isRouteLoaded = false, onComplete, engineRef }, ref) {
@@ -68,7 +71,7 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
   const st = useRef({
     phase: 'idle' as 'idle' | 'in' | 'hold' | 'out',
     t0: 0, raf: 0, W: 0, H: 0, dpr: 1,
-    sheet: null as HTMLImageElement | null,
+    frames: null as HTMLImageElement[] | null,
     mascot: false,
   })
 
@@ -80,37 +83,36 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
     s.mascot = false; setMascotOn(false)
   }, [])
 
-  /** draw one sheet frame, scaled to cover the whole canvas (like CSS background-size: cover) */
-  const drawFrame = (ctx: CanvasRenderingContext2D, sheet: HTMLImageElement, idx: number, W: number, H: number) => {
-    const col = idx % COLS, row = (idx / COLS) | 0
-    const sx = col * CELL_W, sy = row * CELL_H
-    const scale = Math.max(W / CELL_W, H / CELL_H)
-    const dw = CELL_W * scale, dh = CELL_H * scale
+  /** draw one frame, scaled to cover the whole canvas (like CSS background-size: cover) */
+  const drawFrame = (ctx: CanvasRenderingContext2D, frames: HTMLImageElement[], idx: number, W: number, H: number) => {
+    const img = frames[idx]
+    const scale = Math.max(W / img.naturalWidth, H / img.naturalHeight)
+    const dw = img.naturalWidth * scale, dh = img.naturalHeight * scale
     const dx = (W - dw) / 2, dy = (H - dh) / 2
     ctx.clearRect(0, 0, W, H)
-    ctx.drawImage(sheet, sx, sy, CELL_W, CELL_H, dx, dy, dw, dh)
+    ctx.drawImage(img, dx, dy, dw, dh)
   }
 
   const frameRef = useRef<(now: number) => void>(() => {})
   const frame = useCallback((now: number) => {
     const s = st.current
     const c = canvasRef.current, ctx = c?.getContext('2d')
-    if (!c || !ctx || !s.sheet) return
+    if (!c || !ctx || !s.frames) return
     s.raf = requestAnimationFrame(n => frameRef.current(n))
     const t = (now - s.t0) / 1000
     ctx.setTransform(s.dpr, 0, 0, s.dpr, 0, 0)
-    const { W, H, sheet } = s
+    const { W, H, frames } = s
     if (s.phase === 'in') {
       const idx = Math.min(FILL_END, Math.floor(t * FPS))
-      drawFrame(ctx, sheet, idx, W, H)
+      drawFrame(ctx, frames, idx, W, H)
       if (!s.mascot && idx >= FILL_END - 3) { s.mascot = true; setMascotOn(true) }
       if (idx >= FILL_END) { s.phase = 'hold'; s.t0 = now }
     } else if (s.phase === 'hold') {
-      drawFrame(ctx, sheet, FILL_END, W, H)
+      drawFrame(ctx, frames, FILL_END, W, H)
       if (routeRef.current && t >= MIN_HOLD) { s.phase = 'out'; s.t0 = now; s.mascot = false; setMascotOn(false) }
     } else if (s.phase === 'out') {
       const idx = Math.min(DRAIN_END, FILL_END + Math.floor(t * FPS))
-      drawFrame(ctx, sheet, idx, W, H)
+      drawFrame(ctx, frames, idx, W, H)
       if (idx >= DRAIN_END) { stop(); doneRef.current?.() }
     }
   }, [stop])
@@ -125,20 +127,20 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
     s.W = window.innerWidth; s.H = window.innerHeight
     c.width = Math.round(s.W * s.dpr); c.height = Math.round(s.H * s.dpr)
     s.phase = 'in'; s.t0 = performance.now(); s.mascot = false
-    const begin = (img: HTMLImageElement) => {
-      if (st.current.phase === 'idle') return // reset() was called while the sheet was still loading
-      s.sheet = img
+    const begin = (imgs: HTMLImageElement[]) => {
+      if (st.current.phase === 'idle') return // reset() was called while the frames were still loading
+      s.frames = imgs
       const ctx = c.getContext('2d')
       if (ctx) ctx.imageSmoothingQuality = 'high'
       s.raf = requestAnimationFrame(n => frameRef.current(n))
     }
-    if (s.sheet) begin(s.sheet)
-    else loadSheet().then(begin).catch(() => {})
+    if (s.frames) begin(s.frames)
+    else loadFrames().then(begin).catch(() => {})
   }, [])
 
   useImperativeHandle(engineRef, () => ({ start, reset: stop }), [start, stop])
   // warm the decode cache as early as possible so the very first transition doesn't stall on it
-  useEffect(() => { loadSheet().catch(() => {}) }, [])
+  useEffect(() => { loadFrames().catch(() => {}) }, [])
   useEffect(() => () => cancelAnimationFrame(st.current.raf), [])
 
   return (

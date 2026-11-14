@@ -103,11 +103,11 @@ const SEO_COLS = [
 export default function Footer() {
   return (
     <footer className="pt-8 md:pt-14">
-      {/* Flower PNG - transparent bg */}
+      {/* Flower SVG Vector - transparent bg & 4K resolution */}
       <div style={{ lineHeight: 0, background: 'transparent', position: 'relative', zIndex: 1 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/footer-flowers.png"
+          src="/footer-flowers.svg"
           alt=""
           aria-hidden
           style={{ width: '100%', display: 'block' }}
