@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Mail, Phone, ArrowRight } from 'lucide-react'
+import FooterFlowers from './FooterFlowers'
 
 const COLS = [
   {
@@ -103,16 +104,8 @@ const SEO_COLS = [
 export default function Footer() {
   return (
     <footer className="pt-8 md:pt-14">
-      {/* Flower SVG Vector - transparent bg & 4K resolution */}
-      <div style={{ lineHeight: 0, background: 'transparent', position: 'relative', zIndex: 1 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/footer-flowers.svg"
-          alt=""
-          aria-hidden
-          style={{ width: '100%', display: 'block' }}
-        />
-      </div>
+      {/* Hardcoded 4K SVG Vector - no img tag, un-draggable native DOM vector */}
+      <FooterFlowers />
 
       {/* Main footer - bg matches bottom pixel of PNG (#583219), -2px kills seam */}
       <div className="dark-section" style={{ background: '#583219', color: '#fff', marginTop: -2 }}>
