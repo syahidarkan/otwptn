@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
+import { OtbeeAvatar } from '@/components/mascot/otbee'
 import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 
@@ -20,17 +20,7 @@ export default function MascotLoading({
     <div className="flex flex-col items-center justify-center p-6 text-center select-none max-w-sm mx-auto">
       {/* Floating Animated OtBee Mascot */}
       <motion.div
-        animate={{
-          y: [0, -12, 0],
-          rotate: [0, 4, -4, 0],
-          scale: [1, 1.04, 1],
-        }}
-        transition={{
-          duration: 2.2,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-        className="relative w-36 h-36 mb-5 flex items-center justify-center"
+        className="relative w-36 h-40 mb-5 flex items-center justify-center"
       >
         {/* Soft golden aura pulse */}
         <motion.div
@@ -39,14 +29,7 @@ export default function MascotLoading({
           className="absolute inset-0 rounded-full bg-amber-300/40 blur-xl pointer-events-none"
         />
 
-        <Image
-          src="/mascot-hd/trophy-graduate.png"
-          alt="OtBee Loading"
-          width={140}
-          height={140}
-          className="relative z-10 drop-shadow-lg object-contain"
-          priority
-        />
+        <OtbeeAvatar view="front" action="loading" size={150} className="relative z-10 drop-shadow-lg" />
       </motion.div>
 
       {/* Status Pill with Spinner */}

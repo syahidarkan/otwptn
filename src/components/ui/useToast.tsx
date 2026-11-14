@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from 'react'
 import Toast from '@/components/ui/Toast'
+import { otbeeBrain } from '@/components/mascot/otbee/brain'
 
 type ToastType = 'success' | 'error' | 'info'
 
@@ -23,6 +24,7 @@ export function useToast() {
   const showToast = useCallback((message: string, type: ToastType = 'info') => {
     const id = nextId++
     setItems(prev => [...prev, { id, type, message }])
+    otbeeBrain.emit({ type, text: message.length > 70 ? undefined : message })
   }, [])
 
   const toastHost = (

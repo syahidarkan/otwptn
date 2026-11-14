@@ -1,37 +1,35 @@
-import type { OtbeeAnimation } from './OtbeeMascot'
+import type { ClipName } from './otbee/engine'
+import type { ViewName } from './otbee/types'
 
 export interface MascotConfig {
-  pose: string
-  animation: OtbeeAnimation
+  clip: ClipName
+  view: ViewName
+  /** optional greeting when entering the page - "{name}" is replaced with the user's first name,
+   *  or "Pejuang PTN" when nobody is signed in */
+  greet?: string
 }
 
 export const MASCOT_PAGE_CONFIG: Record<string, MascotConfig> = {
-  '/': { pose: 'maskot-plang-pejuang-ptn', animation: 'wave' },
-  '/dashboard': { pose: 'maskot-lolos-ptn-loncat', animation: 'celebrate' },
-  '/dashboard/essay': { pose: 'maskot-nulis-essay-meja', animation: 'thinking' },
-  '/dashboard/kalkulator': { pose: 'maskot-peluang-persentase', animation: 'idle' },
-  '/dashboard/otbee': { pose: 'maskot-bersama-robot-ai', animation: 'wave' },
-  '/dashboard/mentor': { pose: 'maskot-fitur-mentor-alumni', animation: 'idle' },
-  '/dashboard/teman': { pose: 'maskot-fitur-cari-teman-belajar', animation: 'wave' },
-  '/dashboard/komunitas': { pose: 'maskot-toa-komunitas', animation: 'bounce' },
-  '/dashboard/tracking-jalur': { pose: 'maskot-fitur-tracking-jalur', animation: 'idle' },
-  '/dashboard/latihan': { pose: 'maskot-lolos-ptn-loncat', animation: 'bounce' },
-  '/dashboard/ecourse': { pose: 'maskot-tablet-video-materi', animation: 'idle' },
-  '/login': { pose: 'maskot-melambai-di-pintu-gerbang', animation: 'wave' },
-  '/register': { pose: 'maskot-lolos-ptn-loncat', animation: 'celebrate' },
-  'default': { pose: 'maskot-pov-depan-front', animation: 'idle' },
+  '/': { clip: 'wave', view: 'front', greet: 'Halo {name}! Otbee siap nemenin 🐝' },
+  '/dashboard': { clip: 'cheer', view: 'front', greet: 'Selamat datang kembali, {name}! Yuk lanjut belajar 🔥' },
+  '/dashboard/essay': { clip: 'thinking', view: 'threeQuarter', greet: 'Essay dulu yuk, {name}! Aku temenin ✍️' },
+  '/dashboard/kalkulator': { clip: 'idle', view: 'threeQuarter', greet: 'Hitung peluangmu di sini, {name} 📈' },
+  '/dashboard/otbee': { clip: 'wave', view: 'front' },
+  '/dashboard/mentor': { clip: 'nod', view: 'threeQuarter' },
+  '/dashboard/teman': { clip: 'wave', view: 'front' },
+  '/dashboard/komunitas': { clip: 'bounce', view: 'front' },
+  '/dashboard/tracking-jalur': { clip: 'idle', view: 'threeQuarter' },
+  '/dashboard/latihan': { clip: 'dance', view: 'front' },
+  '/dashboard/ecourse': { clip: 'idle', view: 'threeQuarter' },
+  '/login': { clip: 'wave', view: 'front', greet: 'Masuk dulu ya, {name}! Aku tunggu 👋' },
+  '/register': { clip: 'celebrate', view: 'front', greet: 'Selamat bergabung, {name}! 🎉' },
+  default: { clip: 'idle', view: 'front' },
 }
 
 export function getMascotConfigForPath(pathname: string): MascotConfig {
-  // Exact match first
   if (MASCOT_PAGE_CONFIG[pathname]) return MASCOT_PAGE_CONFIG[pathname]
-
-  // Prefix match (longest first) for nested routes
-  const prefixMatch = Object.keys(MASCOT_PAGE_CONFIG)
-    .filter(key => key !== 'default' && pathname.startsWith(key + '/'))
+  const prefix = Object.keys(MASCOT_PAGE_CONFIG)
+    .filter(k => k !== 'default' && pathname.startsWith(k + '/'))
     .sort((a, b) => b.length - a.length)[0]
-
-  if (prefixMatch) return MASCOT_PAGE_CONFIG[prefixMatch]
-
-  return MASCOT_PAGE_CONFIG['default']
+  return prefix ? MASCOT_PAGE_CONFIG[prefix] : MASCOT_PAGE_CONFIG.default
 }

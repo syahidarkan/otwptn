@@ -26,6 +26,8 @@ import {
 } from 'lucide-react'
 import SearchInput from '@/components/ui/SearchInput'
 import { completeQuest, awardPoints } from '@/lib/gamification'
+import { OtbeeAvatar } from '@/components/mascot/otbee'
+import type { ClipName } from '@/components/mascot/otbee'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -82,8 +84,28 @@ export default function OtbeePage() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [loading, setLoading] = useState(true)
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
+  const [heroHeadAction, setHeroHeadAction] = useState<ClipName>('idle')
+  const [hearts, setHearts] = useState<{ id: number; x: number; y: number; rotation: number; emoji: string }[]>([])
+  const [isShrinkingHead, setIsShrinkingHead] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const handleHeadLoveReaction = () => {
+    const emojis = ['💖', '💕', '❤️', '🥰', '✨', '🧡']
+    const newHearts = Array.from({ length: 7 }, (_, i) => ({
+      id: Date.now() + i,
+      x: (Math.random() - 0.5) * 80,
+      y: (Math.random() - 0.5) * 40,
+      rotation: (Math.random() - 0.5) * 40,
+      emoji: emojis[Math.floor(Math.random() * emojis.length)],
+    }))
+    setHearts(prev => [...prev, ...newHearts])
+    setHeroHeadAction('wink')
+    setTimeout(() => setHeroHeadAction('idle'), 1500)
+    setTimeout(() => {
+      setHearts(prev => prev.filter(h => !newHearts.some(nh => nh.id === h.id)))
+    }, 1200)
+  }
 
   const loadConversations = useCallback(async () => {
     const {
@@ -131,6 +153,11 @@ export default function OtbeePage() {
     if (!content || sending) return
     setInput('')
     setQuotaError(false)
+
+    if (messages.length === 0) {
+      setIsShrinkingHead(true)
+      setTimeout(() => setIsShrinkingHead(false), 480)
+    }
 
     const userMsg: ChatMessage = { role: 'user', content }
     const nextMessages = [...messages, userMsg]
@@ -221,6 +248,27 @@ export default function OtbeePage() {
 
   return (
     <div className="relative flex h-[calc(100vh-64px)] md:h-[calc(100vh-40px)] p-2 md:p-4 gap-4 overflow-hidden">
+      <style>{`
+        @keyframes otbee-float-heart {
+          0% { transform: translate(0, 0) scale(0.6) rotate(0deg); opacity: 1; }
+          50% { opacity: 0.95; }
+          100% { transform: translate(15px, -85px) scale(1.3) rotate(25deg); opacity: 0; }
+        }
+        @keyframes otbee-shrink-to-avatar {
+          0% {
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+          }
+          100% {
+            top: 90px;
+            left: 50px;
+            transform: translate(0, 0) scale(0.24);
+            opacity: 0.85;
+          }
+        }
+      `}</style>
       {/* Ambient background glows */}
       <div className="absolute top-1/4 -left-20 w-80 h-80 rounded-full bg-amber-300/15 blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-20 w-80 h-80 rounded-full bg-sky-300/15 blur-3xl pointer-events-none" />
@@ -372,34 +420,80 @@ export default function OtbeePage() {
         </div>
 
         {/* Message Stream */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 py-6 space-y-6">
-          {messages.length === 0 && !streamingText ? (
-            /* Welcome / Zero State with Glass cards */
-            <div className="max-w-3xl mx-auto py-4 sm:py-6 space-y-8">
-              {/* Hero mascot & greetings */}
-              <div className="text-center space-y-3">
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.4 }}
-                  className="inline-block relative"
-                >
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto relative">
-                    <Image
-                      src="/fitur/otbee-ai.png"
-                      alt="Otbee Assistant"
-                      fill
-                      className="object-contain drop-shadow-xl animate-float"
-                    />
-                  </div>
-                </motion.div>
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 sm:px-6 md:px-8 py-6 space-y-6 relative">
+          {/* Transient Shrinking Head (Animates when first message is sent from Attempt 1 into Attempt 2) */}
+          {isShrinkingHead && (
+            <div
+              className="absolute pointer-events-none z-50 select-none"
+              style={{
+                top: '40%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                animation: 'otbee-shrink-to-avatar 0.48s cubic-bezier(0.2, 0.9, 0.3, 1) forwards',
+                transformOrigin: 'top left',
+              }}
+            >
+              <OtbeeAvatar headOnly size={150} view="front" action="cheer" />
+            </div>
+          )}
 
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-                  Halo Pejuang PTN! Ada yang mau kamu diskusikan?
+          {messages.length === 0 && !streamingText ? (
+            /* Welcome / Zero State (Attempt 1 Layout) */
+            <div className="max-w-3xl mx-auto py-2 sm:py-4 space-y-6">
+              {/* Hero mascot & greetings */}
+              <div className="text-center space-y-4">
+                {/* Title */}
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
+                  Your <span className="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 bg-clip-text text-transparent">Smart Assistant</span> for<br />
+                  Any Tasks
                 </h1>
-                <p className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-slate-300 max-w-xl mx-auto leading-relaxed">
-                  Otbee siap bantu cek rasionalisasi nilai rapor, bedah struktur esai motivasi, hingga strategi memilih kombinasi prodi pilihan 1 & 2.
-                </p>
+
+                {/* Big Interactive Head (Attempt 1) */}
+                <div className="relative flex flex-col items-center justify-center py-4 my-2">
+                  {/* Speech Bubble "Hello!" */}
+                  <div className="absolute top-2 left-1/2 -translate-x-28 sm:-translate-x-32 z-20 bg-white dark:bg-zinc-800 px-3.5 py-1 rounded-2xl shadow-md border border-gray-100 dark:border-zinc-700 text-xs font-black text-gray-800 dark:text-zinc-100 animate-bounce">
+                    Hello!
+                    <span className="absolute -bottom-1 left-4 w-2.5 h-2.5 bg-white dark:bg-zinc-800 border-r border-b border-gray-100 dark:border-zinc-700 rotate-45" />
+                  </div>
+
+                  {/* Soft Glowing Ambient Background */}
+                  <div className="absolute w-52 h-52 rounded-full bg-gradient-to-tr from-amber-300/35 via-amber-400/25 to-pink-300/20 blur-2xl -z-10" />
+
+                  {/* Interactive Head with Love Click */}
+                  <div
+                    onClick={handleHeadLoveReaction}
+                    className="cursor-pointer transition-transform hover:scale-105 active:scale-95 relative"
+                    title="Klik kepala Otbee untuk reaksi love! 💖"
+                  >
+                    <OtbeeAvatar
+                      headOnly
+                      size={150}
+                      followPointer
+                      view="front"
+                      action={heroHeadAction}
+                    />
+
+                    {/* Floating Love Hearts */}
+                    {hearts.map(h => (
+                      <span
+                        key={h.id}
+                        className="pointer-events-none absolute select-none text-2xl"
+                        style={{
+                          left: `calc(50% + ${h.x}px)`,
+                          top: `calc(50% + ${h.y}px)`,
+                          animation: 'otbee-float-heart 1.2s cubic-bezier(0.2, 0.8, 0.4, 1) forwards',
+                          transform: `rotate(${h.rotation}deg)`,
+                        }}
+                      >
+                        {h.emoji}
+                      </span>
+                    ))}
+                  </div>
+
+                  <p className="text-xs sm:text-sm font-semibold text-gray-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed mt-3">
+                    Get instant help and support with any task or problem
+                  </p>
+                </div>
               </div>
 
               {/* Quick Prompt Cards */}
@@ -449,14 +543,8 @@ export default function OtbeePage() {
                   className={`flex gap-3 items-start ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   {m.role === 'assistant' && (
-                    <div className="w-8 h-8 rounded-2xl bg-amber-400/20 border border-amber-400/40 p-1 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">
-                      <Image
-                        src="/mascot/thumbsup.png"
-                        alt="Otbee"
-                        width={24}
-                        height={24}
-                        className="object-contain"
-                      />
+                    <div className="flex-shrink-0 -mt-1 select-none">
+                      <OtbeeAvatar headOnly size={36} paused={!sending} action={sending ? 'talk' : 'idle'} />
                     </div>
                   )}
 
@@ -494,14 +582,8 @@ export default function OtbeePage() {
               {/* Streaming Assistant Response */}
               {streamingText && (
                 <div className="flex gap-3 items-start justify-start">
-                  <div className="w-8 h-8 rounded-2xl bg-amber-400/20 border border-amber-400/40 p-1 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">
-                    <Image
-                      src="/mascot/thinking-idea.png"
-                      alt="Otbee Thinking"
-                      width={24}
-                      height={24}
-                      className="object-contain animate-pulse"
-                    />
+                  <div className="flex-shrink-0 -mt-1 select-none">
+                    <OtbeeAvatar headOnly size={36} action="talk" />
                   </div>
                   <div className="max-w-[85%] sm:max-w-[78%] backdrop-blur-xl bg-white/95 dark:bg-[#1e2028] border border-white/90 dark:border-[#2e313d] text-gray-900 dark:text-slate-100 rounded-3xl rounded-tl-xs shadow-sm p-5 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap font-medium">
                     {streamingText}
@@ -513,14 +595,8 @@ export default function OtbeePage() {
               {/* Loading Thinking Indicator */}
               {sending && !streamingText && (
                 <div className="flex gap-3 items-start justify-start">
-                  <div className="w-8 h-8 rounded-2xl bg-amber-400/20 border border-amber-400/40 p-1 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">
-                    <Image
-                      src="/mascot/thinking-idea.png"
-                      alt="Otbee Thinking"
-                      width={24}
-                      height={24}
-                      className="object-contain animate-bounce"
-                    />
+                  <div className="flex-shrink-0 -mt-1 select-none">
+                    <OtbeeAvatar headOnly size={36} action="thinking" />
                   </div>
                   <div className="px-4 py-3 rounded-2xl bg-white/90 dark:bg-[#1e2028] border border-white/90 dark:border-[#2e313d] shadow-sm text-gray-600 dark:text-slate-300 text-xs font-bold flex items-center gap-2">
                     <span className="flex gap-1">

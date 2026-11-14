@@ -1,58 +1,24 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
-import type { OtbeeAnimation } from './OtbeeMascot'
-
-export type MascotPosition = 'bottom-right' | 'bottom-left' | 'inline'
-
-export interface MascotConfig {
-  pose?: string
-  animation?: OtbeeAnimation
-  visible?: boolean
-  position?: MascotPosition
-}
+import { createContext, useContext, useMemo, type ReactNode } from 'react'
+import { otbeeBrain } from './otbee/brain'
+import type { ClipName } from './otbee/engine'
+import type { ViewName } from './otbee/types'
 
 interface OtbeeMascotContextValue {
-  config: MascotConfig
-  triggerMascot: (config: Partial<MascotConfig>) => void
-  hideMascot: () => void
-  showMascot: () => void
+  /** make the floating mascot perform a clip (optionally in a given view with a speech bubble) */
+  act: (clip: ClipName, opts?: { view?: ViewName; text?: string }) => void
+  say: (text: string, ms?: number) => void
 }
 
-const DEFAULT_CONFIG: MascotConfig = {
-  pose: 'maskot-pov-depan-front',
-  animation: 'idle',
-  visible: true,
-  position: 'bottom-left',
-}
-
-const OtbeeMascotContext = createContext<OtbeeMascotContextValue>({
-  config: DEFAULT_CONFIG,
-  triggerMascot: () => {},
-  hideMascot: () => {},
-  showMascot: () => {},
-})
+const OtbeeMascotContext = createContext<OtbeeMascotContextValue>({ act: () => {}, say: () => {} })
 
 export function OtbeeMascotProvider({ children }: { children: ReactNode }) {
-  const [config, setConfig] = useState<MascotConfig>(DEFAULT_CONFIG)
-
-  const triggerMascot = useCallback((newConfig: Partial<MascotConfig>) => {
-    setConfig(prev => ({ ...prev, ...newConfig }))
-  }, [])
-
-  const hideMascot = useCallback(() => {
-    setConfig(prev => ({ ...prev, visible: false }))
-  }, [])
-
-  const showMascot = useCallback(() => {
-    setConfig(prev => ({ ...prev, visible: true }))
-  }, [])
-
-  return (
-    <OtbeeMascotContext.Provider value={{ config, triggerMascot, hideMascot, showMascot }}>
-      {children}
-    </OtbeeMascotContext.Provider>
-  )
+  const value = useMemo<OtbeeMascotContextValue>(() => ({
+    act: (clip, opts) => otbeeBrain.emit({ type: 'act', clip, view: opts?.view, text: opts?.text }),
+    say: (text, ms) => otbeeBrain.emit({ type: 'say', text, ms }),
+  }), [])
+  return <OtbeeMascotContext.Provider value={value}>{children}</OtbeeMascotContext.Provider>
 }
 
 export function useOtbeeMascot() {

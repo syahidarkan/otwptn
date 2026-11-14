@@ -3,9 +3,10 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import {
-  X, Send, Sparkles, ShieldCheck, Mail, Bot
+  X, Send, Sparkles, Paperclip, ArrowLeft
 } from 'lucide-react'
-import { OtbeeVectorHead, default as OtbeeVectorMascot } from '@/components/mascot/OtbeeVectorMascot'
+import { OtbeeAvatar } from '@/components/mascot/otbee'
+import type { ClipName, OtbeeHandle } from '@/components/mascot/otbee'
 
 interface Message {
   id: string
@@ -14,15 +15,13 @@ interface Message {
   timestamp: string
 }
 
-const INITIAL_MESSAGES: Message[] = [
-  {
-    id: 'msg-welcome-1',
-    role: 'assistant',
-    content:
-      'Halo Pejuang PTN! Saya **Otbee CS**, asisten customer service resmi dari **OtwPTN** (PT. Lembaga Sains Nasional).\n\nAda yang ingin kamu ketahui seputar paket belajar, bimbingan mentor alumni, atau fitur Kalkulator Peluang & Review Essay kami?',
-    timestamp: 'Baru saja',
-  },
-]
+interface FloatingHeart {
+  id: number
+  x: number
+  y: number
+  rotation: number
+  emoji: string
+}
 
 const QUICK_QUESTIONS = [
   'Berapa harga paket & fiturnya?',
@@ -60,62 +59,95 @@ function formatChatText(content: string) {
 export default function CustomerServiceWidget() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
-  const [isOpening, setIsOpening] = useState(false) // Trigger sequence state
-  const [openingPhase, setOpeningPhase] = useState<'idle' | 'body-appear' | 'salto' | 'card-emerge' | 'dissolve'>('idle')
+  const [stage, setStage] = useState(false) // the standing mascot is on screen (jump / salto / dissolve)
+  const figRef = useRef<HTMLDivElement>(null)
+  const figAvatar = useRef<OtbeeHandle>(null)
+  const openingRef = useRef(false)
   const [showTeaser, setShowTeaser] = useState(true)
   const [inputMessage, setInputMessage] = useState('')
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
+  const [messages, setMessages] = useState<Message[]>([])
   const [isTyping, setIsTyping] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
+  const [heroHeadAction, setHeroHeadAction] = useState<ClipName>('idle')
+  const [hearts, setHearts] = useState<FloatingHeart[]>([])
+  const [isShrinkingHead, setIsShrinkingHead] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Auto-scroll to bottom on new message
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && messages.length > 0) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
   }, [messages, isTyping, isOpen])
 
-  // Sequence: Head click -> body appear -> salto -> card emerge -> dissolve
+  // Head icon click -> body grows out of the head -> jump + salto -> white card emerges from the body, body melts away
   const handleOpenChat = () => {
-    if (isOpening || isOpen) return
+    if (openingRef.current || isOpen) return
+    openingRef.current = true
     setShowTeaser(false)
-    setIsOpening(true)
-    setOpeningPhase('body-appear')
-
-    // Phase 1: Body attaches (0 - 180ms)
-    setTimeout(() => {
-      // Phase 2: Acrobatic salto (180ms - 550ms)
-      setOpeningPhase('salto')
-    }, 180)
-
-    // Phase 3: White card emerges at apex (520ms)
-    setTimeout(() => {
-      setOpeningPhase('card-emerge')
-    }, 520)
-
-    // Phase 4: Mascot dissolves into card header (750ms)
-    setTimeout(() => {
-      setOpeningPhase('dissolve')
-    }, 750)
-
-    // Phase 5: Fully open (920ms)
-    setTimeout(() => {
-      setIsOpen(true)
-      setIsOpening(false)
-      setOpeningPhase('idle')
-    }, 920)
+    setStage(true)
+    // wait one frame so the stage is mounted
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const fig = figRef.current
+      figAvatar.current?.fx('smoke')
+      fig?.animate([
+        { transform: 'translateY(74px) scale(.42)', clipPath: 'inset(0 0 63% 0)', opacity: 0.2 },
+        { transform: 'translateY(-10px) scale(1.04)', clipPath: 'inset(-60% -60% -10% -60%)', opacity: 1, offset: 0.7 },
+        { transform: 'translateY(0) scale(1)', clipPath: 'inset(-60% -60% -10% -60%)', opacity: 1 },
+      ], { duration: 460, easing: 'cubic-bezier(.3,1.3,.5,1)', fill: 'forwards' })
+      setTimeout(() => {
+        figAvatar.current?.fx('sparkle', -1)
+        figAvatar.current?.play('salto', {
+          speed: 1.4,
+          onDone: () => {
+            // card grows out of the standing body while the body dissolves into the card
+            setIsOpen(true)
+            figAvatar.current?.fx('stars')
+            fig?.animate([
+              { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'blur(0px)' },
+              { opacity: 0, transform: 'translateY(26px) scale(.35)', filter: 'blur(5px)' },
+            ], { duration: 420, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' })
+            setTimeout(() => { setStage(false); openingRef.current = false }, 460)
+          },
+        })
+      }, 440)
+    }))
   }
 
   const handleCloseChat = () => {
     setIsOpen(false)
-    setIsOpening(false)
-    setOpeningPhase('idle')
+  }
+
+  // Interactive love reaction when clicking the big head
+  const handleHeadLoveReaction = () => {
+    const emojis = ['💖', '💕', '❤️', '🥰', '✨', '🧡']
+    const newHearts: FloatingHeart[] = Array.from({ length: 7 }, (_, i) => ({
+      id: Date.now() + i,
+      x: (Math.random() - 0.5) * 80,
+      y: (Math.random() - 0.5) * 40,
+      rotation: (Math.random() - 0.5) * 40,
+      emoji: emojis[Math.floor(Math.random() * emojis.length)],
+    }))
+    setHearts(prev => [...prev, ...newHearts])
+    setHeroHeadAction('wink')
+    setTimeout(() => setHeroHeadAction('idle'), 1500)
+    setTimeout(() => {
+      setHearts(prev => prev.filter(h => !newHearts.some(nh => nh.id === h.id)))
+    }, 1200)
   }
 
   const handleSendMessage = async (textToSend?: string) => {
     const text = (textToSend || inputMessage).trim()
     if (!text || isTyping) return
+
+    const isFirst = messages.length === 0
+    if (isFirst) {
+      // Trigger the head shrinking animation towards the AI profile position!
+      setIsShrinkingHead(true)
+      setTimeout(() => {
+        setIsShrinkingHead(false)
+      }, 480)
+    }
 
     const userMsg: Message = {
       id: `usr-${Date.now()}`,
@@ -182,37 +214,40 @@ export default function CustomerServiceWidget() {
   return (
     <>
       <style>{`
-        @keyframes otbee-head-bob {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-4px) rotate(2deg); }
-        }
-        @keyframes otbee-antenna-twitch {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.04) rotate(-1deg); }
-        }
-        @keyframes otbee-salto-anim {
-          0% { transform: translateY(0px) rotate(0deg) scale(1); opacity: 1; }
-          20% { transform: translateY(12px) scaleX(1.25) scaleY(0.75); }
-          50% { transform: translateY(-110px) rotate(190deg) scale(1.15); opacity: 1; }
-          75% { transform: translateY(-90px) rotate(340deg) scale(1.05); opacity: 0.95; }
-          90% { transform: translateY(-40px) rotate(360deg) scale(0.9); opacity: 0.7; }
-          100% { transform: translateY(0px) rotate(360deg) scale(0.3); opacity: 0; }
-        }
         @keyframes otbee-card-emerge-anim {
-          0% { transform: scale(0.15) translateY(60px); opacity: 0; }
-          65% { transform: scale(1.02) translateY(-6px); opacity: 1; }
-          100% { transform: scale(1) translateY(0px); opacity: 1; }
+          0% { transform: scale(.12); opacity: 0; border-radius: 60px; }
+          55% { transform: scale(1.035); opacity: 1; border-radius: 28px; }
+          100% { transform: scale(1); opacity: 1; }
         }
-        @keyframes otbee-stardust-burst {
-          0% { transform: scale(0.4) rotate(0deg); opacity: 0; }
-          50% { transform: scale(1.3) rotate(60deg); opacity: 1; }
-          100% { transform: scale(1.6) rotate(120deg); opacity: 0; }
+        @keyframes otbee-orb-pop {
+          0% { transform: scale(.4); opacity: 0 }
+          70% { transform: scale(1.08); opacity: 1 }
+          100% { transform: scale(1) }
+        }
+        @keyframes otbee-float-heart {
+          0% { transform: translate(0, 0) scale(0.6) rotate(0deg); opacity: 1; }
+          50% { opacity: 0.95; }
+          100% { transform: translate(15px, -85px) scale(1.3) rotate(25deg); opacity: 0; }
+        }
+        @keyframes otbee-shrink-to-avatar {
+          0% {
+            top: 42%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+          }
+          100% {
+            top: 76px;
+            left: 20px;
+            transform: translate(0, 0) scale(0.24);
+            opacity: 0.85;
+          }
         }
       `}</style>
 
       <div id="cs-chat-widget" className="fixed z-30 bottom-5 right-5 sm:bottom-6 sm:right-6 font-sans">
         {/* Floating Teaser Callout */}
-        {!isOpen && !isOpening && showTeaser && (
+        {!isOpen && !stage && showTeaser && (
           <div className="hidden sm:block absolute bottom-[calc(100%+14px)] right-0 bg-white rounded-2xl p-3 shadow-xl border border-amber-200/90 w-64 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <button
               onClick={() => setShowTeaser(false)}
@@ -232,219 +267,324 @@ export default function CustomerServiceWidget() {
           </div>
         )}
 
-        {/* 1. RESTING STATE: Just the Head Icon (No neck, no body) */}
-        {!isOpen && !isOpening && (
+        {/* 1. RESTING STATE: just Otbee's head (no neck, no body) */}
+        {!isOpen && (
           <button
             onClick={handleOpenChat}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             aria-label="Buka Chatbot Customer Service"
-            className="group relative flex items-center justify-center cursor-pointer transition-transform duration-200 active:scale-95"
+            className="group relative flex items-center justify-center cursor-pointer active:scale-95"
             style={{
-              width: '68px',
-              height: '68px',
+              width: '68px', height: '68px',
+              opacity: stage ? 0 : 1, transform: stage ? 'scale(.7)' : undefined,
+              transition: 'opacity .2s, transform .25s', pointerEvents: stage ? 'none' : 'auto',
+              animation: 'otbee-orb-pop .45s cubic-bezier(.34,1.56,.64,1) both',
             }}
           >
-            {/* Glowing Golden Ring Background */}
             <div
               className="absolute inset-0 rounded-full transition-all duration-300"
               style={{
                 background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)',
-                boxShadow: isHovered
-                  ? '0 10px 30px -4px rgba(245, 158, 11, 0.65), 0 0 20px rgba(251, 191, 36, 0.45)'
-                  : '0 8px 24px -4px rgba(245, 158, 11, 0.45)',
+                boxShadow: isHovered ? '0 10px 30px -4px rgba(245,158,11,.65), 0 0 20px rgba(251,191,36,.45)' : '0 8px 24px -4px rgba(245,158,11,.45)',
                 transform: isHovered ? 'scale(1.08)' : 'scale(1)',
               }}
             />
-
-            {/* Inner Circular Frame with pure vector Otbee HEAD (strictly no neck/torso) */}
-            <div
-              className="relative w-14 h-14 rounded-full bg-gradient-to-b from-amber-50 to-amber-100/90 overflow-hidden border-2 border-white/95 shadow-inner flex items-center justify-center p-1"
-              style={{
-                animation: 'otbee-head-bob 3.2s ease-in-out infinite',
-              }}
-            >
-              <OtbeeVectorHead size={46} />
+            <div className="relative w-14 h-14 rounded-full bg-gradient-to-b from-amber-50 to-amber-100/90 overflow-hidden border-2 border-white/95 shadow-inner flex items-center justify-center">
+              <div style={{ transform: 'scaleX(-1)' }}>
+                <OtbeeAvatar headOnly view="front" size={44} followPointer facing={-1} paused={stage} />
+              </div>
             </div>
-
-            {/* Online Green Pulsing Indicator */}
             <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-xs animate-pulse" />
-
-            {/* Tiny "Tanya CS" label badge below icon */}
             <span className="absolute -bottom-2 bg-amber-950/90 text-amber-300 text-[8.5px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-400/30 shadow-xs pointer-events-none whitespace-nowrap">
               Tanya CS
             </span>
           </button>
         )}
 
-        {/* 2. THE ACROBATIC SALTO STAGE (When opening) */}
-        {isOpening && (
-          <div className="relative w-24 h-24 flex items-center justify-center pointer-events-none">
-            {/* Stardust Burst at launch */}
-            <div
-              className="absolute inset-0 flex items-center justify-center"
-              style={{ animation: 'otbee-stardust-burst 0.7s ease-out forwards' }}
-            >
-              <span className="text-xl">✨</span>
-              <span className="text-xl">⭐</span>
-            </div>
-
-            {/* Full Vector Otbee Performing Salto */}
-            <div
-              className="relative w-24 h-24"
-              style={{
-                animation: 'otbee-salto-anim 0.85s cubic-bezier(0.25, 1, 0.5, 1) forwards',
-              }}
-            >
-              <OtbeeVectorMascot pov="front" action="salto" size={96} />
-            </div>
+        {/* 2. STAGE: the full body that grows out of the head, jumps, salto, then melts into the card */}
+        {stage && (
+          <div ref={figRef} className="pointer-events-none absolute" style={{ right: 6, bottom: 2, zIndex: 2, opacity: 0.2, transformOrigin: '50% 20%' }}>
+            <OtbeeAvatar ref={figAvatar} view="front" size={176} />
           </div>
         )}
 
-        {/* 3. OPENED CHAT WINDOW (Emerged from the salto) */}
+        {/* 3. OPENED CHAT WINDOW */}
         {isOpen && (
           <div
-            className="w-[350px] sm:w-[410px] h-[580px] max-h-[85vh] bg-white rounded-3xl shadow-2xl flex flex-col border border-gray-100 overflow-hidden"
+            className="w-[350px] sm:w-[410px] h-[590px] max-h-[88vh] bg-white rounded-[32px] shadow-2xl flex flex-col border border-gray-100 overflow-hidden relative"
             style={{
               boxShadow: '0 25px 65px -12px rgba(0, 0, 0, 0.3), 0 0 25px rgba(245, 158, 11, 0.15)',
-              transformOrigin: 'bottom right',
-              animation: 'otbee-card-emerge-anim 0.35s cubic-bezier(0.34, 1.4, 0.64, 1) forwards',
+              transformOrigin: 'calc(100% - 34px) calc(100% - 70px)',
+              animation: 'otbee-card-emerge-anim 0.5s cubic-bezier(0.34, 1.3, 0.64, 1) forwards',
             }}
           >
-            {/* Header with 2D Illustrated Otbee CS Hero (No 3D canvas) */}
-            <div className="relative bg-gradient-to-br from-amber-400 via-amber-300 to-amber-200/90 p-4 border-b border-amber-300/60 flex-shrink-0">
-              {/* Top row: Status Badge & Close button */}
-              <div className="flex items-center justify-between relative z-10 mb-2">
-                <div className="flex items-center gap-1.5 bg-white/70 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-white/60 shadow-3xs">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-950 flex items-center gap-1">
-                    <ShieldCheck size={11} className="text-emerald-700" /> CS AI RESMI
-                  </span>
-                </div>
-                <button
-                  onClick={handleCloseChat}
-                  className="w-7 h-7 rounded-full bg-white/80 hover:bg-white text-gray-700 flex items-center justify-center transition-all cursor-pointer shadow-3xs hover:scale-105 active:scale-95"
-                  aria-label="Tutup Chat"
-                >
-                  <X size={14} />
-                </button>
+            {/* Transient Shrinking Head (Animates when first message is sent from Attempt 1 into Attempt 2) */}
+            {isShrinkingHead && (
+              <div
+                className="absolute pointer-events-none z-50 select-none"
+                style={{
+                  animation: 'otbee-shrink-to-avatar 0.48s cubic-bezier(0.2, 0.9, 0.3, 1) forwards',
+                  transformOrigin: 'top left',
+                }}
+              >
+                <OtbeeAvatar headOnly size={150} view="front" action="cheer" />
               </div>
+            )}
 
-              {/* Middle row: Brand info on left + 2D Otbee CS Mascot Avatar on right */}
-              <div className="flex items-center justify-between gap-3 relative z-10">
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-black text-gray-950 tracking-tight leading-tight">
-                    Customer Service OtwPTN
-                  </h3>
-                  <p className="text-[11px] font-bold text-amber-950/85 mt-1 line-clamp-1">
-                    Asisten Pintar 24/7 Masuk Kampus
+            {/* ======================================================== */}
+            {/* ATTEMPT 1: NO CHAT MESSAGES YET (Zero State)             */}
+            {/* ======================================================== */}
+            {messages.length === 0 ? (
+              <div className="flex-1 flex flex-col justify-between p-5 select-none relative overflow-hidden bg-gradient-to-b from-white via-amber-50/20 to-white">
+                {/* Top Bar with Close button */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200/60 text-[10px] font-black uppercase text-amber-900 tracking-wider">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Otbee CS Online</span>
+                  </div>
+                  <button
+                    onClick={handleCloseChat}
+                    className="w-8 h-8 rounded-full hover:bg-gray-100 text-gray-500 flex items-center justify-center transition-all cursor-pointer"
+                    aria-label="Tutup Chat"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+
+                {/* Big Title (Attempt 1 styling) */}
+                <div className="text-center pt-1 pb-1">
+                  <h2 className="text-[25px] sm:text-[27px] font-black text-gray-950 tracking-tight leading-[1.18]">
+                    Your{' '}
+                    <span className="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 bg-clip-text text-transparent">
+                      Smart Assistant
+                    </span>
+                    <br />
+                    for Any Tasks
+                  </h2>
+                </div>
+
+                {/* Center Mascot Head: Large, Interactive with cursor & Love click */}
+                <div className="relative flex flex-col items-center justify-center py-2 my-auto">
+                  {/* Speech Bubble "Hello!" */}
+                  <div className="absolute -top-1 left-8 sm:left-14 z-20 bg-white/95 backdrop-blur-xs px-3 py-1 rounded-2xl shadow-md border border-gray-100 text-xs font-black text-gray-800 animate-bounce">
+                    Hello!
+                    <span className="absolute -bottom-1 left-3.5 w-2.5 h-2.5 bg-white border-r border-b border-gray-100 rotate-45" />
+                  </div>
+
+                  {/* Soft Glowing Orb Background */}
+                  <div className="absolute w-44 h-44 rounded-full bg-gradient-to-tr from-amber-300/35 via-amber-400/25 to-pink-300/20 blur-2xl -z-10" />
+
+                  {/* Interactive Head */}
+                  <div
+                    onClick={handleHeadLoveReaction}
+                    className="cursor-pointer transition-transform hover:scale-105 active:scale-95 relative"
+                    title="Klik kepala Otbee untuk reaksi love! 💖"
+                  >
+                    <OtbeeAvatar
+                      headOnly
+                      size={150}
+                      followPointer
+                      view="front"
+                      action={heroHeadAction}
+                    />
+
+                    {/* Floating Love Hearts */}
+                    {hearts.map(h => (
+                      <span
+                        key={h.id}
+                        className="pointer-events-none absolute select-none text-2xl"
+                        style={{
+                          left: `calc(50% + ${h.x}px)`,
+                          top: `calc(50% + ${h.y}px)`,
+                          animation: 'otbee-float-heart 1.2s cubic-bezier(0.2, 0.8, 0.4, 1) forwards',
+                          transform: `rotate(${h.rotation}deg)`,
+                        }}
+                      >
+                        {h.emoji}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Subtitle */}
+                  <p className="text-xs font-semibold text-gray-500 text-center max-w-[250px] leading-relaxed mt-2">
+                    Get instant help and support with any task or problem
                   </p>
-                  <div className="mt-1.5 flex items-center gap-2 text-[9.5px] font-semibold text-amber-900/75">
-                    <span className="truncate">otwptn.com@gmail.com</span>
-                  </div>
                 </div>
 
-                {/* 2D Otbee CS Avatar Badge (Dissolved target from salto) */}
-                <div
-                  className="relative w-20 h-20 rounded-2xl bg-gradient-to-b from-white via-amber-50 to-amber-100/70 p-1 shadow-md border-2 border-white flex-shrink-0 overflow-hidden flex items-center justify-center"
-                >
-                  <OtbeeVectorMascot pov="front" action="wave" size={72} />
-                  <div className="absolute bottom-1 right-1">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 block border-2 border-white shadow-xs" />
+                {/* Quick Question Pills */}
+                <div className="flex flex-wrap justify-center gap-1.5 pt-1 pb-2">
+                  {QUICK_QUESTIONS.slice(0, 3).map((q, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleSendMessage(q)}
+                      className="px-3 py-1 rounded-full bg-white hover:bg-amber-100/70 text-gray-700 text-[10.5px] font-bold border border-gray-200/80 hover:border-amber-300 transition-all cursor-pointer shadow-3xs"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Pill-shaped Input Bar (Attempt 2 style) */}
+                <div className="w-full">
+                  <div className="flex items-center gap-2 bg-gray-100/90 rounded-full px-3.5 py-1.5 border border-gray-200/80 shadow-inner">
+                    <Paperclip size={17} className="text-gray-400 hover:text-gray-600 cursor-pointer flex-shrink-0" />
+                    <input
+                      type="text"
+                      value={inputMessage}
+                      onChange={e => setInputMessage(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Tulis pesan..."
+                      className="flex-1 bg-transparent text-xs font-semibold text-gray-900 placeholder:text-gray-400 outline-none min-w-0"
+                    />
+                    <div className="flex items-center gap-1 text-[11px] font-black text-amber-700 bg-amber-400/20 px-2 py-0.5 rounded-full flex-shrink-0">
+                      <Sparkles size={11} className="text-amber-600 fill-amber-500" />
+                      <span>AI</span>
+                    </div>
+                    <button
+                      onClick={() => handleSendMessage()}
+                      disabled={!inputMessage.trim()}
+                      className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-amber-950 flex items-center justify-center transition-all cursor-pointer shadow-xs disabled:opacity-40 flex-shrink-0"
+                      aria-label="Kirim Pesan"
+                    >
+                      <Send size={13} className="stroke-[2.5]" />
+                    </button>
                   </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              /* ======================================================== */
+              /* ATTEMPT 2: ACTIVE CHAT MESSAGES                          */
+              /* ======================================================== */
+              <div className="flex-1 flex flex-col overflow-hidden bg-white">
+                {/* Topbar: Back button, Title, Close button */}
+                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-white/90 backdrop-blur-md flex-shrink-0">
+                  <button
+                    onClick={() => setMessages([])}
+                    className="w-8 h-8 rounded-full hover:bg-gray-100 text-gray-700 flex items-center justify-center transition-all cursor-pointer"
+                    title="Kembali ke Layar Awal"
+                    aria-label="Kembali"
+                  >
+                    <ArrowLeft size={18} />
+                  </button>
 
-            {/* Quick FAQ Suggestion Pills */}
-            <div className="bg-amber-50/60 p-2.5 border-b border-amber-200/40 flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-shrink-0">
-              {QUICK_QUESTIONS.map((q, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSendMessage(q)}
-                  disabled={isTyping}
-                  className="px-3 py-1 rounded-full bg-white hover:bg-amber-100 text-gray-800 text-[10px] font-bold whitespace-nowrap shadow-3xs transition-colors cursor-pointer border border-amber-200/50"
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
+                  <div className="text-center">
+                    <h3 className="text-sm font-black text-gray-900 tracking-tight">
+                      Otbee AI Assistant
+                    </h3>
+                    <div className="flex items-center justify-center gap-1 text-[10px] font-bold text-emerald-600">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>Aktif Siaga</span>
+                    </div>
+                  </div>
 
-            {/* Messages Scroll Area */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-3.5 bg-gray-50/50">
-              {messages.map(msg => (
-                <div
-                  key={msg.id}
-                  className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  {msg.role === 'assistant' && (
-                    <div className="w-7 h-7 rounded-full bg-amber-100 p-0.5 flex-shrink-0 flex items-center justify-center shadow-3xs overflow-hidden">
-                      <OtbeeVectorHead size={24} />
+                  <button
+                    onClick={handleCloseChat}
+                    className="w-8 h-8 rounded-full hover:bg-gray-100 text-gray-500 flex items-center justify-center transition-all cursor-pointer"
+                    aria-label="Tutup"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+
+                {/* Messages Stream */}
+                <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50/40">
+                  {messages.map(msg => (
+                    <div key={msg.id} className="space-y-1">
+                      {msg.role === 'user' ? (
+                        /* User message (Attempt 2 style) */
+                        <div className="flex justify-end">
+                          <div className="max-w-[82%] bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 font-bold rounded-2xl rounded-tr-xs px-4 py-2.5 text-xs shadow-xs leading-relaxed">
+                            {msg.content}
+                            <div className="text-[9px] font-bold text-amber-950/60 text-right mt-1">
+                              {msg.timestamp}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        /* AI Assistant message (Attempt 2 style: NO CIRCLE FRAME, direct head mascot) */
+                        <div className="flex items-start gap-2.5">
+                          {/* Direct Otbee Vector Head Photo Profile */}
+                          <div className="flex-shrink-0 -mt-1 select-none">
+                            <OtbeeAvatar
+                              headOnly
+                              size={34}
+                              paused={!isTyping}
+                              action={isTyping ? 'talk' : 'idle'}
+                            />
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            {/* Timestamp & Name */}
+                            <div className="flex items-center gap-1.5 mb-1 text-[10.5px]">
+                              <span className="text-gray-400 font-bold">{msg.timestamp}</span>
+                              <span className="text-gray-300">•</span>
+                              <span className="font-black text-gray-900">Ai-Assistant</span>
+                            </div>
+
+                            {/* Message bubble */}
+                            <div className="bg-white rounded-2xl rounded-tl-xs p-3.5 text-xs text-gray-800 font-medium border border-gray-100 shadow-3xs leading-relaxed">
+                              {formatChatText(msg.content)}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Typing Indicator */}
+                  {isTyping && (
+                    <div className="flex items-start gap-2.5">
+                      <div className="flex-shrink-0 -mt-1 select-none">
+                        <OtbeeAvatar headOnly size={34} action="talk" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-1 text-[10.5px]">
+                          <span className="font-black text-amber-800">Otbee AI</span>
+                          <span className="text-gray-300">•</span>
+                          <span className="text-amber-600 font-bold">Sedang berpikir...</span>
+                        </div>
+                        <div className="bg-white rounded-2xl rounded-tl-xs px-4 py-3 border border-gray-100 shadow-3xs flex items-center gap-1.5 w-fit">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce [animation-delay:0.2s]" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce [animation-delay:0.4s]" />
+                        </div>
+                      </div>
                     </div>
                   )}
 
-                  <div
-                    className={`max-w-[82%] rounded-2xl p-3 text-xs leading-relaxed ${
-                      msg.role === 'user'
-                        ? 'bg-amber-400 text-amber-950 font-semibold rounded-tr-none shadow-xs'
-                        : 'bg-white text-gray-800 font-medium rounded-tl-none border border-gray-100 shadow-xs'
-                    }`}
-                  >
-                    {formatChatText(msg.content)}
-                    <div
-                      className={`mt-1.5 text-[9px] font-bold text-right ${
-                        msg.role === 'user' ? 'text-amber-900/60' : 'text-gray-400'
-                      }`}
-                    >
-                      {msg.timestamp}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* Bottom Pill Input Bar (Attempt 2 style) */}
+                <div className="p-3 bg-white border-t border-gray-100 flex-shrink-0">
+                  <div className="flex items-center gap-2 bg-gray-100/90 rounded-full px-3.5 py-1.5 border border-gray-200/80 shadow-inner">
+                    <Paperclip size={17} className="text-gray-400 hover:text-gray-600 cursor-pointer flex-shrink-0" />
+                    <input
+                      type="text"
+                      value={inputMessage}
+                      onChange={e => setInputMessage(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Message"
+                      disabled={isTyping}
+                      className="flex-1 bg-transparent text-xs font-semibold text-gray-900 placeholder:text-gray-400 outline-none min-w-0"
+                    />
+                    <div className="flex items-center gap-1 text-[11px] font-black text-amber-700 bg-amber-400/20 px-2 py-0.5 rounded-full flex-shrink-0">
+                      <Sparkles size={11} className="text-amber-600 fill-amber-500" />
+                      <span>24</span>
                     </div>
+                    <button
+                      onClick={() => handleSendMessage()}
+                      disabled={isTyping || !inputMessage.trim()}
+                      className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-amber-950 flex items-center justify-center transition-all cursor-pointer shadow-xs disabled:opacity-40 flex-shrink-0"
+                      aria-label="Kirim Pesan"
+                    >
+                      <Send size={13} className="stroke-[2.5]" />
+                    </button>
                   </div>
                 </div>
-              ))}
-
-              {/* Typing Indicator */}
-              {isTyping && (
-                <div className="flex gap-2.5 items-center">
-                  <div className="w-7 h-7 rounded-full bg-amber-100 p-0.5 flex-shrink-0 flex items-center justify-center overflow-hidden">
-                    <OtbeeVectorHead size={24} />
-                  </div>
-                  <div className="bg-white rounded-2xl p-3 rounded-tl-none border border-gray-100 shadow-xs flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce [animation-delay:0.2s]" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce [animation-delay:0.4s]" />
-                    <span className="text-[10px] font-bold text-gray-400 ml-1">Otbee sedang mengetik...</span>
-                  </div>
-                </div>
-              )}
-
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input & Footer Controls */}
-            <div className="p-3 bg-white border-t border-gray-100 flex-shrink-0 space-y-2">
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={inputMessage}
-                  onChange={e => setInputMessage(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Tanyakan seputar OtwPTN, paket, atau SNBP..."
-                  disabled={isTyping}
-                  className="flex-1 px-4 py-2.5 rounded-full bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 focus:bg-white focus:border-amber-400 outline-none"
-                />
-                <button
-                  onClick={() => handleSendMessage()}
-                  disabled={isTyping || !inputMessage.trim()}
-                  className="w-9 h-9 rounded-full bg-amber-400 hover:bg-amber-500 disabled:opacity-50 text-amber-950 flex items-center justify-center transition-all cursor-pointer flex-shrink-0 shadow-xs"
-                  aria-label="Kirim Pesan"
-                >
-                  <Send size={15} />
-                </button>
               </div>
-              <div className="text-[9px] text-center text-gray-400 font-medium">
-                CS AI khusus melayani panduan & paket bimbingan resmi OtwPTN
-              </div>
-            </div>
+            )}
           </div>
         )}
       </div>

@@ -2,14 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { HoneyOverlay } from '@/components/ui/HoneyDrip'
+import { HoneyOverlay, type HoneyHandle } from '@/components/ui/HoneyTransition'
+import { otbeeBrain } from '@/components/mascot/otbee/brain'
 
 export default function GlobalPageLoader() {
   const router = useRouter()
   const pathname = usePathname()
 
   const elRef = useRef<HTMLDivElement>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const engineRef = useRef<HoneyHandle>(null)
   const [isRouteLoaded, setIsRouteLoaded] = useState(false)
   const isTransitioningRef = useRef(false)
   const hasCompletedRef = useRef(false)
@@ -50,16 +51,11 @@ export default function GlobalPageLoader() {
       if (overlay) {
         overlay.style.visibility = 'hidden'
       }
-      if (videoRef.current) {
-        try {
-          videoRef.current.pause()
-          videoRef.current.playbackRate = 1.0
-          videoRef.current.currentTime = 0
-        } catch {}
-      }
+      engineRef.current?.reset()
       setIsRouteLoaded(false)
       isTransitioningRef.current = false
       hasCompletedRef.current = false
+      otbeeBrain.emit({ type: 'nav-end' })
       // Enforce 400ms cooldown so animations never double-trigger
       cooldownRef.current = true
       setTimeout(() => {
@@ -75,7 +71,7 @@ export default function GlobalPageLoader() {
       clearInterval(pollIntervalRef.current)
       pollIntervalRef.current = null
     }
-    // Once route commits, drain from 1.16s -> 2.38s takes ~1.0s.
+    // Once route commits the honey drains (~1s).
     // Failsafe ensures the overlay NEVER stays frozen if a browser throttles video resume.
     if (!drainFailsafeRef.current) {
       drainFailsafeRef.current = setTimeout(() => {
@@ -109,14 +105,8 @@ export default function GlobalPageLoader() {
     el.style.visibility = 'visible'
     el.style.opacity = '1'
 
-    // Play video from 0
-    if (videoRef.current) {
-      try {
-        videoRef.current.currentTime = 0
-        videoRef.current.playbackRate = 1.0
-        videoRef.current.play().catch(() => {})
-      } catch {}
-    }
+    engineRef.current?.start()
+    otbeeBrain.emit({ type: 'nav-start' })
 
     // Trigger router navigation immediately
     router.prefetch(href)
@@ -184,7 +174,7 @@ export default function GlobalPageLoader() {
   return (
     <HoneyOverlay
       ref={elRef}
-      videoRef={videoRef}
+      engineRef={engineRef}
       isRouteLoaded={isRouteLoaded}
       onComplete={handleComplete}
     />
