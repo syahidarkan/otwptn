@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import {
-  X, Send, Sparkles, Paperclip, ArrowLeft
+  X, Send, ArrowLeft
 } from 'lucide-react'
 import { OtbeeAvatar } from '@/components/mascot/otbee'
 import type { ClipName, OtbeeHandle } from '@/components/mascot/otbee'
@@ -13,14 +13,6 @@ interface Message {
   role: 'user' | 'assistant'
   content: string
   timestamp: string
-}
-
-interface FloatingHeart {
-  id: number
-  x: number
-  y: number
-  rotation: number
-  emoji: string
 }
 
 const QUICK_QUESTIONS = [
@@ -62,14 +54,13 @@ export default function CustomerServiceWidget() {
   const [stage, setStage] = useState(false) // the standing mascot is on screen (jump / salto / dissolve)
   const figRef = useRef<HTMLDivElement>(null)
   const figAvatar = useRef<OtbeeHandle>(null)
+  const heroAvatarRef = useRef<OtbeeHandle>(null)
   const openingRef = useRef(false)
   const [showTeaser, setShowTeaser] = useState(true)
   const [inputMessage, setInputMessage] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
   const [isTyping, setIsTyping] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-  const [heroHeadAction, setHeroHeadAction] = useState<ClipName>('idle')
-  const [hearts, setHearts] = useState<FloatingHeart[]>([])
   const [isShrinkingHead, setIsShrinkingHead] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -118,22 +109,12 @@ export default function CustomerServiceWidget() {
     setIsOpen(false)
   }
 
-  // Interactive love reaction when clicking the big head
+  // Native vector love reaction using mascot rig fx and shy blushing action
   const handleHeadLoveReaction = () => {
-    const emojis = ['💖', '💕', '❤️', '🥰', '✨', '🧡']
-    const newHearts: FloatingHeart[] = Array.from({ length: 7 }, (_, i) => ({
-      id: Date.now() + i,
-      x: (Math.random() - 0.5) * 80,
-      y: (Math.random() - 0.5) * 40,
-      rotation: (Math.random() - 0.5) * 40,
-      emoji: emojis[Math.floor(Math.random() * emojis.length)],
-    }))
-    setHearts(prev => [...prev, ...newHearts])
-    setHeroHeadAction('wink')
-    setTimeout(() => setHeroHeadAction('idle'), 1500)
-    setTimeout(() => {
-      setHearts(prev => prev.filter(h => !newHearts.some(nh => nh.id === h.id)))
-    }, 1200)
+    heroAvatarRef.current?.fx('heart', 1)
+    heroAvatarRef.current?.play('shy', {
+      onDone: () => heroAvatarRef.current?.play('idle')
+    })
   }
 
   const handleSendMessage = async (textToSend?: string) => {
@@ -223,11 +204,6 @@ export default function CustomerServiceWidget() {
           0% { transform: scale(.4); opacity: 0 }
           70% { transform: scale(1.08); opacity: 1 }
           100% { transform: scale(1) }
-        }
-        @keyframes otbee-float-heart {
-          0% { transform: translate(0, 0) scale(0.6) rotate(0deg); opacity: 1; }
-          50% { opacity: 0.95; }
-          100% { transform: translate(15px, -85px) scale(1.3) rotate(25deg); opacity: 0; }
         }
         @keyframes otbee-shrink-to-avatar {
           0% {
@@ -337,12 +313,8 @@ export default function CustomerServiceWidget() {
             {/* ======================================================== */}
             {messages.length === 0 ? (
               <div className="flex-1 flex flex-col justify-between p-5 select-none relative overflow-hidden bg-gradient-to-b from-white via-amber-50/20 to-white">
-                {/* Top Bar with Close button */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200/60 text-[10px] font-black uppercase text-amber-900 tracking-wider">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>Otbee CS Online</span>
-                  </div>
+                {/* Top Bar with Close button only (No Otbee CS Online badge) */}
+                <div className="flex items-center justify-end">
                   <button
                     onClick={handleCloseChat}
                     className="w-8 h-8 rounded-full hover:bg-gray-100 text-gray-500 flex items-center justify-center transition-all cursor-pointer"
@@ -364,7 +336,7 @@ export default function CustomerServiceWidget() {
                   </h2>
                 </div>
 
-                {/* Center Mascot Head: Large, Interactive with cursor & Love click */}
+                {/* Center Mascot Head: Large, Interactive with cursor & native love reaction */}
                 <div className="relative flex flex-col items-center justify-center py-2 my-auto">
                   {/* Speech Bubble "Hello!" */}
                   <div className="absolute -top-1 left-8 sm:left-14 z-20 bg-white/95 backdrop-blur-xs px-3 py-1 rounded-2xl shadow-md border border-gray-100 text-xs font-black text-gray-800 animate-bounce">
@@ -379,31 +351,15 @@ export default function CustomerServiceWidget() {
                   <div
                     onClick={handleHeadLoveReaction}
                     className="cursor-pointer transition-transform hover:scale-105 active:scale-95 relative"
-                    title="Klik kepala Otbee untuk reaksi love! 💖"
+                    title="Klik kepala Otbee!"
                   >
                     <OtbeeAvatar
+                      ref={heroAvatarRef}
                       headOnly
                       size={150}
                       followPointer
                       view="front"
-                      action={heroHeadAction}
                     />
-
-                    {/* Floating Love Hearts */}
-                    {hearts.map(h => (
-                      <span
-                        key={h.id}
-                        className="pointer-events-none absolute select-none text-2xl"
-                        style={{
-                          left: `calc(50% + ${h.x}px)`,
-                          top: `calc(50% + ${h.y}px)`,
-                          animation: 'otbee-float-heart 1.2s cubic-bezier(0.2, 0.8, 0.4, 1) forwards',
-                          transform: `rotate(${h.rotation}deg)`,
-                        }}
-                      >
-                        {h.emoji}
-                      </span>
-                    ))}
                   </div>
 
                   {/* Subtitle */}
@@ -425,10 +381,9 @@ export default function CustomerServiceWidget() {
                   ))}
                 </div>
 
-                {/* Pill-shaped Input Bar (Attempt 2 style) */}
+                {/* Pill-shaped Input Bar (No paperclip, No AI label) */}
                 <div className="w-full">
-                  <div className="flex items-center gap-2 bg-gray-100/90 rounded-full px-3.5 py-1.5 border border-gray-200/80 shadow-inner">
-                    <Paperclip size={17} className="text-gray-400 hover:text-gray-600 cursor-pointer flex-shrink-0" />
+                  <div className="flex items-center gap-2 bg-gray-100/90 rounded-full pl-4 pr-1.5 py-1.5 border border-gray-200/80 shadow-inner">
                     <input
                       type="text"
                       value={inputMessage}
@@ -437,10 +392,6 @@ export default function CustomerServiceWidget() {
                       placeholder="Tulis pesan..."
                       className="flex-1 bg-transparent text-xs font-semibold text-gray-900 placeholder:text-gray-400 outline-none min-w-0"
                     />
-                    <div className="flex items-center gap-1 text-[11px] font-black text-amber-700 bg-amber-400/20 px-2 py-0.5 rounded-full flex-shrink-0">
-                      <Sparkles size={11} className="text-amber-600 fill-amber-500" />
-                      <span>AI</span>
-                    </div>
                     <button
                       onClick={() => handleSendMessage()}
                       disabled={!inputMessage.trim()}
@@ -556,10 +507,9 @@ export default function CustomerServiceWidget() {
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Bottom Pill Input Bar (Attempt 2 style) */}
+                {/* Bottom Pill Input Bar (No paperclip, No AI label) */}
                 <div className="p-3 bg-white border-t border-gray-100 flex-shrink-0">
-                  <div className="flex items-center gap-2 bg-gray-100/90 rounded-full px-3.5 py-1.5 border border-gray-200/80 shadow-inner">
-                    <Paperclip size={17} className="text-gray-400 hover:text-gray-600 cursor-pointer flex-shrink-0" />
+                  <div className="flex items-center gap-2 bg-gray-100/90 rounded-full pl-4 pr-1.5 py-1.5 border border-gray-200/80 shadow-inner">
                     <input
                       type="text"
                       value={inputMessage}
@@ -569,10 +519,6 @@ export default function CustomerServiceWidget() {
                       disabled={isTyping}
                       className="flex-1 bg-transparent text-xs font-semibold text-gray-900 placeholder:text-gray-400 outline-none min-w-0"
                     />
-                    <div className="flex items-center gap-1 text-[11px] font-black text-amber-700 bg-amber-400/20 px-2 py-0.5 rounded-full flex-shrink-0">
-                      <Sparkles size={11} className="text-amber-600 fill-amber-500" />
-                      <span>24</span>
-                    </div>
                     <button
                       onClick={() => handleSendMessage()}
                       disabled={isTyping || !inputMessage.trim()}

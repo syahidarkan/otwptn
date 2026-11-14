@@ -26,6 +26,48 @@ export default function FloatingMascot() {
   const [size, setSize] = useState(118)
   const [hovered, setHovered] = useState(false)
   const [bubble, setBubble] = useState<Bubble | null>(null)
+  const [isDraggingState, setIsDraggingState] = useState(false)
+  const isDraggingRef = useRef(false)
+  const dragStartPos = useRef({ x: 0, y: 0 })
+  const hasMovedRef = useRef(false)
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (e.button !== 0) return
+    isDraggingRef.current = true
+    hasMovedRef.current = false
+    dragStartPos.current = { x: e.clientX, y: e.clientY }
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+    } catch {}
+  }
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDraggingRef.current) return
+    const dx = Math.abs(e.clientX - dragStartPos.current.x)
+    const dy = Math.abs(e.clientY - dragStartPos.current.y)
+    if (!hasMovedRef.current && (dx > 5 || dy > 5)) {
+      hasMovedRef.current = true
+      setIsDraggingState(true)
+      ctl.current?.startDrag(e.clientX, e.clientY)
+    }
+    if (hasMovedRef.current) {
+      ctl.current?.onDragMove(e.clientX, e.clientY)
+    }
+  }
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isDraggingRef.current) return
+    isDraggingRef.current = false
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
+    } catch {}
+    if (hasMovedRef.current) {
+      setIsDraggingState(false)
+      ctl.current?.endDrag()
+    } else {
+      ctl.current?.clickMascot()
+    }
+  }
 
   const hidden = !!pathname && (pathname.startsWith('/dashboard/essay/') || pathname.startsWith('/admin'))
 
@@ -119,11 +161,22 @@ export default function FloatingMascot() {
       <div ref={popRef} style={{ transformOrigin: '50% 100%' }}>
         <div ref={tiltRef} style={{ transformOrigin: '50% 80%' }}>
           <div
-            onClick={() => ctl.current?.clickMascot()}
-            title="Klik Otbee untuk aksi salto & tips lolos PTN!"
-            style={{ cursor: 'pointer', filter: hovered ? 'drop-shadow(0 6px 16px rgba(245,158,11,.5))' : 'drop-shadow(0 3px 6px rgba(0,0,0,.18))', transition: 'filter .2s' }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+            title="Klik untuk tips atau drag & drop untuk memindahkan Otbee!"
+            style={{
+              cursor: isDraggingState ? 'grabbing' : 'grab',
+              touchAction: 'none',
+              userSelect: 'none',
+              filter: hovered
+                ? 'drop-shadow(0 6px 16px rgba(245,158,11,.5))'
+                : 'drop-shadow(0 3px 6px rgba(0,0,0,.18))',
+              transition: 'filter .2s',
+            }}
           >
-            <OtbeeAvatar ref={avatar} view="front" size={size} followPointer />
+            <OtbeeAvatar ref={avatar} view="front" size={size} followPointer={!isDraggingState} />
           </div>
         </div>
       </div>

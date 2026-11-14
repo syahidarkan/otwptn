@@ -399,6 +399,24 @@ export const CLIPS = {
       mouthOpen: [[0, 0.4]], mouthCurve: [[0, 1]], eyeArc: [[0, 0.3]],
     },
   },
+  struggle: {
+    dur: 0.45, loop: true,
+    tracks: {
+      rot: [[0, -9], [0.22, 9, 'sine'], [0.45, -9, 'sine']],
+      armL: [[0, 75], [0.12, 125, 'sine'], [0.24, 55, 'sine'], [0.36, 115, 'sine'], [0.45, 75, 'sine']],
+      armR: [[0, 115], [0.12, 55, 'sine'], [0.24, 125, 'sine'], [0.36, 75, 'sine'], [0.45, 115, 'sine']],
+      legL: [[0, -40], [0.22, 40, 'sine'], [0.45, -40, 'sine']],
+      legR: [[0, 40], [0.22, -40, 'sine'], [0.45, 40, 'sine']],
+      kneeL: [[0, 60], [0.22, 10, 'sine'], [0.45, 60, 'sine']],
+      kneeR: [[0, 10], [0.22, 60, 'sine'], [0.45, 10, 'sine']],
+      antL: [[0, 24], [0.22, -24, 'sine'], [0.45, 24, 'sine']],
+      antR: [[0, -24], [0.22, 24, 'sine'], [0.45, -24, 'sine']],
+      mouthOpen: [[0, 0.9], [0.45, 0.9]],
+      mouthCurve: [[0, -1], [0.45, -1]],
+      eyeArc: [[0, 0.85], [0.45, 0.85]],
+      wingAmp: [[0, 36], [0.45, 36]], wingHz: [[0, 16], [0.45, 16]],
+    }, fx: [{ t: 0.1, type: 'sweat' }, { t: 0.3, type: 'exclaim' }],
+  },
 } satisfies Record<string, Clip>
 export type ClipName = keyof typeof CLIPS
 

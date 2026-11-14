@@ -27,7 +27,7 @@ import {
 import SearchInput from '@/components/ui/SearchInput'
 import { completeQuest, awardPoints } from '@/lib/gamification'
 import { OtbeeAvatar } from '@/components/mascot/otbee'
-import type { ClipName } from '@/components/mascot/otbee'
+import type { ClipName, OtbeeHandle } from '@/components/mascot/otbee'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -84,27 +84,16 @@ export default function OtbeePage() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [loading, setLoading] = useState(true)
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
-  const [heroHeadAction, setHeroHeadAction] = useState<ClipName>('idle')
-  const [hearts, setHearts] = useState<{ id: number; x: number; y: number; rotation: number; emoji: string }[]>([])
   const [isShrinkingHead, setIsShrinkingHead] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const heroAvatarRef = useRef<OtbeeHandle>(null)
 
   const handleHeadLoveReaction = () => {
-    const emojis = ['💖', '💕', '❤️', '🥰', '✨', '🧡']
-    const newHearts = Array.from({ length: 7 }, (_, i) => ({
-      id: Date.now() + i,
-      x: (Math.random() - 0.5) * 80,
-      y: (Math.random() - 0.5) * 40,
-      rotation: (Math.random() - 0.5) * 40,
-      emoji: emojis[Math.floor(Math.random() * emojis.length)],
-    }))
-    setHearts(prev => [...prev, ...newHearts])
-    setHeroHeadAction('wink')
-    setTimeout(() => setHeroHeadAction('idle'), 1500)
-    setTimeout(() => {
-      setHearts(prev => prev.filter(h => !newHearts.some(nh => nh.id === h.id)))
-    }, 1200)
+    heroAvatarRef.current?.fx('heart', 1)
+    heroAvatarRef.current?.play('shy', {
+      onDone: () => heroAvatarRef.current?.play('idle'),
+    })
   }
 
   const loadConversations = useCallback(async () => {
@@ -463,31 +452,15 @@ export default function OtbeePage() {
                   <div
                     onClick={handleHeadLoveReaction}
                     className="cursor-pointer transition-transform hover:scale-105 active:scale-95 relative"
-                    title="Klik kepala Otbee untuk reaksi love! 💖"
+                    title="Klik kepala Otbee!"
                   >
                     <OtbeeAvatar
+                      ref={heroAvatarRef}
                       headOnly
                       size={150}
                       followPointer
                       view="front"
-                      action={heroHeadAction}
                     />
-
-                    {/* Floating Love Hearts */}
-                    {hearts.map(h => (
-                      <span
-                        key={h.id}
-                        className="pointer-events-none absolute select-none text-2xl"
-                        style={{
-                          left: `calc(50% + ${h.x}px)`,
-                          top: `calc(50% + ${h.y}px)`,
-                          animation: 'otbee-float-heart 1.2s cubic-bezier(0.2, 0.8, 0.4, 1) forwards',
-                          transform: `rotate(${h.rotation}deg)`,
-                        }}
-                      >
-                        {h.emoji}
-                      </span>
-                    ))}
                   </div>
 
                   <p className="text-xs sm:text-sm font-semibold text-gray-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed mt-3">

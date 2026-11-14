@@ -72,6 +72,7 @@ export function createController(d: ControllerDeps) {
   let idleStage = 0
   let lastPlan: unknown = null
   let pointerX = 0, pointerY = 0, pointerMoved = false
+  let isDragging = false
   const idleTimers: ReturnType<typeof setTimeout>[] = []
   const seen = new WeakMap<Element, number>()
   const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0
@@ -493,6 +494,108 @@ export function createController(d: ControllerDeps) {
       // programmatic / back-forward navigation that never went through the honey loader
       if (performance.now() - navStartedAt > 7000) { despawn(); spawnWhenReady(getMascotConfigForPath(d.pathname())) }
       else setTimeout(() => { if (!disposed && phase === 'hidden') spawnWhenReady(getMascotConfigForPath(d.pathname())) }, 5000)
+    },
+    startDrag(clientX: number, clientY: number) {
+      if (disposed) return
+      isDragging = true
+      phase = 'traveling'
+      token++
+      anchor = null
+      clearIdle()
+      if (settleTimer) clearTimeout(settleTimer)
+      if (readTimer) clearTimeout(readTimer)
+      if (retryTimer) clearTimeout(retryTimer)
+
+      const docX = clientX + window.scrollX
+      const docY = clientY + window.scrollY
+      place({ x: docX, y: docY })
+
+      play('struggle')
+      say('Ih aku mau dibawa kemanaaa!!! 😾', 15000)
+      fx('sweat')
+    },
+    onDragMove(clientX: number, clientY: number) {
+      if (!isDragging || disposed) return
+      const docX = clientX + window.scrollX
+      const docY = clientY + window.scrollY
+      place({ x: docX, y: docY })
+    },
+    async endDrag() {
+      if (!isDragging || disposed) return
+      isDragging = false
+      const curX = pos.x
+      const curY = pos.y
+      const curY_v = curY - window.scrollY
+      const curX_v = curX - window.scrollX
+
+      // Scan surfaces to find the nearest object/landing pad below (Hukum Gravitasi)
+      const cands = scanSurfaces({ scale: scale() })
+      const below = cands
+        .filter(c => c.y > curY_v + 15 && c.xb > 30)
+        .map(c => {
+          const midX = (c.xa + c.xb) / 2
+          const dx = Math.abs(midX - curX_v)
+          const dy = c.y - curY_v
+          return { c, dy, dx }
+        })
+        .sort((a, b) => (a.dy + a.dx * 0.4) - (b.dy + b.dx * 0.4))
+
+      let targetX = curX
+      let targetY = curY
+      let foundAnchor: Anchor | null = null
+
+      if (below.length > 0) {
+        const best = below[0]
+        const landX_v = clamp(curX_v, best.c.xa + 20, best.c.xb - 20)
+        const validated = best.c.make(landX_v)
+        if (validated) {
+          foundAnchor = validated.anchor
+          targetX = validated.x + window.scrollX
+          targetY = validated.y + window.scrollY
+        } else {
+          targetX = landX_v + window.scrollX
+          targetY = best.c.y + window.scrollY
+        }
+      } else {
+        targetY = window.scrollY + window.innerHeight - 30
+      }
+
+      const fallDist = targetY - curY
+      if (fallDist > 15) {
+        play('jumpAir')
+        const dur = Math.max(260, Math.min(800, Math.sqrt(fallDist / 500) * 550))
+        const startX = curX
+        const startY = curY
+        const currentTok = ++token
+
+        await tween(dur, currentTok, p => {
+          const y = startY + fallDist * (p * p)
+          const x = startX + (targetX - startX) * p
+          place({ x, y })
+        })
+
+        if (disposed || currentTok !== token) return
+      } else {
+        place({ x: targetX, y: targetY })
+      }
+
+      play('land')
+      fx('dust')
+      if (foundAnchor) {
+        anchor = foundAnchor
+      }
+
+      const funnyLandQuotes = [
+        'Aduhh pusinggg! Tapi selamat mendarat! 😵‍💫',
+        'Hufttt, jangan digeser-geser lagi yaaa! 😤',
+        'Fiuhhh... Kirain mau dibuang kemana! 😮‍💨',
+        'Aduh pantatku sakit! Untung mendarat mulus! 🐝',
+      ]
+      say(pickOne(funnyLandQuotes), 4500)
+
+      phase = 'resting'
+      busyUntil = performance.now() + 600
+      resetIdle()
     },
     clickMascot() {
       if (phase !== 'resting') return
