@@ -91,6 +91,19 @@ export default function GlobalPageLoader() {
     }
   }, [pathname, markRouteCommitted])
 
+  const pendingHrefRef = useRef<string | null>(null)
+  const pushExecutedRef = useRef(false)
+
+  const executePush = useCallback(() => {
+    if (pushExecutedRef.current || !pendingHrefRef.current) return
+    pushExecutedRef.current = true
+    router.push(pendingHrefRef.current)
+  }, [router])
+
+  const handleScreenCovered = useCallback(() => {
+    executePush()
+  }, [executePush])
+
   const startTransition = useCallback((href: string) => {
     const el = elRef.current
     if (!el || isTransitioningRef.current || cooldownRef.current) return
@@ -100,6 +113,8 @@ export default function GlobalPageLoader() {
     hasCompletedRef.current = false
     startUrlRef.current = `${window.location.pathname}${window.location.search}`
     setIsRouteLoaded(false)
+    pendingHrefRef.current = href
+    pushExecutedRef.current = false
 
     // Show overlay immediately
     el.style.visibility = 'visible'
@@ -111,11 +126,10 @@ export default function GlobalPageLoader() {
     // Prefetch route immediately in background network
     router.prefetch(href)
 
-    // Push route once screen is covered by the honey curtain (~280ms)
-    // This completely eliminates Main Thread navigation freeze during the inflow animation!
+    // Safety fallback: ensure router.push triggers even if covered callback is delayed
     setTimeout(() => {
-      router.push(href)
-    }, 280)
+      executePush()
+    }, 1000)
 
     // Poll full URL (pathname + search) every 50ms so query-param or fast navigations never hang
     pollIntervalRef.current = setInterval(() => {
@@ -132,7 +146,7 @@ export default function GlobalPageLoader() {
         handleComplete()
       }
     }, 4500)
-  }, [clearAllTimers, handleComplete, markRouteCommitted, router])
+  }, [clearAllTimers, executePush, handleComplete, markRouteCommitted, router])
 
   useEffect(() => {
     function onClick(e: MouseEvent) {
@@ -181,6 +195,7 @@ export default function GlobalPageLoader() {
       ref={elRef}
       engineRef={engineRef}
       isRouteLoaded={isRouteLoaded}
+      onScreenCovered={handleScreenCovered}
       onComplete={handleComplete}
     />
   )
