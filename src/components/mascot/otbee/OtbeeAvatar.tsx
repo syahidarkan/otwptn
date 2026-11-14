@@ -258,7 +258,15 @@ export default function OtbeeAvatar({
       width={pxW}
       height={size}
       className={className}
-      style={{ overflow: 'visible', display: 'block', cursor: onClick ? 'pointer' : undefined, ...style }}
+      style={{
+        overflow: 'visible',
+        display: 'block',
+        cursor: onClick ? 'pointer' : undefined,
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        pointerEvents: onClick ? 'auto' : 'none',
+        ...style,
+      }}
       onClick={onClick}
       role={onClick ? 'button' : 'img'}
       aria-label="Otbee"

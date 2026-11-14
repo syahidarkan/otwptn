@@ -31,8 +31,17 @@ export default function FloatingMascot() {
   const dragStartPos = useRef({ x: 0, y: 0 })
   const hasMovedRef = useRef(false)
 
+  const preventSelection = (e: Event) => {
+    e.preventDefault()
+  }
+
   const handlePointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0) return
+    e.preventDefault()
+    window.getSelection()?.removeAllRanges()
+    document.body.classList.add('otbee-dragging')
+    document.addEventListener('selectstart', preventSelection, { capture: true })
+    document.addEventListener('dragstart', preventSelection, { capture: true })
     isDraggingRef.current = true
     hasMovedRef.current = false
     dragStartPos.current = { x: e.clientX, y: e.clientY }
@@ -43,9 +52,11 @@ export default function FloatingMascot() {
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDraggingRef.current) return
+    e.preventDefault()
+    window.getSelection()?.removeAllRanges()
     const dx = Math.abs(e.clientX - dragStartPos.current.x)
     const dy = Math.abs(e.clientY - dragStartPos.current.y)
-    if (!hasMovedRef.current && (dx > 5 || dy > 5)) {
+    if (!hasMovedRef.current && (dx > 3 || dy > 3)) {
       hasMovedRef.current = true
       setIsDraggingState(true)
       ctl.current?.startDrag(e.clientX, e.clientY)
@@ -58,6 +69,10 @@ export default function FloatingMascot() {
   const handlePointerUp = (e: React.PointerEvent) => {
     if (!isDraggingRef.current) return
     isDraggingRef.current = false
+    document.body.classList.remove('otbee-dragging')
+    document.removeEventListener('selectstart', preventSelection, { capture: true })
+    document.removeEventListener('dragstart', preventSelection, { capture: true })
+    window.getSelection()?.removeAllRanges()
     try {
       (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
     } catch {}
@@ -68,6 +83,14 @@ export default function FloatingMascot() {
       ctl.current?.clickMascot()
     }
   }
+
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove('otbee-dragging')
+      document.removeEventListener('selectstart', preventSelection, { capture: true })
+      document.removeEventListener('dragstart', preventSelection, { capture: true })
+    }
+  }, [])
 
   const hidden = !!pathname && (pathname.startsWith('/dashboard/essay/') || pathname.startsWith('/admin'))
 
@@ -157,19 +180,53 @@ export default function FloatingMascot() {
           }} />
         </div>
       )}
-      <style>{`@keyframes otbee-bubble-pop{0%{opacity:0;scale:.85}100%{opacity:1;scale:1}}`}</style>
-      <div ref={popRef} style={{ transformOrigin: '50% 100%' }}>
-        <div ref={tiltRef} style={{ transformOrigin: '50% 80%' }}>
+      <style>{`
+        @keyframes otbee-bubble-pop{0%{opacity:0;scale:.85}100%{opacity:1;scale:1}}
+        body.otbee-dragging,
+        body.otbee-dragging * {
+          -webkit-user-select: none !important;
+          -moz-user-select: none !important;
+          -ms-user-select: none !important;
+          user-select: none !important;
+          -webkit-user-drag: none !important;
+          cursor: grabbing !important;
+        }
+        body.otbee-dragging *::selection {
+          background: transparent !important;
+          color: inherit !important;
+        }
+        #otbee-floating-container,
+        #otbee-floating-container * {
+          -webkit-user-select: none !important;
+          -moz-user-select: none !important;
+          user-select: none !important;
+          -webkit-user-drag: none !important;
+        }
+        #otbee-floating-container *::selection {
+          background: transparent !important;
+          color: inherit !important;
+        }
+      `}</style>
+      <div ref={popRef} style={{ transformOrigin: '50% 100%', userSelect: 'none', WebkitUserSelect: 'none' }}>
+        <div ref={tiltRef} style={{ transformOrigin: '50% 80%', userSelect: 'none', WebkitUserSelect: 'none' }}>
           <div
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerUp}
+            onLostPointerCapture={handlePointerUp}
+            onMouseDown={e => {
+              e.preventDefault()
+              window.getSelection()?.removeAllRanges()
+            }}
+            onDragStart={e => e.preventDefault()}
+            draggable={false}
             title="Klik untuk tips atau drag & drop untuk memindahkan Otbee!"
             style={{
               cursor: isDraggingState ? 'grabbing' : 'grab',
               touchAction: 'none',
               userSelect: 'none',
+              WebkitUserSelect: 'none',
               filter: hovered
                 ? 'drop-shadow(0 6px 16px rgba(245,158,11,.5))'
                 : 'drop-shadow(0 3px 6px rgba(0,0,0,.18))',
