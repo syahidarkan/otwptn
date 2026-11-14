@@ -1,21 +1,45 @@
 'use client'
 
-import React, { useId, useState, useEffect } from 'react'
+/**
+ * OtbeeVectorMascot - Pure hardcoded 2D SVG mascot engine
+ * Zero external PNGs. Pixel-accurate recreation of Otbee the bee.
+ *
+ * Visual reference: /public/mascot-hd/maskot-pov-depan-front.png
+ * Character traits:
+ *   - Chibi bee, golden-amber yellow (#F5B800 / #FFCF00) body
+ *   - Big round head (60% of total height), small rounded body
+ *   - Two antennae: black curved stalk + round black tip
+ *   - Aviator goggles on forehead: dark brown leather band, two round teal/cyan lenses with crosshair reticles + glare
+ *   - Large kawaii eyes: big black circle, white sclera patch top-left, two white highlight dots
+ *   - Pink blush cheeks (soft radial gradient ellipses)
+ *   - Small open/smile mouth (shows teeth when happy)
+ *   - Black neckerchief tied at left side with bow knot + two trailing ends
+ *   - Striped body: 3-4 black bands across yellow torso (thick, curved)
+ *   - Crossbody satchel bag (dark brown leather, simple flap, strap going left-to-right)
+ *   - Two stubby arms (yellow, no fingers, slightly curved) - arms out for front/idle
+ *   - Two stubby feet
+ *   - 4 blue-teal translucent wings (2 visible per side from front: upper large + lower small)
+ *   - Black stinger at bottom
+ */
 
-export type MascotPOV = 'front' | 'right' | 'left' | 'back' | 'top' | '3/4' | 'bottom'
+import React, { useId, useEffect, useRef, useState } from 'react'
+
+export type MascotPOV = 'front' | 'right' | 'left' | 'back' | 'top' | 'bottom' | '3/4'
 export type MascotPoseAction =
   | 'idle'
+  | 'bounce'
   | 'wave'
   | 'cheer'
   | 'thumbsup'
-  | 'bounce'
-  | 'salto'
-  | 'point'
   | 'thinking'
   | 'sleep'
+  | 'salto'
+  | 'run'
   | 'happy'
+  | 'sad'
+  | 'excited'
 
-export interface OtbeeVectorProps {
+interface OtbeeVectorMascotProps {
   pov?: MascotPOV
   action?: MascotPoseAction
   size?: number
@@ -25,11 +49,992 @@ export interface OtbeeVectorProps {
   onHover?: () => void
 }
 
-/**
- * Hardcoded Pure SVG 2D Otbee Mascot Engine
- * Accurately replicates the character turnaround from "Maskot/2d all pov.png"
- * 100% vector, zero external PNGs, infinitely scalable, fully animated via SVG & CSS.
- */
+// -------------------------------------------------------------------------
+// SVG viewBox is 200x240 (width x height). Center X=100, ground Y=235.
+// Head center: (100, 85). Head radius: ~65 (slightly elliptical: rx=63, ry=65)
+// Body center: (100, 175). Body: ellipse rx=48, ry=42
+// -------------------------------------------------------------------------
+
+function useBlinkTimer() {
+  const [blink, setBlink] = useState(false)
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>
+    const schedule = () => {
+      const nextBlink = 2800 + Math.random() * 3500
+      timeout = setTimeout(() => {
+        setBlink(true)
+        setTimeout(() => {
+          setBlink(false)
+          schedule()
+        }, 130)
+      }, nextBlink)
+    }
+    schedule()
+    return () => clearTimeout(timeout)
+  }, [])
+  return blink
+}
+
+// ----- WING (front view: upper large, lower small) ------
+function WingLeft({ id }: { id: string }) {
+  return (
+    <g>
+      {/* Upper left wing - large teardrop */}
+      <ellipse
+        cx={52} cy={118}
+        rx={30} ry={22}
+        transform="rotate(-30 52 118)"
+        fill={`url(#${id}-wing-fill)`}
+        stroke="#8EC5D6"
+        strokeWidth="1.2"
+        opacity={0.88}
+      />
+      {/* Wing veins */}
+      <line x1={68} y1={105} x2={40} y2={128} stroke="#A8D8E8" strokeWidth="0.6" opacity={0.7} />
+      <line x1={72} y1={112} x2={44} y2={130} stroke="#A8D8E8" strokeWidth="0.5" opacity={0.6} />
+      {/* Lower left wing - small */}
+      <ellipse
+        cx={58} cy={144}
+        rx={18} ry={12}
+        transform="rotate(-15 58 144)"
+        fill={`url(#${id}-wing-fill)`}
+        stroke="#8EC5D6"
+        strokeWidth="1"
+        opacity={0.78}
+      />
+    </g>
+  )
+}
+
+function WingRight({ id }: { id: string }) {
+  return (
+    <g>
+      {/* Upper right wing */}
+      <ellipse
+        cx={148} cy={118}
+        rx={30} ry={22}
+        transform="rotate(30 148 118)"
+        fill={`url(#${id}-wing-fill)`}
+        stroke="#8EC5D6"
+        strokeWidth="1.2"
+        opacity={0.88}
+      />
+      {/* Wing veins */}
+      <line x1={132} y1={105} x2={160} y2={128} stroke="#A8D8E8" strokeWidth="0.6" opacity={0.7} />
+      <line x1={128} y1={112} x2={156} y2={130} stroke="#A8D8E8" strokeWidth="0.5" opacity={0.6} />
+      {/* Lower right wing */}
+      <ellipse
+        cx={142} cy={144}
+        rx={18} ry={12}
+        transform="rotate(15 142 144)"
+        fill={`url(#${id}-wing-fill)`}
+        stroke="#8EC5D6"
+        strokeWidth="1"
+        opacity={0.78}
+      />
+    </g>
+  )
+}
+
+// ----- GOGGLES ------
+function Goggles({ id, pov = 'front' }: { id: string; pov?: MascotPOV }) {
+  if (pov === 'back') {
+    // From back: just the strap going across
+    return (
+      <g>
+        <rect x={42} y={62} width={116} height={12} rx={6} fill="#6B3A2A" />
+        <rect x={42} y={64} width={116} height={4} rx={2} fill="#8B5542" opacity={0.5} />
+      </g>
+    )
+  }
+  if (pov === 'top') {
+    // From top: goggles on the front edge, seen foreshortened
+    return (
+      <g>
+        <ellipse cx={100} cy={105} rx={42} ry={8} fill="#5A2D1A" />
+        <ellipse cx={82} cy={105} rx={14} ry={6} fill="#1A8A7A" />
+        <ellipse cx={118} cy={105} rx={14} ry={6} fill="#1A8A7A" />
+      </g>
+    )
+  }
+
+  // Front / 3/4 / left / right
+  const isProfile = pov === 'right' || pov === 'left'
+  if (isProfile) {
+    // Side profile: one goggle visible, strap going back
+    const flip = pov === 'left' ? -1 : 1
+    return (
+      <g transform={pov === 'left' ? 'scale(-1,1) translate(-200,0)' : ''}>
+        {/* Strap going left across head */}
+        <rect x={50} y={60} width={105} height={13} rx={6.5} fill="#6B3A2A" />
+        <rect x={50} y={62} width={105} height={5} rx={2.5} fill="#8B5542" opacity={0.4} />
+        {/* One goggle lens (right side visible) */}
+        <circle cx={134} cy={67} r={22} fill="#2A1A0A" stroke="#6B3A2A" strokeWidth={3} />
+        <circle cx={134} cy={67} r={18} fill="#1D7A6A" />
+        {/* Crosshair reticle */}
+        <line x1={134} y1={52} x2={134} y2={82} stroke="#28B89A" strokeWidth="1.2" opacity={0.8} />
+        <line x1={119} y1={67} x2={149} y2={67} stroke="#28B89A" strokeWidth="1.2" opacity={0.8} />
+        <circle cx={134} cy={67} r={7} fill="none" stroke="#28B89A" strokeWidth="0.9" opacity={0.7} />
+        {/* Glare */}
+        <ellipse cx={126} cy={60} rx={4} ry={2.5} fill="white" opacity={0.3} transform="rotate(-25 126 60)" />
+      </g>
+    )
+  }
+
+  // Front / 3/4
+  return (
+    <g>
+      {/* Brown leather strap/band across top of head */}
+      <rect x={42} y={58} width={116} height={18} rx={9} fill="#6B3A2A" />
+      <rect x={42} y={60} width={116} height={7} rx={3.5} fill="#8B5542" opacity={0.4} />
+
+      {/* Left goggle frame (dark brown outer) */}
+      <circle cx={76} cy={65} r={23} fill="#2A1A0A" stroke="#5A2D1A" strokeWidth={2.5} />
+      {/* Left goggle lens (teal/cyan) */}
+      <circle cx={76} cy={65} r={18} fill="#1D7A6A" />
+      {/* Gradient sheen on left lens */}
+      <circle cx={76} cy={65} r={18} fill={`url(#${id}-lens-radial)`} />
+      {/* Left crosshair */}
+      <line x1={76} y1={48} x2={76} y2={82} stroke="#28B89A" strokeWidth="1.4" opacity={0.85} />
+      <line x1={59} y1={65} x2={93} y2={65} stroke="#28B89A" strokeWidth="1.4" opacity={0.85} />
+      <circle cx={76} cy={65} r={7} fill="none" stroke="#28B89A" strokeWidth="1" opacity={0.7} />
+      {/* Left glare */}
+      <ellipse cx={68} cy={57} rx={5} ry={3} fill="white" opacity={0.35} transform="rotate(-30 68 57)" />
+
+      {/* Bridge between lenses */}
+      <rect x={94} y={62} width={12} height={6} rx={3} fill="#2A1A0A" />
+
+      {/* Right goggle frame */}
+      <circle cx={124} cy={65} r={23} fill="#2A1A0A" stroke="#5A2D1A" strokeWidth={2.5} />
+      {/* Right goggle lens */}
+      <circle cx={124} cy={65} r={18} fill="#1D7A6A" />
+      <circle cx={124} cy={65} r={18} fill={`url(#${id}-lens-radial)`} />
+      {/* Right crosshair */}
+      <line x1={124} y1={48} x2={124} y2={82} stroke="#28B89A" strokeWidth="1.4" opacity={0.85} />
+      <line x1={107} y1={65} x2={141} y2={65} stroke="#28B89A" strokeWidth="1.4" opacity={0.85} />
+      <circle cx={124} cy={65} r={7} fill="none" stroke="#28B89A" strokeWidth="1" opacity={0.7} />
+      {/* Right glare */}
+      <ellipse cx={116} cy={57} rx={5} ry={3} fill="white" opacity={0.35} transform="rotate(-30 116 57)" />
+    </g>
+  )
+}
+
+// ----- ANTENNAE ------
+function Antennae({ pov = 'front' }: { pov?: MascotPOV }) {
+  if (pov === 'back') {
+    return (
+      <g>
+        <path d="M 80 44 Q 72 25 68 15" stroke="#1A1A1A" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+        <circle cx={68} cy={13} r={5.5} fill="#1A1A1A" />
+        <path d="M 120 44 Q 128 25 132 15" stroke="#1A1A1A" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+        <circle cx={132} cy={13} r={5.5} fill="#1A1A1A" />
+      </g>
+    )
+  }
+  if (pov === 'top') {
+    // From top: antennae point outward
+    return (
+      <g>
+        <line x1={78} y1={75} x2={58} y2={52} stroke="#1A1A1A" strokeWidth="3.5" strokeLinecap="round" />
+        <circle cx={56} cy={50} r={5} fill="#1A1A1A" />
+        <line x1={122} y1={75} x2={142} y2={52} stroke="#1A1A1A" strokeWidth="3.5" strokeLinecap="round" />
+        <circle cx={144} cy={50} r={5} fill="#1A1A1A" />
+      </g>
+    )
+  }
+  if (pov === 'right') {
+    return (
+      <g>
+        <path d="M 115 48 Q 125 28 128 16" stroke="#1A1A1A" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+        <circle cx={128} cy={14} r={5.5} fill="#1A1A1A" />
+        <path d="M 128 50 Q 145 35 152 24" stroke="#1A1A1A" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+        <circle cx={152} cy={22} r={5.5} fill="#1A1A1A" />
+      </g>
+    )
+  }
+  if (pov === 'left') {
+    return (
+      <g transform="scale(-1,1) translate(-200,0)">
+        <path d="M 115 48 Q 125 28 128 16" stroke="#1A1A1A" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+        <circle cx={128} cy={14} r={5.5} fill="#1A1A1A" />
+        <path d="M 128 50 Q 145 35 152 24" stroke="#1A1A1A" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+        <circle cx={152} cy={22} r={5.5} fill="#1A1A1A" />
+      </g>
+    )
+  }
+
+  // Front / 3/4 - two antennae slightly apart
+  return (
+    <g>
+      {/* Left antenna */}
+      <path d="M 83 42 Q 76 22 72 10" stroke="#1A1A1A" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+      <circle cx={72} cy={8} r={6} fill="#1A1A1A" />
+      {/* Right antenna */}
+      <path d="M 117 42 Q 124 22 128 10" stroke="#1A1A1A" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+      <circle cx={128} cy={8} r={6} fill="#1A1A1A" />
+    </g>
+  )
+}
+
+// ----- EYES ------
+function Eyes({ id, blink, pov = 'front', action = 'idle' }: { id: string; blink: boolean; pov?: MascotPOV; action?: MascotPoseAction }) {
+  const isSleeping = action === 'sleep'
+  const isThinking = action === 'thinking'
+
+  if (pov === 'back') {
+    return null
+  }
+  if (pov === 'top') {
+    // Eyes barely visible from above, slightly squinting
+    return (
+      <g transform="translate(0, 10) scale(1, 0.4) translate(0, -10)">
+        <ellipse cx={82} cy={102} rx={10} ry={8} fill="#1A1A1A" />
+        <ellipse cx={118} cy={102} rx={10} ry={8} fill="#1A1A1A" />
+      </g>
+    )
+  }
+
+  if (isSleeping) {
+    // Closed crescent eyes
+    return (
+      <g>
+        <path d="M 70 103 Q 80 97 90 103" stroke="#1A1A1A" strokeWidth="2.8" fill="none" strokeLinecap="round" />
+        <path d="M 110 103 Q 120 97 130 103" stroke="#1A1A1A" strokeWidth="2.8" fill="none" strokeLinecap="round" />
+      </g>
+    )
+  }
+
+  const isProfile = pov === 'right' || pov === 'left'
+
+  if (isProfile) {
+    // Profile: only one eye visible
+    const flip = pov === 'left'
+    return (
+      <g transform={flip ? 'scale(-1,1) translate(-200,0)' : ''}>
+        <ellipse cx={130} cy={99} rx={16} ry={blink ? 2 : 15} fill="white" />
+        {!blink && (
+          <>
+            <circle cx={132} cy={101} r={12} fill="#1A1A1A" />
+            <circle cx={127} cy={96} r={3.5} fill="white" />
+            <circle cx={137} cy={103} r={2} fill="white" />
+          </>
+        )}
+        {blink && <ellipse cx={130} cy={99} rx={16} ry={2} fill="#1A1A1A" />}
+      </g>
+    )
+  }
+
+  // Front / 3/4
+  const leftEyeCX = 82
+  const rightEyeCX = 118
+  const eyeCY = 100
+
+  if (blink) {
+    return (
+      <g>
+        <path d={`M ${leftEyeCX - 14} ${eyeCY} Q ${leftEyeCX} ${eyeCY - 6} ${leftEyeCX + 14} ${eyeCY}`}
+          stroke="#1A1A1A" strokeWidth="3" fill="none" strokeLinecap="round" />
+        <path d={`M ${rightEyeCX - 14} ${eyeCY} Q ${rightEyeCX} ${eyeCY - 6} ${rightEyeCX + 14} ${eyeCY}`}
+          stroke="#1A1A1A" strokeWidth="3" fill="none" strokeLinecap="round" />
+      </g>
+    )
+  }
+
+  return (
+    <g>
+      {/* Left eye */}
+      <ellipse cx={leftEyeCX} cy={eyeCY} rx={15} ry={15} fill="white" />
+      <circle cx={leftEyeCX + 1} cy={eyeCY + 1} r={12} fill="#1A1A1A" />
+      {/* Left highlights */}
+      <circle cx={leftEyeCX - 4} cy={eyeCY - 4} r={4} fill="white" />
+      <circle cx={leftEyeCX + 5} cy={eyeCY + 4} r={2} fill="white" />
+
+      {/* Right eye */}
+      <ellipse cx={rightEyeCX} cy={eyeCY} rx={15} ry={15} fill="white" />
+      <circle cx={rightEyeCX + 1} cy={eyeCY + 1} r={12} fill="#1A1A1A" />
+      {/* Right highlights */}
+      <circle cx={rightEyeCX - 4} cy={eyeCY - 4} r={4} fill="white" />
+      <circle cx={rightEyeCX + 5} cy={eyeCY + 4} r={2} fill="white" />
+
+      {/* Thinking: eyebrow on right */}
+      {isThinking && (
+        <path d={`M ${rightEyeCX - 10} ${eyeCY - 17} Q ${rightEyeCX} ${eyeCY - 21} ${rightEyeCX + 10} ${eyeCY - 16}`}
+          stroke="#C4860A" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      )}
+    </g>
+  )
+}
+
+// ----- BLUSH / CHEEKS ------
+function Cheeks({ pov = 'front' }: { pov?: MascotPOV }) {
+  if (pov === 'back' || pov === 'top') return null
+  const isProfile = pov === 'right' || pov === 'left'
+  if (isProfile) {
+    const flip = pov === 'left'
+    return (
+      <g transform={flip ? 'scale(-1,1) translate(-200,0)' : ''}>
+        <ellipse cx={148} cy={114} rx={11} ry={7} fill="#F4869A" opacity={0.65} />
+      </g>
+    )
+  }
+  return (
+    <g>
+      <ellipse cx={68} cy={114} rx={12} ry={8} fill="#F4869A" opacity={0.6} />
+      <ellipse cx={132} cy={114} rx={12} ry={8} fill="#F4869A" opacity={0.6} />
+    </g>
+  )
+}
+
+// ----- MOUTH ------
+function Mouth({ action = 'idle', pov = 'front' }: { action?: MascotPoseAction; pov?: MascotPOV }) {
+  if (pov === 'back' || pov === 'top') return null
+  const isProfile = pov === 'right' || pov === 'left'
+  const mx = isProfile ? (pov === 'left' ? 72 : 128) : 100
+  const my = 121
+
+  if (action === 'sleep') {
+    return (
+      <path d={`M ${mx - 7} ${my + 2} Q ${mx} ${my + 6} ${mx + 7} ${my + 2}`}
+        stroke="#1A1A1A" strokeWidth="2" fill="none" strokeLinecap="round" />
+    )
+  }
+  if (action === 'cheer' || action === 'excited') {
+    return (
+      <g>
+        <path d={`M ${mx - 11} ${my - 1} Q ${mx} ${my + 11} ${mx + 11} ${my - 1}`}
+          fill="#1A1A1A" />
+        <path d={`M ${mx - 11} ${my - 1} Q ${mx} ${my + 11} ${mx + 11} ${my - 1}`}
+          fill="#C03060" stroke="none" />
+        {/* Teeth */}
+        <path d={`M ${mx - 7} ${my - 1} Q ${mx} ${my + 10} ${mx + 7} ${my - 1}`}
+          fill="white" />
+      </g>
+    )
+  }
+  if (action === 'sad') {
+    return (
+      <path d={`M ${mx - 9} ${my + 4} Q ${mx} ${my} ${mx + 9} ${my + 4}`}
+        stroke="#1A1A1A" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+    )
+  }
+  // Default happy smile (slight open mouth)
+  return (
+    <g>
+      <path d={`M ${mx - 9} ${my} Q ${mx} ${my + 9} ${mx + 9} ${my}`}
+        fill="#1A1A1A" />
+      <path d={`M ${mx - 9} ${my} Q ${mx} ${my + 8} ${mx + 9} ${my}`}
+        fill="#C03060" />
+      <path d={`M ${mx - 7} ${my} Q ${mx} ${my + 6} ${mx + 7} ${my}`}
+        fill="white" />
+    </g>
+  )
+}
+
+// ----- BODY WITH STRIPES ------
+function Body({ id, pov = 'front' }: { id: string; pov?: MascotPOV }) {
+  if (pov === 'top') {
+    // From above: just the yellow oval top of body
+    return (
+      <g>
+        <ellipse cx={100} cy={175} rx={48} ry={42} fill={`url(#${id}-body-grad)`} stroke="#D4960A" strokeWidth="1.5" />
+        {/* Stripes as curved horizontal lines */}
+        <path d="M 55 165 Q 100 160 145 165" stroke="#1A1A1A" strokeWidth="8" fill="none" strokeLinecap="round" opacity={0.9} />
+        <path d="M 54 183 Q 100 178 146 183" stroke="#1A1A1A" strokeWidth="8" fill="none" strokeLinecap="round" opacity={0.9} />
+      </g>
+    )
+  }
+  if (pov === 'bottom') {
+    return (
+      <g>
+        <ellipse cx={100} cy={175} rx={48} ry={42} fill={`url(#${id}-body-grad)`} stroke="#D4960A" strokeWidth="1.5" />
+        <path d="M 56 170 Q 100 165 144 170" stroke="#1A1A1A" strokeWidth="7" fill="none" strokeLinecap="round" opacity={0.85} />
+        <path d="M 55 188 Q 100 183 145 188" stroke="#1A1A1A" strokeWidth="7" fill="none" strokeLinecap="round" opacity={0.85} />
+      </g>
+    )
+  }
+  if (pov === 'right' || pov === 'left') {
+    const flip = pov === 'left'
+    return (
+      <g transform={flip ? 'scale(-1,1) translate(-200,0)' : ''}>
+        <ellipse cx={110} cy={175} rx={42} ry={40} fill={`url(#${id}-body-grad)`} stroke="#D4960A" strokeWidth="1.5" />
+        {/* Stripes from profile */}
+        <path d="M 70 162 Q 110 157 152 162" stroke="#1A1A1A" strokeWidth="9" fill="none" strokeLinecap="round" opacity={0.9} />
+        <path d="M 68 180 Q 110 175 153 180" stroke="#1A1A1A" strokeWidth="9" fill="none" strokeLinecap="round" opacity={0.9} />
+        <path d="M 70 198 Q 110 193 152 198" stroke="#1A1A1A" strokeWidth="9" fill="none" strokeLinecap="round" opacity={0.9} />
+      </g>
+    )
+  }
+
+  // Front / 3/4 / back
+  return (
+    <g>
+      {/* Main body ellipse */}
+      <ellipse cx={100} cy={177} rx={50} ry={44} fill={`url(#${id}-body-grad)`} stroke="#D4960A" strokeWidth="1.5" />
+      {/* Black stripe bands - curved to follow body shape */}
+      {/* Stripe 1 - top (neckerchief area) */}
+      <path d="M 52 157 Q 100 151 148 157 Q 148 167 100 167 Q 52 167 52 157 Z"
+        fill="#1A1A1A" opacity={0.92} />
+      {/* Stripe 2 - middle */}
+      <path d="M 52 175 Q 100 170 148 175 Q 148 185 100 185 Q 52 185 52 175 Z"
+        fill="#1A1A1A" opacity={0.92} />
+      {/* Stripe 3 - lower */}
+      <path d="M 54 196 Q 100 191 146 196 Q 146 205 100 205 Q 54 205 54 196 Z"
+        fill="#1A1A1A" opacity={0.90} />
+    </g>
+  )
+}
+
+// ----- NECKERCHIEF ------
+function Neckerchief({ pov = 'front' }: { pov?: MascotPOV }) {
+  if (pov === 'top' || pov === 'bottom') return null
+  if (pov === 'back') {
+    // From back: neckerchief knot visible at left side
+    return (
+      <g>
+        {/* The wrap going around */}
+        <path d="M 55 148 Q 100 142 145 148 Q 145 158 100 160 Q 55 158 55 148 Z"
+          fill="#222222" />
+        {/* Knot on right side from back = left side from front */}
+        <circle cx={148} cy={152} r={7} fill="#1A1A1A" />
+        {/* Tail ends */}
+        <path d="M 148 152 L 162 160 L 158 168" stroke="#1A1A1A" strokeWidth="5" fill="none" strokeLinecap="round" />
+        <path d="M 148 152 L 155 168 L 150 178" stroke="#1A1A1A" strokeWidth="4.5" fill="none" strokeLinecap="round" />
+      </g>
+    )
+  }
+  if (pov === 'right') {
+    return (
+      <g>
+        <path d="M 70 148 Q 110 142 152 148 Q 152 158 110 160 Q 70 158 70 148 Z"
+          fill="#222222" />
+        {/* Knot at far right (visible) */}
+        <circle cx={70} cy={152} r={6} fill="#1A1A1A" />
+        <path d="M 70 152 L 56 161 L 61 170" stroke="#1A1A1A" strokeWidth="5" fill="none" strokeLinecap="round" />
+        <path d="M 70 152 L 63 168 L 68 178" stroke="#1A1A1A" strokeWidth="4.5" fill="none" strokeLinecap="round" />
+      </g>
+    )
+  }
+  if (pov === 'left') {
+    return (
+      <g transform="scale(-1,1) translate(-200,0)">
+        <path d="M 70 148 Q 110 142 152 148 Q 152 158 110 160 Q 70 158 70 148 Z"
+          fill="#222222" />
+        <circle cx={70} cy={152} r={6} fill="#1A1A1A" />
+        <path d="M 70 152 L 56 161 L 61 170" stroke="#1A1A1A" strokeWidth="5" fill="none" strokeLinecap="round" />
+        <path d="M 70 152 L 63 168 L 68 178" stroke="#1A1A1A" strokeWidth="4.5" fill="none" strokeLinecap="round" />
+      </g>
+    )
+  }
+
+  // Front: neckerchief wraps bottom of head/neck area
+  return (
+    <g>
+      {/* Main neckerchief band */}
+      <path d="M 52 150 Q 100 144 148 150 Q 148 161 100 163 Q 52 161 52 150 Z"
+        fill="#222222" />
+      {/* Knot at left side */}
+      <circle cx={58} cy={155} r={8} fill="#1A1A1A" />
+      {/* Bow ears */}
+      <ellipse cx={48} cy={150} rx={8} ry={5} fill="#1A1A1A" transform="rotate(-20 48 150)" />
+      <ellipse cx={48} cy={161} rx={8} ry={5} fill="#1A1A1A" transform="rotate(20 48 161)" />
+      {/* Tail ends of bow */}
+      <path d="M 58 155 L 42 165 L 46 176" stroke="#1A1A1A" strokeWidth="5.5" fill="none" strokeLinecap="round" />
+      <path d="M 58 155 L 46 170 L 50 182" stroke="#1A1A1A" strokeWidth="5" fill="none" strokeLinecap="round" />
+    </g>
+  )
+}
+
+// ----- SATCHEL BAG ------
+function Satchel({ pov = 'front', action = 'idle' }: { pov?: MascotPOV; action?: MascotPoseAction }) {
+  if (pov === 'top') return null
+
+  if (pov === 'back') {
+    // Behind: bag visible on left side
+    return (
+      <g>
+        {/* Strap going left-to-right across back */}
+        <line x1={80} y1={152} x2={148} y2={200} stroke="#7A3B1E" strokeWidth="3.5" strokeLinecap="round" />
+        {/* Bag on right */}
+        <rect x={138} y={188} width={30} height={26} rx={5} fill="#7A3B1E" stroke="#5A2A14" strokeWidth="1.5" />
+        <rect x={138} y={188} width={30} height={10} rx={4} fill="#8C4525" />
+      </g>
+    )
+  }
+  if (pov === 'right') {
+    return (
+      <g>
+        <line x1={130} y1={152} x2={80} y2={198} stroke="#7A3B1E" strokeWidth="3.5" strokeLinecap="round" />
+        <rect x={58} y={186} width={34} height={30} rx={6} fill="#7A3B1E" stroke="#5A2A14" strokeWidth="1.5" />
+        <rect x={58} y={186} width={34} height={12} rx={5} fill="#8C4525" />
+        <circle cx={75} cy={192} r={3} fill="#C07040" />
+      </g>
+    )
+  }
+  if (pov === 'left') {
+    return (
+      <g transform="scale(-1,1) translate(-200,0)">
+        <line x1={130} y1={152} x2={80} y2={198} stroke="#7A3B1E" strokeWidth="3.5" strokeLinecap="round" />
+        <rect x={58} y={186} width={34} height={30} rx={6} fill="#7A3B1E" stroke="#5A2A14" strokeWidth="1.5" />
+        <rect x={58} y={186} width={34} height={12} rx={5} fill="#8C4525" />
+        <circle cx={75} cy={192} r={3} fill="#C07040" />
+      </g>
+    )
+  }
+
+  // Front: strap goes from upper right shoulder down to lower left where bag hangs
+  return (
+    <g>
+      {/* Shoulder strap - goes from right shoulder diagonally to lower left */}
+      <line x1={132} y1={155} x2={80} y2={205} stroke="#7A3B1E" strokeWidth="3.5" strokeLinecap="round" />
+      {/* Bag body - bottom left area */}
+      <rect x={62} y={192} width={40} height={36} rx={7} fill="#7A3B1E" stroke="#5A2A14" strokeWidth="1.5" />
+      {/* Bag flap */}
+      <rect x={62} y={192} width={40} height={16} rx={6} fill="#8C4525" />
+      {/* Flap bottom curve */}
+      <path d="M 62 207 Q 82 212 102 207" fill="#8C4525" stroke="none" />
+      {/* Flap clasp button */}
+      <circle cx={82} cy={204} r={4} fill="#C07040" stroke="#8B5020" strokeWidth="1" />
+      {/* Bag highlight */}
+      <rect x={65} y={195} width={15} height={8} rx={3} fill="#9C5530" opacity={0.4} />
+    </g>
+  )
+}
+
+// ----- ARMS ------
+function Arms({ pov = 'front', action = 'idle' }: { pov?: MascotPOV; action?: MascotPoseAction }) {
+  if (pov === 'back') {
+    // Arms visible from back
+    return (
+      <g>
+        <ellipse cx={52} cy={175} rx={16} ry={10} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5"
+          transform="rotate(-20 52 175)" />
+        <ellipse cx={148} cy={175} rx={16} ry={10} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5"
+          transform="rotate(20 148 175)" />
+      </g>
+    )
+  }
+  if (pov === 'top') {
+    // From above: arms as small ovals
+    return (
+      <g>
+        <ellipse cx={55} cy={168} rx={12} ry={8} fill="#F5B800" stroke="#D4960A" strokeWidth="1.2" />
+        <ellipse cx={145} cy={168} rx={12} ry={8} fill="#F5B800" stroke="#D4960A" strokeWidth="1.2" />
+      </g>
+    )
+  }
+  if (pov === 'bottom') {
+    return null
+  }
+  if (pov === 'right') {
+    // Profile: one arm visible holding scroll
+    return (
+      <g>
+        {/* Far arm (behind body) - subtle */}
+        <ellipse cx={68} cy={174} rx={14} ry={9} fill="#E8A800" stroke="#C88800" strokeWidth="1.2"
+          transform="rotate(15 68 174)" />
+        {/* Near arm holding scroll */}
+        <ellipse cx={152} cy={174} rx={16} ry={10} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5"
+          transform="rotate(-15 152 174)" />
+        {/* Scroll */}
+        <ellipse cx={163} cy={174} rx={6} ry={10} fill="#F5E8C0" stroke="#C0A050" strokeWidth="1.2" />
+        <ellipse cx={163} cy={165} rx={6} ry={3.5} fill="#E8C870" stroke="#C0A050" strokeWidth="1" />
+        <ellipse cx={163} cy={183} rx={6} ry={3.5} fill="#E8C870" stroke="#C0A050" strokeWidth="1" />
+      </g>
+    )
+  }
+  if (pov === 'left') {
+    return (
+      <g transform="scale(-1,1) translate(-200,0)">
+        <ellipse cx={68} cy={174} rx={14} ry={9} fill="#E8A800" stroke="#C88800" strokeWidth="1.2"
+          transform="rotate(15 68 174)" />
+        <ellipse cx={152} cy={174} rx={16} ry={10} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5"
+          transform="rotate(-15 152 174)" />
+        <ellipse cx={163} cy={174} rx={6} ry={10} fill="#F5E8C0" stroke="#C0A050" strokeWidth="1.2" />
+        <ellipse cx={163} cy={165} rx={6} ry={3.5} fill="#E8C870" stroke="#C0A050" strokeWidth="1" />
+        <ellipse cx={163} cy={183} rx={6} ry={3.5} fill="#E8C870" stroke="#C0A050" strokeWidth="1" />
+      </g>
+    )
+  }
+
+  // Front - arms out to sides
+  if (action === 'wave') {
+    return (
+      <g>
+        {/* Left arm down */}
+        <path d="M 52 162 Q 36 172 32 183" stroke="#F5B800" strokeWidth="16" fill="none" strokeLinecap="round" />
+        <path d="M 52 162 Q 36 172 32 183" stroke="#D4960A" strokeWidth="16" fill="none" strokeLinecap="round" opacity={0.3} />
+        <ellipse cx={30} cy={186} rx={9} ry={7} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+        {/* Right arm raised + waving */}
+        <path d="M 148 162 Q 162 148 168 134" stroke="#F5B800" strokeWidth="16" fill="none" strokeLinecap="round" />
+        <ellipse cx={170} cy={130} rx={9} ry={7} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5"
+          transform="rotate(-30 170 130)" />
+      </g>
+    )
+  }
+  if (action === 'thumbsup') {
+    return (
+      <g>
+        {/* Left arm normal */}
+        <path d="M 52 162 Q 36 172 32 185" stroke="#F5B800" strokeWidth="16" fill="none" strokeLinecap="round" />
+        <ellipse cx={30} cy={188} rx={9} ry={7} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+        {/* Right arm raised with thumb up */}
+        <path d="M 148 162 Q 160 155 162 142" stroke="#F5B800" strokeWidth="16" fill="none" strokeLinecap="round" />
+        {/* Thumb */}
+        <ellipse cx={162} cy={137} rx={8} ry={10} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+        <path d="M 157 140 Q 162 132 167 140" fill="#F5B800" stroke="#D4960A" strokeWidth="1" />
+      </g>
+    )
+  }
+  if (action === 'thinking') {
+    return (
+      <g>
+        {/* Left arm down */}
+        <path d="M 52 162 Q 38 170 36 182" stroke="#F5B800" strokeWidth="16" fill="none" strokeLinecap="round" />
+        <ellipse cx={34} cy={185} rx={9} ry={7} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+        {/* Right arm raised to chin */}
+        <path d="M 148 162 Q 155 155 148 148" stroke="#F5B800" strokeWidth="14" fill="none" strokeLinecap="round" />
+        <ellipse cx={144} cy={144} rx={8} ry={7} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+      </g>
+    )
+  }
+  if (action === 'cheer' || action === 'excited') {
+    return (
+      <g>
+        {/* Both arms raised */}
+        <path d="M 52 162 Q 36 148 32 134" stroke="#F5B800" strokeWidth="16" fill="none" strokeLinecap="round" />
+        <ellipse cx={30} cy={130} rx={9} ry={7} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5"
+          transform="rotate(30 30 130)" />
+        <path d="M 148 162 Q 164 148 168 134" stroke="#F5B800" strokeWidth="16" fill="none" strokeLinecap="round" />
+        <ellipse cx={170} cy={130} rx={9} ry={7} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5"
+          transform="rotate(-30 170 130)" />
+      </g>
+    )
+  }
+
+  // Default: arms out to sides (front idle)
+  return (
+    <g>
+      {/* Left arm */}
+      <path d="M 53 165 Q 36 170 28 180" stroke="#F5B800" strokeWidth="17" fill="none" strokeLinecap="round" />
+      <path d="M 53 165 Q 36 170 28 180" stroke="#D4960A" strokeWidth="17" fill="none" strokeLinecap="round" opacity={0.25} />
+      <ellipse cx={25} cy={183} rx={10} ry={8} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+      {/* Right arm */}
+      <path d="M 147 165 Q 164 170 172 180" stroke="#F5B800" strokeWidth="17" fill="none" strokeLinecap="round" />
+      <path d="M 147 165 Q 164 170 172 180" stroke="#D4960A" strokeWidth="17" fill="none" strokeLinecap="round" opacity={0.25} />
+      <ellipse cx={175} cy={183} rx={10} ry={8} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+    </g>
+  )
+}
+
+// ----- LEGS / FEET ------
+function Legs({ pov = 'front' }: { pov?: MascotPOV }) {
+  if (pov === 'top') return null
+  if (pov === 'back') {
+    return (
+      <g>
+        <ellipse cx={82} cy={228} rx={14} ry={9} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+        <ellipse cx={118} cy={228} rx={14} ry={9} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+      </g>
+    )
+  }
+  if (pov === 'right' || pov === 'left') {
+    const flip = pov === 'left'
+    return (
+      <g transform={flip ? 'scale(-1,1) translate(-200,0)' : ''}>
+        <ellipse cx={90} cy={228} rx={12} ry={9} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+        <ellipse cx={120} cy={228} rx={12} ry={9} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+      </g>
+    )
+  }
+  if (pov === 'bottom') {
+    return (
+      <g>
+        <ellipse cx={80} cy={225} rx={16} ry={10} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+        <ellipse cx={120} cy={225} rx={16} ry={10} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+        {/* Foot bottom detail */}
+        <ellipse cx={80} cy={226} rx={10} ry={5} fill="#D4960A" opacity={0.3} />
+        <ellipse cx={120} cy={226} rx={10} ry={5} fill="#D4960A" opacity={0.3} />
+      </g>
+    )
+  }
+  // Front
+  return (
+    <g>
+      {/* Left leg */}
+      <path d="M 85 215 Q 80 224 78 230" stroke="#F5B800" strokeWidth="16" fill="none" strokeLinecap="round" />
+      <ellipse cx={77} cy={232} rx={14} ry={9} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+      {/* Right leg */}
+      <path d="M 115 215 Q 120 224 122 230" stroke="#F5B800" strokeWidth="16" fill="none" strokeLinecap="round" />
+      <ellipse cx={123} cy={232} rx={14} ry={9} fill="#F5B800" stroke="#D4960A" strokeWidth="1.5" />
+      {/* Black stinger tip between feet */}
+      <path d="M 100 218 L 100 226 L 96 232 M 100 226 L 104 232" stroke="#1A1A1A" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+    </g>
+  )
+}
+
+// ----- HEAD ------
+function Head({ id, pov = 'front' }: { id: string; pov?: MascotPOV }) {
+  if (pov === 'top') {
+    // Top view: head from above
+    return (
+      <ellipse cx={100} cy={100} rx={62} ry={55} fill={`url(#${id}-head-grad)`} stroke="#D4960A" strokeWidth="2" />
+    )
+  }
+  if (pov === 'bottom') {
+    // Bottom: underside of body/head
+    return (
+      <ellipse cx={100} cy={175} rx={55} ry={48} fill={`url(#${id}-body-grad)`} stroke="#D4960A" strokeWidth="1.5" />
+    )
+  }
+  if (pov === 'back') {
+    return (
+      <ellipse cx={100} cy={87} rx={62} ry={62} fill={`url(#${id}-head-grad)`} stroke="#D4960A" strokeWidth="2" />
+    )
+  }
+  if (pov === 'right') {
+    // Profile: slightly squished ellipse
+    return (
+      <ellipse cx={105} cy={87} rx={58} ry={62} fill={`url(#${id}-head-grad)`} stroke="#D4960A" strokeWidth="2" />
+    )
+  }
+  if (pov === 'left') {
+    return (
+      <ellipse cx={95} cy={87} rx={58} ry={62} fill={`url(#${id}-head-grad)`} stroke="#D4960A" strokeWidth="2" />
+    )
+  }
+  // Front / 3/4
+  return (
+    <ellipse cx={100} cy={87} rx={63} ry={64} fill={`url(#${id}-head-grad)`} stroke="#D4960A" strokeWidth="2" />
+  )
+}
+
+// ============================================================
+// DEFS - Gradients, filters
+// ============================================================
+function Defs({ id }: { id: string }) {
+  return (
+    <defs>
+      {/* Head gradient - golden yellow with warm light from top-left */}
+      <radialGradient id={`${id}-head-grad`} cx="38%" cy="30%" r="65%" fx="38%" fy="30%">
+        <stop offset="0%" stopColor="#FFE066" />
+        <stop offset="45%" stopColor="#FFCF00" />
+        <stop offset="100%" stopColor="#D4960A" />
+      </radialGradient>
+
+      {/* Body gradient */}
+      <radialGradient id={`${id}-body-grad`} cx="40%" cy="30%" r="65%" fx="40%" fy="30%">
+        <stop offset="0%" stopColor="#FFD830" />
+        <stop offset="50%" stopColor="#F5B800" />
+        <stop offset="100%" stopColor="#C88800" />
+      </radialGradient>
+
+      {/* Wing fill - light blue translucent */}
+      <linearGradient id={`${id}-wing-fill`} x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#D4EEF8" stopOpacity="0.9" />
+        <stop offset="100%" stopColor="#A8D4E8" stopOpacity="0.75" />
+      </linearGradient>
+
+      {/* Goggle lens radial glow */}
+      <radialGradient id={`${id}-lens-radial`} cx="35%" cy="30%" r="70%">
+        <stop offset="0%" stopColor="#38C8AA" stopOpacity="0.6" />
+        <stop offset="60%" stopColor="#1A8A7A" stopOpacity="0.3" />
+        <stop offset="100%" stopColor="#0D5548" stopOpacity="0.1" />
+      </radialGradient>
+
+      {/* Drop shadow filter */}
+      <filter id={`${id}-shadow`} x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#C88800" floodOpacity="0.3" />
+      </filter>
+    </defs>
+  )
+}
+
+// ============================================================
+// ANIMATION CSS
+// ============================================================
+const MASCOT_KEYFRAMES = `
+@keyframes otbee-idle-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes otbee-wing-flutter {
+  0%, 100% { transform: scaleY(1) scaleX(1); }
+  50% { transform: scaleY(0.85) scaleX(1.08); }
+}
+@keyframes otbee-bounce {
+  0%, 100% { transform: translateY(0px) scaleY(1); }
+  40% { transform: translateY(-18px) scaleY(1.05); }
+  60% { transform: translateY(-15px) scaleY(1.05); }
+  80% { transform: translateY(-2px) scaleY(0.96); }
+}
+@keyframes otbee-wave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+@keyframes otbee-cheer {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-12px) rotate(-3deg); }
+  75% { transform: translateY(-12px) rotate(3deg); }
+}
+@keyframes otbee-salto {
+  0% { transform: translateY(0) rotate(0deg) scale(1); }
+  20% { transform: translateY(-25px) rotate(90deg) scale(1.08); }
+  50% { transform: translateY(-35px) rotate(180deg) scale(1.1); }
+  80% { transform: translateY(-15px) rotate(270deg) scale(1.05); }
+  100% { transform: translateY(0) rotate(360deg) scale(1); }
+}
+@keyframes otbee-thinking {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  30% { transform: rotate(-3deg) translateY(-2px); }
+  70% { transform: rotate(3deg) translateY(-2px); }
+}
+@keyframes otbee-sleep {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(4px) rotate(2deg); }
+}
+@keyframes otbee-run {
+  0%, 100% { transform: translateX(0) skewX(0deg); }
+  25% { transform: translateX(3px) skewX(-4deg); }
+  75% { transform: translateX(-3px) skewX(4deg); }
+}
+@keyframes otbee-happy {
+  0%, 100% { transform: translateY(0) scaleX(1); }
+  25% { transform: translateY(-8px) scaleX(1.05); }
+  50% { transform: translateY(-6px) scaleX(0.97); }
+  75% { transform: translateY(-10px) scaleX(1.03); }
+}
+@keyframes otbee-wing-fast {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.6); }
+}
+`
+
+function getAnimStyle(action: MascotPoseAction): React.CSSProperties {
+  switch (action) {
+    case 'idle':
+      return { animation: 'otbee-idle-float 3s ease-in-out infinite' }
+    case 'bounce':
+      return { animation: 'otbee-bounce 0.7s cubic-bezier(0.36,0.07,0.19,0.97) infinite' }
+    case 'wave':
+      return { animation: 'otbee-wave 1.5s ease-in-out infinite' }
+    case 'cheer':
+      return { animation: 'otbee-cheer 0.8s ease-in-out infinite' }
+    case 'thumbsup':
+      return { animation: 'otbee-happy 1.2s ease-in-out infinite' }
+    case 'thinking':
+      return { animation: 'otbee-thinking 2s ease-in-out infinite' }
+    case 'sleep':
+      return { animation: 'otbee-sleep 2.5s ease-in-out infinite' }
+    case 'salto':
+      return { animation: 'otbee-salto 0.9s cubic-bezier(0.4,0,0.2,1) forwards' }
+    case 'run':
+      return { animation: 'otbee-run 0.4s linear infinite' }
+    case 'happy':
+      return { animation: 'otbee-happy 0.9s ease-in-out infinite' }
+    case 'excited':
+      return { animation: 'otbee-cheer 0.5s ease-in-out infinite' }
+    default:
+      return {}
+  }
+}
+
+// ============================================================
+// WING ANIMATION - animated separately
+// ============================================================
+function AnimatedWings({ id, action, pov }: { id: string; action: MascotPoseAction; pov: MascotPOV }) {
+  const wingAnim = (action === 'run' || action === 'bounce' || action === 'salto' || action === 'cheer' || action === 'excited')
+    ? { animation: 'otbee-wing-fast 0.2s ease-in-out infinite', transformOrigin: 'center' }
+    : { animation: 'otbee-wing-flutter 1.4s ease-in-out infinite', transformOrigin: 'center' }
+
+  if (pov === 'back') {
+    // Back: 4 wings spread wide
+    return (
+      <g style={wingAnim}>
+        {/* Upper left large */}
+        <ellipse cx={62} cy={112} rx={40} ry={28} transform="rotate(-40 62 112)"
+          fill={`url(#${id}-wing-fill)`} stroke="#8EC5D6" strokeWidth="1.3" opacity={0.9} />
+        {/* Lower left */}
+        <ellipse cx={72} cy={148} rx={25} ry={16} transform="rotate(-25 72 148)"
+          fill={`url(#${id}-wing-fill)`} stroke="#8EC5D6" strokeWidth="1.1" opacity={0.8} />
+        {/* Upper right large */}
+        <ellipse cx={138} cy={112} rx={40} ry={28} transform="rotate(40 138 112)"
+          fill={`url(#${id}-wing-fill)`} stroke="#8EC5D6" strokeWidth="1.3" opacity={0.9} />
+        {/* Lower right */}
+        <ellipse cx={128} cy={148} rx={25} ry={16} transform="rotate(25 128 148)"
+          fill={`url(#${id}-wing-fill)`} stroke="#8EC5D6" strokeWidth="1.1" opacity={0.8} />
+      </g>
+    )
+  }
+  if (pov === 'top') {
+    return (
+      <g style={wingAnim}>
+        <ellipse cx={52} cy={125} rx={38} ry={22} transform="rotate(-15 52 125)"
+          fill={`url(#${id}-wing-fill)`} stroke="#8EC5D6" strokeWidth="1.2" opacity={0.85} />
+        <ellipse cx={148} cy={125} rx={38} ry={22} transform="rotate(15 148 125)"
+          fill={`url(#${id}-wing-fill)`} stroke="#8EC5D6" strokeWidth="1.2" opacity={0.85} />
+      </g>
+    )
+  }
+  if (pov === 'right') {
+    return (
+      <g style={wingAnim}>
+        {/* Wings visible from right: both going right */}
+        <ellipse cx={62} cy={130} rx={35} ry={22} transform="rotate(-35 62 130)"
+          fill={`url(#${id}-wing-fill)`} stroke="#8EC5D6" strokeWidth="1.2" opacity={0.85} />
+        <ellipse cx={68} cy={158} rx={22} ry={14} transform="rotate(-20 68 158)"
+          fill={`url(#${id}-wing-fill)`} stroke="#8EC5D6" strokeWidth="1" opacity={0.75} />
+      </g>
+    )
+  }
+  if (pov === 'left') {
+    return (
+      <g style={{ ...wingAnim, transform: 'scaleX(-1)', transformOrigin: '100px center' }}>
+        <ellipse cx={62} cy={130} rx={35} ry={22} transform="rotate(-35 62 130)"
+          fill={`url(#${id}-wing-fill)`} stroke="#8EC5D6" strokeWidth="1.2" opacity={0.85} />
+        <ellipse cx={68} cy={158} rx={22} ry={14} transform="rotate(-20 68 158)"
+          fill={`url(#${id}-wing-fill)`} stroke="#8EC5D6" strokeWidth="1" opacity={0.75} />
+      </g>
+    )
+  }
+  // Front / 3/4
+  return (
+    <g style={wingAnim}>
+      <WingLeft id={id} />
+      <WingRight id={id} />
+    </g>
+  )
+}
+
+// ============================================================
+// SLEEP ZZZ particles
+// ============================================================
+function SleepZzz() {
+  return (
+    <g style={{ animation: 'otbee-idle-float 2s ease-in-out infinite' }}>
+      <text x={138} y={68} fontSize={12} fill="#A0C8E8" fontWeight="bold" opacity={0.8}>z</text>
+      <text x={148} y={56} fontSize={16} fill="#A0C8E8" fontWeight="bold" opacity={0.7}>z</text>
+      <text x={160} y={42} fontSize={20} fill="#A0C8E8" fontWeight="bold" opacity={0.6}>z</text>
+    </g>
+  )
+}
+
+// ============================================================
+// THINKING BUBBLE
+// ============================================================
+function ThinkingBubble() {
+  return (
+    <g style={{ animation: 'otbee-idle-float 2.5s ease-in-out infinite reverse' }}>
+      <circle cx={148} cy={72} r={3} fill="#D4960A" opacity={0.5} />
+      <circle cx={158} cy={62} r={5} fill="#D4960A" opacity={0.4} />
+      <circle cx={170} cy={50} r={8} fill="#FFF8E0" stroke="#D4960A" strokeWidth="1.2" opacity={0.8} />
+      <text x={165} y={55} fontSize={10} fill="#D4960A">?</text>
+    </g>
+  )
+}
+
+// ============================================================
+// MAIN COMPONENT
+// ============================================================
 export default function OtbeeVectorMascot({
   pov = 'front',
   action = 'idle',
@@ -38,927 +1043,133 @@ export default function OtbeeVectorMascot({
   style,
   onClick,
   onHover,
-}: OtbeeVectorProps) {
+}: OtbeeVectorMascotProps) {
   const uid = useId().replace(/:/g, '')
-  const [blinking, setBlinking] = useState(false)
-  const [hovered, setHovered] = useState(false)
-
-  // Natural periodic blinking loop
-  useEffect(() => {
-    if (pov === 'back' || pov === 'top' || pov === 'bottom' || action === 'sleep') return
-
-    const blinkInterval = setInterval(() => {
-      setBlinking(true)
-      setTimeout(() => setBlinking(false), 160)
-    }, 3800 + Math.random() * 2000)
-
-    return () => clearInterval(blinkInterval)
-  }, [pov, action])
-
-  // Colors & Gradients definition
-  const yellowGradId = `yellow-body-${uid}`
-  const yellowHighlightId = `yellow-hl-${uid}`
-  const goggleLensId = `goggle-teal-${uid}`
-  const wingGradId = `wing-blue-${uid}`
-  const leatherGradId = `leather-${uid}`
-  const cheekGradId = `cheek-${uid}`
-  const stingerGradId = `stinger-${uid}`
-
-  // Render distinct POV components
-  const renderPOV = () => {
-    switch (pov) {
-      case 'front':
-        return renderFront()
-      case '3/4':
-        return renderThreeQuarter()
-      case 'right':
-        return renderProfile('right')
-      case 'left':
-        return renderProfile('left')
-      case 'back':
-        return renderBack()
-      case 'top':
-        return renderTop()
-      case 'bottom':
-        return renderBottom()
-      default:
-        return renderFront()
-    }
-  }
-
-  // ==========================================
-  // POV 1: FRONT VIEW
-  // ==========================================
-  const renderFront = () => (
-    <g className="otbee-body-group">
-      {/* 1. WINGS (Behind body) */}
-      <g className="otbee-wings">
-        {/* Left Wings */}
-        <g className="otbee-wing-left" style={{ transformOrigin: '78px 125px' }}>
-          <ellipse
-            cx="48"
-            cy="118"
-            rx="36"
-            ry="24"
-            transform="rotate(-24 48 118)"
-            fill={`url(#${wingGradId})`}
-            stroke="#7dd3fc"
-            strokeWidth="2.5"
-            opacity="0.82"
-          />
-          <ellipse
-            cx="54"
-            cy="138"
-            rx="26"
-            ry="18"
-            transform="rotate(-15 54 138)"
-            fill={`url(#${wingGradId})`}
-            stroke="#7dd3fc"
-            strokeWidth="2"
-            opacity="0.75"
-          />
-        </g>
-        {/* Right Wings */}
-        <g className="otbee-wing-right" style={{ transformOrigin: '162px 125px' }}>
-          <ellipse
-            cx="192"
-            cy="118"
-            rx="36"
-            ry="24"
-            transform="rotate(24 192 118)"
-            fill={`url(#${wingGradId})`}
-            stroke="#7dd3fc"
-            strokeWidth="2.5"
-            opacity="0.82"
-          />
-          <ellipse
-            cx="186"
-            cy="138"
-            rx="26"
-            ry="18"
-            transform="rotate(15 186 138)"
-            fill={`url(#${wingGradId})`}
-            stroke="#7dd3fc"
-            strokeWidth="2"
-            opacity="0.75"
-          />
-        </g>
-      </g>
-
-      {/* 2. STINGER (Bottom center) */}
-      <path
-        d="M 112 186 Q 120 208 120 216 Q 120 208 128 186 Z"
-        fill={`url(#${stingerGradId})`}
-      />
-
-      {/* 3. FEET / LEGS */}
-      <g className="otbee-feet">
-        <path
-          d="M 94 180 Q 94 200 102 204 Q 112 204 114 186 Z"
-          fill="#ff9800"
-          stroke="#e65100"
-          strokeWidth="2"
-        />
-        <path
-          d="M 126 186 Q 128 204 138 204 Q 146 200 146 180 Z"
-          fill="#ff9800"
-          stroke="#e65100"
-          strokeWidth="2"
-        />
-      </g>
-
-      {/* 4. MAIN ABDOMEN / TORSO */}
-      <ellipse cx="120" cy="154" rx="46" ry="38" fill={`url(#${yellowGradId})`} />
-
-      {/* Black Stripes on Torso */}
-      <path
-        d="M 77 142 Q 120 152 163 142 L 165 152 Q 120 162 75 152 Z"
-        fill="#1e1e24"
-      />
-      <path
-        d="M 80 162 Q 120 172 160 162 L 157 172 Q 120 182 83 172 Z"
-        fill="#1e1e24"
-      />
-
-      {/* 5. SATCHEL BAG & STRAP */}
-      <g className="otbee-satchel">
-        {/* Leather Crossbody Strap */}
-        <path
-          d="M 88 124 L 148 174 L 142 180 L 82 130 Z"
-          fill={`url(#${leatherGradId})`}
-          stroke="#3e2312"
-          strokeWidth="1.2"
-        />
-        {/* Satchel Pouch */}
-        <rect
-          x="140"
-          y="156"
-          width="26"
-          height="22"
-          rx="5"
-          fill="#5c381e"
-          stroke="#3e2312"
-          strokeWidth="2"
-        />
-        {/* Satchel Flap */}
-        <path
-          d="M 139 156 Q 153 166 167 156 L 167 165 Q 153 174 139 165 Z"
-          fill="#784824"
-        />
-        <circle cx="153" cy="168" r="2" fill="#fbbf24" />
-      </g>
-
-      {/* 6. ARMS */}
-      {renderArms()}
-
-      {/* 7. NECKERCHIEF (Black bandana) */}
-      <g className="otbee-neckerchief">
-        <path
-          d="M 82 120 Q 120 134 158 120 Q 146 138 120 140 Q 94 138 82 120 Z"
-          fill="#232328"
-          stroke="#111"
-          strokeWidth="1.5"
-        />
-        {/* Knot on the left */}
-        <circle cx="84" cy="124" r="5" fill="#18181b" />
-        <path d="M 82 126 Q 74 136 78 142 Q 84 138 84 128 Z" fill="#232328" />
-        <path d="M 84 126 Q 80 138 86 144 Q 88 136 86 128 Z" fill="#18181b" />
-      </g>
-
-      {/* 8. HEAD DOME */}
-      <circle cx="120" cy="88" r="46" fill={`url(#${yellowGradId})`} />
-      {/* Head highlight shine */}
-      <ellipse cx="106" cy="64" rx="22" ry="12" transform="rotate(-15 106 64)" fill={`url(#${yellowHighlightId})`} />
-
-      {/* 9. CHEEKS (Rosy blushes) */}
-      <ellipse cx="94" cy="100" rx="9" ry="5.5" fill={`url(#${cheekGradId})`} />
-      <ellipse cx="146" cy="100" rx="9" ry="5.5" fill={`url(#${cheekGradId})`} />
-
-      {/* 10. EYES */}
-      {renderEyes(104, 88, 136, 88)}
-
-      {/* 11. MOUTH */}
-      {renderMouth(120, 102)}
-
-      {/* 12. AVIATOR GOGGLES */}
-      <g className="otbee-goggles">
-        {/* Leather strap wrapped on forehead */}
-        <path
-          d="M 75 74 Q 120 66 165 74 L 164 82 Q 120 74 76 82 Z"
-          fill="#5a351d"
-          stroke="#381e0d"
-          strokeWidth="1.5"
-        />
-        {/* Left Goggle Rim & Lens */}
-        <circle cx="98" cy="74" r="16.5" fill="#422513" stroke="#2a160a" strokeWidth="2.5" />
-        <circle cx="98" cy="74" r="13.5" fill={`url(#${goggleLensId})`} />
-        {/* Left Crosshair (+) */}
-        <line x1="98" y1="63" x2="98" y2="85" stroke="#99f6e4" strokeWidth="1.5" opacity="0.8" />
-        <line x1="87" y1="74" x2="109" y2="74" stroke="#99f6e4" strokeWidth="1.5" opacity="0.8" />
-        <circle cx="98" cy="74" r="7" fill="none" stroke="#99f6e4" strokeWidth="1" opacity="0.6" />
-        {/* Lens reflection glare */}
-        <path d="M 90 68 Q 98 64 104 68" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.85" />
-
-        {/* Center bridge */}
-        <rect x="111" y="72" width="18" height="5" rx="2" fill="#5a351d" stroke="#381e0d" strokeWidth="1.5" />
-
-        {/* Right Goggle Rim & Lens */}
-        <circle cx="142" cy="74" r="16.5" fill="#422513" stroke="#2a160a" strokeWidth="2.5" />
-        <circle cx="142" cy="74" r="13.5" fill={`url(#${goggleLensId})`} />
-        {/* Right Crosshair (+) */}
-        <line x1="142" y1="63" x2="142" y2="85" stroke="#99f6e4" strokeWidth="1.5" opacity="0.8" />
-        <line x1="131" y1="74" x2="153" y2="74" stroke="#99f6e4" strokeWidth="1.5" opacity="0.8" />
-        <circle cx="142" cy="74" r="7" fill="none" stroke="#99f6e4" strokeWidth="1" opacity="0.6" />
-        {/* Lens reflection glare */}
-        <path d="M 134 68 Q 142 64 148 68" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.85" />
-      </g>
-
-      {/* 13. ANTENNAE (On top of head) */}
-      <g className="otbee-antennae">
-        {/* Left Antenna */}
-        <path
-          d="M 108 46 Q 98 28 86 34"
-          fill="none"
-          stroke="#1e1e24"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-        />
-        <circle cx="86" cy="34" r="4.5" fill="#1e1e24" />
-        {/* Right Antenna */}
-        <path
-          d="M 132 46 Q 142 28 154 34"
-          fill="none"
-          stroke="#1e1e24"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-        />
-        <circle cx="154" cy="34" r="4.5" fill="#1e1e24" />
-      </g>
-    </g>
-  )
-
-  // ==========================================
-  // POV 2: 3/4 FRONT VIEW
-  // ==========================================
-  const renderThreeQuarter = () => (
-    <g className="otbee-body-group">
-      {/* Wings */}
-      <g className="otbee-wings">
-        <ellipse
-          cx="68"
-          cy="120"
-          rx="34"
-          ry="22"
-          transform="rotate(-28 68 120)"
-          fill={`url(#${wingGradId})`}
-          stroke="#7dd3fc"
-          strokeWidth="2.5"
-          opacity="0.8"
-        />
-      </g>
-
-      {/* Stinger */}
-      <path d="M 104 184 Q 110 206 112 214 Q 116 206 122 184 Z" fill={`url(#${stingerGradId})`} />
-
-      {/* Feet */}
-      <path d="M 92 182 Q 94 200 102 202 Q 110 200 110 184 Z" fill="#ff9800" stroke="#e65100" strokeWidth="2" />
-      <path d="M 118 184 Q 120 202 128 202 Q 134 200 134 184 Z" fill="#ff9800" stroke="#e65100" strokeWidth="2" />
-
-      {/* Torso */}
-      <ellipse cx="114" cy="154" rx="42" ry="36" fill={`url(#${yellowGradId})`} />
-      {/* Stripes (curving in 3/4 angle) */}
-      <path d="M 76 144 Q 112 160 152 146 L 150 155 Q 112 169 74 153 Z" fill="#1e1e24" />
-      <path d="M 78 163 Q 112 178 148 165 L 146 174 Q 112 187 76 172 Z" fill="#1e1e24" />
-
-      {/* Satchel on right side */}
-      <rect x="136" y="152" width="24" height="20" rx="4" fill="#5c381e" stroke="#3e2312" strokeWidth="1.8" />
-      <circle cx="148" cy="162" r="2" fill="#fbbf24" />
-      {/* Rolled paper scroll sticking out */}
-      <rect x="144" y="142" width="8" height="15" rx="3" fill="#fef9c3" stroke="#ca8a04" strokeWidth="1.2" transform="rotate(18 148 149)" />
-
-      {/* Arms */}
-      <ellipse cx="80" cy="150" rx="10" ry="18" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" transform="rotate(-15 80 150)" />
-      <ellipse cx="132" cy="156" rx="9" ry="16" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" transform="rotate(20 132 156)" />
-
-      {/* Neckerchief */}
-      <path d="M 80 122 Q 114 136 148 122 Q 138 138 114 140 Q 90 138 80 122 Z" fill="#232328" stroke="#111" strokeWidth="1.5" />
-      <circle cx="82" cy="126" r="4.5" fill="#18181b" />
-
-      {/* Head */}
-      <circle cx="118" cy="90" r="44" fill={`url(#${yellowGradId})`} />
-      <ellipse cx="106" cy="66" rx="20" ry="11" transform="rotate(-15 106 66)" fill={`url(#${yellowHighlightId})`} />
-
-      {/* Cheeks */}
-      <ellipse cx="98" cy="102" rx="8" ry="5" fill={`url(#${cheekGradId})`} />
-      <ellipse cx="142" cy="101" rx="7" ry="4.5" fill={`url(#${cheekGradId})`} />
-
-      {/* Eyes in 3/4 */}
-      {renderEyes(108, 90, 134, 89, true)}
-
-      {/* Smile */}
-      <path d="M 118 102 Q 125 108 131 103" stroke="#222" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-
-      {/* Goggles 3/4 */}
-      <path d="M 82 72 Q 118 64 158 74 L 157 81 Q 118 72 82 79 Z" fill="#5a351d" stroke="#381e0d" strokeWidth="1.5" />
-      <circle cx="102" cy="74" r="15" fill="#422513" stroke="#2a160a" strokeWidth="2.5" />
-      <circle cx="102" cy="74" r="12" fill={`url(#${goggleLensId})`} />
-      <line x1="102" y1="64" x2="102" y2="84" stroke="#99f6e4" strokeWidth="1.3" opacity="0.8" />
-      <line x1="92" y1="74" x2="112" y2="74" stroke="#99f6e4" strokeWidth="1.3" opacity="0.8" />
-
-      <circle cx="138" cy="75" r="13.5" fill="#422513" stroke="#2a160a" strokeWidth="2.5" />
-      <circle cx="138" cy="75" r="10.5" fill={`url(#${goggleLensId})`} />
-      <line x1="138" y1="66" x2="138" y2="84" stroke="#99f6e4" strokeWidth="1.2" opacity="0.8" />
-      <line x1="129" y1="75" x2="147" y2="75" stroke="#99f6e4" strokeWidth="1.2" opacity="0.8" />
-
-      {/* Antennae */}
-      <path d="M 110 48 Q 102 30 92 34" fill="none" stroke="#1e1e24" strokeWidth="3.2" strokeLinecap="round" />
-      <circle cx="92" cy="34" r="4.2" fill="#1e1e24" />
-      <path d="M 128 47 Q 138 28 148 33" fill="none" stroke="#1e1e24" strokeWidth="3.2" strokeLinecap="round" />
-      <circle cx="148" cy="33" r="4.2" fill="#1e1e24" />
-    </g>
-  )
-
-  // ==========================================
-  // POV 3: PROFILE (RIGHT / LEFT)
-  // ==========================================
-  const renderProfile = (side: 'right' | 'left') => {
-    const flip = side === 'left' ? 'scale(-1, 1) translate(-240, 0)' : ''
-    return (
-      <g className="otbee-body-group" transform={flip}>
-        {/* Wings behind */}
-        <ellipse cx="65" cy="118" rx="34" ry="22" transform="rotate(-30 65 118)" fill={`url(#${wingGradId})`} stroke="#7dd3fc" strokeWidth="2.5" opacity="0.8" />
-
-        {/* Stinger */}
-        <path d="M 76 182 Q 70 198 66 206 Q 74 198 84 182 Z" fill={`url(#${stingerGradId})`} />
-
-        {/* Feet */}
-        <ellipse cx="106" cy="192" rx="12" ry="8" fill="#ff9800" stroke="#e65100" strokeWidth="2" />
-
-        {/* Torso */}
-        <ellipse cx="104" cy="154" rx="38" ry="34" fill={`url(#${yellowGradId})`} />
-        {/* Vertical stripes on side */}
-        <path d="M 88 132 Q 98 154 94 176 L 104 176 Q 108 154 98 132 Z" fill="#1e1e24" />
-        <path d="M 114 134 Q 124 154 120 174 L 128 172 Q 132 154 122 134 Z" fill="#1e1e24" />
-
-        {/* Satchel on hip with scroll */}
-        <rect x="108" y="152" width="22" height="18" rx="4" fill="#5c381e" stroke="#3e2312" strokeWidth="1.8" />
-        <rect x="114" y="142" width="8" height="14" rx="2.5" fill="#fef9c3" stroke="#ca8a04" strokeWidth="1.2" transform="rotate(15 118 149)" />
-
-        {/* Profile Arm */}
-        <ellipse cx="120" cy="152" rx="9" ry="17" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" transform="rotate(15 120 152)" />
-
-        {/* Neckerchief */}
-        <path d="M 84 124 L 136 124 Q 128 138 108 138 Z" fill="#232328" stroke="#111" strokeWidth="1.5" />
-        <circle cx="132" cy="126" r="4.5" fill="#18181b" />
-
-        {/* Head */}
-        <circle cx="118" cy="88" r="42" fill={`url(#${yellowGradId})`} />
-        <ellipse cx="110" cy="66" rx="18" ry="10" transform="rotate(-15 110 66)" fill={`url(#${yellowHighlightId})`} />
-
-        {/* Snout/Cheek Profile */}
-        <ellipse cx="136" cy="98" rx="6" ry="4.5" fill={`url(#${cheekGradId})`} />
-
-        {/* Eye */}
-        {renderEyes(128, 88, 128, 88, false, true)}
-
-        {/* Smile profile */}
-        <path d="M 136 98 Q 142 102 144 98" stroke="#222" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-
-        {/* Goggles in profile */}
-        <path d="M 80 72 L 142 74 L 140 82 L 80 80 Z" fill="#5a351d" stroke="#381e0d" strokeWidth="1.5" />
-        <circle cx="126" cy="74" r="16" fill="#422513" stroke="#2a160a" strokeWidth="2.5" />
-        <circle cx="126" cy="74" r="13" fill={`url(#${goggleLensId})`} />
-        <line x1="126" y1="63" x2="126" y2="85" stroke="#99f6e4" strokeWidth="1.3" opacity="0.8" />
-        <line x1="115" y1="74" x2="137" y2="74" stroke="#99f6e4" strokeWidth="1.3" opacity="0.8" />
-
-        {/* Antennae */}
-        <path d="M 116 48 Q 124 28 134 32" fill="none" stroke="#1e1e24" strokeWidth="3.2" strokeLinecap="round" />
-        <circle cx="134" cy="32" r="4.2" fill="#1e1e24" />
-      </g>
-    )
-  }
-
-  // ==========================================
-  // POV 4: BACK VIEW
-  // ==========================================
-  const renderBack = () => (
-    <g className="otbee-body-group">
-      {/* 4 Wings Spread Out */}
-      <g className="otbee-wings">
-        <ellipse cx="56" cy="118" rx="36" ry="24" transform="rotate(-26 56 118)" fill={`url(#${wingGradId})`} stroke="#7dd3fc" strokeWidth="2.5" opacity="0.85" />
-        <ellipse cx="62" cy="138" rx="28" ry="18" transform="rotate(-16 62 138)" fill={`url(#${wingGradId})`} stroke="#7dd3fc" strokeWidth="2" opacity="0.75" />
-        <ellipse cx="184" cy="118" rx="36" ry="24" transform="rotate(26 184 118)" fill={`url(#${wingGradId})`} stroke="#7dd3fc" strokeWidth="2.5" opacity="0.85" />
-        <ellipse cx="178" cy="138" rx="28" ry="18" transform="rotate(16 178 138)" fill={`url(#${wingGradId})`} stroke="#7dd3fc" strokeWidth="2" opacity="0.75" />
-      </g>
-
-      {/* Stinger */}
-      <path d="M 112 186 Q 120 208 120 216 Q 120 208 128 186 Z" fill={`url(#${stingerGradId})`} />
-
-      {/* Feet */}
-      <ellipse cx="102" cy="192" rx="10" ry="8" fill="#ff9800" stroke="#e65100" strokeWidth="2" />
-      <ellipse cx="138" cy="192" rx="10" ry="8" fill="#ff9800" stroke="#e65100" strokeWidth="2" />
-
-      {/* Torso */}
-      <ellipse cx="120" cy="154" rx="46" ry="38" fill={`url(#${yellowGradId})`} />
-      {/* Black stripes wrapping across back */}
-      <path d="M 75 142 Q 120 148 165 142 L 163 152 Q 120 158 77 152 Z" fill="#1e1e24" />
-      <path d="M 78 162 Q 120 168 162 162 L 160 172 Q 120 178 80 172 Z" fill="#1e1e24" />
-
-      {/* Satchel hanging on left hip from back */}
-      <rect x="74" y="156" width="22" height="18" rx="4" fill="#5c381e" stroke="#3e2312" strokeWidth="1.8" />
-      <rect x="80" y="146" width="8" height="14" rx="2.5" fill="#fef9c3" stroke="#ca8a04" strokeWidth="1.2" transform="rotate(-15 84 153)" />
-
-      {/* Arms */}
-      <ellipse cx="68" cy="150" rx="9" ry="18" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" transform="rotate(-20 68 150)" />
-      <ellipse cx="172" cy="150" rx="9" ry="18" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" transform="rotate(20 172 150)" />
-
-      {/* Neckerchief back knot */}
-      <path d="M 86 122 Q 120 130 154 122 Q 146 136 120 138 Q 94 136 86 122 Z" fill="#232328" stroke="#111" strokeWidth="1.5" />
-      <circle cx="150" cy="124" r="5" fill="#18181b" />
-
-      {/* Head Dome Back */}
-      <circle cx="120" cy="88" r="46" fill={`url(#${yellowGradId})`} />
-
-      {/* Goggle Strap Running Across Back of Head */}
-      <path d="M 76 74 Q 120 72 164 74 L 164 82 Q 120 80 76 82 Z" fill="#5a351d" stroke="#381e0d" strokeWidth="1.8" />
-
-      {/* Antennae */}
-      <path d="M 108 46 Q 98 28 86 34" fill="none" stroke="#1e1e24" strokeWidth="3.5" strokeLinecap="round" />
-      <circle cx="86" cy="34" r="4.5" fill="#1e1e24" />
-      <path d="M 132 46 Q 142 28 154 34" fill="none" stroke="#1e1e24" strokeWidth="3.5" strokeLinecap="round" />
-      <circle cx="154" cy="34" r="4.5" fill="#1e1e24" />
-    </g>
-  )
-
-  // ==========================================
-  // POV 5: TOP VIEW
-  // ==========================================
-  const renderTop = () => (
-    <g className="otbee-body-group">
-      {/* Wings fanned out left and right */}
-      <ellipse cx="44" cy="120" rx="40" ry="24" transform="rotate(-15 44 120)" fill={`url(#${wingGradId})`} stroke="#7dd3fc" strokeWidth="2.5" opacity="0.8" />
-      <ellipse cx="196" cy="120" rx="40" ry="24" transform="rotate(15 196 120)" fill={`url(#${wingGradId})`} stroke="#7dd3fc" strokeWidth="2.5" opacity="0.8" />
-
-      {/* Satchel top */}
-      <rect x="162" y="130" width="16" height="22" rx="4" fill="#5c381e" stroke="#3e2312" strokeWidth="1.5" />
-
-      {/* Head viewed from above */}
-      <circle cx="120" cy="120" r="56" fill={`url(#${yellowGradId})`} />
-
-      {/* Goggles on front edge of dome */}
-      <path d="M 70 148 Q 120 160 170 148 L 168 158 Q 120 170 72 158 Z" fill="#5a351d" stroke="#381e0d" strokeWidth="2" />
-      <ellipse cx="98" cy="156" rx="14" ry="10" fill="#422513" stroke="#2a160a" strokeWidth="2" />
-      <ellipse cx="98" cy="156" rx="11" ry="8" fill={`url(#${goggleLensId})`} />
-      <ellipse cx="142" cy="156" rx="14" ry="10" fill="#422513" stroke="#2a160a" strokeWidth="2" />
-      <ellipse cx="142" cy="156" rx="11" ry="8" fill={`url(#${goggleLensId})`} />
-
-      {/* Antennae pointing forward */}
-      <path d="M 102 96 Q 84 84 80 72" fill="none" stroke="#1e1e24" strokeWidth="3.5" strokeLinecap="round" />
-      <circle cx="80" cy="72" r="4.5" fill="#1e1e24" />
-      <path d="M 138 96 Q 156 84 160 72" fill="none" stroke="#1e1e24" strokeWidth="3.5" strokeLinecap="round" />
-      <circle cx="160" cy="72" r="4.5" fill="#1e1e24" />
-    </g>
-  )
-
-  // ==========================================
-  // POV 6: BOTTOM VIEW
-  // ==========================================
-  const renderBottom = () => (
-    <g className="otbee-body-group">
-      {/* Underside dome */}
-      <ellipse cx="120" cy="120" rx="58" ry="48" fill={`url(#${yellowGradId})`} />
-
-      {/* Stinger in center bottom */}
-      <polygon points="120,184 114,158 126,158" fill={`url(#${stingerGradId})`} />
-
-      {/* Feet / Leg bottoms */}
-      <ellipse cx="96" cy="128" rx="14" ry="18" fill="#ff9800" stroke="#e65100" strokeWidth="2" />
-      <ellipse cx="144" cy="128" rx="14" ry="18" fill="#ff9800" stroke="#e65100" strokeWidth="2" />
-
-      {/* Satchel on side */}
-      <rect x="170" y="110" width="18" height="24" rx="4" fill="#5c381e" stroke="#3e2312" strokeWidth="1.5" />
-
-      {/* Goggles rim peeking on top */}
-      <path d="M 78 86 Q 120 78 162 86" stroke="#5a351d" strokeWidth="6" fill="none" />
-    </g>
-  )
-
-  // ==========================================
-  // DYNAMIC EYES
-  // ==========================================
-  const renderEyes = (lx: number, ly: number, rx: number, ry: number, isThreeQuarter = false, isProfile = false) => {
-    if (blinking) {
-      return (
-        <g stroke="#1e1e24" strokeWidth="3.5" strokeLinecap="round" fill="none">
-          <path d={`M ${lx - 8} ${ly} Q ${lx} ${ly + 5} ${lx + 8} ${ly}`} />
-          {!isProfile && <path d={`M ${rx - 8} ${ry} Q ${rx} ${ry + 5} ${rx + 8} ${ry}`} />}
-        </g>
-      )
-    }
-
-    if (action === 'sleep') {
-      return (
-        <g stroke="#1e1e24" strokeWidth="3.5" strokeLinecap="round" fill="none">
-          <path d={`M ${lx - 7} ${ly + 2} Q ${lx} ${ly + 7} ${lx + 7} ${ly + 2}`} />
-          {!isProfile && <path d={`M ${rx - 7} ${ry + 2} Q ${rx} ${ry + 7} ${rx + 7} ${ry + 2}`} />}
-        </g>
-      )
-    }
-
-    if (action === 'happy' || action === 'cheer') {
-      return (
-        <g stroke="#1e1e24" strokeWidth="3.5" strokeLinecap="round" fill="none">
-          <path d={`M ${lx - 8} ${ly + 3} Q ${lx} ${ly - 6} ${lx + 8} ${ly + 3}`} />
-          {!isProfile && <path d={`M ${rx - 8} ${ry + 3} Q ${rx} ${ry - 6} ${rx + 8} ${ry + 3}`} />}
-        </g>
-      )
-    }
-
-    // Classic Kawaii Anime Eyes
-    return (
-      <g className="otbee-eyes">
-        {/* Left Eye */}
-        <ellipse cx={lx} cy={ly} rx={isThreeQuarter ? 7.5 : 8} ry="11" fill="#1e1e24" />
-        {/* Main highlight */}
-        <circle cx={lx - 2.5} cy={ly - 4} r="3.2" fill="#fff" />
-        {/* Secondary mini highlight */}
-        <circle cx={lx + 2.5} cy={ly + 3.5} r="1.6" fill="#fff" />
-
-        {/* Right Eye (omitted in profile) */}
-        {!isProfile && (
-          <>
-            <ellipse cx={rx} cy={ry} rx={isThreeQuarter ? 6.5 : 8} ry="11" fill="#1e1e24" />
-            <circle cx={rx - 2.5} cy={ry - 4} r="3.2" fill="#fff" />
-            <circle cx={rx + 2.5} cy={ry + 3.5} r="1.6" fill="#fff" />
-          </>
-        )}
-      </g>
-    )
-  }
-
-  // ==========================================
-  // DYNAMIC MOUTH
-  // ==========================================
-  const renderMouth = (x: number, y: number) => {
-    if (action === 'happy' || action === 'cheer' || action === 'bounce') {
-      return (
-        <g>
-          {/* Open joyous smile with pink tongue */}
-          <path
-            d={`M ${x - 8} ${y - 2} Q ${x} ${y + 11} ${x + 8} ${y - 2} Z`}
-            fill="#a21caf"
-            stroke="#1e1e24"
-            strokeWidth="2"
-          />
-          <path
-            d={`M ${x - 5} ${y + 4} Q ${x} ${y + 1} ${x + 5} ${y + 4} Q ${x} ${y + 9} ${x - 5} ${y + 4} Z`}
-            fill="#f472b6"
-          />
-        </g>
-      )
-    }
-
-    // Default cute closed smile
-    return (
-      <path
-        d={`M ${x - 6} ${y} Q ${x} ${y + 6} ${x + 6} ${y}`}
-        stroke="#1e1e24"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-    )
-  }
-
-  // ==========================================
-  // DYNAMIC ARMS PER ACTION
-  // ==========================================
-  const renderArms = () => {
-    if (action === 'wave') {
-      return (
-        <g className="otbee-arms">
-          {/* Left arm relaxed */}
-          <ellipse cx="72" cy="150" rx="9" ry="17" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" transform="rotate(-20 72 150)" />
-          {/* Right arm waving up high */}
-          <g className="otbee-arm-wave" style={{ transformOrigin: '166px 140px' }}>
-            <path
-              d="M 166 140 Q 185 115 194 95 Q 200 98 196 108 Q 186 128 174 148 Z"
-              fill="#ffb300"
-              stroke="#f57c00"
-              strokeWidth="1.5"
-            />
-            {/* Chubby palm */}
-            <circle cx="196" cy="98" r="6" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" />
-          </g>
-        </g>
-      )
-    }
-
-    if (action === 'cheer') {
-      return (
-        <g className="otbee-arms">
-          {/* Both arms raised up in victory */}
-          <path d="M 74 140 Q 55 115 46 95 Q 40 98 44 108 Q 54 128 66 148 Z" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" />
-          <circle cx="44" cy="98" r="6" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" />
-
-          <path d="M 166 140 Q 185 115 194 95 Q 200 98 196 108 Q 186 128 174 148 Z" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" />
-          <circle cx="196" cy="98" r="6" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" />
-        </g>
-      )
-    }
-
-    if (action === 'thumbsup') {
-      return (
-        <g className="otbee-arms">
-          <ellipse cx="72" cy="150" rx="9" ry="17" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" transform="rotate(-20 72 150)" />
-          {/* Right arm presenting thumbs up */}
-          <ellipse cx="166" cy="144" rx="16" ry="9" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" transform="rotate(-20 166 144)" />
-          {/* Thumbs up hand */}
-          <circle cx="180" cy="138" r="6" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" />
-          <path d="M 180 138 L 180 126 Q 183 124 185 126 L 185 138 Z" fill="#ff9800" stroke="#e65100" strokeWidth="1.5" />
-        </g>
-      )
-    }
-
-    // Default friendly open arms
-    return (
-      <g className="otbee-arms">
-        <ellipse cx="70" cy="152" rx="9" ry="18" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" transform="rotate(-24 70 152)" />
-        <ellipse cx="170" cy="152" rx="9" ry="18" fill="#ffb300" stroke="#f57c00" strokeWidth="1.5" transform="rotate(24 170 152)" />
-      </g>
-    )
-  }
-
-  // Animation CSS styles based on action
-  const getActionClass = () => {
-    switch (action) {
-      case 'bounce':
-        return 'otbee-action-bounce'
-      case 'salto':
-        return 'otbee-action-salto'
-      case 'wave':
-        return 'otbee-action-wave'
-      case 'cheer':
-        return 'otbee-action-cheer'
-      case 'thinking':
-        return 'otbee-action-thinking'
-      case 'sleep':
-        return 'otbee-action-sleep'
-      default:
-        return 'otbee-action-idle'
-    }
-  }
+  const id = `otbee-${uid}`
+  const blink = useBlinkTimer()
+
+  const animStyle = getAnimStyle(action)
+  const isClickable = !!onClick
 
   return (
-    <div
-      className={`relative inline-block select-none cursor-${onClick ? 'pointer' : 'default'} ${className}`}
-      style={{
-        width: size,
-        height: size,
-        ...style,
-      }}
-      onClick={onClick}
-      onMouseEnter={() => { setHovered(true); onHover?.() }}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <style>{`
-        /* Global Otbee Animation Keyframes */
-        @keyframes otbee-kf-idle {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-7px) rotate(1.5deg); }
-        }
-        @keyframes otbee-kf-bounce {
-          0%, 100% { transform: translateY(0) scale(1); }
-          20% { transform: translateY(-18px) scaleX(0.94) scaleY(1.08); }
-          40% { transform: translateY(0) scaleX(1.12) scaleY(0.9); }
-          60% { transform: translateY(-8px) scale(1.02); }
-          80% { transform: translateY(0) scaleX(1.04) scaleY(0.96); }
-        }
-        @keyframes otbee-kf-salto {
-          0% { transform: translateY(0) rotate(0deg) scale(1); }
-          15% { transform: translateY(8px) scaleX(1.22) scaleY(0.78); }
-          45% { transform: translateY(-70px) rotate(180deg) scaleX(0.88) scaleY(1.15); }
-          75% { transform: translateY(-50px) rotate(330deg) scale(0.95); }
-          90% { transform: translateY(0) rotate(360deg) scaleX(1.18) scaleY(0.82); }
-          100% { transform: translateY(0) rotate(360deg) scale(1); }
-        }
-        @keyframes otbee-kf-wing-left {
-          0%, 100% { transform: rotate(0deg) scaleY(1); }
-          50% { transform: rotate(14deg) scaleY(0.86); }
-        }
-        @keyframes otbee-kf-wing-right {
-          0%, 100% { transform: rotate(0deg) scaleY(1); }
-          50% { transform: rotate(-14deg) scaleY(0.86); }
-        }
-        @keyframes otbee-kf-arm-wave {
-          0%, 100% { transform: rotate(0deg); }
-          50% { transform: rotate(26deg); }
-        }
-        @keyframes otbee-kf-thinking {
-          0%, 100% { transform: translateY(0) rotate(-2deg); }
-          50% { transform: translateY(-4px) rotate(3deg); }
-        }
-
-        .otbee-action-idle {
-          animation: otbee-kf-idle 2.8s ease-in-out infinite;
-        }
-        .otbee-action-bounce {
-          animation: otbee-kf-bounce 1.2s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
-        }
-        .otbee-action-salto {
-          animation: otbee-kf-salto 0.9s cubic-bezier(0.34, 1.3, 0.64, 1) both;
-        }
-        .otbee-action-wave {
-          animation: otbee-kf-idle 2.4s ease-in-out infinite;
-        }
-        .otbee-action-cheer {
-          animation: otbee-kf-bounce 1.4s ease-in-out infinite;
-        }
-        .otbee-action-thinking {
-          animation: otbee-kf-thinking 3.5s ease-in-out infinite;
-        }
-        .otbee-action-sleep {
-          animation: otbee-kf-idle 4s ease-in-out infinite;
-          opacity: 0.92;
-        }
-
-        .otbee-wing-left {
-          animation: otbee-kf-wing-left 0.22s ease-in-out infinite;
-        }
-        .otbee-wing-right {
-          animation: otbee-kf-wing-right 0.22s ease-in-out infinite;
-        }
-        .otbee-arm-wave {
-          animation: otbee-kf-arm-wave 0.55s ease-in-out infinite;
-        }
-      `}</style>
-
+    <>
+      <style>{MASCOT_KEYFRAMES}</style>
       <svg
-        viewBox="0 0 240 240"
-        width="100%"
-        height="100%"
-        className={`${getActionClass()} transition-transform duration-200`}
-        style={{
-          transform: hovered && action === 'idle' ? 'scale(1.08)' : undefined,
-          filter: hovered ? 'drop-shadow(0 6px 16px rgba(245, 158, 11, 0.45))' : 'drop-shadow(0 2px 6px rgba(0,0,0,0.18))',
-        }}
+        viewBox="0 0 200 240"
+        width={size}
+        height={size * 1.2}
+        className={`select-none ${isClickable ? 'cursor-pointer' : ''} ${className}`}
+        style={{ display: 'block', overflow: 'visible', ...style }}
+        onClick={onClick}
+        onMouseEnter={onHover}
+        aria-label="Otbee mascot"
+        role={isClickable ? 'button' : 'img'}
       >
-        <defs>
-          {/* Golden Yellow Body Gradient */}
-          <linearGradient id={yellowGradId} x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#ffd54f" />
-            <stop offset="55%" stopColor="#ffb300" />
-            <stop offset="100%" stopColor="#ff8f00" />
-          </linearGradient>
+        <Defs id={id} />
 
-          {/* Yellow Highlight Shine */}
-          <linearGradient id={yellowHighlightId} x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.45" />
-            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-          </linearGradient>
+        {/* Animated wrapper - body anim */}
+        <g style={{ transformOrigin: '100px 190px', ...animStyle }}>
+          {/* Wings BEHIND body (render first) */}
+          <AnimatedWings id={id} action={action} pov={pov} />
 
-          {/* Glowing Teal Goggle Lens */}
-          <linearGradient id={goggleLensId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#2dd4bf" />
-            <stop offset="60%" stopColor="#0d9488" />
-            <stop offset="100%" stopColor="#115e59" />
-          </linearGradient>
+          {/* Legs */}
+          <Legs pov={pov} />
 
-          {/* Translucent Wings Gradient */}
-          <linearGradient id={wingGradId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#e0f2fe" stopOpacity="0.95" />
-            <stop offset="60%" stopColor="#bae6fd" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#7dd3fc" stopOpacity="0.6" />
-          </linearGradient>
+          {/* Body with stripes */}
+          <Body id={id} pov={pov} />
 
-          {/* Leather Brown Gradient */}
-          <linearGradient id={leatherGradId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#784824" />
-            <stop offset="100%" stopColor="#452712" />
-          </linearGradient>
+          {/* Neckerchief */}
+          <Neckerchief pov={pov} />
 
-          {/* Cheek Pink Blush Gradient */}
-          <radialGradient id={cheekGradId} cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#fb7185" stopOpacity="0.65" />
-            <stop offset="100%" stopColor="#fb7185" stopOpacity="0" />
-          </radialGradient>
+          {/* Satchel */}
+          <Satchel pov={pov} action={action} />
 
-          {/* Stinger Dark Gradient */}
-          <linearGradient id={stingerGradId} x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#27272a" />
-            <stop offset="100%" stopColor="#09090b" />
-          </linearGradient>
-        </defs>
+          {/* Arms */}
+          <Arms pov={pov} action={action} />
 
-        {renderPOV()}
+          {/* Head */}
+          <Head id={id} pov={pov} />
+
+          {/* Antennae */}
+          <Antennae pov={pov} />
+
+          {/* Goggles (on head) */}
+          <Goggles id={id} pov={pov} />
+
+          {/* Eyes */}
+          <Eyes id={id} blink={blink} pov={pov} action={action} />
+
+          {/* Blush */}
+          <Cheeks pov={pov} />
+
+          {/* Mouth */}
+          <Mouth action={action} pov={pov} />
+
+          {/* Action-specific extras */}
+          {action === 'sleep' && <SleepZzz />}
+          {action === 'thinking' && <ThinkingBubble />}
+        </g>
       </svg>
-    </div>
+    </>
   )
 }
 
-/**
- * Pure Vector Otbee Head Component
- * Strictly head only (no neck, no body), animated with natural blinking.
- */
+// ============================================================
+// HEAD-ONLY VARIANT (for chatbot trigger icon)
+// ============================================================
 export function OtbeeVectorHead({
-  size = 64,
+  size = 48,
   className = '',
   style,
+  onClick,
 }: {
   size?: number
   className?: string
   style?: React.CSSProperties
+  onClick?: () => void
 }) {
   const uid = useId().replace(/:/g, '')
-  const [blinking, setBlinking] = useState(false)
+  const id = `otbee-head-${uid}`
+  const blink = useBlinkTimer()
 
-  useEffect(() => {
-    const blinkInterval = setInterval(() => {
-      setBlinking(true)
-      setTimeout(() => setBlinking(false), 160)
-    }, 3500 + Math.random() * 2000)
-    return () => clearInterval(blinkInterval)
-  }, [])
-
-  const yellowId = `vhead-yellow-${uid}`
-  const tealId = `vhead-teal-${uid}`
-  const cheekId = `vhead-cheek-${uid}`
-
+  // Head viewBox: crop to just the head area (x:30, y:0, w:140, h:155)
   return (
-    <div
-      className={`relative inline-block select-none ${className}`}
-      style={{ width: size, height: size, ...style }}
-    >
-      <svg viewBox="60 20 120 115" width="100%" height="100%" style={{ overflow: 'visible' }}>
-        <defs>
-          <linearGradient id={yellowId} x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#ffd54f" />
-            <stop offset="60%" stopColor="#ffb300" />
-            <stop offset="100%" stopColor="#ff8f00" />
-          </linearGradient>
-          <linearGradient id={tealId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#2dd4bf" />
-            <stop offset="60%" stopColor="#0d9488" />
-            <stop offset="100%" stopColor="#115e59" />
-          </linearGradient>
-          <radialGradient id={cheekId} cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#fb7185" stopOpacity="0.65" />
-            <stop offset="100%" stopColor="#fb7185" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-
-        {/* Head Dome */}
-        <circle cx="120" cy="85" r="46" fill={`url(#${yellowId})`} />
-        {/* Head Shine */}
-        <ellipse cx="106" cy="62" rx="20" ry="11" transform="rotate(-15 106 62)" fill="#fff" opacity="0.35" />
-
-        {/* Cheeks */}
-        <ellipse cx="94" cy="98" rx="9" ry="5.5" fill={`url(#${cheekId})`} />
-        <ellipse cx="146" cy="98" rx="9" ry="5.5" fill={`url(#${cheekId})`} />
-
-        {/* Eyes */}
-        {blinking ? (
-          <g stroke="#1e1e24" strokeWidth="3.5" strokeLinecap="round" fill="none">
-            <path d="M 96 86 Q 104 91 112 86" />
-            <path d="M 128 86 Q 136 91 144 86" />
-          </g>
-        ) : (
-          <g>
-            <ellipse cx="104" cy="86" rx="8" ry="11" fill="#1e1e24" />
-            <circle cx="101.5" cy="82" r="3.2" fill="#fff" />
-            <circle cx="106.5" cy="89.5" r="1.6" fill="#fff" />
-
-            <ellipse cx="136" cy="86" rx="8" ry="11" fill="#1e1e24" />
-            <circle cx="133.5" cy="82" r="3.2" fill="#fff" />
-            <circle cx="138.5" cy="89.5" r="1.6" fill="#fff" />
-          </g>
-        )}
-
-        {/* Cute Smile */}
-        <path d="M 114 100 Q 120 106 126 100" stroke="#1e1e24" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-
-        {/* Goggles on Forehead */}
-        <path d="M 75 72 Q 120 64 165 72 L 164 80 Q 120 72 76 80 Z" fill="#5a351d" stroke="#381e0d" strokeWidth="1.5" />
-        <circle cx="98" cy="72" r="16" fill="#422513" stroke="#2a160a" strokeWidth="2.5" />
-        <circle cx="98" cy="72" r="13" fill={`url(#${tealId})`} />
-        <line x1="98" y1="62" x2="98" y2="82" stroke="#99f6e4" strokeWidth="1.5" opacity="0.85" />
-        <line x1="88" y1="72" x2="108" y2="72" stroke="#99f6e4" strokeWidth="1.5" opacity="0.85" />
-        <path d="M 91 66 Q 98 62 104 66" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" fill="none" opacity="0.9" />
-
-        <rect x="111" y="70" width="18" height="5" rx="2" fill="#5a351d" stroke="#381e0d" strokeWidth="1.5" />
-
-        <circle cx="142" cy="72" r="16" fill="#422513" stroke="#2a160a" strokeWidth="2.5" />
-        <circle cx="142" cy="72" r="13" fill={`url(#${tealId})`} />
-        <line x1="142" y1="62" x2="142" y2="82" stroke="#99f6e4" strokeWidth="1.5" opacity="0.85" />
-        <line x1="132" y1="72" x2="152" y2="72" stroke="#99f6e4" strokeWidth="1.5" opacity="0.85" />
-        <path d="M 135 66 Q 142 62 148 66" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" fill="none" opacity="0.9" />
-
-        {/* Antennae */}
-        <path d="M 108 44 Q 98 26 86 32" fill="none" stroke="#1e1e24" strokeWidth="3.5" strokeLinecap="round" />
-        <circle cx="86" cy="32" r="4.5" fill="#1e1e24" />
-        <path d="M 132 44 Q 142 26 154 32" fill="none" stroke="#1e1e24" strokeWidth="3.5" strokeLinecap="round" />
-        <circle cx="154" cy="32" r="4.5" fill="#1e1e24" />
+    <>
+      <style>{MASCOT_KEYFRAMES}</style>
+      <svg
+        viewBox="30 0 140 155"
+        width={size}
+        height={size}
+        className={`select-none ${onClick ? 'cursor-pointer' : ''} ${className}`}
+        style={{ display: 'block', overflow: 'visible', ...style }}
+        onClick={onClick}
+        aria-label="Otbee head"
+      >
+        <Defs id={id} />
+        <g style={{ animation: 'otbee-idle-float 3s ease-in-out infinite', transformOrigin: '100px 87px' }}>
+          {/* Wing tips barely visible */}
+          <ellipse cx={52} cy={128} rx={22} ry={14} transform="rotate(-28 52 128)"
+            fill={`url(#${id}-wing-fill)`} stroke="#8EC5D6" strokeWidth="1" opacity={0.6} />
+          {/* Neckerchief top part */}
+          <path d="M 52 150 Q 100 144 148 150 Q 148 161 100 163 Q 52 161 52 150 Z"
+            fill="#222222" />
+          <circle cx={58} cy={155} r={8} fill="#1A1A1A" />
+          <ellipse cx={48} cy={150} rx={7} ry={4.5} fill="#1A1A1A" transform="rotate(-20 48 150)" />
+          <ellipse cx={48} cy={161} rx={7} ry={4.5} fill="#1A1A1A" transform="rotate(20 48 161)" />
+          {/* Head */}
+          <ellipse cx={100} cy={87} rx={63} ry={64} fill={`url(#${id}-head-grad)`} stroke="#D4960A" strokeWidth="2" />
+          {/* Antennae */}
+          <Antennae pov="front" />
+          {/* Goggles */}
+          <Goggles id={id} pov="front" />
+          {/* Eyes */}
+          <Eyes id={id} blink={blink} pov="front" action="idle" />
+          {/* Cheeks */}
+          <Cheeks pov="front" />
+          {/* Mouth */}
+          <Mouth action="idle" pov="front" />
+        </g>
       </svg>
-    </div>
+    </>
   )
 }
