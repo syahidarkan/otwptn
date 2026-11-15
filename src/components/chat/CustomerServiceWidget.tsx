@@ -302,8 +302,8 @@ export default function CustomerServiceWidget() {
               }}
             />
             <div className="relative w-14 h-14 rounded-full bg-gradient-to-b from-amber-50 to-amber-100/90 overflow-hidden border-2 border-white/95 shadow-inner flex items-center justify-center">
-              <div style={{ transform: 'scaleX(-1) scale(0.36)', transformOrigin: 'center center' }}>
-                <Otbee4KPuppet growthProgress={0} size={145} followPointer facing={-1} paused={stage} />
+              <div style={{ transform: 'scaleX(-1)' }}>
+                <OtbeeAvatar headOnly view="front" size={40} followPointer facing={-1} paused={stage} />
               </div>
             </div>
             <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-xs animate-pulse" />
