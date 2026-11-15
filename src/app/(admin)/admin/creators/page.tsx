@@ -172,7 +172,7 @@ export default function AdminCreatorsPage() {
     if (status === 'interview') {
       message += ` Portofolio kamu menarik sekali! Kami ingin mengundang kamu untuk sesi bincang santai/interview online mengenai kolaborasi pembuatan konten.\n\nKira-kira kapan kamu ada waktu luang untuk briefing singkat? Terima kasih!`
     } else if (status === 'accepted') {
-      message += ` Selamat, kamu resmi terpilih untuk bergabung dalam Tim Creator OTWPTN! 🎉\n\nBerikut langkah selanjutnya untuk orientasi dan pembagian brief konten perdana kamu.`
+      message += ` Selamat, kamu resmi terpilih untuk bergabung dalam Tim Creator OTWPTN!\n\nAkun kamu sudah resmi kami aktifkan. Kamu bisa langsung login di https://otwptn.com/login menggunakan email dan password yang kamu daftarkan.\n\nSetelah login, buka menu Creator Hub di dashboard untuk mengakses Creator Kit (aset & script viral), kode referral, dan submit video konten perdanamu.`
     } else {
       message += ` Kami sedang mereview portofolio kamu. Ada beberapa hal yang ingin kami tanyakan seputar konten yang pernah kamu buat.`
     }

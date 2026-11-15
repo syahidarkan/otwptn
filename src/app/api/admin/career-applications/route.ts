@@ -45,6 +45,14 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'Status tidak valid' }, { status: 400 })
     }
 
+    // 1. Fetch current application to get associated user_id and email
+    const { data: application } = await supabase
+      .from('career_applications')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle()
+
+    // 2. Update status in career_applications
     const { error } = await supabase
       .from('career_applications')
       .update({ status })
@@ -52,6 +60,31 @@ export async function PATCH(request: Request) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // 3. Auto-activate or deactivate creator user profile
+    if (application) {
+      try {
+        if (status === 'accepted') {
+          const updatePayload = { is_active: true, role: 'creator' }
+          if (application.user_id) {
+            await supabase.from('profiles').update(updatePayload).eq('id', application.user_id)
+          }
+          if (application.email) {
+            await supabase.from('profiles').update(updatePayload).eq('email', application.email)
+          }
+        } else if (status === 'rejected') {
+          const updatePayload = { is_active: false }
+          if (application.user_id) {
+            await supabase.from('profiles').update(updatePayload).eq('id', application.user_id)
+          }
+          if (application.email) {
+            await supabase.from('profiles').update(updatePayload).eq('email', application.email)
+          }
+        }
+      } catch (profSyncErr) {
+        console.warn('[Admin Career Applications Profile Sync Warn]', profSyncErr)
+      }
     }
 
     return NextResponse.json({ success: true, id, status })

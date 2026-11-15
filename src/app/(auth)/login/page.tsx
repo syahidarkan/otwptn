@@ -34,7 +34,8 @@ function LoginForm({ initialError = null }: { initialError?: string | null }) {
       return
     }
 
-    const { error: err } = await createClient().auth.signInWithPassword({
+    const supabase = createClient()
+    const { data: authData, error: err } = await supabase.auth.signInWithPassword({
       email,
       password,
       options: {
@@ -47,6 +48,27 @@ function LoginForm({ initialError = null }: { initialError?: string | null }) {
       setTurnstileToken(null)
       return
     }
+
+    if (authData?.user) {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_active, role')
+          .eq('id', authData.user.id)
+          .maybeSingle()
+
+        if (profile && profile.is_active === false) {
+          await supabase.auth.signOut()
+          setError('Akun pendaftaran Content Creator kamu sedang dalam proses verifikasi tim admin OtwPTN. Kamu akan dihubungi via WhatsApp setelah akun kamu disetujui & diaktifkan.')
+          setLoading(false)
+          setTurnstileToken(null)
+          return
+        }
+      } catch (checkErr) {
+        console.warn('[Login Profile Active Check Warn]', checkErr)
+      }
+    }
+
     router.refresh()
     router.push('/dashboard')
   }

@@ -60,6 +60,8 @@ export default function ContentCreatorCareerPage() {
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [age, setAge] = useState('')
   const [educationStatus, setEducationStatus] = useState('Kelas 12 SMA/SMK')
   const [schoolOrCampus, setSchoolOrCampus] = useState('')
@@ -77,8 +79,18 @@ export default function ContentCreatorCareerPage() {
     e.preventDefault()
     setErrorMsg(null)
 
-    if (!fullName || !phone || !email || !age || !schoolOrCampus || !instagram || !tiktok || !portfolioLink || !phoneModel || !reason) {
+    if (!fullName || !phone || !email || !password || !age || !schoolOrCampus || !instagram || !tiktok || !portfolioLink || !phoneModel || !reason) {
       setErrorMsg('Mohon lengkapi semua kolom formulir pendaftaran sebelum mengirim.')
+      return
+    }
+
+    if (password.length < 8) {
+      setErrorMsg('Password akun minimal 8 karakter.')
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMsg('Konfirmasi password tidak cocok dengan password yang kamu masukkan.')
       return
     }
 
@@ -92,6 +104,7 @@ export default function ContentCreatorCareerPage() {
           fullName,
           phone,
           email,
+          password,
           age,
           educationStatus,
           schoolOrCampus,
@@ -283,17 +296,25 @@ export default function ContentCreatorCareerPage() {
                 </div>
                 <div>
                   <h4 className="text-base font-black text-emerald-950">
-                    Pendaftaran Berhasil Terkirim!
+                    Pendaftaran & Akun Berhasil Dibuat!
                   </h4>
                   <p className="text-xs text-emerald-800 mt-1 leading-relaxed">
-                    Terima kasih, <strong>{successData.fullName}</strong>. Kode Referensi Pendaftaranmu adalah:
+                    Terima kasih, <strong>{successData.fullName}</strong>. Akun Content Creator kamu telah terdaftar dalam sistem dengan ID:
                   </p>
                   <div className="mt-2 py-2 px-3 rounded-xl bg-white border border-emerald-300 text-sm font-black text-emerald-950 font-mono tracking-wider">
                     {successData.referenceId}
                   </div>
                 </div>
+
+                <div className="p-3.5 bg-amber-50 rounded-xl border border-amber-200/80 text-left text-xs space-y-1.5 text-amber-900">
+                  <p className="font-bold">Status Akun: Menunggu Verifikasi Tim Admin</p>
+                  <p className="text-[11.5px] text-amber-800 leading-relaxed">
+                    Akun kamu saat ini masih nonaktif sementara tim kami meninjau formulir & portofoliomu. Begitu disetujui (ACC) oleh admin, akun kamu otomatis aktif dan kamu bisa <strong>langsung login</strong> menggunakan email dan password yang baru kamu daftarkan tanpa perlu mendaftar ulang.
+                  </p>
+                </div>
+
                 <p className="text-[11px] text-emerald-700">
-                  Untuk mempercepat proses seleksi, kamu bisa langsung konfirmasi ke WhatsApp tim rekrutmen kami:
+                  Untuk mempercepat proses review dan aktivasi akun, silakan hubungi tim rekrutmen kami via WhatsApp:
                 </p>
                 <a
                   href={whatsappConfirmUrl}
@@ -354,7 +375,7 @@ export default function ContentCreatorCareerPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-gray-800 mb-1">
-                    Email Aktif <span className="text-rose-500">*</span>
+                    Email Aktif (Untuk Login Akun) <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -364,6 +385,37 @@ export default function ContentCreatorCareerPage() {
                     placeholder="nama@gmail.com"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs font-medium focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
                   />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-800 mb-1">
+                      Buat Password Akun <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      minLength={8}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      placeholder="Minimal 8 karakter"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs font-medium focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-800 mb-1">
+                      Ulangi Password <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      minLength={8}
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      placeholder="Konfirmasi password"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-xs font-medium focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
