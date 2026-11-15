@@ -7,14 +7,16 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { OtbeeAvatar, debugSurfaces } from './otbee'
-import type { OtbeeHandle } from './otbee'
+import { Otbee4KPuppet, debugSurfaces } from './otbee'
+import type { Otbee4KPuppetHandle } from './otbee'
 import { createController, type Bubble, type Controller } from './otbee/controller'
 import { createClient } from '@/lib/supabase/client'
 
+const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v))
+
 export default function FloatingMascot() {
   const pathname = usePathname()
-  const avatar = useRef<OtbeeHandle>(null)
+  const avatar = useRef<Otbee4KPuppetHandle>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const popRef = useRef<HTMLDivElement>(null)
   const tiltRef = useRef<HTMLDivElement>(null)
@@ -30,6 +32,26 @@ export default function FloatingMascot() {
   const isDraggingRef = useRef(false)
   const dragStartPos = useRef({ x: 0, y: 0 })
   const hasMovedRef = useRef(false)
+
+  // Growth progress: 0 (head only at hero top) -> 1 (full body past hero)
+  const [growthProgress, setGrowthProgress] = useState(() => {
+    if (typeof window === 'undefined') return 1
+    return (pathname ?? '/') === '/' ? clamp(window.scrollY / 260) : 1
+  })
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (pathRef.current !== '/') {
+        setGrowthProgress(1)
+        return
+      }
+      setGrowthProgress(clamp(window.scrollY / 260))
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [pathname])
 
   const preventSelection = (e: Event) => {
     e.preventDefault()
@@ -80,7 +102,22 @@ export default function FloatingMascot() {
       setIsDraggingState(false)
       ctl.current?.endDrag()
     } else {
-      ctl.current?.clickMascot()
+      if (growthProgress < 0.6) {
+        const reactions: { text: string; clip: 'cheer' | 'nod' | 'shy' }[] = [
+          { text: 'Semangat belajar yaa! 🚀🔥', clip: 'cheer' },
+          { text: 'Otbee siap nemenin kamu lolos PTN! 💛', clip: 'shy' },
+          { text: 'Fokus & konsisten, PTN impian pasti tercapai! 🌟', clip: 'nod' },
+          { text: 'Ayo gasspol latihan soal hari ini! 🐝💪', clip: 'cheer' },
+          { text: 'Jangan lupa istirahat & jaga kesehatan yaa! ☕✨', clip: 'nod' },
+        ]
+        const r = reactions[Math.floor(Math.random() * reactions.length)]
+        avatar.current?.play(r.clip, { onDone: () => avatar.current?.play('idle') })
+        avatar.current?.fx('stars')
+        setBubble({ id: Date.now(), text: r.text, below: false, shift: 0 })
+        setTimeout(() => setBubble(null), 3800)
+      } else {
+        ctl.current?.clickMascot()
+      }
     }
   }
 
@@ -172,13 +209,27 @@ export default function FloatingMascot() {
             pointerEvents: 'none', animation: 'otbee-bubble-pop .22s cubic-bezier(.34,1.56,.64,1) both',
           }}
         >
-          {bubble?.text ?? 'Klik aku untuk salto & tips PTN! 🐝'}
+          {bubble?.text ?? (growthProgress < 0.6 ? 'Halo pejuang PTN! Klik aku yaa 🐝✨' : 'Klik aku untuk salto & tips PTN! 🐝')}
           <span style={{
             position: 'absolute', left: `calc(50% - ${bubble?.shift ?? 0}px)`, marginLeft: -6, width: 0, height: 0,
             borderLeft: '6px solid transparent', borderRight: '6px solid transparent',
             ...(bubble?.below ? { bottom: '100%', borderBottom: '6px solid #1e1b18' } : { top: '100%', borderTop: '6px solid #292520' }),
           }} />
         </div>
+      )}
+      {/* Ambient glow in hero section */}
+      {growthProgress < 0.8 && (
+        <div
+          className="absolute rounded-full bg-gradient-to-tr from-amber-400/30 via-amber-300/20 to-pink-300/10 blur-2xl -z-10 pointer-events-none"
+          style={{
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: size * 1.8,
+            height: size * 1.8,
+            opacity: 1 - growthProgress,
+          }}
+        />
       )}
       <style>{`
         @keyframes otbee-bubble-pop{0%{opacity:0;scale:.85}100%{opacity:1;scale:1}}
@@ -233,9 +284,9 @@ export default function FloatingMascot() {
               transition: 'filter .2s',
             }}
           >
-            <OtbeeAvatar
+            <Otbee4KPuppet
               ref={avatar}
-              view="front"
+              growthProgress={growthProgress}
               size={size}
               followPointer={!isDraggingState}
               onErraticPointer={() => ctl.current?.onDizzy()}

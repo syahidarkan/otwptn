@@ -5,7 +5,6 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
 import { Zap, ArrowRight, ShieldCheck, Star } from 'lucide-react'
 import HoneycombBg from '@/components/ui/HoneycombBg'
-import HeroFeatureGuide from './HeroFeatureGuide'
 
 const WORDS = ['Tes', 'Ujian', 'CBT', 'Pusing!']
 
@@ -192,9 +191,9 @@ export default function HeroSection() {
           </Link>
         </motion.div>
 
-        {/* Interactive Hero Mascot Feature Guide */}
-        <motion.div {...fadeUp(0.32)} className="w-full">
-          <HeroFeatureGuide />
+        {/* Single Mascot Hero Anchor (Strictly 1 Mascot in DOM) */}
+        <motion.div {...fadeUp(0.32)} className="w-full flex justify-center py-2 min-h-[150px] relative pointer-events-none">
+          <div id="hero-mascot-spot" className="w-full h-full min-h-[150px] flex items-center justify-center relative" />
         </motion.div>
       </div>
     </section>

@@ -43,6 +43,10 @@ env.*.local
 node_modules/
 **/node_modules
 
+# local launch video workspace
+launch-video/
+
+
 # vercel
 .vercel
 

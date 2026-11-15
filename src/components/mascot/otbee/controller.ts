@@ -111,7 +111,7 @@ const wait = (ms: number) => new Promise<void>(r => setTimeout(r, ms))
 const pickOne = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)]
 
 export function createController(d: ControllerDeps) {
-  type Phase = 'hidden' | 'resting' | 'traveling'
+  type Phase = 'hidden' | 'resting' | 'traveling' | 'hero-docked'
   let phase: Phase = 'hidden'
   let token = 0
   let spawnTok = 0
@@ -213,9 +213,13 @@ export function createController(d: ControllerDeps) {
   let lastHoverCheck = 0
   const tick = () => {
     raf = requestAnimationFrame(tick)
-    if (phase !== 'resting' || !anchor) return
+    if ((phase !== 'resting' && phase !== 'hero-docked') || !anchor) return
     const p = anchor.resolve()
-    if (!p) { if (++invalid > 14) { invalid = 0; decide(true) } return }
+    if (!p) {
+      if (phase === 'hero-docked') return
+      if (++invalid > 14) { invalid = 0; decide(true) }
+      return
+    }
     invalid = 0
     if (Math.abs(p.x - pos.x) > 0.35 || Math.abs(p.y - pos.y) > 0.35) place(p)
     // face whichever side the cursor is on (deadzone so he doesn't flicker near centre)
@@ -228,44 +232,65 @@ export function createController(d: ControllerDeps) {
       }
     }
     // hover explanations are throttled to ~90ms (not every raw pointermove) to keep scrolling smooth
-    if (pointerMoved && !isTouch && !isPrivacy) {
+    if (pointerMoved && !isTouch && !isPrivacy && phase === 'resting') {
       const now = performance.now()
       if (now - lastHoverCheck > 90) { lastHoverCheck = now; considerPoint(pointerX, pointerY, 650) }
     }
+  }
+
+  // ============================================================ hero dock management
+  const dockAtHero = () => {
+    const heroSpot = document.getElementById('hero-mascot-spot')
+    if (!heroSpot) return
+    const hr = heroSpot.getBoundingClientRect()
+    const target: Spot = {
+      x: hr.left + hr.width / 2 + window.scrollX,
+      y: hr.top + hr.height / 2 + window.scrollY,
+    }
+    anchor = {
+      resolve: () => {
+        const spot = document.getElementById('hero-mascot-spot')
+        if (!spot) return null
+        const r = spot.getBoundingClientRect()
+        return {
+          x: r.left + r.width / 2 + window.scrollX,
+          y: r.top + r.height / 2 + window.scrollY,
+        }
+      },
+      el: heroSpot,
+      kind: 'control',
+    }
+    place(target)
+    setPose(1, 0)
+    d.container.style.pointerEvents = 'auto'
+    d.container.style.opacity = '1'
+    phase = 'hero-docked'
+  }
+
+  const undockFromHero = () => {
+    phase = 'traveling'
+    anchor = null
+    spawnWhenReady(getMascotConfigForPath(d.pathname()))
   }
 
   // ============================================================ spawn / despawn
   const spawn = async (pk: Picked, cfg: MascotConfig | null) => {
     const p = pk.anchor.resolve()
     if (!p) return
-    const tok = ++token
+    token++
     anchor = pk.anchor
 
-    const heroGuide = d.pathname() === '/' ? document.getElementById('hero-feature-guide') : null
-    if (heroGuide) {
-      const hr = heroGuide.getBoundingClientRect()
-      const originSpot: Spot = { x: hr.left + hr.width / 2 + window.scrollX, y: hr.bottom + window.scrollY }
-      place(originSpot)
-      setPose(1, 0)
-      d.container.style.pointerEvents = 'auto'
-      d.container.style.opacity = '1'
-      phase = 'traveling'
-      fx('smoke')
-      const ok = await jumpTo(tok, originSpot, p)
-      if (!ok || tok !== token || disposed) return
-    } else {
-      place(p)
-      setPose(1, 0)
-      d.container.style.pointerEvents = 'auto'
-      d.container.style.opacity = '1'
-      phase = 'traveling'
-      d.pop.animate([
-        { transform: 'scale(.12)', opacity: 0 },
-        { transform: 'scale(1.2)', opacity: 1, offset: 0.62 },
-        { transform: 'scale(1)', opacity: 1 },
-      ], { duration: 560, easing: 'cubic-bezier(.3,1.6,.4,1)', fill: 'both' })
-      requestAnimationFrame(() => { fx('smoke'); setTimeout(() => fx('smoke'), 90) })
-    }
+    place(p)
+    setPose(1, 0)
+    d.container.style.pointerEvents = 'auto'
+    d.container.style.opacity = '1'
+    phase = 'traveling'
+    d.pop.animate([
+      { transform: 'scale(.12)', opacity: 0 },
+      { transform: 'scale(1.2)', opacity: 1, offset: 0.62 },
+      { transform: 'scale(1)', opacity: 1 },
+    ], { duration: 560, easing: 'cubic-bezier(.3,1.6,.4,1)', fill: 'both' })
+    requestAnimationFrame(() => { fx('smoke'); setTimeout(() => fx('smoke'), 90) })
 
     phase = 'resting'
     if (typeof document !== 'undefined' && document.activeElement && isPrivacyField(document.activeElement)) {
@@ -356,7 +381,7 @@ export function createController(d: ControllerDeps) {
   const relocate = async (dir: 'down' | 'up') => {
     if (phase !== 'resting') return
     if (inHeroSection(d.pathname())) {
-      despawn()
+      dockAtHero()
       return
     }
     const sc = scale(), vh = window.innerHeight, vw = window.innerWidth
@@ -423,7 +448,7 @@ export function createController(d: ControllerDeps) {
   const decide = (forced: boolean) => {
     if (disposed || phase === 'hidden') return
     if (inHeroSection(d.pathname())) {
-      despawn()
+      dockAtHero()
       return
     }
     if (phase === 'traveling') { settleTimer = setTimeout(() => decide(forced), 350); return }
@@ -525,14 +550,16 @@ export function createController(d: ControllerDeps) {
     lastScrollY = y
     activity()
 
-    // Hero section check on homepage: despawn floating mascot if in hero, spawn if scrolled past
+    // Hero section check on homepage: dock in hero if in hero, undock if scrolled past
     if (d.pathname() === '/') {
       const isHero = inHeroSection(d.pathname())
-      if (isHero && phase !== 'hidden') {
-        despawn()
+      if (isHero) {
+        if (phase !== 'hero-docked') {
+          dockAtHero()
+        }
         return
-      } else if (!isHero && phase === 'hidden') {
-        spawnWhenReady(getMascotConfigForPath(d.pathname()))
+      } else if (phase === 'hero-docked') {
+        undockFromHero()
       }
     }
 
@@ -759,7 +786,17 @@ export function createController(d: ControllerDeps) {
   raf = requestAnimationFrame(tick)
 
   return {
-    start() { setTimeout(() => { if (!disposed) spawnWhenReady(getMascotConfigForPath(d.pathname())) }, 450) },
+    start() {
+      setTimeout(() => {
+        if (!disposed) {
+          if (d.pathname() === '/' && inHeroSection(d.pathname())) {
+            dockAtHero()
+          } else {
+            spawnWhenReady(getMascotConfigForPath(d.pathname()))
+          }
+        }
+      }, 150)
+    },
     onPathChange() {
       // programmatic / back-forward navigation that never went through the honey loader
       if (performance.now() - navStartedAt > 7000) { despawn(); spawnWhenReady(getMascotConfigForPath(d.pathname())) }
@@ -901,7 +938,7 @@ export function createController(d: ControllerDeps) {
       resetIdle()
     },
     clickMascot() {
-      if (phase !== 'resting') return
+      if (phase !== 'resting' && phase !== 'hero-docked') return
       fx('stars')
       act('salto', { text: pickOne(PTN_TIPS), force: true, ms: 5000 })
     },
