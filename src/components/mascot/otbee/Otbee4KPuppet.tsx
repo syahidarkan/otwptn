@@ -60,11 +60,27 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
     ref
   ) {
     const mixer = useMemo(() => new Mixer(), [])
-    const [pose, setPose] = useState<Pose>(() => mixer.pose)
     const rootRef = useRef<HTMLDivElement>(null)
     const fxLayerRef = useRef<SVGSVGElement>(null)
     const facingRef = useRef(facing)
     const pausedRef = useRef(paused)
+    const progressRef = useRef(growthProgress)
+
+    // Direct DOM element refs for 60 FPS zero-re-render animation performance
+    const wholeRigRef = useRef<HTMLDivElement>(null)
+    const canvasWrapRef = useRef<HTMLDivElement>(null)
+    const wingsRef = useRef<HTMLDivElement>(null)
+    const bodyRef = useRef<HTMLDivElement>(null)
+    const headRef = useRef<HTMLDivElement>(null)
+    const antLRef = useRef<HTMLDivElement>(null)
+    const antRRef = useRef<HTMLDivElement>(null)
+    const cheekLRef = useRef<HTMLDivElement>(null)
+    const cheekRRef = useRef<HTMLDivElement>(null)
+    const eyeLRef = useRef<HTMLDivElement>(null)
+    const eyeRRef = useRef<HTMLDivElement>(null)
+    const eyeLSvgRef = useRef<SVGPathElement>(null)
+    const eyeRSvgRef = useRef<SVGPathElement>(null)
+    const mouthRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
       facingRef.current = facing
@@ -75,6 +91,10 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
     }, [paused])
 
     useEffect(() => {
+      progressRef.current = growthProgress
+    }, [growthProgress])
+
+    useEffect(() => {
       if (action) mixer.play(action)
     }, [action, mixer])
 
@@ -82,7 +102,7 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
     const spawnFx = (type: FxEvent['type'], side: -1 | 1 = 1) => {
       const svg = fxLayerRef.current
       if (!svg) return
-      const S = size / 160
+      const S = (size || 118) / 160
       const hcx = BD.w / 2
       const hcy = BD.h * 0.35
 
@@ -174,7 +194,7 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
       mixer,
     }))
 
-    // Pointer cursor tracking (strictly normalized to [-1, 1] so eyes NEVER detach)
+    // Normalized pointer tracking: clamped strictly to [-1, 1] so eyes never detach
     useEffect(() => {
       if (!followPointer) {
         mixer.setPointer(null)
@@ -200,7 +220,7 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
       }
     }, [followPointer, mixer])
 
-    // Animation RAF loop
+    // HIGH-PERFORMANCE ANIMATION LOOP: Direct DOM transforms (Zero React re-renders)
     useEffect(() => {
       let raf = 0
       let prev = performance.now()
@@ -210,10 +230,146 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
         if (!run) return
         raf = requestAnimationFrame(frame)
         if (pausedRef.current) return
-        const dt = (now - prev) / 1000
+        const dt = Math.min(0.1, (now - prev) / 1000)
         prev = now
-        const p = mixer.update(dt)
-        setPose({ ...p })
+        const P = mixer.update(dt)
+
+        const p = clamp(progressRef.current, 0, 1)
+
+        // Emergence calculations:
+        // Stage 0 (p = 0): Head only (145px)
+        // Stage 1 (p: 0.05 -> 0.65): Body emerges seamlessly downward from behind neck
+        // Stage 2 (p: 0.50 -> 0.95): Wings unfold from back & flutter
+        // Stage 3 (p >= 0.95): Full body active
+        const tBody = clamp((p - 0.05) / 0.6)
+        const eBody = tBody * tBody * (3 - 2 * tBody)
+
+        const tWings = clamp((p - 0.5) / 0.45)
+        const eWings = tWings * tWings * (3 - 2 * tWings)
+
+        const heroSize = 145
+        const targetSize = size || 118
+        const currentHeight = heroSize - (heroSize - targetSize) * p
+        const viewH = 760 + (BD.h - 760) * p
+        const k = currentHeight / viewH
+        const currentWidth = BD.w * k
+
+        const centerY = 380 + (BD.h / 2 - 380) * p
+        const canvasOffsetY = -(centerY - viewH / 2) * k
+
+        // Update root container width & height if needed
+        if (rootRef.current) {
+          rootRef.current.style.width = `${currentWidth.toFixed(1)}px`
+          rootRef.current.style.height = `${currentHeight.toFixed(1)}px`
+        }
+
+        // Canvas wrapper
+        if (canvasWrapRef.current) {
+          canvasWrapRef.current.style.transform = `translateX(-50%) translateY(${canvasOffsetY.toFixed(1)}px) scale(${k.toFixed(5)})`
+        }
+
+        // Whole rig
+        const FH = BD.feet[1] - BD.figTop
+        const [fx, fy] = BD.feet
+        const centre = { x: fx, y: BD.figTop + FH * 0.6 }
+        const whole = [
+          `translate(${(P.x * FH * 0.5).toFixed(2)}px, ${(P.y * FH * 0.5).toFixed(2)}px)`,
+          about(fx, fy, `scale(${P.sx.toFixed(4)}, ${P.sy.toFixed(4)})`),
+          about(centre.x, centre.y, `rotate(${(P.rot * 0.5).toFixed(2)}deg)`),
+        ].join(' ')
+
+        if (wholeRigRef.current) {
+          wholeRigRef.current.style.transform = whole
+        }
+
+        // Wings: Flap flutter and unfold
+        if (wingsRef.current) {
+          if (eWings <= 0.005) {
+            wingsRef.current.style.opacity = '0'
+          } else {
+            wingsRef.current.style.opacity = `${eWings.toFixed(3)}`
+            const wingFlap = about(
+              centre.x,
+              BD.figTop + FH * 0.5,
+              `scale(${(1 + clamp(P.wing / 260, -0.25, 0.25)).toFixed(3)}, 1)`
+            )
+            wingsRef.current.style.transform = `${wingFlap} ${about(centre.x, 700, `scale(${eWings.toFixed(4)})`)}`
+          }
+        }
+
+        // Body: Complete seamless body emerging from under chin/neck (NO sliced gaps!)
+        if (bodyRef.current) {
+          if (eBody <= 0.005) {
+            bodyRef.current.style.opacity = '0'
+          } else {
+            bodyRef.current.style.opacity = `${eBody.toFixed(3)}`
+            // Scale and slide down from neck
+            const slideY = (1 - eBody) * -110
+            bodyRef.current.style.transform = `translateY(${slideY.toFixed(1)}px) ${about(BD.neck[0], BD.neck[1], `scale(${(0.55 + 0.45 * eBody).toFixed(4)}, ${eBody.toFixed(4)})`)}`
+          }
+        }
+
+        // Head and face
+        const yaw = clamp(P.headYaw, -1, 1)
+        const pit = clamp(P.headPitch, -1, 1)
+        const headTf = `translate(${(P.headX * FH * 0.6).toFixed(2)}px, ${(P.headY * FH * 0.6).toFixed(2)}px) ${about(BD.neck[0], BD.neck[1], `rotate(${(P.headRot + yaw * 3.5).toFixed(2)}deg)`)}`
+        const faceTf = `translate(${(yaw * 18).toFixed(1)}px, ${(-pit * 14).toFixed(1)}px)`
+
+        if (headRef.current) headRef.current.style.transform = headTf
+        if (antLRef.current) {
+          antLRef.current.style.transform = about(BD.antL.pivot[0], BD.antL.pivot[1], `rotate(${(-P.antL * 0.9).toFixed(2)}deg)`)
+        }
+        if (antRRef.current) {
+          antRRef.current.style.transform = about(BD.antR.pivot[0], BD.antR.pivot[1], `rotate(${(P.antR * 0.9).toFixed(2)}deg)`)
+        }
+        if (cheekLRef.current) {
+          cheekLRef.current.style.transform = `${faceTf} ${about(BD.cheekL.c[0], BD.cheekL.c[1], `scale(${P.cheek.toFixed(3)})`)}`
+        }
+        if (cheekRRef.current) {
+          cheekRRef.current.style.transform = `${faceTf} ${about(BD.cheekR.c[0], BD.cheekR.c[1], `scale(${P.cheek.toFixed(3)})`)}`
+        }
+
+        // Eyes: Blink, wink, bounded gaze
+        const sc = P.eyeScale
+        const lookTf = `translate(${(P.lookX * 10).toFixed(1)}px, ${(P.lookY * 7.5).toFixed(1)}px)`
+
+        const updateEye = (
+          wink: number,
+          eyeEl: HTMLDivElement | null,
+          svgPath: SVGPathElement | null,
+          eData: typeof BD.eyeL
+        ) => {
+          if (!eyeEl) return
+          const [cx, cy] = eData.c
+          const closing = Math.max(clamp(P.blink + wink), P.eyeArc)
+          const arc = smooth(0.86, 0.97, closing)
+          const happy = P.eyeArc >= clamp(P.blink + wink)
+          const ew = (eData.box[2] - eData.box[0]) * 0.86
+          const eh = eData.box[3] - eData.box[1]
+
+          eyeEl.style.opacity = `${(1 - arc).toFixed(3)}`
+          eyeEl.style.transform = `${faceTf} ${lookTf} ${about(cx, cy, `scale(${sc}, ${(sc * Math.max(0.04, 1 - closing * 0.96)).toFixed(4)})`)}`
+
+          if (svgPath) {
+            svgPath.parentElement!.style.opacity = `${arc.toFixed(3)}`
+            svgPath.parentElement!.style.transform = faceTf
+            svgPath.setAttribute(
+              'd',
+              happy
+                ? `M ${cx - ew / 2} ${cy + eh * 0.12} Q ${cx} ${cy - eh * 0.42} ${cx + ew / 2} ${cy + eh * 0.12}`
+                : `M ${cx - ew / 2} ${cy - eh * 0.04} Q ${cx} ${cy + eh * 0.36} ${cx + ew / 2} ${cy - eh * 0.04}`
+            )
+          }
+        }
+
+        updateEye(P.winkL, eyeLRef.current, eyeLSvgRef.current, BD.eyeL)
+        updateEye(P.winkR, eyeRRef.current, eyeRSvgRef.current, BD.eyeR)
+
+        // Mouth
+        if (mouthRef.current) {
+          const open = clamp(P.mouthOpen)
+          mouthRef.current.style.transform = `${faceTf} ${about(BD.mouth.c[0], BD.mouth.box[1], `scale(${(1 + open * 0.12).toFixed(3)}, ${(0.92 + open * 0.75).toFixed(3)})`)}`
+        }
       }
 
       raf = requestAnimationFrame(frame)
@@ -221,74 +377,14 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
         run = false
         cancelAnimationFrame(raf)
       }
-    }, [mixer])
+    }, [mixer, size])
 
-    const P = pose
-    const p = clamp(growthProgress, 0, 1)
-
-    // ----------------------------------------------------------------
-    // 1-by-1 Organic Emergence Progressions:
-    // Stage 0 (p = 0): Head only (145px)
-    // Stage 1 (p: 0.08 -> 0.40): Torso grows downward from neck
-    // Stage 2 (p: 0.38 -> 0.72): Arms and Legs pop out with bouncy ease
-    // Stage 3 (p: 0.68 -> 0.98): Wings unfold from back and flap
-    // Stage 4 (p >= 0.98): Full body (118px roaming size)
-    // ----------------------------------------------------------------
-    const tTorso = clamp((p - 0.08) / 0.32)
-    const eTorso = tTorso * tTorso * (3 - 2 * tTorso)
-
-    const tLimbs = clamp((p - 0.38) / 0.34)
-    const eLimbs =
-      tLimbs <= 0
-        ? 0
-        : tLimbs < 0.75
-        ? (tLimbs / 0.75) * 1.08
-        : 1.08 - ((tLimbs - 0.75) / 0.25) * 0.08
-
-    const tWings = clamp((p - 0.68) / 0.28)
-    const eWings = tWings * tWings * (3 - 2 * tWings)
-
-    // Dynamic framing & scale
-    const heroSize = 145
-    const targetSize = size || 118
-    const currentHeight = heroSize - (heroSize - targetSize) * p
-    const viewH = 760 + (BD.h - 760) * p
-    const k = currentHeight / viewH
-    const currentWidth = BD.w * k
-
-    const centerY = 380 + (BD.h / 2 - 380) * p
-    const canvasOffsetY = -(centerY - viewH / 2) * k
-
-    // Whole body rig transforms
-    const FH = BD.feet[1] - BD.figTop
-    const [fx, fy] = BD.feet
-    const centre = { x: fx, y: BD.figTop + FH * 0.6 }
-    const whole = [
-      `translate(${(P.x * FH * 0.5).toFixed(2)}px, ${(P.y * FH * 0.5).toFixed(2)}px)`,
-      about(fx, fy, `scale(${P.sx.toFixed(4)}, ${P.sy.toFixed(4)})`),
-      about(centre.x, centre.y, `rotate(${(P.rot * 0.5).toFixed(2)}deg)`),
-    ].join(' ')
-
-    const yaw = clamp(P.headYaw, -1, 1)
-    const pit = clamp(P.headPitch, -1, 1)
-    const headTransform = `translate(${(P.headX * FH * 0.6).toFixed(2)}px, ${(P.headY * FH * 0.6).toFixed(2)}px) ${about(BD.neck[0], BD.neck[1], `rotate(${(P.headRot + yaw * 3.5).toFixed(2)}deg)`)}`
-    const face = `translate(${(yaw * 18).toFixed(1)}px, ${(-pit * 14).toFixed(1)}px)`
-
-    const layer = (n: string, tf = '', o = 1) => (
-      <div
-        key={n}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          transformOrigin: '0 0',
-          transform: tf,
-          opacity: o,
-          pointerEvents: 'none',
-          userSelect: 'none',
-        }}
-      >
+    // Lightweight asset helper (prefers WebP, falls back cleanly)
+    const layerImg = (name: string) => (
+      <picture>
+        <source srcSet={`/brand/body/${name}.webp`} type="image/webp" />
         <img
-          src={`/brand/body/${n}.png`}
+          src={`/brand/body/${name}.png`}
           alt=""
           draggable={false}
           style={{
@@ -298,104 +394,16 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
             imageRendering: 'auto',
           }}
         />
-      </div>
+      </picture>
     )
 
-    // Eye with strictly bounded gaze vector
-    const eye = (name: 'eyeL' | 'eyeR', wink: number) => {
-      const e = BD[name]
-      const [cx, cy] = e.c
-      const closing = Math.max(clamp(P.blink + wink), P.eyeArc)
-      const arc = smooth(0.86, 0.97, closing)
-      const happy = P.eyeArc >= clamp(P.blink + wink)
-      const look = `translate(${(P.lookX * 10).toFixed(1)}px, ${(P.lookY * 7.5).toFixed(1)}px)`
-      const sc = P.eyeScale
-      const ew = (e.box[2] - e.box[0]) * 0.86
-      const eh = e.box[3] - e.box[1]
-
-      return (
-        <React.Fragment key={name}>
-          {layer(
-            name,
-            `${face} ${look} ${about(cx, cy, `scale(${sc}, ${(sc * Math.max(0.04, 1 - closing * 0.96)).toFixed(4)})`)}`,
-            1 - arc
-          )}
-          <svg
-            width={BD.w}
-            height={BD.h}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              overflow: 'visible',
-              transform: face,
-              opacity: arc,
-              pointerEvents: 'none',
-            }}
-          >
-            <path
-              d={
-                happy
-                  ? `M ${cx - ew / 2} ${cy + eh * 0.12} Q ${cx} ${cy - eh * 0.42} ${cx + ew / 2} ${cy + eh * 0.12}`
-                  : `M ${cx - ew / 2} ${cy - eh * 0.04} Q ${cx} ${cy + eh * 0.36} ${cx + ew / 2} ${cy - eh * 0.04}`
-              }
-              fill="none"
-              stroke="#141010"
-              strokeWidth={eh * 0.12}
-              strokeLinecap="round"
-            />
-          </svg>
-        </React.Fragment>
-      )
+    const layerStyle: React.CSSProperties = {
+      position: 'absolute',
+      inset: 0,
+      transformOrigin: '0 0',
+      pointerEvents: 'none',
+      userSelect: 'none',
     }
-
-    const m = BD.mouth
-    const open = clamp(P.mouthOpen)
-
-    // Wing flutter
-    const wingFlap = about(
-      centre.x,
-      BD.figTop + FH * 0.5,
-      `scale(${(1 + clamp(P.wing / 260, -0.25, 0.25)).toFixed(3)}, 1)`
-    )
-
-    // Part Transforms:
-    // 1. Torso grows downward from neck
-    const torsoTf = about(
-      BD.neck[0],
-      BD.neck[1],
-      `scale(${(0.45 + 0.55 * eTorso).toFixed(4)}, ${eTorso.toFixed(4)})`
-    )
-
-    // 2. Arms (with walk/run swings when full body, or pop-out ease during emergence)
-    const armLRot = p >= 0.98 ? -P.armL * 0.7 : -22 * (1 - Math.min(1, tLimbs)) + P.armL * 0.3
-    const armRRot = p >= 0.98 ? P.armR * 0.7 : 22 * (1 - Math.min(1, tLimbs)) - P.armR * 0.3
-    const armLTf = about(
-      BD.armL.pivot[0],
-      BD.armL.pivot[1],
-      `scale(${eLimbs.toFixed(4)}) rotate(${armLRot.toFixed(2)}deg)`
-    )
-    const armRTf = about(
-      BD.armR.pivot[0],
-      BD.armR.pivot[1],
-      `scale(${eLimbs.toFixed(4)}) rotate(${armRRot.toFixed(2)}deg)`
-    )
-
-    // 3. Legs (with walk/run leg swing when full body)
-    const legLRot = p >= 0.98 ? P.legL * 0.8 : 0
-    const legRRot = p >= 0.98 ? P.legR * 0.8 : 0
-    const legLTf = about(
-      BD.legL.pivot[0],
-      BD.legL.pivot[1],
-      `scale(${eLimbs.toFixed(4)}) rotate(${legLRot.toFixed(2)}deg)`
-    )
-    const legRTf = about(
-      BD.legR.pivot[0],
-      BD.legR.pivot[1],
-      `scale(${eLimbs.toFixed(4)}) rotate(${legRRot.toFixed(2)}deg)`
-    )
-
-    // 4. Wings unfolding from back
-    const wingsTf = `${wingFlap} ${about(centre.x, 700, `scale(${eWings.toFixed(4)})`)}`
 
     return (
       <div
@@ -403,12 +411,13 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
         onClick={onClick}
         className={`relative overflow-visible select-none flex items-center justify-center ${className ?? ''}`}
         style={{
-          width: currentWidth,
-          height: currentHeight,
+          width: 145,
+          height: 145,
           ...style,
         }}
       >
         <div
+          ref={canvasWrapRef}
           style={{
             position: 'absolute',
             left: '50%',
@@ -416,57 +425,90 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
             width: BD.w,
             height: BD.h,
             transformOrigin: 'top center',
-            transform: `translateX(-50%) translateY(${canvasOffsetY}px) scale(${k})`,
+            transform: 'translateX(-50%) scale(0.19)',
           }}
         >
-          <div style={{ position: 'absolute', inset: 0, transformOrigin: '0 0', transform: whole }}>
-            {/* Stage 3: Wings (Behind figure, unfold & flap at p > 0.68) */}
-            {eWings > 0.01 && layer('wings', wingsTf, eWings)}
+          <div ref={wholeRigRef} style={{ position: 'absolute', inset: 0, transformOrigin: '0 0' }}>
+            {/* Stage 2: Wings (Behind figure, unfold & flap) */}
+            <div ref={wingsRef} style={{ ...layerStyle, opacity: 0 }}>
+              {layerImg('wings')}
+            </div>
 
-            {/* Stage 2: Limbs - Legs (Under torso, pop out at p > 0.38) */}
-            {eLimbs > 0.01 && (
-              <>
-                {layer('legL', legLTf, Math.min(1, tLimbs * 1.5))}
-                {layer('legR', legRTf, Math.min(1, tLimbs * 1.5))}
-              </>
-            )}
-
-            {/* Stage 1: Torso (Grows downward from under neck at p > 0.08) */}
-            {eTorso > 0.01 && layer('torso', torsoTf, eTorso)}
-
-            {/* Stage 2: Limbs - Arms (Pop out from sides at p > 0.38) */}
-            {eLimbs > 0.01 && (
-              <>
-                {layer('armL', armLTf, Math.min(1, tLimbs * 1.5))}
-                {layer('armR', armRTf, Math.min(1, tLimbs * 1.5))}
-              </>
-            )}
+            {/* Stage 1: Seamless Complete Body (Torso, Scarf, Satchel, Legs all in 1 connected piece - NO sliced gaps!) */}
+            <div ref={bodyRef} style={{ ...layerStyle, opacity: 0 }}>
+              {layerImg('body')}
+            </div>
 
             {/* Stage 0: 4K Head & Face (Always visible, interactive, smiling & blinking) */}
-            <div style={{ position: 'absolute', inset: 0, transformOrigin: '0 0', transform: headTransform }}>
-              {layer(
-                'antL',
-                about(BD.antL.pivot[0], BD.antL.pivot[1], `rotate(${(-P.antL * 0.9).toFixed(2)}deg)`)
-              )}
-              {layer(
-                'antR',
-                about(BD.antR.pivot[0], BD.antR.pivot[1], `rotate(${(P.antR * 0.9).toFixed(2)}deg)`)
-              )}
-              {layer('head')}
-              {layer(
-                'cheekL',
-                `${face} ${about(BD.cheekL.c[0], BD.cheekL.c[1], `scale(${P.cheek.toFixed(3)})`)}`
-              )}
-              {layer(
-                'cheekR',
-                `${face} ${about(BD.cheekR.c[0], BD.cheekR.c[1], `scale(${P.cheek.toFixed(3)})`)}`
-              )}
-              {eye('eyeL', P.winkL)}
-              {eye('eyeR', P.winkR)}
-              {layer(
-                'mouth',
-                `${face} ${about(m.c[0], m.box[1], `scale(${(1 + open * 0.12).toFixed(3)}, ${(0.92 + open * 0.75).toFixed(3)})`)}`
-              )}
+            <div ref={headRef} style={{ position: 'absolute', inset: 0, transformOrigin: '0 0' }}>
+              <div ref={antLRef} style={layerStyle}>
+                {layerImg('antL')}
+              </div>
+              <div ref={antRRef} style={layerStyle}>
+                {layerImg('antR')}
+              </div>
+              <div style={layerStyle}>
+                {layerImg('head')}
+              </div>
+              <div ref={cheekLRef} style={layerStyle}>
+                {layerImg('cheekL')}
+              </div>
+              <div ref={cheekRRef} style={layerStyle}>
+                {layerImg('cheekR')}
+              </div>
+
+              {/* Eye Left */}
+              <div ref={eyeLRef} style={layerStyle}>
+                {layerImg('eyeL')}
+              </div>
+              <svg
+                width={BD.w}
+                height={BD.h}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  overflow: 'visible',
+                  opacity: 0,
+                  pointerEvents: 'none',
+                }}
+              >
+                <path
+                  ref={eyeLSvgRef}
+                  fill="none"
+                  stroke="#141010"
+                  strokeWidth={(BD.eyeL.box[3] - BD.eyeL.box[1]) * 0.12}
+                  strokeLinecap="round"
+                />
+              </svg>
+
+              {/* Eye Right */}
+              <div ref={eyeRRef} style={layerStyle}>
+                {layerImg('eyeR')}
+              </div>
+              <svg
+                width={BD.w}
+                height={BD.h}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  overflow: 'visible',
+                  opacity: 0,
+                  pointerEvents: 'none',
+                }}
+              >
+                <path
+                  ref={eyeRSvgRef}
+                  fill="none"
+                  stroke="#141010"
+                  strokeWidth={(BD.eyeR.box[3] - BD.eyeR.box[1]) * 0.12}
+                  strokeLinecap="round"
+                />
+              </svg>
+
+              {/* Mouth */}
+              <div ref={mouthRef} style={layerStyle}>
+                {layerImg('mouth')}
+              </div>
             </div>
           </div>
         </div>
@@ -483,7 +525,6 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
             overflow: 'visible',
             pointerEvents: 'none',
             transformOrigin: 'top center',
-            transform: `translateX(-50%) translateY(${canvasOffsetY}px) scale(${k})`,
           }}
         />
       </div>

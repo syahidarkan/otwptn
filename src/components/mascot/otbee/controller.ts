@@ -245,7 +245,7 @@ export function createController(d: ControllerDeps) {
     const hr = heroSpot.getBoundingClientRect()
     const target: Spot = {
       x: hr.left + hr.width / 2 + window.scrollX,
-      y: hr.top + hr.height / 2 + window.scrollY,
+      y: hr.top + 140 + window.scrollY,
     }
     anchor = {
       resolve: () => {
@@ -254,7 +254,7 @@ export function createController(d: ControllerDeps) {
         const r = spot.getBoundingClientRect()
         return {
           x: r.left + r.width / 2 + window.scrollX,
-          y: r.top + r.height / 2 + window.scrollY,
+          y: r.top + 140 + window.scrollY,
         }
       },
       el: heroSpot,

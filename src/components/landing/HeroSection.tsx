@@ -192,8 +192,8 @@ export default function HeroSection() {
         </motion.div>
 
         {/* Single Mascot Hero Anchor (Strictly 1 Mascot in DOM) */}
-        <motion.div {...fadeUp(0.32)} className="w-full flex justify-center py-2 min-h-[150px] relative pointer-events-none">
-          <div id="hero-mascot-spot" className="w-full h-full min-h-[150px] flex items-center justify-center relative" />
+        <motion.div {...fadeUp(0.32)} className="w-full flex justify-center mt-6 pt-6 pb-2 min-h-[175px] relative pointer-events-none">
+          <div id="hero-mascot-spot" className="w-full h-full min-h-[175px] flex items-center justify-center relative" />
         </motion.div>
       </div>
     </section>

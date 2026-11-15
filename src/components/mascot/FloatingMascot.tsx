@@ -40,12 +40,19 @@ export default function FloatingMascot() {
   })
 
   useEffect(() => {
+    let ticking = false
     const onScroll = () => {
-      if (pathRef.current !== '/') {
-        setGrowthProgress(1)
-        return
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          if (pathRef.current !== '/') {
+            setGrowthProgress(1)
+          } else {
+            setGrowthProgress(clamp(window.scrollY / 260))
+          }
+          ticking = false
+        })
+        ticking = true
       }
-      setGrowthProgress(clamp(window.scrollY / 260))
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
