@@ -79,13 +79,28 @@ function groupConversations(
 
   // Deduplicate and sort messages chronologically (oldest first) within each conversation
   for (const conv of map.values()) {
-    const seen = new Set<string>()
+    const seenIds = new Set<string>()
+    const seenOutbounds = new Map<string, number>() // text -> timestamp
+
+    // Sort first by timestamp ascending
+    conv.messages.sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0))
+
     conv.messages = conv.messages.filter(m => {
-      if (seen.has(m.id)) return false
-      seen.add(m.id)
+      // 1. Strict ID deduplication
+      if (seenIds.has(m.id)) return false
+      seenIds.add(m.id)
+
+      // 2. Content + proximity deduplication for sent messages (prevents double bubbles)
+      if (m.isMe) {
+        const lastSeenTs = seenOutbounds.get(m.text)
+        if (lastSeenTs !== undefined && Math.abs((m.timestamp ?? 0) - lastSeenTs) < 45000) {
+          return false
+        }
+        seenOutbounds.set(m.text, m.timestamp ?? 0)
+      }
+
       return true
     })
-    conv.messages.sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0))
     conv.lastMsg = conv.messages[conv.messages.length - 1] || null
   }
 
@@ -156,7 +171,9 @@ export default function WhatsAppAdminPage() {
       if (cached) {
         const parsed = JSON.parse(cached)
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setMessages(parsed)
+          // Discard any stale optimistic messages from localStorage
+          const cleaned = parsed.filter((m: WAMessage) => !m.id.startsWith('opt-'))
+          setMessages(cleaned)
         }
       }
     } catch {}
@@ -209,7 +226,21 @@ export default function WhatsAppAdminPage() {
       const res = await fetch('/api/wa-admin/messages')
       const data = await res.json()
       if (Array.isArray(data.messages)) {
-        setMessages(data.messages)
+        setMessages(prev => {
+          // Keep only active optimistic messages (<15s) that haven't arrived yet on server
+          const now = Date.now()
+          const activeOpts = prev.filter(
+            p =>
+              p.id.startsWith('opt-') &&
+              now - (p.timestamp || 0) < 15000 &&
+              !data.messages.some(
+                (sm: WAMessage) =>
+                  sm.text === p.text &&
+                  Math.abs((sm.timestamp || 0) - (p.timestamp || 0)) < 45000
+              )
+          )
+          return [...activeOpts, ...data.messages]
+        })
       }
     } catch {}
   }
@@ -235,7 +266,24 @@ export default function WhatsAppAdminPage() {
         try {
           const msg: WAMessage = JSON.parse(e.data)
           setMessages(prev => {
+            // Already present by exact ID -> do nothing
             if (prev.some(m => m.id === msg.id)) return prev
+
+            // If this is an outgoing message from us, reconcile/replace matching optimistic message
+            if (msg.isMe) {
+              const optIndex = prev.findIndex(
+                m =>
+                  m.id.startsWith('opt-') &&
+                  m.text === msg.text &&
+                  Math.abs((m.timestamp || 0) - (msg.timestamp || 0)) < 45000
+              )
+              if (optIndex !== -1) {
+                const next = [...prev]
+                next[optIndex] = msg
+                return next
+              }
+            }
+
             return [msg, ...prev.slice(0, 199)]
           })
         } catch {}
@@ -268,32 +316,47 @@ export default function WhatsAppAdminPage() {
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault()
-    if (!activeJid || !sendText.trim()) return
-    setSending(true); setError(null)
+    const textToSend = sendText.trim()
+    if (!activeJid || !textToSend) return
+
+    setSending(true)
+    setError(null)
+    setSendText('')
+
+    // Immediate optimistic update for fast and responsive UI feedback
+    const optId = `opt-${Date.now()}`
+    const outMsg: WAMessage = {
+      id: optId,
+      chatJid: activeJid,
+      to: activeJid,
+      from: state.phone || 'me',
+      fromName: 'Kamu',
+      text: textToSend,
+      timestamp: Date.now(),
+      isMe: true,
+    }
+    setMessages(prev => [outMsg, ...prev])
+
     try {
       const res = await fetch('/api/wa-admin/messages', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: activeJid, text: sendText.trim() }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: activeJid, text: textToSend }),
       })
       const data = await res.json()
-      if (!data.ok) setError(data.error || 'Gagal kirim')
-      else {
-        // Optimistic update: bind directly to the active conversation thread
-        const outMsg: WAMessage = {
-          id: `opt-${Date.now()}`,
-          chatJid: activeJid,
-          to: activeJid,
-          from: state.phone || 'me',
-          fromName: 'Kamu',
-          text: sendText.trim(),
-          timestamp: Date.now(),
-          isMe: true,
-        }
-        setMessages(prev => [outMsg, ...prev])
-        setSendText('')
+      if (!data.ok) {
+        setError(data.error || 'Gagal kirim')
+        // Rollback optimistic message on error
+        setMessages(prev => prev.filter(m => m.id !== optId))
+        setSendText(textToSend)
       }
-    } catch { setError('Request gagal') }
-    finally { setSending(false) }
+    } catch {
+      setError('Request gagal')
+      setMessages(prev => prev.filter(m => m.id !== optId))
+      setSendText(textToSend)
+    } finally {
+      setSending(false)
+    }
   }
 
   const isConnected = state.status === 'connected'
