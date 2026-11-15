@@ -240,6 +240,7 @@ export function createController(d: ControllerDeps) {
 
   // ============================================================ hero dock management
   const dockAtHero = () => {
+    token++
     const heroSpot = document.getElementById('hero-mascot-spot')
     if (!heroSpot) return
     const hr = heroSpot.getBoundingClientRect()
@@ -267,10 +268,48 @@ export function createController(d: ControllerDeps) {
     phase = 'hero-docked'
   }
 
-  const undockFromHero = () => {
+  const undockFromHero = async () => {
+    if (phase !== 'hero-docked') return
+    const cur = anchor?.resolve() ?? pos
+    const from: Spot = { ...cur }
+    const tok = ++token
     phase = 'traveling'
     anchor = null
-    spawnWhenReady(getMascotConfigForPath(d.pathname()))
+
+    // 1. Scan available surfaces in the viewport below the hero spot
+    const sc = scale()
+    const cands = scanSurfaces({ scale: sc })
+    const target = pickSpot(cands, {
+      band: [0.42, 0.85],
+      nearX: from.x,
+      scale: sc,
+    })
+
+    const to = target?.anchor.resolve()
+    // 2. Obey law of gravity: fall down naturally from the hero spot to the landing surface!
+    if (target && to && to.y > from.y + 40) {
+      const ok = await jumpTo(tok, from, to, true) // drop = true: quadratic gravity fall!
+      if (ok && tok === token) {
+        anchor = target.anchor
+        phase = 'resting'
+        setPose(1, 0)
+        resetIdle()
+        return
+      }
+    }
+
+    // 3. Fallback: fall naturally towards the visible viewport lower third
+    const vh = window.innerHeight
+    const fallbackTo: Spot = {
+      x: from.x,
+      y: window.scrollY + vh * 0.72,
+    }
+    const ok = await jumpTo(tok, from, fallbackTo, true)
+    if (ok && tok === token) {
+      phase = 'resting'
+      setPose(1, 0)
+      resetIdle()
+    }
   }
 
   // ============================================================ spawn / despawn
