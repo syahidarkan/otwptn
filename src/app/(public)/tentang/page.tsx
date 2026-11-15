@@ -203,31 +203,31 @@ export default function TentangPage() {
         </div>
       </section>
 
-      {/* ── 6. Bottom CTA Card (OTWPTN Signature Orange) ──────────────── */}
+      {/* ── 6. Bottom CTA Card (OTWPTN Signature Yellow #ffd400) ────── */}
       <section className="max-w-4xl mx-auto px-4 mt-8">
-        <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white p-8 sm:p-14 text-center shadow-2xl shadow-orange-500/25 border border-amber-300/30">
-          {/* Subtle ambient lighting */}
-          <div className="absolute -top-24 -right-24 w-72 h-72 bg-white/15 rounded-full blur-2xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-black/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#ffd400] via-[#ffdc2e] to-[#f5c500] text-gray-950 p-8 sm:p-14 text-center shadow-2xl shadow-yellow-500/20 border border-yellow-300">
+          {/* Subtle ambient lighting highlights */}
+          <div className="absolute -top-24 -right-24 w-72 h-72 bg-white/40 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-amber-600/10 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10 max-w-xl mx-auto">
-            <h3 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-3 sm:mb-4">
+            <h3 className="text-2xl sm:text-4xl font-black tracking-tight text-gray-950 mb-3 sm:mb-4">
               Mulai Perjalananmu Bersama OTWPTN Hari Ini
             </h3>
-            <p className="text-xs sm:text-base text-amber-50 leading-relaxed mb-8 font-normal">
+            <p className="text-xs sm:text-base text-gray-900/90 leading-relaxed mb-8 font-medium">
               Dapatkan analisis rasionalisasi rapor SNBP yang akurat, review esai berstandar mentor PTN top, dan bimbingan terarah untuk hasil terbaik.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
               <Link
                 href="/register"
-                className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 rounded-full text-xs sm:text-sm font-bold bg-gray-950 text-white hover:bg-black transition-all shadow-lg hover:scale-105 active:scale-95"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 rounded-full text-xs sm:text-sm font-black bg-gray-950 text-[#ffd400] hover:bg-black transition-all shadow-xl hover:scale-105 active:scale-95"
               >
                 Daftar Sekarang - Gratis
               </Link>
               <Link
                 href="/pricing"
-                className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 rounded-full text-xs sm:text-sm font-semibold bg-white/95 hover:bg-white text-gray-950 shadow-md transition-all hover:scale-105 active:scale-95 backdrop-blur-xs"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 rounded-full text-xs sm:text-sm font-bold bg-white/90 hover:bg-white text-gray-950 shadow-md transition-all hover:scale-105 active:scale-95 border border-black/10 backdrop-blur-xs"
               >
                 Lihat Pilihan Paket
               </Link>
