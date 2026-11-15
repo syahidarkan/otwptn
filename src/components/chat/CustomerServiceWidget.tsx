@@ -304,7 +304,7 @@ export default function CustomerServiceWidget() {
             <div className="relative w-14 h-14 rounded-full bg-gradient-to-b from-amber-50 to-amber-100/90 overflow-hidden border-2 border-white/95 shadow-inner flex items-center justify-center">
               <Otbee4KPuppet
                 growthProgress={0}
-                size={52}
+                size={42}
                 followPointer={true}
                 paused={stage}
               />

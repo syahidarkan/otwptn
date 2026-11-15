@@ -50,8 +50,31 @@ interface CareerApplication {
   created_at: string
 }
 
+interface CreatorSubmissionAdmin {
+  id: string
+  user_id: string
+  title: string
+  platform: string
+  video_url: string
+  campaign_topic?: string
+  caption_used?: string
+  view_count?: number
+  status: 'pending' | 'reviewed' | 'approved' | 'rewarded' | 'rejected'
+  reward_amount?: number
+  admin_notes?: string
+  created_at: string
+  profiles?: {
+    full_name: string
+    email: string
+    phone: string
+    referral_code: string
+  }
+}
+
 export default function AdminCreatorsPage() {
+  const [mainTab, setMainTab] = useState<'applicants' | 'submissions'>('applicants')
   const [applications, setApplications] = useState<CareerApplication[]>([])
+  const [submissions, setSubmissions] = useState<CreatorSubmissionAdmin[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -62,13 +85,20 @@ export default function AdminCreatorsPage() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/admin/career-applications')
-      if (res.ok) {
-        const data = await res.json()
+      const [resApps, resSubs] = await Promise.all([
+        fetch('/api/admin/career-applications'),
+        fetch('/api/admin/creator-submissions'),
+      ])
+      if (resApps.ok) {
+        const data = await resApps.json()
         setApplications(data.applications || [])
       }
+      if (resSubs.ok) {
+        const data = await resSubs.json()
+        setSubmissions(data.submissions || [])
+      }
     } catch (err) {
-      console.error('Error fetching applications:', err)
+      console.error('Error fetching admin creator data:', err)
     } finally {
       setLoading(false)
     }
@@ -77,6 +107,31 @@ export default function AdminCreatorsPage() {
   useEffect(() => {
     loadData()
   }, [loadData])
+
+  const handleUpdateSubmission = async (id: string, updates: Partial<CreatorSubmissionAdmin>) => {
+    setUpdatingId(id)
+    try {
+      const res = await fetch('/api/admin/creator-submissions', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, ...updates }),
+      })
+      if (res.ok) {
+        const json = await res.json()
+        setSubmissions((prev) =>
+          prev.map((s) => (s.id === id ? { ...s, ...json.submission } : s))
+        )
+        setNotification('Status video konten berhasil diperbarui!')
+        setTimeout(() => setNotification(null), 3000)
+      } else {
+        alert('Gagal update submission video.')
+      }
+    } catch {
+      alert('Terjadi kesalahan koneksi.')
+    } finally {
+      setUpdatingId(null)
+    }
+  }
 
   const handleUpdateStatus = async (id: string, newStatus: string) => {
     setUpdatingId(id)
@@ -204,10 +259,10 @@ export default function AdminCreatorsPage() {
             Talent Acquisition & Marketing
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-            Pendaftaran Konten Kreator
+            Manajemen Konten Kreator & Partner
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Kelola pendaftar Marketing Partner (Content Creator), review portofolio video, dan hubungi kandidat via WhatsApp.
+            Kelola pendaftar kreator, verifikasi link video konten yang disubmit, dan pantau referral partner.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -221,6 +276,191 @@ export default function AdminCreatorsPage() {
           </button>
         </div>
       </div>
+
+      {/* Main Tabs: Applicants vs Submissions */}
+      <div className="flex items-center gap-2 border-b border-border pb-2">
+        <button
+          onClick={() => setMainTab('applicants')}
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+            mainTab === 'applicants'
+              ? 'bg-amber-500 text-white shadow-xs'
+              : 'text-muted-foreground hover:bg-muted'
+          }`}
+        >
+          Pelamar Rekrutmen ({total})
+        </button>
+        <button
+          onClick={() => setMainTab('submissions')}
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            mainTab === 'submissions'
+              ? 'bg-amber-500 text-white shadow-xs'
+              : 'text-muted-foreground hover:bg-muted'
+          }`}
+        >
+          <Video className="w-4 h-4" />
+          <span>Submissions Video Konten ({submissions.length})</span>
+        </button>
+      </div>
+
+      {mainTab === 'submissions' ? (
+        /* ── SUBMISSIONS VIEW ────────────────────────────────────────── */
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            <div className="bg-card border border-border rounded-2xl p-4 shadow-sm">
+              <p className="text-xs font-medium text-muted-foreground">Total Video Masuk</p>
+              <p className="text-2xl font-black text-foreground mt-1">{submissions.length}</p>
+            </div>
+            <div className="bg-card border border-amber-200/50 dark:border-amber-900/40 rounded-2xl p-4 shadow-sm">
+              <p className="text-xs font-medium text-amber-700 dark:text-amber-400">Menunggu Review</p>
+              <p className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">
+                {submissions.filter((s) => s.status === 'pending').length}
+              </p>
+            </div>
+            <div className="bg-card border border-emerald-200/50 dark:border-emerald-900/40 rounded-2xl p-4 shadow-sm">
+              <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">Disetujui / Tayang</p>
+              <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+                {submissions.filter((s) => s.status === 'approved' || s.status === 'rewarded').length}
+              </p>
+            </div>
+            <div className="bg-card border border-purple-200/50 dark:border-purple-900/40 rounded-2xl p-4 shadow-sm">
+              <p className="text-xs font-medium text-purple-700 dark:text-purple-400">Total Reward Cair</p>
+              <p className="text-xl sm:text-2xl font-black text-purple-600 dark:text-purple-400 mt-1">
+                Rp {submissions.filter((s) => s.status === 'rewarded').reduce((sum, s) => sum + (s.reward_amount || 0), 0).toLocaleString('id-ID')}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+            <div className="p-4 border-b border-border flex items-center justify-between">
+              <h3 className="text-sm font-black text-foreground flex items-center gap-2">
+                <Video className="w-4 h-4 text-amber-500" />
+                <span>Riwayat Submissions Konten Video ({submissions.length})</span>
+              </h3>
+            </div>
+
+            {submissions.length === 0 ? (
+              <div className="p-12 text-center text-muted-foreground text-sm">
+                Belum ada konten video yang disubmit oleh kreator.
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {submissions.map((sub) => (
+                  <div key={sub.id} className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-md bg-muted text-foreground text-[10.5px] font-black uppercase">
+                          {sub.platform}
+                        </span>
+                        {sub.campaign_topic && (
+                          <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 text-[10.5px] font-bold">
+                            {sub.campaign_topic}
+                          </span>
+                        )}
+                        <span className="text-xs font-bold text-foreground">
+                          Oleh: {sub.profiles?.full_name || 'Kreator OtwPTN'}
+                        </span>
+                        {sub.profiles?.referral_code && (
+                          <span className="text-[11px] font-mono text-muted-foreground">
+                            (Ref: {sub.profiles.referral_code})
+                          </span>
+                        )}
+                        <span className="text-[11px] text-muted-foreground">
+                          • {new Date(sub.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </span>
+                      </div>
+
+                      <h4 className="text-sm font-bold text-foreground">
+                        {sub.title}
+                      </h4>
+
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <a
+                          href={sub.video_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-amber-600 font-bold hover:underline"
+                        >
+                          <span>Buka Video di {sub.platform}</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                        {sub.view_count ? (
+                          <span>• {sub.view_count.toLocaleString('id-ID')} views</span>
+                        ) : null}
+                      </div>
+
+                      {sub.caption_used && (
+                        <p className="text-xs text-muted-foreground italic line-clamp-1">
+                          Catatan: &ldquo;{sub.caption_used}&rdquo;
+                        </p>
+                      )}
+
+                      {sub.admin_notes && (
+                        <div className="p-2 rounded-lg bg-muted text-xs text-foreground">
+                          <span className="font-bold text-amber-600">Catatan Review: </span>
+                          {sub.admin_notes}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
+                      <button
+                        disabled={updatingId === sub.id}
+                        onClick={() => handleUpdateSubmission(sub.id, { status: 'approved' })}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors ${
+                          sub.status === 'approved'
+                            ? 'bg-emerald-600 text-white border-emerald-600'
+                            : 'border-border text-foreground hover:bg-muted'
+                        }`}
+                      >
+                        Approve Video
+                      </button>
+
+                      <button
+                        disabled={updatingId === sub.id}
+                        onClick={() => {
+                          const fee = prompt('Masukkan nominal reward fee (Rp):', '50000')
+                          if (fee) {
+                            handleUpdateSubmission(sub.id, {
+                              status: 'rewarded',
+                              reward_amount: parseInt(fee) || 0,
+                            })
+                          }
+                        }}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors ${
+                          sub.status === 'rewarded'
+                            ? 'bg-purple-600 text-white border-purple-600'
+                            : 'border-border text-foreground hover:bg-muted'
+                        }`}
+                      >
+                        {sub.reward_amount ? `Cair: Rp ${sub.reward_amount.toLocaleString('id-ID')}` : 'Beri Reward Fee'}
+                      </button>
+
+                      <button
+                        disabled={updatingId === sub.id}
+                        onClick={() => {
+                          const note = prompt('Alasan perlu revisi:', 'Tolong tambahkan kode referral di bio ya.')
+                          if (note !== null) {
+                            handleUpdateSubmission(sub.id, { status: 'rejected', admin_notes: note })
+                          }
+                        }}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors ${
+                          sub.status === 'rejected'
+                            ? 'bg-red-600 text-white border-red-600'
+                            : 'border-border text-foreground hover:bg-muted'
+                        }`}
+                      >
+                        Minta Revisi
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        /* ── APPLICANTS VIEW ─────────────────────────────────────────── */
+        <>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
@@ -560,6 +800,8 @@ export default function AdminCreatorsPage() {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   )

@@ -10,7 +10,7 @@ import {
   Star, ArrowRight, UserCircle2, BarChart3, Moon,
   MessageSquare, LogOut, Crown, Bell, HelpCircle, Swords,
   ChevronDown, PanelLeftClose, PanelLeftOpen,
-  Coins,
+  Coins, Video,
 } from 'lucide-react'
 import SidebarPromoCard from './SidebarPromoCard'
 import NotificationPopover from './NotificationPopover'
@@ -80,10 +80,11 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    category: 'Komunitas & Bantuan',
+    category: 'Komunitas & Kreator',
     items: [
       { id: 'nav-teman', label: 'Cari Teman Belajar', href: '/dashboard/teman', icon: Users },
       { id: 'nav-komunitas', label: 'Komunitas', href: '/dashboard/komunitas', icon: MessageCircle },
+      { id: 'nav-creator', label: 'Creator Hub', href: '/dashboard/creator', icon: Video, badge: 'Cuan' },
     ],
   },
 ]
@@ -635,6 +636,20 @@ export default function Sidebar() {
                 >
                   <BarChart3 size={17} className="text-gray-600 dark:text-slate-400" />
                   Papan peringkat
+                </Link>
+
+                <Link
+                  href="/dashboard/creator"
+                  onClick={() => setProfileMenuOpen(false)}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 hover:text-amber-950 dark:hover:text-amber-200 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <Video size={17} className="text-amber-600 group-hover:scale-110 transition-transform" />
+                    <span>Content Creator Hub</span>
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 px-2 py-0.5 rounded-full">
+                    Kreator
+                  </span>
                 </Link>
 
                 <Link
