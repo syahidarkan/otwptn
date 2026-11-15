@@ -17,9 +17,6 @@ export default function TestimonialSection() {
   return (
     <section id="testimoni" className="py-20 overflow-hidden bg-[#fafafa]">
       <div className="max-w-4xl mx-auto px-4 text-center mb-12">
-        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-100/80 text-amber-950 border border-amber-300/80 text-xs font-bold mb-3">
-          ✨ Bukti Nyata Kelulusan Mentee
-        </div>
         <motion.h2
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}

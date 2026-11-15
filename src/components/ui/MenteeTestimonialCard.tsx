@@ -13,14 +13,14 @@ interface MenteeCardProps {
 export default function MenteeTestimonialCard({ item, className = '' }: MenteeCardProps) {
   const isTop = item.isTopMentee
   const [isExpanded, setIsExpanded] = useState(false)
-  const isLong = item.quote.length > 140
+  const isLong = item.quote.length > 220
 
   return (
     <div
-      className={`flex-shrink-0 rounded-3xl p-5 flex flex-col justify-between transition-all duration-300 ease-out relative select-none ${
+      className={`flex-shrink-0 rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 ease-out relative select-none ${
         isExpanded
-          ? 'w-[480px] sm:w-[620px] z-30'
-          : 'w-[320px] sm:w-[350px]'
+          ? 'w-[480px] sm:w-[600px] z-30'
+          : 'w-80'
       } ${
         isTop
           ? 'bg-white border-2 border-[#ffd400] shadow-[0_4px_28px_rgba(255,212,0,0.32)] ring-2 ring-[#ffd400]/30 hover:shadow-[0_8px_36px_rgba(255,212,0,0.45)]'

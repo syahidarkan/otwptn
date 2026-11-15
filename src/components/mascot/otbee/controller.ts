@@ -389,18 +389,30 @@ export function createController(d: ControllerDeps) {
     d.onDockChange?.(false)
     anchor = null
 
-    // 1. Scan available surfaces in the viewport below the hero spot
+    // 1. Scan available surfaces in the viewport, ensuring we only land BELOW the video player
     const sc = scale()
     const cands = scanSurfaces({ scale: sc })
-    const target = pickSpot(cands, {
-      band: [0.42, 0.85],
+    const videoEl = document.getElementById('otwptn-launch-video')
+    const heroEl = document.getElementById('hero-section')
+    const minDropY = videoEl
+      ? (videoEl.getBoundingClientRect().bottom + window.scrollY + 25)
+      : (heroEl ? (heroEl.getBoundingClientRect().bottom + window.scrollY - 30) : (from.y + 420))
+
+    const belowVideoCands = cands.filter(c => {
+      if (videoEl && videoEl.contains(c.el)) return false
+      const docY = c.y + window.scrollY
+      return docY >= minDropY
+    })
+
+    const target = pickSpot(belowVideoCands, {
+      band: [0.55, 0.95],
       nearX: from.x,
       scale: sc,
     })
 
     const to = target?.anchor.resolve()
-    // 2. Obey law of gravity: fall down naturally from the hero spot to the landing surface!
-    if (target && to && to.y > from.y + 40) {
+    // 2. Obey law of gravity: fall straight down below the video!
+    if (target && to && to.y >= minDropY) {
       const ok = await jumpTo(tok, from, to, true) // drop = true: quadratic gravity fall!
       if (ok && tok === token) {
         anchor = target.anchor
@@ -412,11 +424,10 @@ export function createController(d: ControllerDeps) {
       }
     }
 
-    // 3. Fallback: fall naturally towards the visible viewport lower third
-    const vh = window.innerHeight
+    // 3. Fallback: fall naturally towards the visible area below the video
     const fallbackTo: Spot = {
       x: from.x,
-      y: window.scrollY + vh * 0.72,
+      y: Math.max(minDropY + 40, window.scrollY + window.innerHeight * 0.88),
     }
     const ok = await jumpTo(tok, from, fallbackTo, true)
     if (ok && tok === token) {
