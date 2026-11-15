@@ -67,6 +67,8 @@ function ResponsiveBee({
               style={{ width: `${mobileSize}px`, height: 'auto' }}
               className="filter drop-shadow-sm opacity-85"
               draggable={false}
+              loading="eager"
+              decoding="async"
             />
           </motion.div>
         </motion.div>
@@ -94,6 +96,8 @@ function ResponsiveBee({
                 width={desktopSize}
                 className="filter drop-shadow-md"
                 draggable={false}
+                loading="eager"
+                decoding="async"
               />
             </motion.div>
           </motion.div>
@@ -120,7 +124,7 @@ export default function HeroSection() {
 
       {/* Bee 1 - Kiri (Visible on Mobile/Tablet + Desktop, safe margins below navbar) */}
       <ResponsiveBee
-        src="/bee1-hd.png"
+        src="/bee1.webp"
         desktopSize={220}
         mobileSize={58}
         desktopPos={{ left: 'max(20px, calc(50% - 620px))', top: '34%' }}
@@ -132,7 +136,7 @@ export default function HeroSection() {
 
       {/* Bee 2 - Kanan Atas (Visible on Mobile/Tablet + Desktop, safe margins below navbar) */}
       <ResponsiveBee
-        src="/bee2-hd.png"
+        src="/bee2.webp"
         desktopSize={145}
         mobileSize={52}
         desktopPos={{ right: 'max(20px, calc(50% - 600px))', top: '22%' }}
@@ -144,7 +148,7 @@ export default function HeroSection() {
 
       {/* Bee 3 - Kanan Bawah (Visible on Mobile/Tablet + Desktop, safe margins) */}
       <ResponsiveBee
-        src="/bee3-hd.png"
+        src="/bee3.webp"
         desktopSize={175}
         mobileSize={54}
         desktopPos={{ right: 'max(30px, calc(50% - 560px))', bottom: '12%' }}

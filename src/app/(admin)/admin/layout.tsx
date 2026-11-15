@@ -22,11 +22,13 @@ import {
   Moon,
   MessageCircle,
   UsersRound,
+  Video,
 } from 'lucide-react'
 
 const navItems = [
   { href: '/admin', label: 'Overview Dashboard', icon: LayoutDashboard },
   { href: '/admin/mentors', label: 'Verifikasi Mentor & LOA', icon: ShieldCheck },
+  { href: '/admin/creators', label: 'Partner Konten Kreator', icon: Video },
   { href: '/admin/pendaftar', label: 'Data Siswa & Pendaftar', icon: Users },
   { href: '/admin/squad', label: 'Dashboard Squad', icon: UsersRound },
   { href: '/admin/ambassador', label: 'Student Ambassador & Komisi', icon: Sparkles },
