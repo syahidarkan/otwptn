@@ -284,9 +284,11 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
 
         // Wings: Flap flutter and unfold
         if (wingsRef.current) {
-          if (eWings <= 0.005) {
+          if (eWings <= 0.01) {
             wingsRef.current.style.opacity = '0'
+            wingsRef.current.style.display = 'none'
           } else {
+            wingsRef.current.style.display = 'block'
             wingsRef.current.style.opacity = `${eWings.toFixed(3)}`
             const wingFlap = about(
               centre.x,
@@ -297,13 +299,14 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
           }
         }
 
-        // Body: Complete seamless body emerging from under chin/neck (NO sliced gaps!)
+        // Body: Complete seamless body with arms and legs emerging from under chin/neck
         if (bodyRef.current) {
-          if (eBody <= 0.005) {
+          if (eBody <= 0.01) {
             bodyRef.current.style.opacity = '0'
+            bodyRef.current.style.display = 'none'
           } else {
+            bodyRef.current.style.display = 'block'
             bodyRef.current.style.opacity = `${eBody.toFixed(3)}`
-            // Scale and slide down from neck
             const slideY = (1 - eBody) * -110
             bodyRef.current.style.transform = `translateY(${slideY.toFixed(1)}px) ${about(BD.neck[0], BD.neck[1], `scale(${(0.55 + 0.45 * eBody).toFixed(4)}, ${eBody.toFixed(4)})`)}`
           }
@@ -430,12 +433,12 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
         >
           <div ref={wholeRigRef} style={{ position: 'absolute', inset: 0, transformOrigin: '0 0' }}>
             {/* Stage 2: Wings (Behind figure, unfold & flap) */}
-            <div ref={wingsRef} style={{ ...layerStyle, opacity: 0 }}>
+            <div ref={wingsRef} style={{ ...layerStyle, opacity: growthProgress > 0.5 ? 1 : 0, display: growthProgress > 0.5 ? 'block' : 'none' }}>
               {layerImg('wings')}
             </div>
 
-            {/* Stage 1: Seamless Complete Body (Torso, Scarf, Satchel, Legs all in 1 connected piece - NO sliced gaps!) */}
-            <div ref={bodyRef} style={{ ...layerStyle, opacity: 0 }}>
+            {/* Stage 1: Seamless Complete Body with Arms and Legs */}
+            <div ref={bodyRef} style={{ ...layerStyle, opacity: growthProgress > 0.05 ? 1 : 0, display: growthProgress > 0.05 ? 'block' : 'none' }}>
               {layerImg('body')}
             </div>
 
