@@ -3,6 +3,15 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import {
+  FileEdit,
+  BarChart3,
+  Clock,
+  Sparkles,
+  TrendingUp,
+  GraduationCap,
+  HeartHandshake,
+} from 'lucide-react'
 
 interface TeamMember {
   name: string
@@ -39,13 +48,13 @@ const TEAM_MEMBERS: TeamMember[] = [
 ]
 
 const VALUES = [
-  { text: 'Review esai tanpa ribet', emoji: '✍️' },
-  { text: 'Rasionalisasi data riil', emoji: '📊' },
-  { text: 'Hemat ratusan jam', emoji: '⏳' },
-  { text: 'Personal untuk profilmu', emoji: '🪡' },
-  { text: 'Dibuat untuk kelulusan nyata', emoji: '📈' },
-  { text: 'Didampingi kakak tingkat PTN', emoji: '🎓' },
-  { text: 'Bebas stres ujian tertulis', emoji: '🧘' },
+  { text: 'Review esai tanpa ribet', icon: FileEdit },
+  { text: 'Rasionalisasi data riil', icon: BarChart3 },
+  { text: 'Hemat ratusan jam', icon: Clock },
+  { text: 'Personal untuk profilmu', icon: Sparkles },
+  { text: 'Dibuat untuk kelulusan nyata', icon: TrendingUp },
+  { text: 'Didampingi kakak tingkat PTN', icon: GraduationCap },
+  { text: 'Bebas stres ujian tertulis', icon: HeartHandshake },
 ]
 
 export default function TentangPage() {
@@ -63,7 +72,7 @@ export default function TentangPage() {
         </p>
       </section>
 
-      {/* ── 2. Showcase Video (Direct Player without card wrapper or buttons) ─ */}
+      {/* ── 2. Showcase Video (Direct Player) ─────────────────────────── */}
       <section className="max-w-3xl mx-auto px-4 mb-20 sm:mb-28">
         <div className="relative w-full aspect-video rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-zinc-200/80 bg-black">
           <iframe
@@ -90,7 +99,7 @@ export default function TentangPage() {
         </p>
       </section>
 
-      {/* ── 4. Our Values (Black & Yellow sleek cards) ────────────────── */}
+      {/* ── 4. Our Values (Glass Capsules with Clean Icons) ───────────── */}
       <section className="max-w-3xl mx-auto px-4 text-center mb-28 sm:mb-36">
         <div className="mb-8">
           <p className="text-[11px] font-semibold text-gray-400 tracking-wider mb-1">
@@ -101,19 +110,22 @@ export default function TentangPage() {
           </h2>
         </div>
 
-        {/* Sleek black-and-amber glass cards */}
+        {/* Capsule glass cards */}
         <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 max-w-2xl mx-auto">
-          {VALUES.map((item, idx) => (
-            <div
-              key={idx}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-950 text-white border border-zinc-800 shadow-sm hover:border-amber-400 hover:bg-zinc-900 transition-all cursor-default group"
-            >
-              <span className="text-sm group-hover:scale-110 transition-transform">{item.emoji}</span>
-              <span className="text-xs sm:text-sm font-medium tracking-tight text-zinc-200 group-hover:text-amber-300 transition-colors">
-                {item.text}
-              </span>
-            </div>
-          ))}
+          {VALUES.map((item, idx) => {
+            const Icon = item.icon
+            return (
+              <div
+                key={idx}
+                className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white/80 backdrop-blur-md border border-gray-200/90 text-gray-800 shadow-xs hover:border-amber-400 hover:bg-white hover:shadow-md transition-all cursor-default group"
+              >
+                <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500 group-hover:scale-110 transition-transform flex-shrink-0" />
+                <span className="text-xs sm:text-sm font-medium tracking-tight text-gray-700 group-hover:text-amber-950 transition-colors">
+                  {item.text}
+                </span>
+              </div>
+            )
+          })}
         </div>
       </section>
 
@@ -191,33 +203,31 @@ export default function TentangPage() {
         </div>
       </section>
 
-      {/* ── 6. Bottom CTA Card (Brand Black & Yellow) ──────────────────── */}
+      {/* ── 6. Bottom CTA Card (OTWPTN Signature Orange) ──────────────── */}
       <section className="max-w-4xl mx-auto px-4 mt-8">
-        <div className="relative overflow-hidden rounded-3xl bg-zinc-950 border border-zinc-800 text-white p-8 sm:p-12 text-center shadow-2xl">
-          {/* Subtle amber ambient glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-amber-400/10 blur-3xl pointer-events-none rounded-full" />
+        <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white p-8 sm:p-14 text-center shadow-2xl shadow-orange-500/25 border border-amber-300/30">
+          {/* Subtle ambient lighting */}
+          <div className="absolute -top-24 -right-24 w-72 h-72 bg-white/15 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-black/10 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10 max-w-xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-300 text-[11px] font-semibold mb-4 tracking-wide uppercase">
-              🚀 Siap Lolos PTN Impian?
-            </div>
-            <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-3">
+            <h3 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-3 sm:mb-4">
               Mulai Perjalananmu Bersama OTWPTN Hari Ini
             </h3>
-            <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed mb-8">
+            <p className="text-xs sm:text-base text-amber-50 leading-relaxed mb-8 font-normal">
               Dapatkan analisis rasionalisasi rapor SNBP yang akurat, review esai berstandar mentor PTN top, dan bimbingan terarah untuk hasil terbaik.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
               <Link
                 href="/register"
-                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-full text-xs sm:text-sm font-bold bg-amber-400 text-black hover:bg-amber-300 transition-all shadow-lg shadow-amber-400/20"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 rounded-full text-xs sm:text-sm font-bold bg-gray-950 text-white hover:bg-black transition-all shadow-lg hover:scale-105 active:scale-95"
               >
                 Daftar Sekarang - Gratis
               </Link>
               <Link
                 href="/pricing"
-                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-full text-xs sm:text-sm font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-700 transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 rounded-full text-xs sm:text-sm font-semibold bg-white/95 hover:bg-white text-gray-950 shadow-md transition-all hover:scale-105 active:scale-95 backdrop-blur-xs"
               >
                 Lihat Pilihan Paket
               </Link>
