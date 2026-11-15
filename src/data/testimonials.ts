@@ -19,8 +19,8 @@ export const REAL_TOP_MENTEES: MenteeTestimonial[] = [
     prodi: 'Ilmu Psikologi',
     jalur: 'PPKB UI',
     quote:
-      'Kesan mentor di OTWPTN sangat luar biasaaa🥹 Alhamdulillah perjuangan aku ga sia-sia. Aku cuma mau mengucapkan banyak terima kasih yang sebesar-besarnya kepada seluruh kakak pembimbing atas strategi serta support moral yang luar biasa selama ini. Thank you for helping me achieve my dream! Walaupun ikut mentor ini cuma sebentar, tapi bener-bener aku pakai juga buat esai beasiswa aku. Alhamdulillah aku bisa mendapatkan beasiswa sekaligus PTN dengan jurusan yang aku impikan selama ini di UI!🩵',
-    photo: '/mentees/aisyah.jpg',
+      'Kesan mentor di OTWPTN sangat luar biasaaa Alhamdulillah perjuangan aku ga sia-sia. Aku cuma mau mengucapkan banyak terima kasih yang sebesar-besarnya kepada seluruh kakak pembimbing atas strategi serta support moral yang luar biasa selama ini. Thank you for helping me achieve my dream! Walaupun ikut mentor ini cuma sebentar, tapi bener-bener aku pakai juga buat esai beasiswa aku. Alhamdulillah aku bisa mendapatkan beasiswa sekaligus PTN dengan jurusan yang aku impikan selama ini di UI!',
+    photo: '/mentees/aisyah.webp',
     isTopMentee: true,
     rating: 5,
   },
@@ -31,8 +31,8 @@ export const REAL_TOP_MENTEES: MenteeTestimonial[] = [
     prodi: 'Ilmu Administrasi Niaga',
     jalur: 'PPKB UI',
     quote:
-      'Mau terimakasih yang banyak untuk kakak-kakak mentor OTWPTN karena sudah membantu membimbing aku yang dulunya tuh masih bingung banget dalam membuat essay PPKB UI. Terimakasih juga buat kakak mentor aku yang kece Kak Salwa, thank you so much! Pokoknya Kak Salwa top markotop, sukses selalu untuk kakak-kakak mentor OTWPTN. Fiks ini bakal jadi momen yang gak bakal dilupain, nulis essay PPKB yang penuh struggle sampai akhirnya lolos! Nanti aku bakal promosiin ke adik-adik kelas kalau butuh dampingan buat essay harus cobain OTWPTN!🤩',
-    photo: '/mentees/fahri.jpg',
+      'Mau terimakasih yang banyak untuk kakak-kakak mentor OTWPTN karena sudah membantu membimbing aku yang dulunya tuh masih bingung banget dalam membuat essay PPKB UI. Terimakasih juga buat kakak mentor aku yang kece Kak Salwa, thank you so much! Pokoknya Kak Salwa top markotop, sukses selalu untuk kakak-kakak mentor OTWPTN. Fiks ini bakal jadi momen yang gak bakal dilupain, nulis essay PPKB yang penuh struggle sampai akhirnya lolos! Nanti aku bakal promosiin ke adik-adik kelas kalau butuh dampingan buat essay harus cobain OTWPTN!',
+    photo: '/mentees/fahri.webp',
     isTopMentee: true,
     rating: 5,
   },
@@ -44,7 +44,7 @@ export const REAL_TOP_MENTEES: MenteeTestimonial[] = [
     jalur: 'PPKB UI',
     quote:
       'Terimakasih banyak kaka sudah membantu akuu sampe lolos! Bener-bener ngebantu banget dari penataan berkas sampai draf esai siap dikumpul jauh-jauh hari. Alhamdulillah impian masuk UI akhirnya terwujud!',
-    photo: '/mentees/dhea.jpg',
+    photo: '/mentees/dhea.webp',
     isTopMentee: true,
     rating: 5,
   },
@@ -56,7 +56,7 @@ export const REAL_TOP_MENTEES: MenteeTestimonial[] = [
     jalur: 'PPKB UI',
     quote:
       'Bimbingan di OTWPTN keren banget! Mentornya super suportif, bener-bener ngarahin esai step-by-step sampai matang, dan alhamdulillah berhasil lolos di jurusan impianku di Universitas Indonesia.',
-    photo: '/mentees/assyfa.jpg',
+    photo: '/mentees/assyfa.webp',
     isTopMentee: true,
     rating: 5,
   },
@@ -67,8 +67,8 @@ export const REAL_TOP_MENTEES: MenteeTestimonial[] = [
     prodi: 'Ilmu Hukum',
     jalur: 'PPKB UI',
     quote:
-      'Seneng banget bisa kenal Kak Salwa dan tim OTWPTN yang selalu bantuin aku, aku tanya-tanya selalu dijawab detail dan beneran ngebantu aku banget. Terima kasih banyak Kak Salwa dan kakak-kakak OTWPTN!🩷',
-    photo: '/mentees/shehnaz.jpg',
+      'Seneng banget bisa kenal Kak Salwa dan tim OTWPTN yang selalu bantuin aku, aku tanya-tanya selalu dijawab detail dan beneran ngebantu aku banget. Terima kasih banyak Kak Salwa dan kakak-kakak OTWPTN!',
+    photo: '/mentees/shehnaz.webp',
     isTopMentee: true,
     rating: 5,
   },

@@ -94,12 +94,21 @@ export default function MenteeTestimonialCard({ item, className = '' }: MenteeCa
       {/* Footer: Photo, Name, Univ & Prodi */}
       <div className="pt-3.5 mt-3 border-t border-gray-100/90 flex items-center gap-3">
         <div className="relative w-11 h-11 rounded-2xl overflow-hidden flex-shrink-0 bg-amber-50 border border-gray-200 shadow-2xs">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={item.photo}
             alt={item.name}
-            fill
-            sizes="44px"
-            className="object-cover"
+            width={44}
+            height={44}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+            onError={(e) => {
+              const target = e.currentTarget
+              if (!target.src.includes('/avatars/avatar-')) {
+                target.src = '/avatars/avatar-1.png'
+              }
+            }}
           />
         </div>
         <div className="min-w-0 flex-1">

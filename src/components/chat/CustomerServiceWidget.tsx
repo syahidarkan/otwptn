@@ -302,9 +302,12 @@ export default function CustomerServiceWidget() {
               }}
             />
             <div className="relative w-14 h-14 rounded-full bg-gradient-to-b from-amber-50 to-amber-100/90 overflow-hidden border-2 border-white/95 shadow-inner flex items-center justify-center">
-              <div style={{ transform: 'scaleX(-1)' }}>
-                <OtbeeAvatar headOnly view="front" size={40} followPointer facing={-1} paused={stage} />
-              </div>
+              <Otbee4KPuppet
+                growthProgress={0}
+                size={48}
+                followPointer={false}
+                paused={stage}
+              />
             </div>
             <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-xs animate-pulse" />
             <span className="absolute -bottom-2 bg-amber-950/90 text-amber-300 text-[8.5px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-400/30 shadow-xs pointer-events-none whitespace-nowrap">
@@ -386,7 +389,7 @@ export default function CustomerServiceWidget() {
                   </div>
 
                   {/* Soft Glowing Orb Background */}
-                  <div className="absolute w-44 h-44 rounded-full bg-gradient-to-tr from-amber-300/35 via-amber-400/25 to-pink-300/20 blur-2xl -z-10" />
+                  <div className="absolute w-32 h-32 rounded-full bg-gradient-to-tr from-amber-300/35 via-amber-400/25 to-pink-300/20 blur-2xl -z-10" />
 
                   {/* Interactive Head */}
                   <div
@@ -397,7 +400,7 @@ export default function CustomerServiceWidget() {
                     <Otbee4KPuppet
                       ref={heroAvatarRef}
                       growthProgress={0}
-                      size={145}
+                      size={86}
                       followPointer
                     />
                   </div>
@@ -486,13 +489,11 @@ export default function CustomerServiceWidget() {
                   <div className="flex items-center gap-2">
                     {/* Live Animated Otbee Vector Mascot Head in Header */}
                     <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center overflow-hidden shadow-2xs flex-shrink-0">
-                      <OtbeeAvatar
-                        headOnly
-                        size={28}
-                        view="front"
-                        followPointer
+                      <Otbee4KPuppet
+                        growthProgress={0}
+                        size={32}
+                        followPointer={false}
                         paused={false}
-                        action={isTyping ? 'talk' : 'idle'}
                       />
                     </div>
                     <div className="text-left">
@@ -534,15 +535,13 @@ export default function CustomerServiceWidget() {
                         ) : (
                           /* AI Assistant message: Live Animated Otbee Vector Head Photo Profile */
                           <div className="flex items-start gap-2.5">
-                            {/* Live Otbee Vector Mascot Head Photo Profile (Moving, Blinking, Follows Cursor) */}
-                            <div className="flex-shrink-0 -mt-1 select-none">
-                              <OtbeeAvatar
-                                headOnly
-                                size={34}
-                                view="front"
-                                followPointer
+                            {/* Live Otbee Vector Mascot Head Photo Profile */}
+                            <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center overflow-hidden shadow-2xs flex-shrink-0 -mt-0.5 select-none">
+                              <Otbee4KPuppet
+                                growthProgress={0}
+                                size={32}
+                                followPointer={false}
                                 paused={false}
-                                action={isTyping && isLatestBotMsg ? 'talk' : 'idle'}
                               />
                             </div>
 
@@ -568,14 +567,12 @@ export default function CustomerServiceWidget() {
                   {/* Typing Indicator */}
                   {isTyping && (
                     <div className="flex items-start gap-2.5">
-                      <div className="flex-shrink-0 -mt-1 select-none">
-                        <OtbeeAvatar
-                          headOnly
-                          size={34}
-                          view="front"
-                          followPointer
+                      <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center overflow-hidden shadow-2xs flex-shrink-0 -mt-0.5 select-none">
+                        <Otbee4KPuppet
+                          growthProgress={0}
+                          size={32}
+                          followPointer={false}
                           paused={false}
-                          action="talk"
                         />
                       </div>
                       <div className="flex-1 min-w-0">

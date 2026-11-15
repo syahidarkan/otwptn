@@ -264,9 +264,9 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
         const tWings = clamp((p - 0.5) / 0.45)
         const eWings = tWings * tWings * (3 - 2 * tWings)
 
-        const heroSize = 145
         const targetSize = size || 118
-        const currentHeight = heroSize - (heroSize - targetSize) * p
+        const heroHeadHeight = (targetSize === 118 && p > 0) ? 140 : targetSize
+        const currentHeight = heroHeadHeight - (heroHeadHeight - targetSize) * p
         const viewH = 760 + (BD.h - 760) * p
         const k = currentHeight / viewH
         const currentWidth = BD.w * k
@@ -437,14 +437,18 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
       userSelect: 'none',
     }
 
+    const initialH = size || 118
+    const initialViewH = 760 + (BD.h - 760) * growthProgress
+    const initialW = BD.w * (initialH / initialViewH)
+
     return (
       <div
         ref={rootRef}
         onClick={onClick}
         className={`relative overflow-visible select-none flex items-center justify-center ${className ?? ''}`}
         style={{
-          width: 145,
-          height: 145,
+          width: initialW,
+          height: initialH,
           ...style,
         }}
       >
