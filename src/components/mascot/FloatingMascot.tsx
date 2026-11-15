@@ -7,8 +7,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { Otbee4KPuppet, debugSurfaces } from './otbee'
-import type { Otbee4KPuppetHandle } from './otbee'
+import { OtbeeAvatar, Otbee4KPuppet, debugSurfaces } from './otbee'
+import type { OtbeeHandle, Otbee4KPuppetHandle } from './otbee'
 import { createController, type Bubble, type Controller } from './otbee/controller'
 import { createClient } from '@/lib/supabase/client'
 
@@ -16,7 +16,8 @@ const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v))
 
 export default function FloatingMascot() {
   const pathname = usePathname()
-  const avatar = useRef<Otbee4KPuppetHandle>(null)
+  const puppetRef = useRef<Otbee4KPuppetHandle>(null)
+  const avatarRef = useRef<OtbeeHandle>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const popRef = useRef<HTMLDivElement>(null)
   const tiltRef = useRef<HTMLDivElement>(null)
@@ -37,6 +38,29 @@ export default function FloatingMascot() {
   const [growthProgress, setGrowthProgress] = useState(() => {
     if (typeof window === 'undefined') return 1
     return (pathname ?? '/') === '/' ? clamp(window.scrollY / 260) : 1
+  })
+
+  // Combined avatar handle dispatching to active mode (hero 4K puppet vs roaming elastic avatar)
+  const combinedAvatar = useRef<OtbeeHandle>({
+    play: (name, opts) => {
+      puppetRef.current?.play(name, opts)
+      avatarRef.current?.play(name, opts)
+    },
+    setView: (v) => {
+      avatarRef.current?.setView(v)
+      puppetRef.current?.setView(v)
+    },
+    fx: (type, side) => {
+      puppetRef.current?.fx(type, side)
+      avatarRef.current?.fx(type, side)
+    },
+    setFacing: (f) => {
+      puppetRef.current?.setFacing(f)
+      avatarRef.current?.setFacing(f)
+    },
+    get mixer() {
+      return (growthProgress >= 0.95 ? avatarRef.current?.mixer : puppetRef.current?.mixer) ?? puppetRef.current?.mixer!
+    },
   })
 
   useEffect(() => {
@@ -118,8 +142,8 @@ export default function FloatingMascot() {
           { text: 'Jangan lupa istirahat & jaga kesehatan yaa! ☕✨', clip: 'nod' },
         ]
         const r = reactions[Math.floor(Math.random() * reactions.length)]
-        avatar.current?.play(r.clip, { onDone: () => avatar.current?.play('idle') })
-        avatar.current?.fx('stars')
+        combinedAvatar.current.play(r.clip, { onDone: () => combinedAvatar.current.play('idle') })
+        combinedAvatar.current.fx('stars')
         setBubble({ id: Date.now(), text: r.text, below: false, shift: 0 })
         setTimeout(() => setBubble(null), 3800)
       } else {
@@ -169,7 +193,7 @@ export default function FloatingMascot() {
     const container = containerRef.current, pop = popRef.current, tilt = tiltRef.current
     if (!container || !pop || !tilt) return
     const c = createController({
-      avatar: () => avatar.current,
+      avatar: () => combinedAvatar.current,
       container, pop, tilt,
       size: () => sizeRef.current,
       name: () => nameRef.current,
@@ -291,13 +315,39 @@ export default function FloatingMascot() {
               transition: 'filter .2s',
             }}
           >
-            <Otbee4KPuppet
-              ref={avatar}
-              growthProgress={growthProgress}
-              size={size}
-              followPointer={!isDraggingState}
-              onErraticPointer={() => ctl.current?.onDizzy()}
-            />
+            {/* Stage A: 4K HD Round-Chin Interactive Head & Emergence in Hero (growthProgress < 0.95) */}
+            <div
+              style={{
+                display: growthProgress < 0.95 ? 'block' : 'none',
+                opacity: growthProgress < 0.95 ? 1 : 0,
+                transition: 'opacity 0.15s ease',
+              }}
+            >
+              <Otbee4KPuppet
+                ref={puppetRef}
+                growthProgress={growthProgress}
+                size={size}
+                followPointer={!isDraggingState}
+                onErraticPointer={() => ctl.current?.onDizzy()}
+              />
+            </div>
+
+            {/* Stage B: Fully Elastic Skeletal Mascot (skinD joints, elbow & knee bending, footsteps, saltos) for Roaming */}
+            <div
+              style={{
+                display: growthProgress >= 0.95 ? 'block' : 'none',
+                opacity: growthProgress >= 0.95 ? 1 : 0,
+                transition: 'opacity 0.15s ease',
+              }}
+            >
+              <OtbeeAvatar
+                ref={avatarRef}
+                view="front"
+                size={size}
+                followPointer={!isDraggingState}
+                onErraticPointer={() => ctl.current?.onDizzy()}
+              />
+            </div>
           </div>
         </div>
       </div>

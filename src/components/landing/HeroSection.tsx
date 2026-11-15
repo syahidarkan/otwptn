@@ -113,7 +113,7 @@ export default function HeroSection() {
   }, [])
 
   return (
-    <section id="hero-section" ref={sectionRef} className="relative overflow-hidden min-h-screen flex items-center pt-20 md:pt-0">
+    <section id="hero-section" ref={sectionRef} className="relative overflow-hidden min-h-screen flex items-center pt-28 md:pt-32 pb-12 md:pb-16">
 
       {/* Honeycomb background texture */}
       <HoneycombBg opacity={0.18} colorScheme="light" size={30} />
@@ -123,8 +123,8 @@ export default function HeroSection() {
         src="/bee1-hd.png"
         desktopSize={220}
         mobileSize={58}
-        desktopPos={{ left: 'max(20px, calc(50% - 620px))', top: '32%' }}
-        mobilePos={{ left: '12px', top: '135px' }}
+        desktopPos={{ left: 'max(20px, calc(50% - 620px))', top: '34%' }}
+        mobilePos={{ left: '12px', top: '155px' }}
         rotate={8}
         floatY={14} floatDur={4.2} floatDelay={0}
         parallaxFactor={60} entranceDelay={0.2}
@@ -135,8 +135,8 @@ export default function HeroSection() {
         src="/bee2-hd.png"
         desktopSize={145}
         mobileSize={52}
-        desktopPos={{ right: 'max(20px, calc(50% - 600px))', top: '20%' }}
-        mobilePos={{ right: '12px', top: '145px' }}
+        desktopPos={{ right: 'max(20px, calc(50% - 600px))', top: '22%' }}
+        mobilePos={{ right: '12px', top: '165px' }}
         rotate={7}
         floatY={12} floatDur={3.8} floatDelay={0.9}
         parallaxFactor={40} entranceDelay={0.4}
@@ -154,7 +154,7 @@ export default function HeroSection() {
         parallaxFactor={90} entranceDelay={0.6}
       />
 
-      <div className="relative z-10 px-4 flex flex-col items-center text-center max-w-3xl mx-auto w-full py-12 md:py-16">
+      <div className="relative z-10 px-4 flex flex-col items-center text-center max-w-3xl mx-auto w-full py-8 md:py-12">
         <motion.h1 {...fadeUp(0.04)} className="text-hero text-gray-950 mb-6 md:mb-7 leading-[1.14] tracking-tight">
           Masuk PTN Impianmu{' '}
           <span className="inline-flex items-center align-middle flex-wrap gap-2.5 justify-center">
