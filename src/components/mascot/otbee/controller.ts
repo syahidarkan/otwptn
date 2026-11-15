@@ -15,6 +15,7 @@ import { otbeeBrain } from './brain'
 import { scanSurfaces, pickSpot, stepsBetween, anchorOnElement, IGNORE_SELECTOR, type Anchor, type Spot, type Picked } from './world'
 import { explain, meaningfulTarget, withName } from './explain'
 import { getMascotConfigForPath, type MascotConfig } from '../mascotPageConfig'
+import { ContextAwareness, getTimeContext } from './contextAwareness'
 
 export interface Bubble { text: string; below: boolean; shift: number; id: number }
 
@@ -130,6 +131,7 @@ export function createController(d: ControllerDeps) {
   let navStartedAt = 0
   let typing = false
   let isPrivacy = false
+  let currentName: string | null = null
   let bubbleId = 0
   let lastSpeakAt = 0
   let idleStage = 0
@@ -179,7 +181,14 @@ export function createController(d: ControllerDeps) {
     if (o.text) say(o.text, o.ms)
   }
 
-  const personal = (t?: string) => t?.replace('{name}', d.name() || 'Pejuang PTN')
+  const personal = (t?: string) => t?.replace('{name}', currentName || d.name() || 'Pejuang PTN')
+
+  const awareness = new ContextAwareness({
+    say: (text, ms) => say(text, ms),
+    act: (clip, opts) => act(clip, opts),
+    setName: (n) => { currentName = n },
+    getName: () => currentName || d.name(),
+  })
 
   /** resolves true when finished, false if cancelled by a newer token */
   const tween = (ms: number, tok: number, fn: (p: number) => void) =>
@@ -250,7 +259,9 @@ export function createController(d: ControllerDeps) {
         typing = true
         act('coverEyes', { text: pickOne(PRIVACY_LINES), force: true, ms: 8000 })
       } else {
-        act(cfg?.clip ?? 'idle', { force: true, text: personal(cfg?.greet), ms: 4200 })
+        const timeCtx = getTimeContext()
+        const defaultGreet = (timeCtx.hour >= 23 || timeCtx.hour < 5) ? timeCtx.quote : null
+        act(cfg?.clip ?? 'idle', { force: true, text: personal(cfg?.greet ?? defaultGreet ?? undefined), ms: 4200 })
       }
       resetIdle()
     }, 560)
@@ -445,7 +456,11 @@ export function createController(d: ControllerDeps) {
     const tick_ = () => {
       if (typing || phase !== 'resting') { scheduleNext(4000); return }
       idleStage++
-      if (idleStage % 7 === 0) {
+      const envQuote = awareness.getIdleEnvironmentalQuote()
+      if (envQuote && idleStage % 2 === 0) {
+        act('nod', { force: true, text: envQuote, ms: 5500 })
+        scheduleNext(12000 + Math.random() * 6000)
+      } else if (idleStage % 7 === 0) {
         act('sleep', { force: true, text: 'Zzz... 💤', ms: 2600 })
         scheduleNext(10000 + Math.random() * 4000)
       } else if (idleStage % 3 === 0) {
@@ -526,7 +541,22 @@ export function createController(d: ControllerDeps) {
       }
     }
   }
-  const onBlur = () => {
+  const onInput = (e: Event) => {
+    activity()
+    const t = e.target as HTMLElement | null
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) && !t.closest(IGNORE_SELECTOR)) {
+      if (!isPrivacyField(t)) {
+        awareness.handleFormInput(t, 'input')
+      }
+    }
+  }
+  const onBlur = (e: FocusEvent) => {
+    const t = e.target as HTMLElement | null
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) && !t.closest(IGNORE_SELECTOR)) {
+      if (!isPrivacyField(t)) {
+        awareness.handleFormInput(t, 'blur')
+      }
+    }
     if (isPrivacy) {
       isPrivacy = false
       typing = false
@@ -539,7 +569,7 @@ export function createController(d: ControllerDeps) {
     }
     if (!typing) return
     typing = false
-    setTimeout(() => { if (!typing) act('nod', { force: true }) }, 250)
+    setTimeout(() => { if (!typing && !isPrivacy) act('nod', { force: true }) }, 250)
   }
   const handleErraticPointer = (now: number) => {
     if (disposed || isDragging || phase === 'traveling' || isPrivacy) return
@@ -637,6 +667,7 @@ export function createController(d: ControllerDeps) {
   window.addEventListener('click', onClick, true)
   window.addEventListener('focusin', onFocus, true)
   window.addEventListener('focusout', onBlur, true)
+  window.addEventListener('input', onInput, true)
   window.addEventListener('pointermove', onMove, { passive: true })
   window.addEventListener('touchstart', onTouchStart, { passive: true })
   window.addEventListener('touchmove', onTouchMove, { passive: true })
@@ -791,12 +822,14 @@ export function createController(d: ControllerDeps) {
       window.removeEventListener('click', onClick, true)
       window.removeEventListener('focusin', onFocus, true)
       window.removeEventListener('focusout', onBlur, true)
+      window.removeEventListener('input', onInput, true)
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('touchstart', onTouchStart)
       window.removeEventListener('touchmove', onTouchMove)
       window.removeEventListener('touchend', onTouchEnd)
       window.removeEventListener('keydown', activity)
       window.removeEventListener('resize', onResize)
+      awareness.dispose()
     },
   }
 }
