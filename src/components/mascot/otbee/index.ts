@@ -1,5 +1,7 @@
 export { default as OtbeeAvatar } from './OtbeeAvatar'
 export type { OtbeeHandle, OtbeeAvatarProps } from './OtbeeAvatar'
+export { HeadPuppet } from './HeadPuppet'
+export type { HeadPuppetHandle, HeadPuppetProps } from './HeadPuppet'
 export { CLIPS, Mixer } from './engine'
 export type { ClipName, Pose } from './engine'
 export type { ViewName } from './types'

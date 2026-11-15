@@ -235,36 +235,49 @@ export function createController(d: ControllerDeps) {
   }
 
   // ============================================================ spawn / despawn
-  const spawn = (pk: Picked, cfg: MascotConfig | null) => {
+  const spawn = async (pk: Picked, cfg: MascotConfig | null) => {
     const p = pk.anchor.resolve()
     if (!p) return
     const tok = ++token
     anchor = pk.anchor
-    place(p)
-    setPose(1, 0)
-    d.container.style.pointerEvents = 'auto'
-    d.container.style.opacity = '1'
-    phase = 'traveling'
-    d.pop.animate([
-      { transform: 'scale(.12)', opacity: 0 },
-      { transform: 'scale(1.2)', opacity: 1, offset: 0.62 },
-      { transform: 'scale(1)', opacity: 1 },
-    ], { duration: 560, easing: 'cubic-bezier(.3,1.6,.4,1)', fill: 'both' })
-    requestAnimationFrame(() => { fx('smoke'); setTimeout(() => fx('smoke'), 90) })
-    setTimeout(() => {
-      if (tok !== token || disposed) return
-      phase = 'resting'
-      if (typeof document !== 'undefined' && document.activeElement && isPrivacyField(document.activeElement)) {
-        isPrivacy = true
-        typing = true
-        act('coverEyes', { text: pickOne(PRIVACY_LINES), force: true, ms: 8000 })
-      } else {
-        const timeCtx = getTimeContext()
-        const defaultGreet = (timeCtx.hour >= 23 || timeCtx.hour < 5) ? timeCtx.quote : null
-        act(cfg?.clip ?? 'idle', { force: true, text: personal(cfg?.greet ?? defaultGreet ?? undefined), ms: 4200 })
-      }
-      resetIdle()
-    }, 560)
+
+    const heroGuide = d.pathname() === '/' ? document.getElementById('hero-feature-guide') : null
+    if (heroGuide) {
+      const hr = heroGuide.getBoundingClientRect()
+      const originSpot: Spot = { x: hr.left + hr.width / 2 + window.scrollX, y: hr.bottom + window.scrollY }
+      place(originSpot)
+      setPose(1, 0)
+      d.container.style.pointerEvents = 'auto'
+      d.container.style.opacity = '1'
+      phase = 'traveling'
+      fx('smoke')
+      const ok = await jumpTo(tok, originSpot, p)
+      if (!ok || tok !== token || disposed) return
+    } else {
+      place(p)
+      setPose(1, 0)
+      d.container.style.pointerEvents = 'auto'
+      d.container.style.opacity = '1'
+      phase = 'traveling'
+      d.pop.animate([
+        { transform: 'scale(.12)', opacity: 0 },
+        { transform: 'scale(1.2)', opacity: 1, offset: 0.62 },
+        { transform: 'scale(1)', opacity: 1 },
+      ], { duration: 560, easing: 'cubic-bezier(.3,1.6,.4,1)', fill: 'both' })
+      requestAnimationFrame(() => { fx('smoke'); setTimeout(() => fx('smoke'), 90) })
+    }
+
+    phase = 'resting'
+    if (typeof document !== 'undefined' && document.activeElement && isPrivacyField(document.activeElement)) {
+      isPrivacy = true
+      typing = true
+      act('coverEyes', { text: pickOne(PRIVACY_LINES), force: true, ms: 8000 })
+    } else {
+      const timeCtx = getTimeContext()
+      const defaultGreet = (timeCtx.hour >= 23 || timeCtx.hour < 5) ? timeCtx.quote : null
+      act(cfg?.clip ?? 'idle', { force: true, text: personal(cfg?.greet ?? defaultGreet ?? undefined), ms: 4200 })
+    }
+    resetIdle()
   }
 
   const despawn = () => {
@@ -288,13 +301,8 @@ export function createController(d: ControllerDeps) {
 
   const inHeroSection = (path: string): boolean => {
     if (path !== '/') return false
-    if (typeof document === 'undefined') return false
-    const hero = document.getElementById('hero-section')
-    if (hero) {
-      const r = hero.getBoundingClientRect()
-      return r.bottom > 180
-    }
-    return window.scrollY < 480
+    if (typeof window === 'undefined') return false
+    return window.scrollY < 260
   }
 
   const spawnWhenReady = (cfg: MascotConfig | null) => {
