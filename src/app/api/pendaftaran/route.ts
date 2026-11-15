@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createServiceClient } from '@/lib/supabase/server'
-import { getClientIp, rateLimit } from '@/lib/security'
+import { getClientIp, rateLimit, verifyTurnstileToken } from '@/lib/security'
 import { PRICE_MATRIX, type Track } from '@/lib/pricing'
 import { sendEmail } from '@/lib/email/send'
 import PendaftaranDiterima from '@/lib/email/templates/PendaftaranDiterima'
@@ -21,6 +21,7 @@ const schema = z.object({
   school: z.string().min(2),
   payment_proof_url: z.string().url().max(500),
   referral_code: z.string().max(40).optional(),
+  turnstile_token: z.string().optional(),
 })
 
 const CATEGORY_TRACK: Record<string, Track> = { essay_only: 'essay', prestasi_only: 'prestasi', hybrid: 'hybrid' }
@@ -36,9 +37,18 @@ export async function POST(request: Request) {
     }
 
     const data = parsed.data
+    const ip = getClientIp(request)
+
+    // Verify Turnstile server-side if token is provided
+    if (data.turnstile_token) {
+      const turnstileOk = await verifyTurnstileToken(data.turnstile_token, ip)
+      if (!turnstileOk) {
+        return NextResponse.json({ error: 'Verifikasi keamanan bot gagal. Muat ulang halaman dan coba lagi.' }, { status: 400 })
+      }
+    }
 
     // Unauthenticated endpoint that creates accounts and orders: throttle per IP and per email.
-    if (!(await rateLimit('pendaftaran_ip', getClientIp(request), 5, 3600)) ||
+    if (!(await rateLimit('pendaftaran_ip', ip, 5, 3600)) ||
         !(await rateLimit('pendaftaran_email', data.email.toLowerCase(), 3, 3600))) {
       return NextResponse.json({ error: 'Terlalu banyak percobaan. Coba lagi nanti.' }, { status: 429 })
     }

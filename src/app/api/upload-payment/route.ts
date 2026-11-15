@@ -53,11 +53,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Gagal upload file' }, { status: 500 })
     }
 
-    const { data: { publicUrl } } = supabase.storage
+    const { data: signedData } = await supabase.storage
       .from('payment-proofs')
-      .getPublicUrl(path)
+      .createSignedUrl(path, 60 * 60 * 24 * 365) // 1 year signed URL
 
-    return NextResponse.json({ url: publicUrl })
+    const finalUrl = signedData?.signedUrl || supabase.storage.from('payment-proofs').getPublicUrl(path).data.publicUrl
+
+    return NextResponse.json({ url: finalUrl })
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

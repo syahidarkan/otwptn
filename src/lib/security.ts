@@ -82,3 +82,27 @@ export function matchesFileSignature(bytes: Uint8Array, type: string): boolean {
   if (type === 'application/pdf') return h(0) === 0x25 && h(1) === 0x50 && h(2) === 0x44 && h(3) === 0x46
   return false
 }
+
+export async function verifyTurnstileToken(token?: string | null, remoteip?: string): Promise<boolean> {
+  const secret = process.env.TURNSTILE_SECRET_KEY
+  if (!secret) return true // Turnstile not configured, fail open in local/test
+  if (!token) return false
+
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        secret,
+        response: token,
+        remoteip: remoteip || undefined,
+      }),
+    })
+    const data = await res.json()
+    return data.success === true
+  } catch (err) {
+    console.warn('[Turnstile verification error]', err)
+    return false
+  }
+}
+

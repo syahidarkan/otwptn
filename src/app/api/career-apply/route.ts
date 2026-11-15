@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createServiceClient } from '@/lib/supabase/server'
-import { getClientIp, rateLimit } from '@/lib/security'
+import { getClientIp, rateLimit, verifyTurnstileToken } from '@/lib/security'
 
 const schema = z.object({
   fullName: z.string().min(2, 'Nama lengkap minimal 2 karakter'),
@@ -16,6 +16,7 @@ const schema = z.object({
   phoneModel: z.string().min(2, 'Tipe HP wajib diisi'),
   reason: z.string().max(3000).min(10, 'Ceritakan alasan kamu minimal 10 karakter'),
   position: z.string().default('Marketing Partner (Content Creator)'),
+  turnstileToken: z.string().optional(),
 })
 
 export async function POST(request: Request) {
@@ -30,35 +31,46 @@ export async function POST(request: Request) {
       )
     }
 
-    if (!(await rateLimit('career_apply', getClientIp(request), 5, 3600))) {
+    const ip = getClientIp(request)
+
+    if (parsed.data.turnstileToken) {
+      const turnstileOk = await verifyTurnstileToken(parsed.data.turnstileToken, ip)
+      if (!turnstileOk) {
+        return NextResponse.json({ error: 'Verifikasi bot gagal. Muat ulang halaman dan coba lagi.' }, { status: 400 })
+      }
+    }
+
+    if (!(await rateLimit('career_apply', ip, 5, 3600))) {
       return NextResponse.json({ error: 'Terlalu banyak pengiriman. Coba lagi nanti.' }, { status: 429 })
     }
 
     const data = parsed.data
     const referenceId = `MP-${Date.now().toString(36).toUpperCase()}`
 
-    // Try saving to Supabase if table exists
-    try {
-      const supabase = createServiceClient()
-      await supabase.from('career_applications').insert({
-        reference_id: referenceId,
-        position: data.position,
-        full_name: data.fullName,
-        phone: data.phone,
-        email: data.email,
-        age: data.age,
-        education_status: data.educationStatus,
-        school_or_campus: data.schoolOrCampus,
-        instagram: data.instagram,
-        tiktok: data.tiktok,
-        portfolio_link: data.portfolioLink,
-        phone_model: data.phoneModel,
-        reason: data.reason,
-        created_at: new Date().toISOString(),
-      })
-    } catch {
-      // Graceful fallback if table does not exist yet
-      console.warn('career_applications table not found, fallback to reference ID response')
+    const supabase = createServiceClient()
+    const { error: dbError } = await supabase.from('career_applications').insert({
+      reference_id: referenceId,
+      position: data.position,
+      full_name: data.fullName,
+      phone: data.phone,
+      email: data.email,
+      age: data.age,
+      education_status: data.educationStatus,
+      school_or_campus: data.schoolOrCampus,
+      instagram: data.instagram,
+      tiktok: data.tiktok,
+      portfolio_link: data.portfolioLink,
+      phone_model: data.phoneModel,
+      reason: data.reason,
+      created_at: new Date().toISOString(),
+    })
+
+    if (dbError) {
+      console.error('[Career Application DB Error]', dbError)
+      return NextResponse.json(
+        { error: 'Gagal menyimpan pendaftaran ke database: ' + dbError.message },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json({

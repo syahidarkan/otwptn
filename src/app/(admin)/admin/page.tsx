@@ -14,7 +14,16 @@ const STATUS_BADGE: Record<string, 'pending' | 'confirmed' | 'rejected' | 'expir
 export default async function AdminDashboard() {
   const supabase = await createAdminClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user && process.env.NODE_ENV !== 'development') redirect('/login')
+  if (!user) redirect('/login')
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin, role')
+    .eq('id', user.id)
+    .single()
+
+  const isAdmin = profile?.is_admin || profile?.role === 'superadmin' || profile?.role === 'admin'
+  if (!isAdmin && process.env.NODE_ENV !== 'development') redirect('/dashboard')
 
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()

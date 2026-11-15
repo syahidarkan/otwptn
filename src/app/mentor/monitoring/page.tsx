@@ -45,7 +45,7 @@ export default function MentorMonitoringPage() {
             id: string
             tier: string
             wa_group_link?: string
-            checklist?: { task: string; done: boolean }[]
+            checklist?: Record<string, boolean> | { task: string; done: boolean }[] | string[]
             profiles?: {
               full_name?: string
               avatar_url?: string
@@ -54,12 +54,24 @@ export default function MentorMonitoringPage() {
             }
           }) => {
             const p = rec.profiles
+            const chk = rec.checklist
+            const isDutyDone = (title: string, defaultDone: boolean) => {
+              if (!chk) return defaultDone
+              if (Array.isArray(chk)) {
+                const found = (chk as any[]).find(item => item === title || item?.task === title)
+                if (typeof found === 'object' && found !== null) return !!found.done
+                return !!found
+              }
+              if (typeof chk === 'object') return !!(chk as Record<string, boolean>)[title]
+              return defaultDone
+            }
+
             const defaultDuties = [
-              { title: 'Inisiasi Grup WA Bertiga (Mentor + Admin + Mentee)', desc: 'Buat grup WhatsApp dan perkenalkan diri dalam 1x24 jam', done: !!rec.wa_group_link, deadline: 'H+1' },
-              { title: 'Konsultasi Perdana & Audit Berkas Rapor', desc: 'Sesi online orientasi target prodi dan review berkas prestasi', done: false, deadline: 'H+3' },
-              { title: 'Koreksi Draf 1 Esai Motivasi', desc: 'Anotasi kalimat per kalimat dan feedback hook pembuka', done: false, deadline: 'H+5' },
-              { title: 'Sesi Mentoring Zoom / Google Meet', desc: 'Diskusi privat 1-on-1 dan pembahasan esai', done: false, deadline: 'Jadwal Meet' },
-              { title: 'Review Final & Verifikasi Berkas', desc: 'Pengecekan akhir berkas sebelum submit pendaftaran PTN', done: false, deadline: 'Finalisasi' },
+              { title: 'Inisiasi Grup WA Bertiga (Mentor + Admin + Mentee)', desc: 'Buat grup WhatsApp dan perkenalkan diri dalam 1x24 jam', done: isDutyDone('Inisiasi Grup WA Bertiga (Mentor + Admin + Mentee)', !!rec.wa_group_link), deadline: 'H+1' },
+              { title: 'Konsultasi Perdana & Audit Berkas Rapor', desc: 'Sesi online orientasi target prodi dan review berkas prestasi', done: isDutyDone('Konsultasi Perdana & Audit Berkas Rapor', false), deadline: 'H+3' },
+              { title: 'Koreksi Draf 1 Esai Motivasi', desc: 'Anotasi kalimat per kalimat dan feedback hook pembuka', done: isDutyDone('Koreksi Draf 1 Esai Motivasi', false), deadline: 'H+5' },
+              { title: 'Sesi Mentoring Zoom / Google Meet', desc: 'Diskusi privat 1-on-1 dan pembahasan esai', done: isDutyDone('Sesi Mentoring Zoom / Google Meet', false), deadline: 'Jadwal Meet' },
+              { title: 'Review Final & Verifikasi Berkas', desc: 'Pengecekan akhir berkas sebelum submit pendaftaran PTN', done: isDutyDone('Review Final & Verifikasi Berkas', false), deadline: 'Finalisasi' },
             ]
             return {
               mentoringId: rec.id,
@@ -79,8 +91,26 @@ export default function MentorMonitoringPage() {
 
   function handleToggleDuty(menteeIdx: number, dutyIdx: number) {
     const updated = [...dutiesList]
-    updated[menteeIdx].duties[dutyIdx].done = !updated[menteeIdx].duties[dutyIdx].done
+    const current = updated[menteeIdx]
+    current.duties[dutyIdx].done = !current.duties[dutyIdx].done
     setDutiesList(updated)
+
+    // Persist checklist to backend
+    const checklistMap: Record<string, boolean> = {}
+    current.duties.forEach(d => {
+      checklistMap[d.title] = d.done
+    })
+
+    fetch('/api/mentor/mentees', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mentoring_id: current.mentoringId,
+        checklist: checklistMap,
+      }),
+    }).catch(err => {
+      console.error('[Duty checklist persist error]', err)
+    })
   }
 
   const totalTasks = dutiesList.reduce((acc, m) => acc + m.duties.length, 0)

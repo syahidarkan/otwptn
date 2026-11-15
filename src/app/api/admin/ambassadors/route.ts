@@ -38,10 +38,11 @@ export async function GET() {
 
     const totalCommission = myCommissions.reduce((s, c) => s + c.amount, 0)
     const withdrawnCommission = myWithdrawals.filter(w => w.status === 'paid').reduce((s, w) => s + w.amount, 0)
-    const pendingWithdraw = myWithdrawals.find(w => w.status === 'pending')?.amount ?? 0
+    const pendingWithdraw = myWithdrawals.filter(w => w.status === 'pending').reduce((s, w) => s + w.amount, 0)
 
-    const bankInfo = myWithdrawals.length > 0
-      ? `${myWithdrawals[0].bank_name} - ${myWithdrawals[0].account_number} a.n ${myWithdrawals[0].account_holder}`
+    const latestWithdrawal = myWithdrawals.length > 0 ? myWithdrawals[myWithdrawals.length - 1] : null
+    const bankInfo = latestWithdrawal
+      ? `${latestWithdrawal.bank_name} - ${latestWithdrawal.account_number} a.n ${latestWithdrawal.account_holder}`
       : '-'
 
     const breakdown = {
@@ -76,22 +77,53 @@ export async function POST(request: Request) {
   if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await request.json()
-  const { action, user_id } = body
+  const { action, user_id, withdrawal_id } = body
 
   if (action === 'approve_withdrawal') {
+    let pendingQuery = supabase
+      .from('withdrawal_requests')
+      .select('id, amount')
+      .eq('user_id', user_id)
+      .eq('status', 'pending')
+
+    if (withdrawal_id) {
+      pendingQuery = pendingQuery.eq('id', withdrawal_id)
+    }
+
+    const { data: pendingReqs } = await pendingQuery
+    const targetReq = pendingReqs?.[0]
+    if (!targetReq) {
+      return NextResponse.json({ error: 'Tidak ada permintaan penarikan pending untuk pengguna ini' }, { status: 404 })
+    }
+
     // Mark pending withdrawal as paid
     await supabase
       .from('withdrawal_requests')
       .update({ status: 'paid', updated_at: new Date().toISOString() })
-      .eq('user_id', user_id)
-      .eq('status', 'pending')
+      .eq('id', targetReq.id)
 
-    // Mark related commissions as paid
-    await supabase
+    // Mark related commissions as paid up to the withdrawal amount
+    const { data: clearedComms } = await supabase
       .from('ambassador_commissions')
-      .update({ status: 'paid' })
+      .select('id, amount')
       .eq('ambassador_id', user_id)
       .eq('status', 'cleared')
+      .order('created_at', { ascending: true })
+
+    let remainingToMark = targetReq.amount
+    const commIdsToMark: string[] = []
+    for (const c of clearedComms ?? []) {
+      if (remainingToMark <= 0) break
+      commIdsToMark.push(c.id)
+      remainingToMark -= c.amount
+    }
+
+    if (commIdsToMark.length > 0) {
+      await supabase
+        .from('ambassador_commissions')
+        .update({ status: 'paid' })
+        .in('id', commIdsToMark)
+    }
 
     return NextResponse.json({ success: true })
   }

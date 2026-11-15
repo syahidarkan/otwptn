@@ -132,6 +132,21 @@ export default function MentorApplyPage() {
     })
   }
 
+  async function uploadDoc(file: File, type: string): Promise<string> {
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('type', type)
+    const res = await fetch('/api/mentor/upload', {
+      method: 'POST',
+      body: fd,
+    })
+    const data = await res.json()
+    if (!res.ok || !data.url) {
+      throw new Error(data.error || `Gagal mengunggah dokumen ${type}`)
+    }
+    return data.url
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (isAdminSession) return
@@ -192,6 +207,21 @@ export default function MentorApplyPage() {
         school_name: form.university,
       }).eq('id', activeUserId)
 
+      // Upload berkas dokumen jika ada
+      let loaUrl = ''
+      let essayUrl = ''
+      let certUrl = ''
+
+      if (loaFile) {
+        loaUrl = await uploadDoc(loaFile, 'loa')
+      }
+      if (essayFile) {
+        essayUrl = await uploadDoc(essayFile, 'essay')
+      }
+      if (certFile) {
+        certUrl = await uploadDoc(certFile, 'cert')
+      }
+
       const { error: upsertErr } = await supabase.from('mentor_applications').upsert({
         user_id: activeUserId,
         full_name: form.fullName,
@@ -201,6 +231,9 @@ export default function MentorApplyPage() {
         major: form.major,
         track: form.track,
         grad_year: form.gradYear,
+        loa_url: loaUrl || undefined,
+        essay_url: essayUrl || undefined,
+        cert_url: certUrl || undefined,
         status: 'pending',
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })

@@ -1,4 +1,5 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { rateLimit } from '@/lib/security'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -124,6 +125,10 @@ export async function POST(request: Request) {
 
   // Handle reply submission
   if (postId) {
+    if (!(await rateLimit('comm_reply', user.id, 8, 60))) {
+      return NextResponse.json({ error: 'Terlalu banyak mengirim balasan. Tunggu sebentar.' }, { status: 429 })
+    }
+
     if (!content || typeof content !== 'string' || content.trim().length < 1) {
       return NextResponse.json({ error: 'Balasan tidak boleh kosong' }, { status: 400 })
     }
@@ -148,7 +153,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Gagal mengirim balasan: ' + error.message }, { status: 500 })
     }
 
-    db.rpc('increment_xp', { uid: user.id, points: 5 })
+    try {
+      const canEarnXp = await rateLimit('comm_reply_xp_daily', user.id, 10, 86400)
+      if (canEarnXp) {
+        await db.rpc('increment_xp', { uid: user.id, points: 5 })
+      }
+    } catch {}
+
     return NextResponse.json({ reply })
   }
 
@@ -185,8 +196,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Gagal menyimpan postingan: ' + error.message }, { status: 500 })
   }
 
-  // Award XP for posting (fire and forget)
-  db.rpc('increment_xp', { uid: user.id, points: 10 })
+  // Award XP for posting (capped at 5 times per day to prevent farming)
+  try {
+    const canEarnXp = await rateLimit('comm_post_xp_daily', user.id, 5, 86400)
+    if (canEarnXp) {
+      await db.rpc('increment_xp', { uid: user.id, points: 10 })
+    }
+  } catch {}
 
   const normalized = {
     id: post.id,

@@ -1,4 +1,5 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { rateLimit } from '@/lib/security'
 import { NextResponse } from 'next/server'
 
 function isUuid(str: string): boolean {
@@ -104,6 +105,10 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  if (!(await rateLimit('community_chat_msg', user.id, 15, 60))) {
+    return NextResponse.json({ error: 'Terlalu cepat mengirim pesan. Tunggu sebentar.' }, { status: 429 })
+  }
+
   const { channelId, channelName, content } = await request.json()
   if (!channelId || !content || typeof content !== 'string' || content.trim().length === 0) {
     return NextResponse.json({ error: 'Pesan tidak boleh kosong' }, { status: 400 })
@@ -169,9 +174,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Gagal mengirim pesan: ' + (msgErr?.message || 'Error') }, { status: 500 })
   }
 
-  // Award XP (fire and forget)
+  // Award XP (capped at 10 times per day to prevent spam exploitation)
   try {
-    db.rpc('increment_xp', { uid: user.id, points: 5 })
+    const canEarnXp = await rateLimit('community_chat_xp_daily', user.id, 10, 86400)
+    if (canEarnXp) {
+      await db.rpc('increment_xp', { uid: user.id, points: 5 })
+    }
   } catch {}
 
   const prof = (msg as any).profiles

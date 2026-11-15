@@ -46,11 +46,18 @@ export default function AdminJalurPage() {
   const [form, setForm] = useState(emptyForm)
 
   const load = useCallback(async () => {
-    const { data } = await supabase
-      .from('jalur_pages')
-      .select('*')
-      .order('university')
-    setList(data ?? [])
+    try {
+      const res = await fetch('/api/admin/jalur')
+      const data = await res.json()
+      if (data.jalurs) setList(data.jalurs)
+    } catch {
+      // Fallback
+      const { data } = await supabase
+        .from('jalur_pages')
+        .select('*')
+        .order('university')
+      setList(data ?? [])
+    }
   }, [])
 
   useEffect(() => { load() }, [load])
@@ -87,17 +94,39 @@ export default function AdminJalurPage() {
       pendaftaran: form.pendaftaran || null,
       pengumuman: form.pengumuman || null,
     }
-    if (editing) {
-      await supabase.from('jalur_pages').update(payload).eq('id', editing.id)
-    } else {
-      await supabase.from('jalur_pages').insert({ ...payload, is_active: true })
+
+    try {
+      await fetch('/api/admin/jalur', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'save',
+          id: editing?.id,
+          payload,
+        }),
+      })
+    } catch (err) {
+      console.error('[Admin Jalur Save Error]', err)
     }
+
     setModal(false)
     load()
   }
 
   async function toggleActive(j: JalurPage) {
-    await supabase.from('jalur_pages').update({ is_active: !j.is_active }).eq('id', j.id)
+    try {
+      await fetch('/api/admin/jalur', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'toggle',
+          id: j.id,
+          is_active: !j.is_active,
+        }),
+      })
+    } catch (err) {
+      console.error('[Admin Jalur Toggle Error]', err)
+    }
     load()
   }
 
