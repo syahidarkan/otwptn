@@ -7,6 +7,11 @@ export type BrainEvent =
   | { type: 'say'; text: string; ms?: number }
   | { type: 'act'; clip: ClipName; view?: ViewName; text?: string }
   | { type: 'nav-start' | 'nav-end' }
+  | { type: 'cs-chat-open' }
+  | { type: 'cs-chat-close' }
+  | { type: 'cs-chat-user-message'; text: string }
+  | { type: 'cs-chat-typing' }
+  | { type: 'cs-chat-bot-reply'; text: string }
 
 type Listener = (e: BrainEvent) => void
 const subs = new Set<Listener>()

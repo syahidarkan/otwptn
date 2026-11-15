@@ -12,7 +12,7 @@
 import type { OtbeeHandle } from './OtbeeAvatar'
 import { CLIPS, type ClipName, type FxType, type PlayOpts } from './engine'
 import { otbeeBrain } from './brain'
-import { scanSurfaces, pickSpot, stepsBetween, anchorOnElement, IGNORE_SELECTOR, type Anchor, type Spot, type Picked } from './world'
+import { scanSurfaces, pickSpot, stepsBetween, anchorOnElement, IGNORE_SELECTOR, isObstructingContent, type Anchor, type Spot, type Picked } from './world'
 import { explain, meaningfulTarget, withName } from './explain'
 import { getMascotConfigForPath, type MascotConfig } from '../mascotPageConfig'
 import { ContextAwareness, getTimeContext } from './contextAwareness'
@@ -402,7 +402,13 @@ export function createController(d: ControllerDeps) {
     const vy = p.y - window.scrollY, vx = p.x - window.scrollX
     const top = topSafe(), bottom = window.innerHeight - 24
     const ok = vy >= top && vy <= bottom && vx >= 24 && vx <= window.innerWidth - 24
-    if (ok && !forced) return
+    if (ok && !forced) {
+      if (isObstructingContent(pos.x, pos.y, scale())) {
+        act('fly', { text: 'Aku minggir bentar biar gak ngalangin kamu baca ya! 🐝💨', force: true, ms: 2800 })
+        setTimeout(() => { if (!disposed && phase === 'resting') relocate(lastDir > 0 ? 'down' : 'up') }, 500)
+      }
+      return
+    }
     relocate(vy < top ? 'down' : vy > bottom ? 'up' : lastDir > 0 ? 'down' : 'up')
   }
 
@@ -661,6 +667,40 @@ export function createController(d: ControllerDeps) {
     else if (e.type === 'info') act('nod', { text: e.text, force: true })
     else if (e.type === 'say') say(e.text, e.ms)
     else if (e.type === 'act') act(e.clip, { text: e.text, force: true })
+    else if (e.type === 'cs-chat-open') {
+      setPose(1, 0)
+      act('wave', {
+        text: 'Lagi tanya CS AI kita ya? Tanyain apa aja seputar OtwPTN, nanti dijawab! 💬🐝',
+        force: true,
+        ms: 5000,
+      })
+    } else if (e.type === 'cs-chat-close') {
+      act('nod', {
+        text: 'Sip! Kalau butuh info lagi, CS AI kita selalu standby di pojok kanan bawah ya! 👍',
+        force: true,
+        ms: 4500,
+      })
+    } else if (e.type === 'cs-chat-user-message') {
+      const q = e.text.toLowerCase()
+      if (q.includes('snbp') || q.includes('rapor') || q.includes('nilai')) {
+        act('thinking', { text: 'Pertanyaan tentang SNBP ya? CS AI paham banget analisis nilai rapor lho! 🤔✨', force: true, ms: 5200 })
+      } else if (q.includes('esai') || q.includes('essay') || q.includes('surat')) {
+        act('thinking', { text: 'Soal esai motivasi ya? Struktur STAR di OtwPTN terbukti banyak bantu tembus! ✍️', force: true, ms: 5200 })
+      } else if (q.includes('paket') || q.includes('harga') || q.includes('biaya') || q.includes('bayar') || q.includes('daftar')) {
+        act('thinking', { text: 'Lagi cek paket & bimbingan ya? Bimbingan mentor alumni top PTN recommended banget! 💡', force: true, ms: 5200 })
+      } else if (q.includes('mentor') || q.includes('konsul') || q.includes('alumni')) {
+        act('thinking', { text: 'Mentor di OtwPTN semuanya mahasiswa & alumni berprestasi dari PTN impianmu! 🎓', force: true, ms: 5200 })
+      } else if (q.includes('prestasi') || q.includes('sertifikat') || q.includes('lomba')) {
+        act('thinking', { text: 'Kurasi sertifikat prestasi penting banget biar poin seleksi maksimal! 🏅', force: true, ms: 5200 })
+      } else {
+        act('thinking', { text: 'Otbee dengerin juga nih... CS AI lagi siapin jawabannya! 💭', force: true, ms: 4500 })
+      }
+    } else if (e.type === 'cs-chat-typing') {
+      act('thinking', { force: true })
+    } else if (e.type === 'cs-chat-bot-reply') {
+      fx('stars')
+      act('nod', { text: 'Nah, udah dijawab sama CS AI! Semoga membantu yaa! 🌟', force: true, ms: 4500 })
+    }
   })
 
   window.addEventListener('scroll', onScroll, { passive: true })
@@ -741,10 +781,27 @@ export function createController(d: ControllerDeps) {
         const clampedX_v = clamp(curX_v, cand.xa + 6, cand.xb - 6)
         const validated = cand.make(clampedX_v)
         if (validated) {
-          foundAnchor = validated.anchor
-          targetX = validated.x + window.scrollX
-          targetY = validated.y + window.scrollY
-          break
+          if (validated.air >= 0.72) {
+            foundAnchor = validated.anchor
+            targetX = validated.x + window.scrollX
+            targetY = validated.y + window.scrollY
+            break
+          } else {
+            // Coba geser ke tepi ledge agar tidak menimpa teks/konten di tengah
+            const altX = (curX_v - cand.xa < cand.xb - curX_v) ? cand.xa + 16 * scale() : cand.xb - 16 * scale()
+            const altVal = cand.make(altX)
+            if (altVal && altVal.air >= 0.7) {
+              foundAnchor = altVal.anchor
+              targetX = altVal.x + window.scrollX
+              targetY = altVal.y + window.scrollY
+              break
+            } else {
+              foundAnchor = validated.anchor
+              targetX = validated.x + window.scrollX
+              targetY = validated.y + window.scrollY
+              break
+            }
+          }
         }
       }
 

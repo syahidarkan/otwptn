@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   X, Send, ArrowLeft
 } from 'lucide-react'
-import { OtbeeAvatar } from '@/components/mascot/otbee'
+import { OtbeeAvatar, otbeeBrain } from '@/components/mascot/otbee'
 import type { ClipName, OtbeeHandle } from '@/components/mascot/otbee'
 
 interface Message {
@@ -91,6 +91,7 @@ export default function CustomerServiceWidget() {
           onDone: () => {
             // card grows out of the standing body while the body dissolves into the card
             setIsOpen(true)
+            otbeeBrain.emit({ type: 'cs-chat-open' })
             figAvatar.current?.fx('stars')
             fig?.animate([
               { opacity: 1, transform: 'translateY(0) scale(1)', filter: 'blur(0px)' },
@@ -105,6 +106,7 @@ export default function CustomerServiceWidget() {
 
   const handleCloseChat = () => {
     setIsOpen(false)
+    otbeeBrain.emit({ type: 'cs-chat-close' })
   }
 
   // Native vector love reaction using mascot rig fx and shy blushing action
@@ -139,6 +141,8 @@ export default function CustomerServiceWidget() {
     setMessages(nextMessages)
     setInputMessage('')
     setIsTyping(true)
+    otbeeBrain.emit({ type: 'cs-chat-user-message', text })
+    otbeeBrain.emit({ type: 'cs-chat-typing' })
 
     try {
       const res = await fetch('/api/cs-chat', {
@@ -163,6 +167,7 @@ export default function CustomerServiceWidget() {
       }
 
       setMessages(prev => [...prev, botMsg])
+      otbeeBrain.emit({ type: 'cs-chat-bot-reply', text: replyContent })
     } catch (err) {
       console.error('Chat error:', err)
       const errorMsg: Message = {

@@ -37,7 +37,11 @@ export interface Candidate {
 export const IGNORE_SELECTOR = '#otbee-floating-container, #cs-chat-widget, [data-otbee-ignore]'
 const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'META', 'LINK', 'HEAD', 'TITLE', 'BR', 'HTML', 'BODY', 'TEXTAREA', 'OPTION', 'SELECT', 'IFRAME'])
 const MEDIA_TAGS = new Set(['IMG', 'VIDEO', 'CANVAS', 'PICTURE'])
-const INK_TAGS = new Set(['IMG', 'VIDEO', 'CANVAS', 'BUTTON', 'A', 'INPUT', 'SELECT', 'TEXTAREA', 'SVG', 'PATH', 'CIRCLE', 'RECT', 'G', 'LABEL'])
+const CONTENT_TAGS = new Set([
+  'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'SPAN', 'STRONG', 'EM', 'B', 'I',
+  'LI', 'BLOCKQUOTE', 'CODE', 'PRE', 'BUTTON', 'A', 'INPUT', 'TEXTAREA',
+  'SELECT', 'LABEL', 'IMG', 'VIDEO', 'CANVAS', 'TABLE', 'TR', 'TD', 'TH'
+])
 
 // ------------------------------------------------------------------ colour helpers
 let _cv: CanvasRenderingContext2D | null = null
@@ -72,25 +76,50 @@ function hitAt(x: number, y: number): Element | null {
   return null
 }
 
-function hasOwnText(el: Element): boolean {
-  for (const n of el.childNodes) if (n.nodeType === 3 && (n.nodeValue ?? '').trim().length > 1) return true
+function hasVisibleContent(el: Element): boolean {
+  if (ignored(el)) return false
+  const tag = el.tagName.toUpperCase()
+  if (CONTENT_TAGS.has(tag)) {
+    if (tag === 'SPAN' || tag === 'P') {
+      return (el.textContent ?? '').trim().length > 0
+    }
+    return true
+  }
+  if (el.getAttribute('role') === 'button' || el.getAttribute('role') === 'link') return true
+  if (el.closest('svg')) return true
+  for (const n of el.childNodes) {
+    if (n.nodeType === 3 && (n.nodeValue ?? '').trim().length > 1) return true
+  }
   return false
 }
 
 /** how much of the space where his body will be is free of text / images / buttons (1 = completely clear) */
 function airAt(x: number, yFoot: number, scale: number): number {
-  const dys = [14, 36, 58, 80, 100].map(v => v * scale)
+  const dys = [16, 36, 56, 76, 96, 112].map(v => v * scale)
+  const dxs = [-36, -18, 0, 18, 36].map(v => v * scale)
   let occ = 0, total = 0
-  for (const dy of dys) for (const dx of [-16 * scale, 0, 16 * scale]) {
+  for (const dy of dys) {
     const yy = yFoot - dy
-    if (yy < 0) continue
-    const h = hitAt(x + dx, yy)
-    total++
-    if (!h) continue
-    const tag = h.tagName.toUpperCase()
-    if (INK_TAGS.has(tag) || h.closest('svg') || hasOwnText(h)) occ++
+    if (yy < 0 || yy > window.innerHeight) continue
+    for (const dx of dxs) {
+      const xx = x + dx
+      if (xx < 0 || xx > window.innerWidth) continue
+      total++
+      const list = document.elementsFromPoint(xx, yy)
+      for (const h of list) {
+        if (hasVisibleContent(h)) {
+          occ++
+          break
+        }
+      }
+    }
   }
   return total ? 1 - occ / total : 1
+}
+
+export function isObstructingContent(x: number, y: number, scale = 1): boolean {
+  const air = airAt(x - window.scrollX, y - window.scrollY, scale)
+  return air < 0.78
 }
 
 // ------------------------------------------------------------------ effective background
@@ -216,82 +245,83 @@ export function scanSurfaces(opts: ScanOpts = {}): Candidate[] {
     })
   }
 
-  // ---------- real text glyphs
-  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
-  const parentInfo = new Map<Element, { fs: number; ok: boolean }>()
-  const range = document.createRange()
-  let textCount = 0
-  while (walker.nextNode() && textCount < 260) {
-    const node = walker.currentNode as Text
-    const raw = node.nodeValue ?? ''
-    if (raw.trim().length < 3) continue
-    const parent = node.parentElement
-    if (!parent || SKIP_TAGS.has(parent.tagName) || (parent as unknown as SVGElement).ownerSVGElement || ignored(parent)) continue
-    let info = parentInfo.get(parent)
-    if (!info) {
-      const cs = getComputedStyle(parent)
-      const fs = parseFloat(cs.fontSize) || 16
-      const ok = cs.display !== 'none' && cs.visibility !== 'hidden' && parseFloat(cs.opacity) > 0.5 && fs >= 14 && colorOf(cs.color)[3] > 0.3 && !isFixedChain(parent)
-      info = { fs, ok }
-      parentInfo.set(parent, info)
-    }
-    if (!info.ok) continue
-    range.selectNodeContents(node)
-    const rects = range.getClientRects()
-    for (let k = 0; k < rects.length; k++) {
-      const lr = rects[k]
-      if (lr.width < 24 || lr.height < 8) continue
-      const yv = lr.top + lr.height * 0.26
-      if (yv < minFootY || yv > maxFootY) continue
-      if (lr.right < 40 || lr.left > vw - 40) continue
-      const xa = Math.max(lr.left + 6, 44), xb = Math.min(lr.right - 6, vw - 44)
-      if (xb - xa < 4) continue
-      const fs = info.fs
-      const lineTop = lr.top, lineRight = lr.right, lineLeft = lr.left, lineH = lr.height
-      textCount++
-      out.push({
-        kind: 'text', el: parent, y: yv, xa, xb,
-        weight: fs >= 28 ? 0.95 : fs >= 20 ? 0.85 : 0.6,
-        make(xv) {
-          const want = Math.min(xb, Math.max(xa, xv))
-          // find a real glyph near `want` on this line
-          const len = (node.nodeValue ?? '').length
-          let best = -1, bestD = 1e9, bestR: DOMRect | null = null
-          const rg = document.createRange()
-          for (let i = 0; i < len; i++) {
-            const ch = (node.nodeValue ?? '')[i]
-            if (/\s/.test(ch)) continue
-            rg.setStart(node, i); rg.setEnd(node, i + 1)
-            const cr = rg.getBoundingClientRect()
-            if (cr.width < 1 || Math.abs(cr.top - lineTop) > 4 || cr.left < lineLeft - 1 || cr.right > lineRight + 1) continue
-            const cx = cr.left + cr.width / 2
-            const d = Math.abs(cx - want) - (/[A-Z0-9bdfhklt]/.test(ch) ? 3 : 0)
-            if (d < bestD) { bestD = d; best = i; bestR = cr }
-          }
-          if (best < 0 || !bestR || bestD > 40) return null
-          const cr = bestR as DOMRect
-          const x = cr.left + cr.width / 2, yv2 = cr.top + cr.height * 0.26
-          const h = hitAt(x, cr.top + cr.height * 0.5)
-          if (!h || !(parent.contains(h) || h.contains(parent))) return null
-          const air = airAt(x, yv2, scale)
-          const idx = best
-          const anchor: Anchor = {
-            kind: 'text', el: parent,
-            resolve() {
-              if (!node.isConnected || idx >= (node.nodeValue ?? '').length) return null
-              try {
-                const g = document.createRange()
-                g.setStart(node, idx); g.setEnd(node, idx + 1)
-                const q = g.getBoundingClientRect()
-                if (q.width < 1) return null
-                return { x: q.left + q.width / 2 + window.scrollX, y: q.top + q.height * 0.26 + window.scrollY }
-              } catch { return null }
-            },
-          }
-          void lineH
-          return { anchor, x, y: yv2, air }
-        },
-      })
+  // ---------- fallback: real text glyphs only if not enough structural edges
+  if (out.length < 3) {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+    const parentInfo = new Map<Element, { fs: number; ok: boolean }>()
+    const range = document.createRange()
+    let textCount = 0
+    while (walker.nextNode() && textCount < 120) {
+      const node = walker.currentNode as Text
+      const raw = node.nodeValue ?? ''
+      if (raw.trim().length < 3) continue
+      const parent = node.parentElement
+      if (!parent || SKIP_TAGS.has(parent.tagName) || (parent as unknown as SVGElement).ownerSVGElement || ignored(parent)) continue
+      let info = parentInfo.get(parent)
+      if (!info) {
+        const cs = getComputedStyle(parent)
+        const fs = parseFloat(cs.fontSize) || 16
+        const ok = cs.display !== 'none' && cs.visibility !== 'hidden' && parseFloat(cs.opacity) > 0.5 && fs >= 14 && colorOf(cs.color)[3] > 0.3 && !isFixedChain(parent)
+        info = { fs, ok }
+        parentInfo.set(parent, info)
+      }
+      if (!info.ok) continue
+      range.selectNodeContents(node)
+      const rects = range.getClientRects()
+      for (let k = 0; k < rects.length; k++) {
+        const lr = rects[k]
+        if (lr.width < 24 || lr.height < 8) continue
+        const yv = lr.top + lr.height * 0.26
+        if (yv < minFootY || yv > maxFootY) continue
+        if (lr.right < 40 || lr.left > vw - 40) continue
+        const xa = Math.max(lr.left + 6, 44), xb = Math.min(lr.right - 6, vw - 44)
+        if (xb - xa < 4) continue
+        const lineTop = lr.top, lineRight = lr.right, lineLeft = lr.left, lineH = lr.height
+        textCount++
+        out.push({
+          kind: 'text', el: parent, y: yv, xa, xb,
+          weight: 0.15, // Low weight so it never takes precedence over clean edges/whitespace
+          make(xv) {
+            const want = Math.min(xb, Math.max(xa, xv))
+            const len = (node.nodeValue ?? '').length
+            let best = -1, bestD = 1e9, bestR: DOMRect | null = null
+            const rg = document.createRange()
+            for (let i = 0; i < len; i++) {
+              const ch = (node.nodeValue ?? '')[i]
+              if (/\s/.test(ch)) continue
+              rg.setStart(node, i); rg.setEnd(node, i + 1)
+              const cr = rg.getBoundingClientRect()
+              if (cr.width < 1 || Math.abs(cr.top - lineTop) > 4 || cr.left < lineLeft - 1 || cr.right > lineRight + 1) continue
+              const cx = cr.left + cr.width / 2
+              const d = Math.abs(cx - want) - (/[A-Z0-9bdfhklt]/.test(ch) ? 3 : 0)
+              if (d < bestD) { bestD = d; best = i; bestR = cr }
+            }
+            if (best < 0 || !bestR || bestD > 40) return null
+            const cr = bestR as DOMRect
+            const x = cr.left + cr.width / 2, yv2 = cr.top + cr.height * 0.26
+            const h = hitAt(x, cr.top + cr.height * 0.5)
+            if (!h || !(parent.contains(h) || h.contains(parent))) return null
+            const air = airAt(x, yv2, scale)
+            if (air < 0.8) return null // Never stand on text unless the surrounding air is completely clear
+            const idx = best
+            const anchor: Anchor = {
+              kind: 'text', el: parent,
+              resolve() {
+                if (!node.isConnected || idx >= (node.nodeValue ?? '').length) return null
+                try {
+                  const g = document.createRange()
+                  g.setStart(node, idx); g.setEnd(node, idx + 1)
+                  const q = g.getBoundingClientRect()
+                  if (q.width < 1) return null
+                  return { x: q.left + q.width / 2 + window.scrollX, y: q.top + q.height * 0.26 + window.scrollY }
+                } catch { return null }
+              },
+            }
+            void lineH
+            return { anchor, x, y: yv2, air }
+          },
+        })
+      }
     }
   }
   return out
@@ -313,6 +343,7 @@ export interface Picked { anchor: Anchor; x: number; y: number; air: number; sco
 /** best standable spot for the given band; tries the strongest few surfaces and validates them for real */
 export function pickSpot(cands: Candidate[], o: PickOpts): Picked | null {
   const vh = window.innerHeight, vw = window.innerWidth
+  const scale = o.scale ?? 1
   const [b0, b1] = o.band
   const mid = ((b0 + b1) / 2) * vh
   const half = Math.max(30, ((b1 - b0) / 2) * vh)
@@ -324,26 +355,35 @@ export function pickSpot(cands: Candidate[], o: PickOpts): Picked | null {
       return { c, pre: c.weight * bandScore }
     })
     .sort((a, b) => b.pre - a.pre)
-    .slice(0, 34)
+    .slice(0, 36)
   const results: Picked[] = []
   for (const { c, pre } of pool) {
-    const xs = [o.nearX ?? (c.xa + c.xb) / 2, (c.xa + c.xb) / 2, c.xa + (c.xb - c.xa) * 0.25, c.xa + (c.xb - c.xa) * 0.75, c.xa + (c.xb - c.xa) * 0.9]
+    const xs = [
+      o.nearX ?? (c.xa + c.xb) / 2,
+      (c.xa + c.xb) / 2,
+      c.xa + 16 * scale,
+      c.xb - 16 * scale,
+      c.xa + (c.xb - c.xa) * 0.2,
+      c.xa + (c.xb - c.xa) * 0.8,
+    ]
     let bestHere: Picked | null = null
     for (const xv of xs) {
       const m = c.make(xv)
       if (!m) continue
+      // Don't stand on spots that significantly occlude content
+      if (m.air < 0.65) continue
       const prox = o.nearX === undefined ? 1 : 0.8 + 0.2 * (1 - Math.min(1, Math.abs(m.x - o.nearX) / (vw * 0.6)))
-      const score = pre * (0.2 + 0.8 * m.air) * (0.2 + 0.8 * m.air) * (m.air < 0.55 ? 0.35 : 1) * prox
+      const clearBonus = m.air >= 0.88 ? 1.6 : (m.air >= 0.76 ? 1.1 : 0.25)
+      const score = pre * Math.pow(m.air, 3) * clearBonus * prox
       if (!bestHere || score > bestHere.score) bestHere = { anchor: m.anchor, x: m.x, y: m.y, air: m.air, score }
     }
     if (bestHere) results.push(bestHere)
-    if (results.length >= 7) break
+    if (results.length >= 8) break
   }
   if (!results.length) return null
   results.sort((a, b) => b.score - a.score)
-  // a little variety: usually the best, sometimes the runner-up
-  const r = Math.random()
-  return results[r < 0.68 || results.length < 2 ? 0 : r < 0.9 || results.length < 3 ? 1 : 2]
+  // Pick the clearest spot with highest score
+  return results[0]
 }
 
 /** stepping stones between two spots (viewport coords): visible surfaces roughly on the way, ordered downwards */
