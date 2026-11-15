@@ -43,25 +43,27 @@ const CONTENT_TAGS = new Set([
   'SELECT', 'LABEL', 'IMG', 'VIDEO', 'CANVAS', 'TABLE', 'TR', 'TD', 'TH'
 ])
 
-// ------------------------------------------------------------------ colour helpers
-let _cv: CanvasRenderingContext2D | null = null
+// ------------------------------------------------------------------ colour helpers (high-performance string parser, zero GPU-canvas sync)
 const _colorCache = new Map<string, [number, number, number, number]>()
 function colorOf(css: string): [number, number, number, number] {
+  if (!css || css === 'transparent') return [0, 0, 0, 0]
   const hit = _colorCache.get(css)
   if (hit) return hit
   let out: [number, number, number, number] = [0, 0, 0, 0]
-  try {
-    if (!_cv) { const c = document.createElement('canvas'); c.width = c.height = 1; _cv = c.getContext('2d', { willReadFrequently: true }) }
-    if (_cv) {
-      _cv.clearRect(0, 0, 1, 1)
-      _cv.fillStyle = '#000'
-      _cv.fillStyle = css
-      _cv.fillRect(0, 0, 1, 1)
-      const d = _cv.getImageData(0, 0, 1, 1).data
-      out = [d[0], d[1], d[2], d[3] / 255]
+  if (css.startsWith('rgb')) {
+    const nums = css.match(/[\d.]+/g)
+    if (nums && nums.length >= 3) {
+      out = [Number(nums[0]), Number(nums[1]), Number(nums[2]), nums.length >= 4 ? Number(nums[3]) : 1]
     }
-  } catch { /* ignore */ }
-  if (_colorCache.size > 400) _colorCache.clear()
+  } else if (css.startsWith('#')) {
+    const hex = css.slice(1)
+    if (hex.length === 6) {
+      out = [parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16), 1]
+    } else if (hex.length === 3) {
+      out = [parseInt(hex[0] + hex[0], 16), parseInt(hex[1] + hex[1], 16), parseInt(hex[2] + hex[2], 16), 1]
+    }
+  }
+  if (_colorCache.size > 500) _colorCache.clear()
   _colorCache.set(css, out)
   return out
 }
@@ -71,9 +73,13 @@ function ignored(el: Element): boolean { return !!el.closest(IGNORE_SELECTOR) }
 /** topmost element at a point that is not Otbee himself / the chat widget */
 function hitAt(x: number, y: number): Element | null {
   if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) return null
-  const list = document.elementsFromPoint(x, y)
-  for (const e of list) if (!ignored(e)) return e
-  return null
+  const el = document.elementFromPoint(x, y)
+  if (!el || ignored(el)) {
+    const list = document.elementsFromPoint(x, y)
+    for (const e of list) if (!ignored(e)) return e
+    return null
+  }
+  return el
 }
 
 function hasVisibleContent(el: Element): boolean {
@@ -93,10 +99,10 @@ function hasVisibleContent(el: Element): boolean {
   return false
 }
 
-/** how much of the space where his body will be is free of text / images / buttons (1 = completely clear) */
+/** how much of the space where his body will be is free of text / images / buttons (1 = completely clear) - lean 6-point perimeter check */
 function airAt(x: number, yFoot: number, scale: number): number {
-  const dys = [16, 36, 56, 76, 96, 112].map(v => v * scale)
-  const dxs = [-36, -18, 0, 18, 36].map(v => v * scale)
+  const dys = [24 * scale, 64 * scale, 102 * scale]
+  const dxs = [-24 * scale, 24 * scale]
   let occ = 0, total = 0
   for (const dy of dys) {
     const yy = yFoot - dy
@@ -105,12 +111,9 @@ function airAt(x: number, yFoot: number, scale: number): number {
       const xx = x + dx
       if (xx < 0 || xx > window.innerWidth) continue
       total++
-      const list = document.elementsFromPoint(xx, yy)
-      for (const h of list) {
-        if (hasVisibleContent(h)) {
-          occ++
-          break
-        }
+      const el = document.elementFromPoint(xx, yy)
+      if (el && hasVisibleContent(el)) {
+        occ++
       }
     }
   }
@@ -355,16 +358,13 @@ export function pickSpot(cands: Candidate[], o: PickOpts): Picked | null {
       return { c, pre: c.weight * bandScore }
     })
     .sort((a, b) => b.pre - a.pre)
-    .slice(0, 36)
+    .slice(0, 10)
   const results: Picked[] = []
   for (const { c, pre } of pool) {
     const xs = [
       o.nearX ?? (c.xa + c.xb) / 2,
-      (c.xa + c.xb) / 2,
-      c.xa + 16 * scale,
-      c.xb - 16 * scale,
-      c.xa + (c.xb - c.xa) * 0.2,
-      c.xa + (c.xb - c.xa) * 0.8,
+      c.xa + 18 * scale,
+      c.xb - 18 * scale,
     ]
     let bestHere: Picked | null = null
     for (const xv of xs) {

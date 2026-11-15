@@ -286,6 +286,17 @@ export function createController(d: ControllerDeps) {
     ? fn => window.requestIdleCallback(fn, { timeout: 220 })
     : fn => setTimeout(fn, 1)
 
+  const inHeroSection = (path: string): boolean => {
+    if (path !== '/') return false
+    if (typeof document === 'undefined') return false
+    const hero = document.getElementById('hero-section')
+    if (hero) {
+      const r = hero.getBoundingClientRect()
+      return r.bottom > 180
+    }
+    return window.scrollY < 480
+  }
+
   const spawnWhenReady = (cfg: MascotConfig | null) => {
     const my = ++spawnTok
     let tries = 0
@@ -293,11 +304,14 @@ export function createController(d: ControllerDeps) {
     const iv = setInterval(() => {
       if (disposed || my !== spawnTok) { clearInterval(iv); return }
       if (busy || overlayVisible() || document.readyState !== 'complete') return
+      // User is currently viewing the Hero section on homepage: do not spawn floating mascot!
+      if (inHeroSection(d.pathname())) return
       if (++tries > 50) { clearInterval(iv); return }
       busy = true
       idle(() => {
         busy = false
         if (disposed || my !== spawnTok) return
+        if (inHeroSection(d.pathname())) return
         const pk = pickSpot(scanSurfaces({ scale: scale() }), { band: [0.5, 0.8], scale: scale() })
         if (pk) { clearInterval(iv); spawn(pk, cfg) }
       })
@@ -333,6 +347,10 @@ export function createController(d: ControllerDeps) {
 
   const relocate = async (dir: 'down' | 'up') => {
     if (phase !== 'resting') return
+    if (inHeroSection(d.pathname())) {
+      despawn()
+      return
+    }
     const sc = scale(), vh = window.innerHeight, vw = window.innerWidth
     const cur = anchor?.resolve() ?? pos
     const vy = cur.y - window.scrollY, vx = cur.x - window.scrollX
@@ -396,6 +414,10 @@ export function createController(d: ControllerDeps) {
   /** decide whether he must move after the page came to rest */
   const decide = (forced: boolean) => {
     if (disposed || phase === 'hidden') return
+    if (inHeroSection(d.pathname())) {
+      despawn()
+      return
+    }
     if (phase === 'traveling') { settleTimer = setTimeout(() => decide(forced), 350); return }
     const p = anchor?.resolve()
     if (!p) { relocate(lastDir > 0 ? 'down' : 'up'); return }
@@ -494,6 +516,18 @@ export function createController(d: ControllerDeps) {
     if (Math.abs(y - lastScrollY) > 0.5) lastDir = y > lastScrollY ? 1 : -1
     lastScrollY = y
     activity()
+
+    // Hero section check on homepage: despawn floating mascot if in hero, spawn if scrolled past
+    if (d.pathname() === '/') {
+      const isHero = inHeroSection(d.pathname())
+      if (isHero && phase !== 'hidden') {
+        despawn()
+        return
+      } else if (!isHero && phase === 'hidden') {
+        spawnWhenReady(getMascotConfigForPath(d.pathname()))
+      }
+    }
+
     if (settleTimer) clearTimeout(settleTimer)
     settleTimer = setTimeout(() => decide(false), SETTLE_MS)
     if (isTouch) { if (readTimer) clearTimeout(readTimer); readTimer = setTimeout(readAssist, 1500) }

@@ -80,8 +80,8 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
       {
-        // Honey fast video transition asset
-        source: "/honey-fast.mp4",
+        // Honey transition video assets (transparent HEVC, VP9 & MP4)
+        source: "/:file(honey-transition\\.mov|honey-transition\\.webm|honey-transition\\.mp4|honey-fast\\.mp4)",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
       {

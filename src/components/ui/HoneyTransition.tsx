@@ -196,7 +196,7 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
         ref={videoRef}
         playsInline
         muted
-        preload="auto"
+        preload="metadata"
         onTimeUpdate={handleTimeUpdate}
         onEnded={handleEnded}
         style={{

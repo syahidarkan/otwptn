@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
 import { Zap, ArrowRight, ShieldCheck, Star } from 'lucide-react'
 import HoneycombBg from '@/components/ui/HoneycombBg'
+import HeroFeatureGuide from './HeroFeatureGuide'
 
 const WORDS = ['Tes', 'Ujian', 'CBT', 'Pusing!']
 
@@ -113,7 +114,7 @@ export default function HeroSection() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden min-h-screen flex items-center pt-20 md:pt-0">
+    <section id="hero-section" ref={sectionRef} className="relative overflow-hidden min-h-screen flex items-center pt-20 md:pt-0">
 
       {/* Honeycomb background texture */}
       <HoneycombBg opacity={0.18} colorScheme="light" size={30} />
@@ -191,18 +192,9 @@ export default function HeroSection() {
           </Link>
         </motion.div>
 
-        {/* Social Proof Stats */}
-        <motion.div {...fadeUp(0.32)} className="flex items-center justify-center flex-wrap gap-6 text-xs text-gray-600 font-semibold pt-4 border-t border-amber-950/10 w-full max-w-md">
-          <div className="flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Mentor Alumni Jalur Yang Sama</span>
-          </div>
-          <div>
-            <strong className="text-gray-950 font-extrabold">12.500+</strong> Pejuang PTN
-          </div>
-          <div>
-            <strong className="text-gray-950 font-extrabold">94.8%</strong> Lolos Prodi Pilihan
-          </div>
+        {/* Interactive Hero Mascot Feature Guide */}
+        <motion.div {...fadeUp(0.32)} className="w-full">
+          <HeroFeatureGuide />
         </motion.div>
       </div>
     </section>
