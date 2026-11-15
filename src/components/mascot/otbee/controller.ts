@@ -228,6 +228,7 @@ export function createController(d: ControllerDeps) {
           const want = dxFace < 0 ? -1 : 1
           if (want !== flip) setPose(want, 0)
         }
+        pointerMoved = false
       }
       return
     }
@@ -258,6 +259,7 @@ export function createController(d: ControllerDeps) {
     if (pointerMoved && !isTouch && !isPrivacy && phase === 'resting') {
       if (now - lastHoverCheck > 100) { lastHoverCheck = now; considerPoint(pointerX, pointerY, 650) }
     }
+    pointerMoved = false
   }
 
   // ============================================================ hero dock management
@@ -789,6 +791,7 @@ export function createController(d: ControllerDeps) {
     setTimeout(() => fx('sweat'), 350)
   }
 
+  let lastMoveSample = 0
   const onMove = (e: PointerEvent) => {
     if (e.pointerType === 'touch') return
     // cheap: just remember where the cursor is. The actual hover-explain / facing-direction
@@ -798,7 +801,8 @@ export function createController(d: ControllerDeps) {
     activity()
 
     const now = performance.now()
-    if (now < dizzyUntil) return
+    if (now < dizzyUntil || now - lastMoveSample < 32) return
+    lastMoveSample = now
 
     moveSamples.push({ x: e.clientX, y: e.clientY, t: now })
     while (moveSamples.length > 0 && now - moveSamples[0].t > 450) {

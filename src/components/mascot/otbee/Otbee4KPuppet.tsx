@@ -86,8 +86,10 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
       facingRef.current = facing
     }, [facing])
 
+    const wakeLoopRef = useRef<() => void>(() => {})
     useEffect(() => {
       pausedRef.current = paused
+      if (!paused) wakeLoopRef.current()
     }, [paused])
 
     useEffect(() => {
@@ -196,7 +198,7 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
 
     // Normalized pointer tracking: clamped strictly to [-1, 1] so eyes never detach
     useEffect(() => {
-      if (!followPointer) {
+      if (!followPointer || paused) {
         mixer.setPointer(null)
         return
       }
@@ -230,18 +232,21 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
         window.removeEventListener('pointermove', move)
         mixer.setPointer(null)
       }
-    }, [followPointer, mixer])
+    }, [followPointer, paused, mixer])
 
     // HIGH-PERFORMANCE ANIMATION LOOP: Direct DOM transforms (Zero React re-renders)
     useEffect(() => {
       let raf = 0
       let prev = performance.now()
       let run = true
+      let lastW = -1
+      let lastH = -1
+      let lastCanvasY = -9999
+      let lastK = -1
 
       const frame = (now: number) => {
-        if (!run) return
+        if (!run || pausedRef.current) return
         raf = requestAnimationFrame(frame)
-        if (pausedRef.current) return
         const dt = Math.min(0.1, (now - prev) / 1000)
         prev = now
         const P = mixer.update(dt)
@@ -269,14 +274,18 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
         const centerY = 380 + (BD.h / 2 - 380) * p
         const canvasOffsetY = -(centerY - viewH / 2) * k
 
-        // Update root container width & height if needed
-        if (rootRef.current) {
+        // Update root container width & height ONLY when changed (avoids 60fps layout recalculation)
+        if (rootRef.current && (Math.abs(currentWidth - lastW) > 0.4 || Math.abs(currentHeight - lastH) > 0.4)) {
+          lastW = currentWidth
+          lastH = currentHeight
           rootRef.current.style.width = `${currentWidth.toFixed(1)}px`
           rootRef.current.style.height = `${currentHeight.toFixed(1)}px`
         }
 
-        // Canvas wrapper
-        if (canvasWrapRef.current) {
+        // Canvas wrapper transform ONLY when changed
+        if (canvasWrapRef.current && (Math.abs(canvasOffsetY - lastCanvasY) > 0.4 || Math.abs(k - lastK) > 0.0004)) {
+          lastCanvasY = canvasOffsetY
+          lastK = k
           canvasWrapRef.current.style.transform = `translateX(-50%) translateY(${canvasOffsetY.toFixed(1)}px) scale(${k.toFixed(5)})`
         }
 
@@ -388,7 +397,14 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
         }
       }
 
-      raf = requestAnimationFrame(frame)
+      wakeLoopRef.current = () => {
+        prev = performance.now()
+        cancelAnimationFrame(raf)
+        raf = requestAnimationFrame(frame)
+      }
+      if (!pausedRef.current) {
+        raf = requestAnimationFrame(frame)
+      }
       return () => {
         run = false
         cancelAnimationFrame(raf)

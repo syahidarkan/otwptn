@@ -164,7 +164,7 @@ export default function OtbeeAvatar({
   useEffect(() => { onErraticPointerRef.current = onErraticPointer })
 
   useEffect(() => {
-    if (!followPointer) { mixer.setPointer(null); return }
+    if (!followPointer || paused) { mixer.setPointer(null); return }
     const samples: { x: number; y: number; t: number }[] = []
     let dizzyLockUntil = 0
     let cachedRect: DOMRect | null = null
@@ -247,11 +247,15 @@ export default function OtbeeAvatar({
       window.removeEventListener('pointermove', move)
       mixer.setPointer(null)
     }
-  }, [followPointer, mixer])
+  }, [followPointer, paused, mixer])
 
   // --- frame loop
   const pausedRef = useRef(paused)
-  useEffect(() => { pausedRef.current = paused })
+  const wakeAvatarLoopRef = useRef<() => void>(() => {})
+  useEffect(() => {
+    pausedRef.current = paused
+    if (!paused) wakeAvatarLoopRef.current()
+  }, [paused])
   useLayoutEffect(() => {
     let raf = 0, prev = performance.now(), run = true
     const setT = (key: string, v: string) => {
@@ -265,9 +269,8 @@ export default function OtbeeAvatar({
       if (last.current[key + '#o'] !== s) { last.current[key + '#o'] = s; el.setAttribute('opacity', s) }
     }
     const frame = (now: number) => {
-      if (!run) return
+      if (!run || pausedRef.current) return
       raf = requestAnimationFrame(frame)
-      if (pausedRef.current) { prev = now; return }
       const dt = (now - prev) / 1000; prev = now
       const P = mixer.update(dt)
       const d = dataRef.current
@@ -275,7 +278,14 @@ export default function OtbeeAvatar({
       const tx = 1
       applyPose(d, shownRef.current, P, tx, setT, setO, els.current)
     }
-    raf = requestAnimationFrame(frame)
+    wakeAvatarLoopRef.current = () => {
+      prev = performance.now()
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(frame)
+    }
+    if (!pausedRef.current) {
+      raf = requestAnimationFrame(frame)
+    }
     return () => { run = false; cancelAnimationFrame(raf) }
   }, [mixer])
 
