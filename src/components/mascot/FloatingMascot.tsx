@@ -39,6 +39,8 @@ export default function FloatingMascot() {
     if (typeof window === 'undefined') return 1
     return (pathname ?? '/') === '/' ? clamp(window.scrollY / 260) : 1
   })
+  const progressValRef = useRef(growthProgress)
+  progressValRef.current = growthProgress
 
   // Combined avatar handle dispatching to active mode (hero 4K puppet vs roaming elastic avatar)
   const combinedAvatar = useRef<OtbeeHandle>({
@@ -68,10 +70,10 @@ export default function FloatingMascot() {
     const onScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
-          if (pathRef.current !== '/') {
-            setGrowthProgress(1)
-          } else {
-            setGrowthProgress(clamp(window.scrollY / 260))
+          const next = pathRef.current !== '/' ? 1 : clamp(window.scrollY / 260)
+          if (Math.abs(next - progressValRef.current) > 0.008) {
+            progressValRef.current = next
+            setGrowthProgress(next)
           }
           ticking = false
         })
@@ -226,28 +228,55 @@ export default function FloatingMascot() {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {(bubble || hovered) && (
-        <div
-          key={bubble?.id ?? 'hint'}
-          role="tooltip"
-          style={{
-            position: 'absolute', left: '50%', zIndex: 3,
-            ...(bubble?.below ? { top: '100%', marginTop: 8 } : { bottom: '100%', marginBottom: 6 }),
-            transform: `translateX(calc(-50% + ${bubble?.shift ?? 0}px))`,
-            background: 'linear-gradient(135deg,#1e1b18,#292520)', color: '#fef08a', fontSize: 11.5, fontWeight: 700,
-            padding: '8px 14px', borderRadius: 16, width: 'max-content', maxWidth: size < 100 ? 230 : 280, textAlign: 'center', lineHeight: 1.4,
-            boxShadow: '0 8px 24px -4px rgba(0,0,0,.4), 0 2px 6px rgba(245,158,11,.2)', border: '1px solid rgba(245,158,11,.3)',
-            pointerEvents: 'none', animation: 'otbee-bubble-pop .22s cubic-bezier(.34,1.56,.64,1) both',
-          }}
-        >
-          {bubble?.text ?? (growthProgress < 0.6 ? 'Halo pejuang PTN! Klik aku yaa 🐝✨' : 'Klik aku untuk salto & tips PTN! 🐝')}
-          <span style={{
-            position: 'absolute', left: `calc(50% - ${bubble?.shift ?? 0}px)`, marginLeft: -6, width: 0, height: 0,
-            borderLeft: '6px solid transparent', borderRight: '6px solid transparent',
-            ...(bubble?.below ? { bottom: '100%', borderBottom: '6px solid #1e1b18' } : { top: '100%', borderTop: '6px solid #292520' }),
-          }} />
-        </div>
-      )}
+      {(bubble || hovered) && (() => {
+        const isYellowBg = growthProgress < 0.8
+        const bg = isYellowBg ? '#ffffff' : '#fef08a'
+        const color = isYellowBg ? '#0f172a' : '#78350f'
+        const shadow = isYellowBg
+          ? '0 12px 30px -4px rgba(0,0,0,0.12), 0 4px 12px -2px rgba(0,0,0,0.06)'
+          : '0 12px 30px -4px rgba(217,119,6,0.25), 0 4px 12px -2px rgba(217,119,6,0.12)'
+        const border = isYellowBg ? '1px solid rgba(0,0,0,0.07)' : '1px solid rgba(245,158,11,0.38)'
+
+        return (
+          <div
+            key={bubble?.id ?? 'hint'}
+            role="tooltip"
+            style={{
+              position: 'absolute', left: '50%', zIndex: 3,
+              ...(bubble?.below ? { top: '100%', marginTop: 10 } : { bottom: '100%', marginBottom: 10 }),
+              transform: `translateX(calc(-50% + ${bubble?.shift ?? 0}px))`,
+              background: bg,
+              color,
+              fontSize: 12.5,
+              fontWeight: 800,
+              padding: '9px 18px',
+              borderRadius: 24,
+              width: 'max-content',
+              maxWidth: size < 100 ? 230 : 280,
+              textAlign: 'center',
+              lineHeight: 1.4,
+              boxShadow: shadow,
+              border,
+              pointerEvents: 'none',
+              animation: 'otbee-bubble-pop .22s cubic-bezier(.34,1.56,.64,1) both',
+            }}
+          >
+            {bubble?.text ?? (growthProgress < 0.6 ? 'Halo pejuang PTN! Klik aku yaa 🐝✨' : 'Klik aku untuk salto & tips PTN! 🐝')}
+            <span style={{
+              position: 'absolute',
+              left: `calc(50% - ${bubble?.shift ?? 0}px)`,
+              marginLeft: -6,
+              width: 0,
+              height: 0,
+              borderLeft: '6px solid transparent',
+              borderRight: '6px solid transparent',
+              ...(bubble?.below
+                ? { bottom: '100%', borderBottom: `6px solid ${bg}` }
+                : { top: '100%', borderTop: `6px solid ${bg}` }),
+            }} />
+          </div>
+        )
+      })()}
       {/* Ambient glow in hero section */}
       {growthProgress < 0.8 && (
         <div
@@ -327,6 +356,7 @@ export default function FloatingMascot() {
                 ref={puppetRef}
                 growthProgress={growthProgress}
                 size={size}
+                paused={growthProgress >= 0.95}
                 followPointer={!isDraggingState}
                 onErraticPointer={() => ctl.current?.onDizzy()}
               />
@@ -344,6 +374,7 @@ export default function FloatingMascot() {
                 ref={avatarRef}
                 view="front"
                 size={size}
+                paused={growthProgress < 0.95}
                 followPointer={!isDraggingState}
                 onErraticPointer={() => ctl.current?.onDizzy()}
               />

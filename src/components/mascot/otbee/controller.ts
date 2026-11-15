@@ -111,7 +111,7 @@ const wait = (ms: number) => new Promise<void>(r => setTimeout(r, ms))
 const pickOne = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)]
 
 export function createController(d: ControllerDeps) {
-  type Phase = 'hidden' | 'resting' | 'traveling' | 'hero-docked'
+  type Phase = 'hidden' | 'resting' | 'traveling' | 'hero-docked' | 'returning-to-hero'
   let phase: Phase = 'hidden'
   let token = 0
   let spawnTok = 0
@@ -211,13 +211,35 @@ export function createController(d: ControllerDeps) {
 
   // ============================================================ resting: ride the anchor
   let lastHoverCheck = 0
+  let lastAnchorCheck = 0
+  let cachedAnchorSpot: Spot | null = null
+
   const tick = () => {
     raf = requestAnimationFrame(tick)
     if ((phase !== 'resting' && phase !== 'hero-docked') || !anchor) return
-    const p = anchor.resolve()
+
+    // When docked at hero, position is static in document coordinates; avoid calling getBoundingClientRect 60fps!
+    if (phase === 'hero-docked') {
+      if (pointerMoved && !isTouch && !isPrivacy) {
+        const dxFace = pointerX + window.scrollX - pos.x
+        const dead = 34 * scale()
+        if (Math.abs(dxFace) > dead) {
+          const want = dxFace < 0 ? -1 : 1
+          if (want !== flip) setPose(want, 0)
+        }
+      }
+      return
+    }
+
+    const now = performance.now()
+    if (now - lastAnchorCheck > 120 || !cachedAnchorSpot) {
+      lastAnchorCheck = now
+      cachedAnchorSpot = anchor.resolve()
+    }
+
+    const p = cachedAnchorSpot
     if (!p) {
-      if (phase === 'hero-docked') return
-      if (++invalid > 14) { invalid = 0; decide(true) }
+      if (++invalid > 14) { invalid = 0; cachedAnchorSpot = null; decide(true) }
       return
     }
     invalid = 0
@@ -231,10 +253,9 @@ export function createController(d: ControllerDeps) {
         if (want !== flip) setPose(want, 0)
       }
     }
-    // hover explanations are throttled to ~90ms (not every raw pointermove) to keep scrolling smooth
+    // hover explanations are throttled to ~100ms (not every raw pointermove) to keep scrolling smooth
     if (pointerMoved && !isTouch && !isPrivacy && phase === 'resting') {
-      const now = performance.now()
-      if (now - lastHoverCheck > 90) { lastHoverCheck = now; considerPoint(pointerX, pointerY, 650) }
+      if (now - lastHoverCheck > 100) { lastHoverCheck = now; considerPoint(pointerX, pointerY, 650) }
     }
   }
 
@@ -266,6 +287,68 @@ export function createController(d: ControllerDeps) {
     d.container.style.pointerEvents = 'auto'
     d.container.style.opacity = '1'
     phase = 'hero-docked'
+  }
+
+  const returnToHero = async () => {
+    if (phase === 'hero-docked' || phase === 'returning-to-hero') return
+    const heroSpot = document.getElementById('hero-mascot-spot')
+    if (!heroSpot) { dockAtHero(); return }
+
+    const hr = heroSpot.getBoundingClientRect()
+    const target: Spot = {
+      x: hr.left + hr.width / 2 + window.scrollX,
+      y: hr.top + 140 + window.scrollY,
+    }
+
+    const cur = anchor?.resolve() ?? pos
+    const from: Spot = { ...cur }
+    const dist = Math.hypot(target.x - from.x, target.y - from.y)
+
+    // If already right at the hero spot
+    if (dist < 40) {
+      dockAtHero()
+      return
+    }
+
+    const tok = ++token
+    phase = 'returning-to-hero'
+    anchor = null
+
+    // 1. Stand/align under the hero head position:
+    const underHero: Spot = {
+      x: target.x,
+      y: Math.max(target.y + 90, from.y > target.y + 90 ? from.y : target.y + 90),
+    }
+
+    // Step A: Fly to position directly underneath the hero head
+    const dx = underHero.x - from.x
+    if (Math.abs(dx) > 14) setPose(dx < 0 ? -1 : 1, 0)
+    play('jumpAir', { fade: 0.08 })
+    const dur1 = clamp(240 + Math.abs(dx) * 0.2, 280, 500)
+    await tween(dur1, tok, p => {
+      const pSmooth = p * (2 - p)
+      place({
+        x: from.x + (underHero.x - from.x) * pSmooth,
+        y: from.y + (underHero.y - from.y) * pSmooth,
+      })
+    })
+    if (tok !== token) return
+
+    // Step B: Fly smoothly upwards into the hero head position!
+    setPose(1, 0)
+    play('jumpAir', { fade: 0.05 })
+    const dur2 = 320
+    await tween(dur2, tok, p => {
+      const pSmooth = p * (2 - p) // easeOut
+      place({
+        x: target.x,
+        y: underHero.y + (target.y - underHero.y) * pSmooth,
+      })
+    })
+    if (tok !== token) return
+
+    // Step C: Arrive at hero spot and dock!
+    dockAtHero()
   }
 
   const undockFromHero = async () => {
@@ -593,8 +676,8 @@ export function createController(d: ControllerDeps) {
     if (d.pathname() === '/') {
       const isHero = inHeroSection(d.pathname())
       if (isHero) {
-        if (phase !== 'hero-docked') {
-          dockAtHero()
+        if (phase !== 'hero-docked' && phase !== 'returning-to-hero') {
+          returnToHero()
         }
         return
       } else if (phase === 'hero-docked') {

@@ -167,6 +167,8 @@ export default function OtbeeAvatar({
     if (!followPointer) { mixer.setPointer(null); return }
     const samples: { x: number; y: number; t: number }[] = []
     let dizzyLockUntil = 0
+    let cachedRect: DOMRect | null = null
+    let lastRectCheck = 0
 
     const move = (e: PointerEvent) => {
       const now = performance.now()
@@ -175,9 +177,12 @@ export default function OtbeeAvatar({
         return
       }
 
-      const r = svgRef.current?.getBoundingClientRect()
-      if (!r) return
-      const cx = r.left + r.width / 2, cy = r.top + r.height * 0.3
+      if (!cachedRect || now - lastRectCheck > 140) {
+        cachedRect = svgRef.current?.getBoundingClientRect() ?? null
+        lastRectCheck = now
+      }
+      if (!cachedRect) return
+      const cx = cachedRect.left + cachedRect.width / 2, cy = cachedRect.top + cachedRect.height * 0.3
       // when the body is mirrored (facingRef = -1), the local x-axis renders flipped too, so the
       // raw screen-space x delta must be flipped back here or the head turns the wrong way (towards
       // the cursor on screen, but away from it inside this component's own un-mirrored coordinates).
@@ -231,8 +236,17 @@ export default function OtbeeAvatar({
         }
       }
     }
+
+    const onScrollOrResize = () => { cachedRect = null }
+    window.addEventListener('scroll', onScrollOrResize, { passive: true })
+    window.addEventListener('resize', onScrollOrResize, { passive: true })
     window.addEventListener('pointermove', move, { passive: true })
-    return () => { window.removeEventListener('pointermove', move); mixer.setPointer(null) }
+    return () => {
+      window.removeEventListener('scroll', onScrollOrResize)
+      window.removeEventListener('resize', onScrollOrResize)
+      window.removeEventListener('pointermove', move)
+      mixer.setPointer(null)
+    }
   }, [followPointer, mixer])
 
   // --- frame loop

@@ -201,20 +201,32 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
         return
       }
 
+      let cachedRect: DOMRect | null = null
+      let lastRectCheck = 0
+
       const move = (e: PointerEvent) => {
         const el = rootRef.current
         if (!el) return
-        const r = el.getBoundingClientRect()
-        const cx = r.left + r.width / 2
-        const cy = r.top + r.height * 0.45
+        const now = performance.now()
+        if (!cachedRect || now - lastRectCheck > 140) {
+          cachedRect = el.getBoundingClientRect()
+          lastRectCheck = now
+        }
+        const cx = cachedRect.left + cachedRect.width / 2
+        const cy = cachedRect.top + cachedRect.height * 0.45
 
         const dx = clamp((e.clientX - cx) / (window.innerWidth * 0.35), -1, 1) * facingRef.current
         const dy = clamp((e.clientY - cy) / (window.innerHeight * 0.35), -1, 1)
         mixer.setPointer({ x: dx, y: dy })
       }
 
+      const onScrollOrResize = () => { cachedRect = null }
+      window.addEventListener('scroll', onScrollOrResize, { passive: true })
+      window.addEventListener('resize', onScrollOrResize, { passive: true })
       window.addEventListener('pointermove', move, { passive: true })
       return () => {
+        window.removeEventListener('scroll', onScrollOrResize)
+        window.removeEventListener('resize', onScrollOrResize)
         window.removeEventListener('pointermove', move)
         mixer.setPointer(null)
       }
