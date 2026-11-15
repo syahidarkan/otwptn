@@ -307,7 +307,7 @@ export function createController(d: ControllerDeps) {
     const dist = Math.hypot(target.x - from.x, target.y - from.y)
 
     // If already right at the hero spot
-    if (dist < 40) {
+    if (dist < 35) {
       dockAtHero()
       return
     }
@@ -317,45 +317,44 @@ export function createController(d: ControllerDeps) {
     d.onDockChange?.(false)
     anchor = null
 
-    // 1. Stand/align under the hero head position:
+    // Point on the floor directly underneath the hero head spot:
     const underHero: Spot = {
       x: target.x,
-      y: Math.max(target.y + 110, from.y > target.y + 110 ? from.y : target.y + 110),
+      y: target.y + 120,
     }
 
-    // Step A: Hop/fly to position directly underneath the hero head
-    const dx = underHero.x - from.x
-    if (Math.abs(dx) > 12) setPose(dx < 0 ? -1 : 1, 0)
-    play('jumpAir', { fade: 0.08 })
-    const dur1 = clamp(240 + Math.abs(dx) * 0.2, 280, 480)
-    await tween(dur1, tok, p => {
-      const pSmooth = p * (2 - p)
-      place({
-        x: from.x + (underHero.x - from.x) * pSmooth,
-        y: from.y + (underHero.y - from.y) * pSmooth,
-      })
-    })
-    if (tok !== token) return
+    let ok = true
+    let pCur: Spot = { ...from }
 
-    // Stand momentarily under hero head position
-    play('land', { fade: 0.04 })
-    await wait(100)
-    if (tok !== token) return
+    // Step A: If mascot is far below the hero section, hop upwards towards hero section first
+    if (pCur.y > underHero.y + 240) {
+      const midHop: Spot = {
+        x: (pCur.x + underHero.x) / 2,
+        y: pCur.y - Math.min(320, (pCur.y - underHero.y) * 0.55),
+      }
+      ok = await jumpTo(tok, pCur, midHop)
+      if (!ok || tok !== token) return
+      pCur = midHop
+    }
 
-    // Step B: Fly smoothly upwards into the hero head position!
+    // Step B: Hop onto the floor directly underneath the hero head
+    const distToUnder = Math.hypot(underHero.x - pCur.x, underHero.y - pCur.y)
+    if (distToUnder > 25) {
+      ok = await jumpTo(tok, pCur, underHero)
+      if (!ok || tok !== token) return
+    }
+
+    // Step C: Stand momentarily on the floor below the hero head position
     setPose(1, 0)
-    play('jumpAir', { fade: 0.05 })
-    const dur2 = 340
-    await tween(dur2, tok, p => {
-      const pSmooth = p * (2 - p) // easeOut
-      place({
-        x: target.x,
-        y: underHero.y + (target.y - underHero.y) * pSmooth,
-      })
-    })
+    play('land', { fade: 0.03 })
+    await wait(220)
     if (tok !== token) return
 
-    // Step C: Arrive at hero spot and dock!
+    // Step D: Crouch and leap/fly upwards directly into the hero head spot!
+    ok = await jumpTo(tok, underHero, target)
+    if (!ok || tok !== token) return
+
+    // Step E: Arrive at hero spot and dock!
     dockAtHero()
   }
 
@@ -512,7 +511,7 @@ export function createController(d: ControllerDeps) {
   const relocate = async (dir: 'down' | 'up') => {
     if (phase !== 'resting') return
     if (inHeroSection(d.pathname())) {
-      dockAtHero()
+      returnToHero()
       return
     }
     const sc = scale(), vh = window.innerHeight, vw = window.innerWidth
@@ -579,7 +578,9 @@ export function createController(d: ControllerDeps) {
   const decide = (forced: boolean) => {
     if (disposed || phase === 'hidden') return
     if (inHeroSection(d.pathname())) {
-      dockAtHero()
+      if (phase !== 'hero-docked' && phase !== 'returning-to-hero') {
+        returnToHero()
+      }
       return
     }
     if (phase === 'traveling') { settleTimer = setTimeout(() => decide(forced), 350); return }
