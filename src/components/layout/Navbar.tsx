@@ -33,11 +33,11 @@ export default function Navbar() {
   }, [])
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 sm:px-6">
+    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center px-0">
       <motion.nav
         className="glass-nav flex items-center justify-between w-full"
         animate={{
-          maxWidth: scrolled ? 880 : 1280,
+          maxWidth: scrolled ? 920 : 100000,
           marginTop: scrolled ? 14 : 0,
           borderRadius: scrolled ? 9999 : 0,
           paddingTop: scrolled ? 8 : 16,
@@ -45,26 +45,26 @@ export default function Navbar() {
           boxShadow: scrolled ? '0 4px 20px rgba(0,0,0,0.07)' : '0 1px 0 rgba(0,0,0,0.05)',
         }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        style={{ paddingLeft: 28, paddingRight: 28 }}
+        style={{ paddingLeft: scrolled ? 24 : 36, paddingRight: scrolled ? 24 : 36 }}
       >
-        <Link href="/" className="flex items-center flex-shrink-0 py-1 mr-4 sm:mr-8">
+        <Link href="/" className="flex items-center flex-shrink-0 py-1 mr-6 sm:mr-10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="otwptn" className="logo-adaptive transition-transform hover:scale-105" style={{ height: 48, width: 'auto' }} />
         </Link>
 
-        <div className="hidden md:flex items-center gap-1 sm:gap-2">
+        <div className="hidden md:flex items-center gap-1.5 sm:gap-2">
           <Link href="/tentang" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-700 hover:text-gray-950 hover:bg-black/5 transition-colors">Tentang</Link>
           <Link href="/#fitur" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-700 hover:text-gray-950 hover:bg-black/5 transition-colors">Fitur</Link>
           <Link href="/artikel" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-700 hover:text-gray-950 hover:bg-black/5 transition-colors">Artikel</Link>
           <Link href="/#harga" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-700 hover:text-gray-950 hover:bg-black/5 transition-colors">Harga</Link>
         </div>
 
-        <div className="hidden md:flex items-center gap-2.5 flex-shrink-0 ml-4 sm:ml-8 pl-4 sm:pl-6 border-l border-gray-200/80">
+        <div className="hidden md:flex items-center gap-2.5 flex-shrink-0 ml-6 sm:ml-10">
           {user ? (
             <Link href="/dashboard" className="btn btn-primary text-sm px-4 py-2 font-bold shadow-sm">Dashboard</Link>
           ) : (
             <>
-              <Link href="/login" className="px-3.5 py-1.5 text-sm font-semibold text-gray-700 hover:text-gray-950 rounded-full hover:bg-black/5 transition-colors">Masuk</Link>
+              <Link href="/login" className="px-3.5 py-1.5 text-sm font-bold text-gray-800 hover:text-amber-600 transition-colors">Masuk</Link>
               <Link href="/register" className="btn btn-primary text-sm px-4 py-2 font-black shadow-sm">Daftar</Link>
             </>
           )}
