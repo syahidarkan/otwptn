@@ -43,6 +43,8 @@ export interface OtbeeAvatarProps {
   onClick?: () => void
   ref?: Ref<OtbeeHandle>
   onClipDone?: () => void
+  /** callback when erratic/chaotic mouse movement is detected */
+  onErraticPointer?: () => void
 }
 
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v))
@@ -60,7 +62,7 @@ function sideOf(name: string, view: ViewName): Side {
 
 export default function OtbeeAvatar({
   view = 'front', action = 'idle', size = 160, headOnly = false, followPointer = false, facing = 1,
-  paused = false, shadow = true, className, style, onClick, ref, onClipDone,
+  paused = false, shadow = true, className, style, onClick, ref, onClipDone, onErraticPointer,
 }: OtbeeAvatarProps) {
   const uid = useId().replace(/:/g, '')
   const [shown, setShown] = useState<ViewName>(view)
@@ -157,10 +159,22 @@ export default function OtbeeAvatar({
     mixer,
   }), [mixer])
 
-  // --- pointer following
+  // --- pointer following & erratic cursor shake reaction
+  const onErraticPointerRef = useRef(onErraticPointer)
+  useEffect(() => { onErraticPointerRef.current = onErraticPointer })
+
   useEffect(() => {
     if (!followPointer) { mixer.setPointer(null); return }
+    const samples: { x: number; y: number; t: number }[] = []
+    let dizzyLockUntil = 0
+
     const move = (e: PointerEvent) => {
+      const now = performance.now()
+      if (now < dizzyLockUntil) {
+        mixer.setPointer(null)
+        return
+      }
+
       const r = svgRef.current?.getBoundingClientRect()
       if (!r) return
       const cx = r.left + r.width / 2, cy = r.top + r.height * 0.3
@@ -170,6 +184,52 @@ export default function OtbeeAvatar({
       const x = clamp((e.clientX - cx) / (window.innerWidth * 0.35), -1, 1) * facingRef.current
       const y = clamp((e.clientY - cy) / (window.innerHeight * 0.35), -1, 1)
       mixer.setPointer({ x, y })
+
+      // track erratic/chaotic cursor movement
+      samples.push({ x: e.clientX, y: e.clientY, t: now })
+      while (samples.length > 0 && now - samples[0].t > 450) {
+        samples.shift()
+      }
+
+      if (samples.length >= 5) {
+        let totalDist = 0
+        let angleChanges = 0
+        let sharpTurns = 0
+        let prevAngle: number | null = null
+
+        for (let i = 1; i < samples.length; i++) {
+          const dx = samples[i].x - samples[i - 1].x
+          const dy = samples[i].y - samples[i - 1].y
+          const dist = Math.hypot(dx, dy)
+          totalDist += dist
+          if (dist > 5) {
+            const angle = Math.atan2(dy, dx)
+            if (prevAngle !== null) {
+              let diff = Math.abs(angle - prevAngle)
+              if (diff > Math.PI) diff = 2 * Math.PI - diff
+              angleChanges += diff
+              if (diff > Math.PI / 4) sharpTurns++
+            }
+            prevAngle = angle
+          }
+        }
+
+        const netDist = Math.hypot(
+          samples[samples.length - 1].x - samples[0].x,
+          samples[samples.length - 1].y - samples[0].y
+        )
+        const ratio = netDist / Math.max(1, totalDist)
+
+        if (totalDist > 300 && (sharpTurns >= 3 || angleChanges > 3.0) && ratio < 0.6) {
+          dizzyLockUntil = now + 2200
+          samples.length = 0
+          mixer.setPointer(null)
+          mixer.play('shake', { onDone: () => mixer.play('idle') })
+          spawnFx('stars', 1)
+          setTimeout(() => spawnFx('sweat', -1), 350)
+          onErraticPointerRef.current?.()
+        }
+      }
     }
     window.addEventListener('pointermove', move, { passive: true })
     return () => { window.removeEventListener('pointermove', move); mixer.setPointer(null) }

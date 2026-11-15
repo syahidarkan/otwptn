@@ -30,7 +30,19 @@ export default function MascotLab() {
 
       <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'flex-start' }}>
         <div style={{ background: '#fff', borderRadius: 24, padding: 32, boxShadow: '0 10px 40px rgba(0,0,0,.08)', minWidth: 420, display: 'grid', placeItems: 'center', minHeight: 560 }}>
-          <OtbeeAvatar ref={ref} key={`${headOnly}`} view={view} action={action} size={headOnly ? 300 : 460} followPointer={follow} headOnly={headOnly} />
+          <OtbeeAvatar
+            ref={ref}
+            key={`${headOnly}`}
+            view={view}
+            action={action}
+            size={headOnly ? 300 : 460}
+            followPointer={follow}
+            headOnly={headOnly}
+            onErraticPointer={() => {
+              setAction('shake')
+              ref.current?.fx('stars', 1)
+            }}
+          />
         </div>
 
         <div style={{ flex: 1, minWidth: 300, maxWidth: 560 }}>

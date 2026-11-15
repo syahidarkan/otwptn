@@ -41,6 +41,12 @@ const PTN_TIPS = [
   'Konsultasikan draft esaimu ke Mentor Alumni sebelum submit final ya! 🎓',
 ]
 const CLICK_LINES = ['Mantap! 🔥', 'Sip! Gaspol! 🚀', 'Keren! ⭐', 'Aksi tercatat! ✅', 'Lanjut terus! 💪']
+const DIZZY_LINES = [
+  'Aduhh pusinggg! 😵💫',
+  'Waduh, kepalaku muter-muter! 😵',
+  'Pelan-pelan dong gerakinnya, pusing tau! 🐝💫',
+  'Waa pusinggg, jangan diacak-acak kursornya! 😵💫',
+]
 const DANGER = /hapus|delete|batal|keluar|logout|tolak|nonaktif|reset/i
 
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v))
@@ -73,6 +79,8 @@ export function createController(d: ControllerDeps) {
   let lastPlan: unknown = null
   let pointerX = 0, pointerY = 0, pointerMoved = false
   let isDragging = false
+  let dizzyUntil = 0
+  const moveSamples: { x: number; y: number; t: number }[] = []
   const idleTimers: ReturnType<typeof setTimeout>[] = []
   const seen = new WeakMap<Element, number>()
   const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0
@@ -452,6 +460,17 @@ export function createController(d: ControllerDeps) {
     typing = false
     setTimeout(() => { if (!typing) act('nod', { force: true }) }, 250)
   }
+  const handleErraticPointer = (now: number) => {
+    if (disposed || isDragging || phase === 'traveling') return
+    if (now < dizzyUntil || now < busyUntil) return
+    dizzyUntil = now + 2400
+    busyUntil = now + 2400
+    moveSamples.length = 0
+    act('shake', { text: pickOne(DIZZY_LINES), force: true, ms: 2600 })
+    fx('stars')
+    setTimeout(() => fx('sweat'), 350)
+  }
+
   const onMove = (e: PointerEvent) => {
     if (e.pointerType === 'touch') return
     // cheap: just remember where the cursor is. The actual hover-explain / facing-direction
@@ -459,6 +478,48 @@ export function createController(d: ControllerDeps) {
     // (pointermove can fire far faster than rAF and was the main cause of scroll jank).
     pointerX = e.clientX; pointerY = e.clientY; pointerMoved = true
     activity()
+
+    const now = performance.now()
+    if (now < dizzyUntil) return
+
+    moveSamples.push({ x: e.clientX, y: e.clientY, t: now })
+    while (moveSamples.length > 0 && now - moveSamples[0].t > 450) {
+      moveSamples.shift()
+    }
+
+    if (moveSamples.length >= 5) {
+      let totalDist = 0
+      let angleChanges = 0
+      let sharpTurns = 0
+      let prevAngle: number | null = null
+
+      for (let i = 1; i < moveSamples.length; i++) {
+        const dx = moveSamples[i].x - moveSamples[i - 1].x
+        const dy = moveSamples[i].y - moveSamples[i - 1].y
+        const dist = Math.hypot(dx, dy)
+        totalDist += dist
+        if (dist > 5) {
+          const angle = Math.atan2(dy, dx)
+          if (prevAngle !== null) {
+            let diff = Math.abs(angle - prevAngle)
+            if (diff > Math.PI) diff = 2 * Math.PI - diff
+            angleChanges += diff
+            if (diff > Math.PI / 4) sharpTurns++
+          }
+          prevAngle = angle
+        }
+      }
+
+      const netDist = Math.hypot(
+        moveSamples[moveSamples.length - 1].x - moveSamples[0].x,
+        moveSamples[moveSamples.length - 1].y - moveSamples[0].y
+      )
+      const ratio = netDist / Math.max(1, totalDist)
+
+      if (totalDist > 300 && (sharpTurns >= 3 || angleChanges > 3.0) && ratio < 0.6) {
+        handleErraticPointer(now)
+      }
+    }
   }
   let holdTimer: ReturnType<typeof setTimeout> | null = null
   let holdStart = { x: 0, y: 0 }
@@ -632,6 +693,9 @@ export function createController(d: ControllerDeps) {
       if (phase !== 'resting') return
       fx('stars')
       act('salto', { text: pickOne(PTN_TIPS), force: true, ms: 5000 })
+    },
+    onDizzy() {
+      handleErraticPointer(performance.now())
     },
     debug() { return { phase, pos, anchorKind: anchor?.kind, anchorTag: anchor?.el.tagName, plan: lastPlan } },
     relocateNow(dir: 'down' | 'up') { return relocate(dir) },

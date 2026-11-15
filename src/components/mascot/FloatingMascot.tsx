@@ -233,7 +233,13 @@ export default function FloatingMascot() {
               transition: 'filter .2s',
             }}
           >
-            <OtbeeAvatar ref={avatar} view="front" size={size} followPointer={!isDraggingState} />
+            <OtbeeAvatar
+              ref={avatar}
+              view="front"
+              size={size}
+              followPointer={!isDraggingState}
+              onErraticPointer={() => ctl.current?.onDizzy()}
+            />
           </div>
         </div>
       </div>
