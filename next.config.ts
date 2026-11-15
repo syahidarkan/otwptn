@@ -75,6 +75,11 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
       {
+        // 4K Puppet and brand cut layers
+        source: "/brand/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
         // Legacy mascot illustrations
         source: "/mascot/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],

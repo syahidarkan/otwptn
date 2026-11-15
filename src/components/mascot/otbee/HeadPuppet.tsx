@@ -82,8 +82,8 @@ export const HeadPuppet = forwardRef<HeadPuppetHandle, HeadPuppetProps>(function
       if (!el) return
       const r = el.getBoundingClientRect()
       const cx = r.left + r.width / 2, cy = r.top + r.height * 0.45
-      const dx = (e.clientX - cx) * facingRef.current
-      const dy = e.clientY - cy
+      const dx = clamp((e.clientX - cx) / (window.innerWidth * 0.35), -1, 1) * facingRef.current
+      const dy = clamp((e.clientY - cy) / (window.innerHeight * 0.35), -1, 1)
       mixer.setPointer({ x: dx, y: dy })
     }
     window.addEventListener('pointermove', move, { passive: true })
