@@ -53,9 +53,10 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-1.5">
+          <Link href="/tentang" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-700 hover:text-gray-950 hover:bg-black/5 transition-colors">Tentang</Link>
           <Link href="/#fitur" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-700 hover:text-gray-950 hover:bg-black/5 transition-colors">Fitur</Link>
-          <Link href="/#harga" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-700 hover:text-gray-950 hover:bg-black/5 transition-colors">Harga</Link>
           <Link href="/artikel" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-700 hover:text-gray-950 hover:bg-black/5 transition-colors">Artikel</Link>
+          <Link href="/#harga" className="px-3.5 py-1.5 text-sm font-semibold rounded-full text-gray-700 hover:text-gray-950 hover:bg-black/5 transition-colors">Harga</Link>
         </div>
 
         <div className="hidden md:flex items-center gap-2 flex-shrink-0">
@@ -84,7 +85,12 @@ export default function Navbar() {
             className="absolute top-20 w-full max-w-xs mx-4 glass-nav rounded-2xl p-2.5 z-50 shadow-xl"
             style={{ border: '1px solid rgba(0,0,0,0.06)' }}
           >
-            {[['Fitur', '/#fitur'], ['Harga', '/#harga'], ['Artikel', '/artikel']].map(([l, h]) => (
+            {[
+              ['Tentang', '/tentang'],
+              ['Fitur', '/#fitur'],
+              ['Artikel', '/artikel'],
+              ['Harga', '/#harga'],
+            ].map(([l, h]) => (
               <Link key={h} href={h} onClick={() => setMobileOpen(false)} className="block px-4 py-2.5 text-sm font-bold rounded-xl hover:bg-black/5" style={{ color: 'var(--fg)' }}>{l}</Link>
             ))}
             <div className="border-t my-1" style={{ borderColor: 'var(--border)' }} />

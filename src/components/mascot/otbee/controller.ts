@@ -263,6 +263,29 @@ export function createController(d: ControllerDeps) {
   }
 
   // ============================================================ hero dock management
+  let heroGreetingTimer1: NodeJS.Timeout | null = null
+  let heroGreetingTimer2: NodeJS.Timeout | null = null
+  let hasGreetedInHero = false
+
+  const triggerHeroGreeting = () => {
+    if (hasGreetedInHero) return
+    hasGreetedInHero = true
+    if (heroGreetingTimer1) clearTimeout(heroGreetingTimer1)
+    if (heroGreetingTimer2) clearTimeout(heroGreetingTimer2)
+
+    // Step 1: Salam pembuka saat pertama buka web
+    heroGreetingTimer1 = setTimeout(() => {
+      if (disposed || phase !== 'hero-docked') return
+      say('Haloo Pejuang PTN! Kenalin aku otbee', 3500)
+
+      // Step 2: Jeda beberapa ms, lalu sapaan kedua ajakan tonton video
+      heroGreetingTimer2 = setTimeout(() => {
+        if (disposed || phase !== 'hero-docked') return
+        say('Klik aku untuk tonton video otwptn!', 8000)
+      }, 4000)
+    }, 500)
+  }
+
   const dockAtHero = () => {
     token++
     const heroSpot = document.getElementById('hero-mascot-spot')
@@ -291,6 +314,7 @@ export function createController(d: ControllerDeps) {
     d.container.style.opacity = '1'
     phase = 'hero-docked'
     d.onDockChange?.(true)
+    triggerHeroGreeting()
   }
 
   const returnToHero = async () => {
@@ -1108,6 +1132,8 @@ export function createController(d: ControllerDeps) {
       cancelAnimationFrame(raf)
       unsub()
       clearIdle()
+      if (heroGreetingTimer1) clearTimeout(heroGreetingTimer1)
+      if (heroGreetingTimer2) clearTimeout(heroGreetingTimer2)
       ;[settleTimer, retryTimer, readTimer, speechTimer, hoverTimer, holdTimer].forEach(t => t && clearTimeout(t))
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('click', onClick, true)

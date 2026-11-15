@@ -167,13 +167,6 @@ export default function FloatingMascot() {
     if (!hasMovedRef.current && (dx > 3 || dy > 3)) {
       hasMovedRef.current = true
       setIsDraggingState(true)
-
-      // If docked at hero (still whole head), swiping/dragging launches the video and drops mascot into full body
-      if (isDockedRef.current || progressValRef.current < 0.95) {
-        window.dispatchEvent(new CustomEvent('otbee:launch-video'))
-        ctl.current?.undockFromHero()
-      }
-
       ctl.current?.startDrag(e.clientX, e.clientY)
     }
     if (hasMovedRef.current) {
@@ -307,7 +300,7 @@ export default function FloatingMascot() {
             animation: 'otbee-bubble-pop .22s cubic-bezier(.34,1.56,.64,1) both',
           }}
         >
-          {bubble?.text ?? (isDockedAtHero && growthProgress < 0.6 ? 'Klik atau geser aku untuk video launching! 🐝🎬' : 'Klik aku untuk salto & tips PTN! 🐝')}
+          {bubble?.text ?? (isDockedAtHero && growthProgress < 0.6 ? 'Klik aku untuk tonton video otwptn! 🐝🎬' : 'Klik aku untuk salto & tips PTN! 🐝')}
           <span
             style={{
               position: 'absolute',
