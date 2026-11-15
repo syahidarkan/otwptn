@@ -234,18 +234,14 @@ export function createController(d: ControllerDeps) {
     }
 
     const now = performance.now()
-    if (now - lastAnchorCheck > 120 || !cachedAnchorSpot) {
-      lastAnchorCheck = now
-      cachedAnchorSpot = anchor.resolve()
-    }
-
-    const p = cachedAnchorSpot
+    // Resolve anchor position at 60fps every rAF frame so when standing on moving/marquee elements, Otbee tracks buttery smooth
+    const p = anchor.resolve()
     if (!p) {
-      if (++invalid > 14) { invalid = 0; cachedAnchorSpot = null; decide(true) }
+      if (++invalid > 14) { invalid = 0; decide(true) }
       return
     }
     invalid = 0
-    if (Math.abs(p.x - pos.x) > 0.35 || Math.abs(p.y - pos.y) > 0.35) place(p)
+    if (Math.abs(p.x - pos.x) > 0.05 || Math.abs(p.y - pos.y) > 0.05) place(p)
     // face whichever side the cursor is on (deadzone so he doesn't flicker near centre)
     if (pointerMoved && !isTouch && !isPrivacy) {
       const dxFace = pointerX + window.scrollX - pos.x

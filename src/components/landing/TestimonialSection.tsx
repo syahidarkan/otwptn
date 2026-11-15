@@ -41,7 +41,7 @@ export default function TestimonialSection() {
       <div className="relative mb-6">
         <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-36 z-10 pointer-events-none bg-gradient-to-r from-[#fafafa] to-transparent" />
         <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-36 z-10 pointer-events-none bg-gradient-to-l from-[#fafafa] to-transparent" />
-        <div className="animate-marquee flex gap-5 py-3" style={{ width: 'max-content' }}>
+        <div className="animate-marquee hover:[animation-play-state:paused] flex gap-5 py-3" style={{ width: 'max-content' }}>
           {marqueeRow1.map((item, i) => (
             <MenteeTestimonialCard key={`r1-${item.id}-${i}`} item={item} />
           ))}
@@ -52,7 +52,7 @@ export default function TestimonialSection() {
       <div className="relative">
         <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-36 z-10 pointer-events-none bg-gradient-to-r from-[#fafafa] to-transparent" />
         <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-36 z-10 pointer-events-none bg-gradient-to-l from-[#fafafa] to-transparent" />
-        <div className="animate-marquee-reverse flex gap-5 py-3" style={{ width: 'max-content' }}>
+        <div className="animate-marquee-reverse hover:[animation-play-state:paused] flex gap-5 py-3" style={{ width: 'max-content' }}>
           {marqueeRow2.map((item, i) => (
             <MenteeTestimonialCard key={`r2-${item.id}-${i}`} item={item} />
           ))}

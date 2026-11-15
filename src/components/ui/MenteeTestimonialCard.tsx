@@ -1,8 +1,8 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
-import { Star, Award } from 'lucide-react'
+import { Star, Award, ArrowRight, ArrowLeft } from 'lucide-react'
 import type { MenteeTestimonial } from '@/data/testimonials'
 
 interface MenteeCardProps {
@@ -12,12 +12,18 @@ interface MenteeCardProps {
 
 export default function MenteeTestimonialCard({ item, className = '' }: MenteeCardProps) {
   const isTop = item.isTopMentee
+  const [isExpanded, setIsExpanded] = useState(false)
+  const isLong = item.quote.length > 140
 
   return (
     <div
-      className={`flex-shrink-0 w-[320px] sm:w-[350px] rounded-3xl p-5 flex flex-col justify-between transition-all duration-300 relative select-none ${
+      className={`flex-shrink-0 rounded-3xl p-5 flex flex-col justify-between transition-all duration-300 ease-out relative select-none ${
+        isExpanded
+          ? 'w-[480px] sm:w-[620px] z-30'
+          : 'w-[320px] sm:w-[350px]'
+      } ${
         isTop
-          ? 'bg-white border-2 border-[#ffd400] shadow-[0_4px_28px_rgba(255,212,0,0.32)] ring-2 ring-[#ffd400]/30 hover:shadow-[0_8px_36px_rgba(255,212,0,0.45)] hover:-translate-y-1'
+          ? 'bg-white border-2 border-[#ffd400] shadow-[0_4px_28px_rgba(255,212,0,0.32)] ring-2 ring-[#ffd400]/30 hover:shadow-[0_8px_36px_rgba(255,212,0,0.45)]'
           : 'bg-white/90 backdrop-blur-md border border-gray-200/90 shadow-sm hover:shadow-md hover:border-gray-300'
       } ${className}`}
     >
@@ -52,13 +58,41 @@ export default function MenteeTestimonialCard({ item, className = '' }: MenteeCa
         </div>
 
         {/* Testimonial Quote */}
-        <p className="text-xs sm:text-[13px] leading-relaxed text-gray-700 font-normal mb-5 line-clamp-5">
+        <p
+          className={`text-xs sm:text-[13px] leading-relaxed text-gray-700 font-normal ${
+            isExpanded ? '' : 'line-clamp-4'
+          }`}
+        >
           &ldquo;{item.quote}&rdquo;
         </p>
+
+        {/* Horizontal Expand / Collapse Action */}
+        {isLong && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsExpanded(!isExpanded)
+            }}
+            className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700 transition-colors cursor-pointer group"
+          >
+            {isExpanded ? (
+              <>
+                <ArrowLeft className="w-3 h-3 group-hover:-translate-x-0.5 transition-transform" />
+                <span>Perkecil kartu</span>
+              </>
+            ) : (
+              <>
+                <span>Baca selengkapnya (perpanjang ke samping)</span>
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       {/* Footer: Photo, Name, Univ & Prodi */}
-      <div className="pt-3 border-t border-gray-100/90 flex items-center gap-3">
+      <div className="pt-3.5 mt-3 border-t border-gray-100/90 flex items-center gap-3">
         <div className="relative w-11 h-11 rounded-2xl overflow-hidden flex-shrink-0 bg-amber-50 border border-gray-200 shadow-2xs">
           <Image
             src={item.photo}

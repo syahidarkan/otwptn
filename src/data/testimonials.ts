@@ -17,7 +17,7 @@ export const REAL_TOP_MENTEES: MenteeTestimonial[] = [
     name: 'Aisyah Shafa Rizkika',
     univ: 'Universitas Indonesia',
     prodi: 'Ilmu Psikologi',
-    jalur: 'Beasiswa ADik & PPKB',
+    jalur: 'PPKB UI',
     quote:
       'Kesan mentor di OTWPTN sangat luar biasaaa🥹 Alhamdulillah perjuangan aku ga sia-sia. Aku cuma mau mengucapkan banyak terima kasih yang sebesar-besarnya kepada seluruh kakak pembimbing atas strategi serta support moral yang luar biasa selama ini. Thank you for helping me achieve my dream! Walaupun ikut mentor ini cuma sebentar, tapi bener-bener aku pakai juga buat esai beasiswa aku. Alhamdulillah aku bisa mendapatkan beasiswa sekaligus PTN dengan jurusan yang aku impikan selama ini di UI!🩵',
     photo: '/mentees/aisyah.jpg',
@@ -41,7 +41,7 @@ export const REAL_TOP_MENTEES: MenteeTestimonial[] = [
     name: 'Dhea Risma Nurmala',
     univ: 'Universitas Indonesia',
     prodi: 'Sastra Daerah Untuk Sastra Jawa',
-    jalur: 'PPKB UI (FIB)',
+    jalur: 'PPKB UI',
     quote:
       'Terimakasih banyak kaka sudah membantu akuu sampe lolos! Bener-bener ngebantu banget dari penataan berkas sampai draf esai siap dikumpul jauh-jauh hari. Alhamdulillah impian masuk UI akhirnya terwujud!',
     photo: '/mentees/dhea.jpg',
@@ -53,7 +53,7 @@ export const REAL_TOP_MENTEES: MenteeTestimonial[] = [
     name: 'Assyfa',
     univ: 'Universitas Indonesia',
     prodi: 'D4 Bisnis Kreatif',
-    jalur: 'PPKB UI (Vokasi)',
+    jalur: 'PPKB UI',
     quote:
       'Bimbingan di OTWPTN keren banget! Mentornya super suportif, bener-bener ngarahin esai step-by-step sampai matang, dan alhamdulillah berhasil lolos di jurusan impianku di Universitas Indonesia.',
     photo: '/mentees/assyfa.jpg',
@@ -80,7 +80,7 @@ export const DUMMY_MENTEES: MenteeTestimonial[] = [
     name: 'Caca Evelyn',
     univ: 'Universitas Indonesia',
     prodi: 'Pendidikan Dokter (FK)',
-    jalur: 'PPKB 2026',
+    jalur: 'PPKB UI',
     quote:
       'Awalnya skeptis sama essay AI review, tapi pas dicoba feedback-nya detail bgt sampe ke tone kalimat & struktur motivasi. Skor esaiku naik dr 72 ke 94 dan alhamdulillah tembus FK UI!',
     photo: '/avatars/avatar-1.png',
@@ -91,7 +91,7 @@ export const DUMMY_MENTEES: MenteeTestimonial[] = [
     name: 'Ibrahim Wongso',
     univ: 'Institut Teknologi Bandung',
     prodi: 'STEI-R',
-    jalur: 'Jalur Prestasi',
+    jalur: 'SSU ITB',
     quote:
       'Kalkulator peluangnya beneran ngasih insight realistis soal indeks sekolah & rerata mapel pendukung. Jadi gak asal nekat milih prodi, fix kebantu bgt!',
     photo: '/avatars/avatar-2.png',
@@ -135,7 +135,7 @@ export const DUMMY_MENTEES: MenteeTestimonial[] = [
     name: 'Tasya Kamila Putri',
     univ: 'Universitas Airlangga',
     prodi: 'Psikologi',
-    jalur: 'SNBP 2026',
+    jalur: 'SBUB UNDIP',
     quote:
       'Suka bgt sama Otbee AI, fast response dan selalu ngasih saran taktis tiap kali overthinking mikirin persaingan kuota satu sekolah.',
     photo: '/avatars/avatar-6.png',
@@ -146,7 +146,7 @@ export const DUMMY_MENTEES: MenteeTestimonial[] = [
     name: 'Darryl Pratama',
     univ: 'Institut Teknologi Bandung',
     prodi: 'DKV FSRD',
-    jalur: 'Portofolio ITB',
+    jalur: 'SMUP UNPAD',
     quote:
       'Review portofolio dan esai dari mentor senior alumni ITB beneran detail. Dikasih tau apa yg dicari dosen penilai dan cara menonjolkan keunikan karya.',
     photo: '/avatars/avatar-7.png',
@@ -157,7 +157,7 @@ export const DUMMY_MENTEES: MenteeTestimonial[] = [
     name: 'Celine Jessica',
     univ: 'Universitas Brawijaya',
     prodi: 'Manajemen',
-    jalur: 'SNBP 2026',
+    jalur: 'PBUB UGM',
     quote:
       'Tracking jalurnya ngebantu bgt biar gak kelewat deadline berkas PPKB sama SNBP. Semua dokumen rapi tersimpan di satu dashboard.',
     photo: '/avatars/avatar-8.png',
