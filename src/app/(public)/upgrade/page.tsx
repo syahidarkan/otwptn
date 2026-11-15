@@ -68,6 +68,15 @@ export default function UpgradePage() {
   const [mode, setMode] = useState<Mode>('individu')
   const [track, setTrack] = useState<Track>('essay')
   const [referralCode, setReferralCode] = useState('')
+  const [promoValidation, setPromoValidation] = useState<{
+    valid: boolean
+    code?: string
+    type?: string
+    discountAmount?: number
+    isFree?: boolean
+    label?: string
+    error?: string
+  } | null>(null)
   const [squadAction, setSquadAction] = useState<'create' | 'join'>('create')
   const [squadInviteCode, setSquadInviteCode] = useState('')
 
@@ -205,6 +214,36 @@ export default function UpgradePage() {
       ? getRenewalPrice(selection.tier, baseAfterRef)
       : baseAfterRef
 
+  useEffect(() => {
+    if (!referralCode.trim()) {
+      setPromoValidation(null)
+      return
+    }
+
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/promo/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: referralCode.trim(),
+            amount: selectedFinalAmount ?? selectedPrice?.amount ?? 100000,
+          }),
+        })
+        const data = await res.json()
+        if (data.valid) {
+          setPromoValidation(data)
+        } else {
+          setPromoValidation({ valid: false, error: data.error })
+        }
+      } catch {
+        setPromoValidation(null)
+      }
+    }, 350)
+
+    return () => clearTimeout(t)
+  }, [referralCode, selectedFinalAmount, selectedPrice?.amount])
+
   // Tampilkan seluruh jalur PTN agar jalur seperti SJP UI, PPKB UI, PBUB UGM, dll selalu tersedia
   const availableMainJalurs = selection ? JALUR_LIST : []
 
@@ -235,7 +274,12 @@ export default function UpgradePage() {
       }, 0)
     : 0
 
-  const selectedTotalToPay = (selectedFinalAmount ?? (selectedPrice?.amount ?? 0)) + interSurcharge + addonTotal
+  const rawTotalToPay = (selectedFinalAmount ?? (selectedPrice?.amount ?? 0)) + interSurcharge + addonTotal
+  const selectedTotalToPay = promoValidation?.isFree
+    ? 0
+    : promoValidation?.discountAmount
+    ? Math.max(0, rawTotalToPay - promoValidation.discountAmount)
+    : rawTotalToPay
 
   return (
     <div className="min-h-screen bg-[#fcfcfb] pt-24 md:pt-28 pb-16 px-4 sm:px-6 lg:px-8">
@@ -812,22 +856,38 @@ export default function UpgradePage() {
                 <p className="text-[10px] text-amber-600 font-semibold mt-2.5">{TIER_PERIOD[selection.tier]}</p>
               </div>
 
-              {/* Referral code (individu only) - di popup */}
-              {selection.mode === 'individu' && (
-                <div className="rounded-2xl bg-gray-50 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-2">Kode Referral (opsional)</p>
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-gray-200">
-                    <Gift size={13} className="text-amber-600 flex-shrink-0" />
-                    <input
-                      value={referralCode}
-                      onChange={e => setReferralCode(e.target.value.toUpperCase())}
-                      placeholder="Masukkan kode referral teman"
-                      className="flex-1 text-xs font-bold tracking-wide uppercase focus:outline-none bg-transparent"
-                    />
-                  </div>
-                  <p className="text-[10px] text-gray-400 mt-1.5">Diskon hanya berlaku jika kode valid dan paket individu.</p>
+              {/* Referral / Promo code - di popup */}
+              <div className="rounded-2xl bg-gray-50 p-4">
+                <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-2">Kode Referral / Kupon Diskon (opsional)</p>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-gray-200">
+                  <Gift size={13} className="text-amber-600 flex-shrink-0" />
+                  <input
+                    value={referralCode}
+                    onChange={e => setReferralCode(e.target.value.toUpperCase())}
+                    placeholder="Masukkan kode referral atau kupon promo"
+                    className="flex-1 text-xs font-bold tracking-wide uppercase focus:outline-none bg-transparent"
+                  />
                 </div>
-              )}
+                {promoValidation && (
+                  <div className={`mt-2 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 ${
+                    promoValidation.valid
+                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                      : 'bg-rose-50 text-rose-700 border border-rose-200'
+                  }`}>
+                    {promoValidation.valid ? (
+                      <>
+                        <Check size={13} className="text-emerald-600 shrink-0" />
+                        <span>{promoValidation.label} aktif!</span>
+                      </>
+                    ) : (
+                      <span>{promoValidation.error || 'Kode tidak valid'}</span>
+                    )}
+                  </div>
+                )}
+                {!promoValidation && (
+                  <p className="text-[10px] text-gray-400 mt-1.5">Gunakan kode referral kreator atau kupon promo khusus untuk potongan harga hingga 100%.</p>
+                )}
+              </div>
 
               {/* Pilihan Mentor saat Perpanjangan Paket Mentoring */}
               {renewalActive && selection.tier !== 'web_premium' && (
@@ -896,6 +956,12 @@ export default function UpgradePage() {
                       <span>+ {formatIDR(addonTotal)}</span>
                     </div>
                   )}
+                  {promoValidation?.valid && promoValidation.discountAmount && promoValidation.discountAmount > 0 && (
+                    <div className="flex justify-between text-emerald-600 font-bold">
+                      <span>Potongan Kupon Promo ({promoValidation.code})</span>
+                      <span>- {formatIDR(promoValidation.discountAmount)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-extrabold text-gray-900 pt-2 border-t border-gray-200 text-sm">
                     <span>Total yang dibayar</span>
                     <span className="text-amber-700">{formatIDR(selectedTotalToPay)}</span>
@@ -914,10 +980,12 @@ export default function UpgradePage() {
               <button
                 onClick={handleCheckout}
                 disabled={isSubmitting || (selection.mode === 'squad' && squadAction === 'join' && !squadInviteCode.trim())}
-                className="w-full py-3.5 rounded-full text-sm font-extrabold btn-brand-primary disabled:opacity-60 flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-full text-sm font-extrabold btn-brand-primary disabled:opacity-60 flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow-md transition-all"
               >
                 {isSubmitting ? (
                   <><Loader2 size={15} className="animate-spin" /> Memproses...</>
+                ) : selectedTotalToPay === 0 ? (
+                  <>Aktifkan Paket Sekarang (Gratis 100%) <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden /></>
                 ) : (
                   <>Bayar & Aktifkan {TIER_LABELS[selection.tier]} <ArrowRight size={14} className="inline-block ml-1 align-[-2px]" aria-hidden /></>
                 )}

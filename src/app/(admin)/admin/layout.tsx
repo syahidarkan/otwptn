@@ -23,10 +23,12 @@ import {
   MessageCircle,
   UsersRound,
   Video,
+  Ticket,
 } from 'lucide-react'
 
 const navItems = [
   { href: '/admin', label: 'Overview Dashboard', icon: LayoutDashboard },
+  { href: '/admin/promo', label: 'Kode Promo Khusus', icon: Ticket },
   { href: '/admin/mentors', label: 'Verifikasi Mentor & LOA', icon: ShieldCheck },
   { href: '/admin/creators', label: 'Partner Konten Kreator', icon: Video },
   { href: '/admin/pendaftar', label: 'Data Siswa & Pendaftar', icon: Users },

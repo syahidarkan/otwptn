@@ -37,11 +37,11 @@ export function getActiveProviders(): ProviderDef[] {
       name: 'Groq',
       baseURL: 'https://api.groq.com/openai/v1',
       apiKey: groqKey,
-      timeout: 6000,
+      timeout: 8000,
       modelMap: {
-        fast: 'openai/gpt-oss-20b',
-        default: 'openai/gpt-oss-120b',
-        complex: 'openai/gpt-oss-120b',
+        fast: 'qwen/qwen3.8-27b',
+        default: 'qwen/qwen3.8-27b',
+        complex: 'qwen/qwen3.8-27b',
       },
     })
   }

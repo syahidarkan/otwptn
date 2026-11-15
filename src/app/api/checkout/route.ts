@@ -3,6 +3,7 @@ import { rateLimit } from '@/lib/security'
 import { NextResponse } from 'next/server'
 import { MODES, TRACKS, TIERS, TIER_LABELS, getPrice, getAddonPrice, getInterSurcharge, getRenewalPrice, type Mode, type Track, type Tier } from '@/lib/pricing'
 import { JALUR_LIST } from '@/lib/constants'
+import { fulfillPaidOrder, type PaidOrder } from '@/lib/orderFulfillment'
 
 function isMode(v: unknown): v is Mode {
   return typeof v === 'string' && (MODES as readonly string[]).includes(v)
@@ -62,22 +63,58 @@ export async function POST(request: Request) {
   const priceEntry = getPrice(mode, track, tier)
   const tierName = `${TIER_LABELS[tier]}${mode === 'squad' ? ' (Squad)' : ''}`
 
-  // Referral discount only applies to Individu - Squad pricing is already fixed/discounted.
+  // Referral / Promo Code lookup
   let appliedReferralCode: string | null = null
+  let appliedPromoId: string | null = null
   let baseAmount = priceEntry.amount
-  if (mode === 'individu' && typeof referral_code === 'string' && referral_code.trim()) {
+
+  if (typeof referral_code === 'string' && referral_code.trim()) {
     const code = referral_code.trim().toUpperCase()
-    if (!(await rateLimit('referral_lookup', user.id, 15, 600))) {
+    if (!(await rateLimit('referral_lookup', user.id, 20, 600))) {
       return NextResponse.json({ error: 'Terlalu banyak percobaan kode referral. Coba lagi nanti.' }, { status: 429 })
     }
-    const { data: ambassador } = await db
-      .from('profiles')
-      .select('id, referral_code')
-      .eq('referral_code', code)
-      .maybeSingle()
-    if (ambassador && ambassador.id !== user.id && priceEntry.referralAmount) {
-      appliedReferralCode = code
-      baseAmount = priceEntry.referralAmount
+
+    // 1. Check if it matches an active Super Admin Promo Code
+    try {
+      const { data: promo } = await db
+        .from('promo_codes')
+        .select('*')
+        .eq('code', code)
+        .maybeSingle()
+
+      if (promo && promo.is_active) {
+        const now = Date.now()
+        const isExpired = promo.valid_until && new Date(promo.valid_until).getTime() < now
+        const isQuotaFull = promo.max_uses !== null && promo.used_count >= promo.max_uses
+
+        if (!isExpired && !isQuotaFull) {
+          appliedReferralCode = promo.code
+          appliedPromoId = promo.id
+
+          if (promo.discount_type === 'percentage') {
+            const pct = Math.min(100, Math.max(0, Number(promo.discount_value)))
+            const discountAmt = Math.round(baseAmount * (pct / 100))
+            baseAmount = Math.max(0, baseAmount - discountAmt)
+          } else {
+            baseAmount = Math.max(0, baseAmount - Number(promo.discount_value))
+          }
+        }
+      }
+    } catch (promoLookupErr) {
+      console.warn('[Checkout Promo Lookup Warn]', promoLookupErr)
+    }
+
+    // 2. If not a promo code, check if it matches an ambassador/creator referral code (Individu mode)
+    if (!appliedPromoId && mode === 'individu') {
+      const { data: ambassador } = await db
+        .from('profiles')
+        .select('id, referral_code')
+        .eq('referral_code', code)
+        .maybeSingle()
+      if (ambassador && ambassador.id !== user.id && priceEntry.referralAmount) {
+        appliedReferralCode = code
+        baseAmount = priceEntry.referralAmount
+      }
     }
   }
 
@@ -275,6 +312,59 @@ export async function POST(request: Request) {
 
   const invoiceNumber = `INV-${Date.now()}-${user.id.slice(0, 8).toUpperCase()}`
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+
+  // 100% Free Promo Discount checkout
+  if (baseAmount <= 0) {
+    const { data: freeOrder, error: freeOrderErr } = await db.from('orders').insert({
+      user_id: user.id,
+      tier,
+      mode,
+      track,
+      squad_group_id: squadGroupId,
+      referral_code: appliedReferralCode,
+      amount: 0,
+      status: 'paid',
+      paid_at: new Date().toISOString(),
+      invoice_number: invoiceNumber,
+      payment_method: 'promo_free',
+      notes: JSON.stringify({
+        main_jalur: mainJalurObj?.id ?? main_jalur ?? null,
+        addon_jalurs: validAddons,
+        inter_surcharge: interSurcharge,
+        addon_total: addonTotal,
+        target_ptn: cleanTargetPtn || null,
+        target_faculty: cleanTargetFaculty || null,
+        target_major: cleanTargetMajor || null,
+        is_renewal: validatedRenewal,
+        renewal_mentor_choice: validatedRenewal && tier !== 'web_premium' ? cleanMentorChoice : null,
+        previous_mentor_id: previousMentorId,
+        promo_code: appliedReferralCode,
+      }),
+    }).select('id, user_id, tier, amount, referral_code, mode, track, squad_group_id, notes').single()
+
+    if (freeOrderErr || !freeOrder) {
+      console.error('[checkout] free promo insert error:', freeOrderErr)
+      return NextResponse.json({ error: 'Gagal memproses kupon diskon 100%' }, { status: 500 })
+    }
+
+    if (appliedPromoId) {
+      const { data: p } = await db.from('promo_codes').select('used_count').eq('id', appliedPromoId).single()
+      if (p) {
+        await db.from('promo_codes').update({ used_count: (p.used_count || 0) + 1 }).eq('id', appliedPromoId)
+      }
+    }
+
+    await fulfillPaidOrder(db, freeOrder as PaidOrder)
+
+    return NextResponse.json({
+      free_checkout: true,
+      order_id: freeOrder.id,
+      invoice_number: invoiceNumber,
+      payment_url: `${appUrl}/dashboard?promo_success=1&tier=${tier}`,
+    })
+  }
+
   // Jago bank transfer: unique amount (base + random 3-digit suffix) for matching
   const uniqueAmount = payment_method === 'transfer'
     ? baseAmount + Math.floor(Math.random() * 900) + 100
@@ -325,7 +415,6 @@ export async function POST(request: Request) {
   }
 
   // Mayar payment link
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
   try {
     const mayarRes = await fetch('https://api.mayar.id/hl/v1/product/paymentlink/create', {
       method: 'POST',
@@ -356,6 +445,13 @@ export async function POST(request: Request) {
       doku_reference: mayarData.data.id,
       payment_url: paymentUrl,
     }).eq('id', order.id)
+
+    if (appliedPromoId) {
+      const { data: p } = await db.from('promo_codes').select('used_count').eq('id', appliedPromoId).single()
+      if (p) {
+        await db.from('promo_codes').update({ used_count: (p.used_count || 0) + 1 }).eq('id', appliedPromoId)
+      }
+    }
 
     return NextResponse.json({
       payment_method: 'mayar',

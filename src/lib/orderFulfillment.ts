@@ -6,7 +6,7 @@ import { TIER_SESSION_CONFIG, type Tier } from '@/lib/pricing'
 
 const TIER_RANK: Record<string, number> = { free: 0, web_premium: 1, review: 2, dokumen: 3, menyeluruh: 4, intensif: 4 }
 
-interface PaidOrder {
+export interface PaidOrder {
   id: string
   user_id: string
   tier: string
