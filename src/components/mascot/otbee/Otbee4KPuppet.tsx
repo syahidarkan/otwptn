@@ -283,11 +283,12 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
         // Whole rig
         const FH = BD.feet[1] - BD.figTop
         const [fx, fy] = BD.feet
-        const centre = { x: fx, y: BD.figTop + FH * 0.6 }
+        const rotCenterY = 500 + (BD.figTop + FH * 0.6 - 500) * p
+        const centre = { x: fx, y: rotCenterY }
         const whole = [
           `translate(${(P.x * FH * 0.5).toFixed(2)}px, ${(P.y * FH * 0.5).toFixed(2)}px)`,
           about(fx, fy, `scale(${P.sx.toFixed(4)}, ${P.sy.toFixed(4)})`),
-          about(centre.x, centre.y, `rotate(${(P.rot * 0.5).toFixed(2)}deg)`),
+          about(centre.x, centre.y, `rotate(${P.rot.toFixed(2)}deg)`),
         ].join(' ')
 
         if (wholeRigRef.current) {

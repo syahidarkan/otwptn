@@ -28,6 +28,7 @@ export interface ControllerDeps {
   name: () => string | null
   setBubble: (b: Bubble | null) => void
   pathname: () => string
+  onDockChange?: (docked: boolean) => void
 }
 
 const SETTLE_MS = 600
@@ -287,6 +288,7 @@ export function createController(d: ControllerDeps) {
     d.container.style.pointerEvents = 'auto'
     d.container.style.opacity = '1'
     phase = 'hero-docked'
+    d.onDockChange?.(true)
   }
 
   const returnToHero = async () => {
@@ -312,19 +314,20 @@ export function createController(d: ControllerDeps) {
 
     const tok = ++token
     phase = 'returning-to-hero'
+    d.onDockChange?.(false)
     anchor = null
 
     // 1. Stand/align under the hero head position:
     const underHero: Spot = {
       x: target.x,
-      y: Math.max(target.y + 90, from.y > target.y + 90 ? from.y : target.y + 90),
+      y: Math.max(target.y + 110, from.y > target.y + 110 ? from.y : target.y + 110),
     }
 
-    // Step A: Fly to position directly underneath the hero head
+    // Step A: Hop/fly to position directly underneath the hero head
     const dx = underHero.x - from.x
-    if (Math.abs(dx) > 14) setPose(dx < 0 ? -1 : 1, 0)
+    if (Math.abs(dx) > 12) setPose(dx < 0 ? -1 : 1, 0)
     play('jumpAir', { fade: 0.08 })
-    const dur1 = clamp(240 + Math.abs(dx) * 0.2, 280, 500)
+    const dur1 = clamp(240 + Math.abs(dx) * 0.2, 280, 480)
     await tween(dur1, tok, p => {
       const pSmooth = p * (2 - p)
       place({
@@ -334,10 +337,15 @@ export function createController(d: ControllerDeps) {
     })
     if (tok !== token) return
 
+    // Stand momentarily under hero head position
+    play('land', { fade: 0.04 })
+    await wait(100)
+    if (tok !== token) return
+
     // Step B: Fly smoothly upwards into the hero head position!
     setPose(1, 0)
     play('jumpAir', { fade: 0.05 })
-    const dur2 = 320
+    const dur2 = 340
     await tween(dur2, tok, p => {
       const pSmooth = p * (2 - p) // easeOut
       place({
@@ -357,6 +365,7 @@ export function createController(d: ControllerDeps) {
     const from: Spot = { ...cur }
     const tok = ++token
     phase = 'traveling'
+    d.onDockChange?.(false)
     anchor = null
 
     // 1. Scan available surfaces in the viewport below the hero spot

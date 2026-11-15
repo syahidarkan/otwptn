@@ -34,13 +34,60 @@ export default function FloatingMascot() {
   const dragStartPos = useRef({ x: 0, y: 0 })
   const hasMovedRef = useRef(false)
 
+  // Docking state: whether Otbee is currently docked at the hero head position
+  const [isDockedAtHero, setIsDockedAtHero] = useState(() => {
+    if (typeof window === 'undefined') return true
+    return (pathname ?? '/') === '/' && window.scrollY < 260
+  })
+  const isDockedRef = useRef(isDockedAtHero)
+  isDockedRef.current = isDockedAtHero
+
   // Growth progress: 0 (head only at hero top) -> 1 (full body past hero)
   const [growthProgress, setGrowthProgress] = useState(() => {
-    if (typeof window === 'undefined') return 1
-    return (pathname ?? '/') === '/' ? clamp(window.scrollY / 260) : 1
+    if (typeof window === 'undefined') return 0
+    return (pathname ?? '/') === '/' ? (window.scrollY < 260 ? clamp(window.scrollY / 260) : 1) : 1
   })
   const progressValRef = useRef(growthProgress)
   progressValRef.current = growthProgress
+  const animRafRef = useRef<number | null>(null)
+
+  const handleDockChange = (docked: boolean) => {
+    isDockedRef.current = docked
+    setIsDockedAtHero(docked)
+
+    if (animRafRef.current) {
+      cancelAnimationFrame(animRafRef.current)
+      animRafRef.current = null
+    }
+
+    if (docked) {
+      // Mascot just docked at hero spot: smoothly reverse back to head over 460ms
+      const target = pathRef.current !== '/' ? 1 : clamp(window.scrollY / 260)
+      const start = progressValRef.current
+      if (Math.abs(start - target) > 0.01) {
+        const t0 = performance.now()
+        const duration = 460
+        const step = (now: number) => {
+          const elapsed = now - t0
+          const p = Math.min(1, elapsed / duration)
+          const ease = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2 // easeInOut
+          const curVal = start + (target - start) * ease
+          progressValRef.current = curVal
+          setGrowthProgress(curVal)
+          if (p < 1 && isDockedRef.current) {
+            animRafRef.current = requestAnimationFrame(step)
+          } else {
+            animRafRef.current = null
+          }
+        }
+        animRafRef.current = requestAnimationFrame(step)
+      }
+    } else {
+      // Undocked (roaming or traveling): Mascot is full body
+      progressValRef.current = 1
+      setGrowthProgress(1)
+    }
+  }
 
   // Combined avatar handle dispatching to active mode (hero 4K puppet vs roaming elastic avatar)
   const combinedAvatar = useRef<OtbeeHandle>({
@@ -68,8 +115,14 @@ export default function FloatingMascot() {
   useEffect(() => {
     let ticking = false
     const onScroll = () => {
+      if (!isDockedRef.current || animRafRef.current !== null) return
+
       if (!ticking) {
         requestAnimationFrame(() => {
+          if (!isDockedRef.current || animRafRef.current !== null) {
+            ticking = false
+            return
+          }
           const next = pathRef.current !== '/' ? 1 : clamp(window.scrollY / 260)
           if (Math.abs(next - progressValRef.current) > 0.008) {
             progressValRef.current = next
@@ -135,22 +188,7 @@ export default function FloatingMascot() {
       setIsDraggingState(false)
       ctl.current?.endDrag()
     } else {
-      if (growthProgress < 0.6) {
-        const reactions: { text: string; clip: 'cheer' | 'nod' | 'shy' }[] = [
-          { text: 'Semangat belajar yaa! 🚀🔥', clip: 'cheer' },
-          { text: 'Otbee siap nemenin kamu lolos PTN! 💛', clip: 'shy' },
-          { text: 'Fokus & konsisten, PTN impian pasti tercapai! 🌟', clip: 'nod' },
-          { text: 'Ayo gasspol latihan soal hari ini! 🐝💪', clip: 'cheer' },
-          { text: 'Jangan lupa istirahat & jaga kesehatan yaa! ☕✨', clip: 'nod' },
-        ]
-        const r = reactions[Math.floor(Math.random() * reactions.length)]
-        combinedAvatar.current.play(r.clip, { onDone: () => combinedAvatar.current.play('idle') })
-        combinedAvatar.current.fx('stars')
-        setBubble({ id: Date.now(), text: r.text, below: false, shift: 0 })
-        setTimeout(() => setBubble(null), 3800)
-      } else {
-        ctl.current?.clickMascot()
-      }
+      ctl.current?.clickMascot()
     }
   }
 
@@ -201,6 +239,7 @@ export default function FloatingMascot() {
       name: () => nameRef.current,
       setBubble,
       pathname: () => pathRef.current,
+      onDockChange: handleDockChange,
     })
     ctl.current = c
     c.start()
@@ -228,41 +267,35 @@ export default function FloatingMascot() {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {(bubble || hovered) && (() => {
-        const isYellowBg = growthProgress < 0.8
-        const bg = isYellowBg ? '#ffffff' : '#fef08a'
-        const color = isYellowBg ? '#0f172a' : '#78350f'
-        const shadow = isYellowBg
-          ? '0 12px 30px -4px rgba(0,0,0,0.12), 0 4px 12px -2px rgba(0,0,0,0.06)'
-          : '0 12px 30px -4px rgba(217,119,6,0.25), 0 4px 12px -2px rgba(217,119,6,0.12)'
-        const border = isYellowBg ? '1px solid rgba(0,0,0,0.07)' : '1px solid rgba(245,158,11,0.38)'
-
-        return (
-          <div
-            key={bubble?.id ?? 'hint'}
-            role="tooltip"
+      {(bubble || hovered) && (
+        <div
+          key={bubble?.id ?? 'hint'}
+          role="tooltip"
+          style={{
+            position: 'absolute',
+            left: '50%',
+            zIndex: 35,
+            ...(bubble?.below ? { top: '100%', marginTop: 10 } : { bottom: '100%', marginBottom: 10 }),
+            transform: `translateX(calc(-50% + ${bubble?.shift ?? 0}px))`,
+            background: '#ffffff',
+            color: '#0f172a',
+            fontSize: 12.5,
+            fontWeight: 800,
+            padding: '9px 18px',
+            borderRadius: 24,
+            width: 'max-content',
+            maxWidth: size < 100 ? 230 : 280,
+            textAlign: 'center',
+            lineHeight: 1.4,
+            boxShadow: '0 10px 25px -4px rgba(0, 0, 0, 0.12), 0 4px 10px -2px rgba(0, 0, 0, 0.05)',
+            border: '1px solid rgba(0, 0, 0, 0.06)',
+            pointerEvents: 'none',
+            animation: 'otbee-bubble-pop .22s cubic-bezier(.34,1.56,.64,1) both',
+          }}
+        >
+          {bubble?.text ?? (growthProgress < 0.6 ? 'Halo pejuang PTN! Klik aku yaa 🐝✨' : 'Klik aku untuk salto & tips PTN! 🐝')}
+          <span
             style={{
-              position: 'absolute', left: '50%', zIndex: 3,
-              ...(bubble?.below ? { top: '100%', marginTop: 10 } : { bottom: '100%', marginBottom: 10 }),
-              transform: `translateX(calc(-50% + ${bubble?.shift ?? 0}px))`,
-              background: bg,
-              color,
-              fontSize: 12.5,
-              fontWeight: 800,
-              padding: '9px 18px',
-              borderRadius: 24,
-              width: 'max-content',
-              maxWidth: size < 100 ? 230 : 280,
-              textAlign: 'center',
-              lineHeight: 1.4,
-              boxShadow: shadow,
-              border,
-              pointerEvents: 'none',
-              animation: 'otbee-bubble-pop .22s cubic-bezier(.34,1.56,.64,1) both',
-            }}
-          >
-            {bubble?.text ?? (growthProgress < 0.6 ? 'Halo pejuang PTN! Klik aku yaa 🐝✨' : 'Klik aku untuk salto & tips PTN! 🐝')}
-            <span style={{
               position: 'absolute',
               left: `calc(50% - ${bubble?.shift ?? 0}px)`,
               marginLeft: -6,
@@ -271,12 +304,12 @@ export default function FloatingMascot() {
               borderLeft: '6px solid transparent',
               borderRight: '6px solid transparent',
               ...(bubble?.below
-                ? { bottom: '100%', borderBottom: `6px solid ${bg}` }
-                : { top: '100%', borderTop: `6px solid ${bg}` }),
-            }} />
-          </div>
-        )
-      })()}
+                ? { bottom: '100%', borderBottom: '6px solid #ffffff' }
+                : { top: '100%', borderTop: '6px solid #ffffff' }),
+            }}
+          />
+        </div>
+      )}
       {/* Ambient glow in hero section */}
       {growthProgress < 0.8 && (
         <div
@@ -348,8 +381,6 @@ export default function FloatingMascot() {
             <div
               style={{
                 display: growthProgress < 0.95 ? 'block' : 'none',
-                opacity: growthProgress < 0.95 ? 1 : 0,
-                transition: 'opacity 0.15s ease',
               }}
             >
               <Otbee4KPuppet
@@ -366,8 +397,6 @@ export default function FloatingMascot() {
             <div
               style={{
                 display: growthProgress >= 0.95 ? 'block' : 'none',
-                opacity: growthProgress >= 0.95 ? 1 : 0,
-                transition: 'opacity 0.15s ease',
               }}
             >
               <OtbeeAvatar
