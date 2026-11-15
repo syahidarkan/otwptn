@@ -62,10 +62,10 @@ export default function CareerPage() {
                 <span className="text-xs font-black text-amber-900 uppercase tracking-wide">Sistem Kompensasi</span>
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-2">
-                <div className="text-3xl font-black text-amber-700">Rp 35.000</div>
+                <div className="text-2xl sm:text-3xl font-black text-amber-700">Fee Per Video</div>
                 <div>
-                  <div className="text-sm font-black text-gray-900">per video yang diterima</div>
-                  <div className="text-xs text-gray-600 mt-0.5">5–7 video/minggu = Rp 700.000 – Rp 980.000/minggu · tanpa batas maksimal</div>
+                  <div className="text-sm font-black text-gray-900">dibayar per video yang diterima + komisi affiliate</div>
+                  <div className="text-xs text-gray-600 mt-0.5">Upload 5–7 video/minggu · tanpa batas maksimal penghasilan</div>
                 </div>
               </div>
             </div>

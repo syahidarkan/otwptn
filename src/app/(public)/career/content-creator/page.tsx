@@ -35,8 +35,8 @@ const RESPONSIBILITIES = [
 
 const PERKS = [
   {
-    title: 'Fee Per Video Rp 35.000',
-    desc: 'Dibayar Rp 35.000 per video yang diterima tim. Upload 5–7 video/minggu = Rp 700k–980k/minggu. Tidak ada batas maksimal penghasilan.',
+    title: 'Fee Menarik & Kompetitif',
+    desc: 'Dapatkan kompensasi untuk setiap video yang diterima tim serta bonus komisi referral. Tidak ada batas maksimal penghasilan.',
     icon: DollarSign,
   },
   {
@@ -167,7 +167,7 @@ export default function ContentCreatorCareerPage() {
           </h1>
 
           <p className="text-sm sm:text-base text-gray-700 max-w-2xl font-medium leading-relaxed">
-            Dibayar <strong>Rp 35.000 per video</strong> yang diterima tim. Upload 5–7 video/minggu = Rp 700k–980k/minggu dari rumah. Bantu jutaan pejuang PTN sambil bangun personal branding kamu!
+            Dapatkan kompensasi menarik untuk setiap video yang diterima tim serta bonus komisi referral dari rumah. Bantu jutaan pejuang PTN sambil bangun personal branding kamu!
           </p>
 
           {/* Quick Metrics Badges */}
@@ -182,7 +182,7 @@ export default function ContentCreatorCareerPage() {
             </div>
             <div className="p-3.5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
               <span className="text-[10px] uppercase font-bold text-gray-400 block">Kompensasi</span>
-              <p className="text-xs sm:text-sm font-black text-emerald-600 mt-0.5">Rp 35.000 / video</p>
+              <p className="text-xs sm:text-sm font-black text-emerald-600 mt-0.5">Fee Per Video + Bonus</p>
             </div>
             <div className="p-3.5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
               <span className="text-[10px] uppercase font-bold text-gray-400 block">Syarat Followers</span>
