@@ -29,6 +29,7 @@ create table if not exists public.package_reminder_logs (
 
 alter table public.package_reminder_logs enable row level security;
 
+drop policy if exists "Service role manages reminder logs" on public.package_reminder_logs;
 create policy "Service role manages reminder logs"
   on public.package_reminder_logs
   for all

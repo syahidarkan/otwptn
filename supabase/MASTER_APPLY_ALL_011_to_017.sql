@@ -355,12 +355,14 @@ create table if not exists career_applications (
 
 alter table career_applications enable row level security;
 
+drop policy if exists "Admins can view and manage career applications" on career_applications;
 create policy "Admins can view and manage career applications"
   on career_applications for all
   using (
     exists (select 1 from profiles p where p.id = auth.uid() and (p.is_admin = true or p.role in ('superadmin', 'admin')))
   );
 
+drop policy if exists "Service role can manage career applications" on career_applications;
 create policy "Service role can manage career applications"
   on career_applications for all
   using (auth.role() = 'service_role');
@@ -405,6 +407,7 @@ create table if not exists public.package_reminder_logs (
 
 alter table public.package_reminder_logs enable row level security;
 
+drop policy if exists "Service role manages reminder logs" on public.package_reminder_logs;
 create policy "Service role manages reminder logs"
   on public.package_reminder_logs
   for all
