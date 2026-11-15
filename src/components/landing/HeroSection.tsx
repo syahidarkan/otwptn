@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
-import { Zap, ArrowRight, ShieldCheck, Star, X, Play } from 'lucide-react'
+import { Zap, ArrowRight, ShieldCheck, Star } from 'lucide-react'
 import HoneycombBg from '@/components/ui/HoneycombBg'
 
 const WORDS = ['Tes', 'Ujian', 'CBT', 'Pusing!']
@@ -133,14 +133,6 @@ export default function HeroSection() {
     }
   }, [])
 
-  const handleCloseVideo = () => {
-    setShowVideo(false)
-    if (typeof document !== 'undefined') {
-      document.body.classList.remove('otwptn-hero-video-active')
-    }
-    window.dispatchEvent(new CustomEvent('otbee:return-hero'))
-  }
-
   return (
     <section id="hero-section" ref={sectionRef} className="relative overflow-hidden min-h-screen flex items-center pt-28 md:pt-32 pb-12 md:pb-16">
 
@@ -226,49 +218,25 @@ export default function HeroSection() {
             <motion.div
               key="launch-video-card"
               id="otwptn-launch-video"
-              initial={{ opacity: 0, scale: 0.88, y: 24 }}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.88, y: 20 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              exit={{ opacity: 0, scale: 0.9, y: 16 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
               className="w-full max-w-2xl mx-auto mt-4 px-2 relative z-20 pointer-events-auto"
             >
-              <div className="relative rounded-3xl overflow-hidden border-2 border-amber-400/40 shadow-2xl bg-slate-950/95 backdrop-blur-md p-2.5 sm:p-3.5">
-                {/* Header bar */}
-                <div className="flex items-center justify-between px-2 sm:px-3 py-1.5 mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="flex h-2.5 w-2.5 relative">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" />
-                    </span>
-                    <span className="text-xs sm:text-sm font-black text-amber-300 tracking-wide flex items-center gap-1.5">
-                      <Play className="w-3.5 h-3.5 fill-amber-300" />
-                      Official Launching OTWPTN
-                    </span>
-                  </div>
-                  <button
-                    onClick={handleCloseVideo}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-white/80 hover:text-white bg-white/10 hover:bg-white/20 transition-colors"
-                    title="Tutup video dan panggil kembali maskot"
-                  >
-                    <span>Tutup Video</span>
-                    <X className="w-3.5 h-3.5 text-amber-300" />
-                  </button>
-                </div>
-
-                {/* Video Iframe Embed */}
-                <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-inner bg-black">
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    src="https://www.youtube.com/embed/nLaq2c4v3yU?si=0wrXzzSin4bXIIXJ&controls=0&autoplay=1"
-                    title="YouTube video player"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    allowFullScreen
-                    className="w-full h-full"
-                  />
-                </div>
+              {/* Pure video player with soft rounded corners and shadow (no black frame border, no text, no buttons) */}
+              <div className="relative aspect-video w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl bg-black">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src="https://www.youtube.com/embed/nLaq2c4v3yU?si=0wrXzzSin4bXIIXJ&controls=0&autoplay=1"
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                  className="w-full h-full block"
+                />
               </div>
             </motion.div>
           ) : (
