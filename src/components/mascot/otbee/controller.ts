@@ -47,7 +47,63 @@ const DIZZY_LINES = [
   'Pelan-pelan dong gerakinnya, pusing tau! 🐝💫',
   'Waa pusinggg, jangan diacak-acak kursornya! 😵💫',
 ]
+const PRIVACY_LINES = [
+  'Aku tutup mata dulu yaaa! 🙈',
+  'Tenang, aku gak ngintip kok! 🙈🔒',
+  'Sssttt rahasia! Aku tutup mata dulu ya 🙈',
+  'Privasi kamu aman! Aku tutup mata kok 🙈✨',
+]
+const PRIVACY_BLUR_LINES = [
+  'Udah selesai ya? Aman, gak ngintip kok! 😉✨',
+  'Sip, lanjuttt! 👍',
+]
 const DANGER = /hapus|delete|batal|keluar|logout|tolak|nonaktif|reset/i
+
+function isPrivacyField(el: Element | null): boolean {
+  if (!el || !(el instanceof HTMLElement)) return false
+  const isInput = el instanceof HTMLInputElement
+  const isText = el instanceof HTMLTextAreaElement || el.isContentEditable
+  if (!isInput && !isText) return false
+
+  // 1. Password input type
+  if (isInput && el.type === 'password') return true
+
+  // 2. Scan attributes (type, name, id, autocomplete, placeholder, aria-label, class)
+  const combined = [
+    el.getAttribute('type') || '',
+    el.getAttribute('name') || '',
+    el.getAttribute('id') || '',
+    el.getAttribute('autocomplete') || '',
+    el.getAttribute('placeholder') || '',
+    el.getAttribute('aria-label') || '',
+    el.getAttribute('data-field') || '',
+    el.className || '',
+  ].join(' ').toLowerCase()
+
+  if (/current-password|new-password|one-time-code|cc-number|cc-csc|cc-cvv|cc-exp/.test(combined)) {
+    return true
+  }
+
+  const SENSITIVE_REGEX = /(password|kata[\s-_]?sandi|sandi|pin|otp|kode[\s-_]?(verifikasi|otp|keamanan|akses)|security[\s-_]?code|cvv|cvc|secret|token)/i
+  if (SENSITIVE_REGEX.test(combined)) {
+    return true
+  }
+
+  // 3. Label text if any
+  try {
+    const labelEl = el.closest('label') || (el.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`) : null)
+    if (labelEl && SENSITIVE_REGEX.test(labelEl.textContent || '')) {
+      return true
+    }
+  } catch {}
+
+  // 4. Data attributes
+  if (el.dataset.sensitive === 'true' || el.dataset.privacy === 'true' || el.dataset.private === 'true') {
+    return true
+  }
+
+  return false
+}
 
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v))
 const wait = (ms: number) => new Promise<void>(r => setTimeout(r, ms))
@@ -73,6 +129,7 @@ export function createController(d: ControllerDeps) {
   let speechTimer: ReturnType<typeof setTimeout> | null = null
   let navStartedAt = 0
   let typing = false
+  let isPrivacy = false
   let bubbleId = 0
   let lastSpeakAt = 0
   let idleStage = 0
@@ -153,7 +210,7 @@ export function createController(d: ControllerDeps) {
     invalid = 0
     if (Math.abs(p.x - pos.x) > 0.35 || Math.abs(p.y - pos.y) > 0.35) place(p)
     // face whichever side the cursor is on (deadzone so he doesn't flicker near centre)
-    if (pointerMoved && !isTouch) {
+    if (pointerMoved && !isTouch && !isPrivacy) {
       const dxFace = pointerX + window.scrollX - pos.x
       const dead = 34 * scale()
       if (Math.abs(dxFace) > dead) {
@@ -162,7 +219,7 @@ export function createController(d: ControllerDeps) {
       }
     }
     // hover explanations are throttled to ~90ms (not every raw pointermove) to keep scrolling smooth
-    if (pointerMoved && !isTouch) {
+    if (pointerMoved && !isTouch && !isPrivacy) {
       const now = performance.now()
       if (now - lastHoverCheck > 90) { lastHoverCheck = now; considerPoint(pointerX, pointerY, 650) }
     }
@@ -188,7 +245,13 @@ export function createController(d: ControllerDeps) {
     setTimeout(() => {
       if (tok !== token || disposed) return
       phase = 'resting'
-      act(cfg?.clip ?? 'idle', { force: true, text: personal(cfg?.greet), ms: 4200 })
+      if (typeof document !== 'undefined' && document.activeElement && isPrivacyField(document.activeElement)) {
+        isPrivacy = true
+        typing = true
+        act('coverEyes', { text: pickOne(PRIVACY_LINES), force: true, ms: 8000 })
+      } else {
+        act(cfg?.clip ?? 'idle', { force: true, text: personal(cfg?.greet), ms: 4200 })
+      }
       resetIdle()
     }, 560)
   }
@@ -452,16 +515,34 @@ export function createController(d: ControllerDeps) {
     const t = e.target as HTMLElement | null
     if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) && !t.closest(IGNORE_SELECTOR)) {
       typing = true
-      act('typing', { force: true })
+      if (isPrivacyField(t)) {
+        if (!isPrivacy) {
+          isPrivacy = true
+          act('coverEyes', { text: pickOne(PRIVACY_LINES), force: true, ms: 8000 })
+        }
+      } else {
+        if (isPrivacy) isPrivacy = false
+        act('typing', { force: true })
+      }
     }
   }
   const onBlur = () => {
+    if (isPrivacy) {
+      isPrivacy = false
+      typing = false
+      setTimeout(() => {
+        if (!typing && !isPrivacy) {
+          act('wink', { text: pickOne(PRIVACY_BLUR_LINES), force: true, ms: 2800 })
+        }
+      }, 250)
+      return
+    }
     if (!typing) return
     typing = false
     setTimeout(() => { if (!typing) act('nod', { force: true }) }, 250)
   }
   const handleErraticPointer = (now: number) => {
-    if (disposed || isDragging || phase === 'traveling') return
+    if (disposed || isDragging || phase === 'traveling' || isPrivacy) return
     if (now < dizzyUntil || now < busyUntil) return
     dizzyUntil = now + 2400
     busyUntil = now + 2400

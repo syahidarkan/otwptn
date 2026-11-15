@@ -194,6 +194,28 @@ export const CLIPS = {
       { t: 1.1, type: 'stars' },
     ],
   },
+  coverEyes: {
+    dur: 3, loop: true, life: 0,
+    tracks: {
+      blink: [[0, 1], [3, 1]],
+      eyeArc: [[0, 0], [3, 0]],
+      headRot: [[0, -6], [1.5, -9, 'sine'], [3, -6, 'sine']],
+      headPitch: [[0, 0.25], [1.5, 0.35, 'sine'], [3, 0.25, 'sine']],
+      headYaw: [[0, -0.4], [1.5, -0.5, 'sine'], [3, -0.4, 'sine']],
+      armL: [[0, 92], [1.5, 96, 'sine'], [3, 92, 'sine']],
+      armR: [[0, 92], [1.5, 96, 'sine'], [3, 92, 'sine']],
+      elbowL: [[0, 48], [1.5, 52, 'sine'], [3, 48, 'sine']],
+      elbowR: [[0, 48], [1.5, 52, 'sine'], [3, 48, 'sine']],
+      cheek: [[0, 1.4]],
+      mouthCurve: [[0, 0.7]],
+      mouthOpen: [[0, 0.03]],
+      sy: [[0, 0.98], [1.5, 1.0, 'sine'], [3, 0.98, 'sine']],
+      sx: [[0, 1.01], [1.5, 0.99, 'sine'], [3, 1.01, 'sine']],
+      wingAmp: [[0, 3]],
+      wingHz: [[0, 4]],
+    },
+    fx: [{ t: 0.3, type: 'heart', side: 1 }],
+  },
   thinking: {
     dur: 4, loop: true,
     tracks: {
