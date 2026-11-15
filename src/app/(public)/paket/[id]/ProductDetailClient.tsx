@@ -24,6 +24,8 @@ import {
   Lock,
 } from 'lucide-react'
 import { LEGAL_ENTITY } from '@/lib/constants'
+import { REAL_TOP_MENTEES } from '@/data/testimonials'
+import MenteeTestimonialCard from '@/components/ui/MenteeTestimonialCard'
 
 interface ProductData {
   id: string
@@ -373,6 +375,27 @@ export default function ProductDetailClient({ id = "nectar", initialCartOpen = f
                   <p className="text-xs text-gray-600 leading-relaxed font-medium">{item.desc}</p>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Real Mentee Testimonials Section */}
+        <div className="mt-16 mb-12 pt-10 border-t border-gray-100">
+          <div className="text-center mb-10 max-w-2xl mx-auto">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-100 text-amber-950 border border-amber-300 text-xs font-black mb-3">
+              ★ Review Mentee Resmi
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-black text-gray-950 mb-2">
+              Kisah Nyata Lolos Kampus Impian
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-500 font-medium">
+              Simak testimoni jujur mentee OTWPTN yang berhasil lolos di kampus dan jurusan impian.
+            </p>
+          </div>
+
+          <div className="flex gap-5 overflow-x-auto pb-6 pt-2 px-2 no-scrollbar justify-start xl:justify-center">
+            {REAL_TOP_MENTEES.map((item) => (
+              <MenteeTestimonialCard key={item.id} item={item} />
             ))}
           </div>
         </div>

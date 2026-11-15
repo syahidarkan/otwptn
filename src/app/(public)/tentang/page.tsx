@@ -3,6 +3,8 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { REAL_TOP_MENTEES } from '@/data/testimonials'
+import MenteeTestimonialCard from '@/components/ui/MenteeTestimonialCard'
 import {
   FileEdit,
   BarChart3,
@@ -200,6 +202,24 @@ export default function TentangPage() {
           <p className="pt-2 font-semibold text-gray-700 text-xs">
             - Founder OTWPTN
           </p>
+        </div>
+      </section>
+
+      {/* ── 5.5. Real Top Mentee Testimonials ──────────────────────────── */}
+      <section className="max-w-6xl mx-auto px-4 mb-24">
+        <div className="text-center mb-10 max-w-xl mx-auto">
+          <p className="text-[11px] font-semibold text-gray-400 tracking-wider mb-1">
+            Cerita Alumni Mentee.
+          </p>
+          <h2 className="text-xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+            Cerita Mereka yang Sudah Membuktikan
+          </h2>
+        </div>
+
+        <div className="flex gap-5 overflow-x-auto pb-6 pt-2 px-2 no-scrollbar justify-start lg:justify-center">
+          {REAL_TOP_MENTEES.map((item) => (
+            <MenteeTestimonialCard key={item.id} item={item} />
+          ))}
         </div>
       </section>
 

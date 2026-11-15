@@ -25,6 +25,8 @@ import Select from '@/components/ui/Select'
 import { INDONESIA_PTN_LIST, INDONESIA_JURUSAN_LIST } from '@/lib/indonesiaDirectory'
 import { getFacultyNamesForPtn, getMajorsForFaculty, getFacultyForMajor } from '@/lib/facultyMajorDirectory'
 import { loadStoredAcademicProfile } from '@/lib/academicProfile'
+import { REAL_TOP_MENTEES } from '@/data/testimonials'
+import MenteeTestimonialCard from '@/components/ui/MenteeTestimonialCard'
 import {
   MODES,
   TRACKS,
@@ -465,6 +467,27 @@ export default function UpgradePage() {
               </div>
             )
           })}
+        </div>
+
+        {/* Real Mentee Testimonials */}
+        <div className="mt-20 mb-10">
+          <div className="text-center mb-10 max-w-2xl mx-auto px-4">
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-100 text-amber-950 border border-amber-300 text-xs font-bold mb-3">
+              ★ Cerita Nyata Pejuang PTN
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-black text-gray-950 mb-2">
+              Kisah Sukses Mentee yang Lolos Kampus Impian
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-500 font-medium">
+              Lihat bagaimana bimbingan esai dan strategi rasionalisasi OTWPTN mengantar mereka menembus jurusan favorit di Universitas Indonesia.
+            </p>
+          </div>
+
+          <div className="flex gap-5 overflow-x-auto pb-6 pt-2 px-2 no-scrollbar justify-start xl:justify-center">
+            {REAL_TOP_MENTEES.map((item) => (
+              <MenteeTestimonialCard key={item.id} item={item} />
+            ))}
+          </div>
         </div>
 
         {/* Comparison Table */}
