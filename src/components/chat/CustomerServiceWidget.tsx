@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   X, Send, ArrowLeft
 } from 'lucide-react'
-import { OtbeeAvatar, otbeeBrain } from '@/components/mascot/otbee'
+import { OtbeeAvatar, Otbee4KPuppet, type Otbee4KPuppetHandle, otbeeBrain } from '@/components/mascot/otbee'
 import type { ClipName, OtbeeHandle } from '@/components/mascot/otbee'
 
 interface Message {
@@ -55,7 +55,7 @@ export default function CustomerServiceWidget() {
   const [view, setView] = useState<'welcome' | 'chat'>('welcome')
   const figRef = useRef<HTMLDivElement>(null)
   const figAvatar = useRef<OtbeeHandle>(null)
-  const heroAvatarRef = useRef<OtbeeHandle>(null)
+  const heroAvatarRef = useRef<Otbee4KPuppetHandle>(null)
   const openingRef = useRef(false)
   const [inputMessage, setInputMessage] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
@@ -302,8 +302,8 @@ export default function CustomerServiceWidget() {
               }}
             />
             <div className="relative w-14 h-14 rounded-full bg-gradient-to-b from-amber-50 to-amber-100/90 overflow-hidden border-2 border-white/95 shadow-inner flex items-center justify-center">
-              <div style={{ transform: 'scaleX(-1)' }}>
-                <OtbeeAvatar headOnly view="front" size={44} followPointer facing={-1} paused={stage} />
+              <div style={{ transform: 'scaleX(-1) scale(0.36)', transformOrigin: 'center center' }}>
+                <Otbee4KPuppet growthProgress={0} size={145} followPointer facing={-1} paused={stage} />
               </div>
             </div>
             <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-xs animate-pulse" />
@@ -339,7 +339,7 @@ export default function CustomerServiceWidget() {
                   transformOrigin: 'top left',
                 }}
               >
-                <OtbeeAvatar headOnly size={150} view="front" action="cheer" />
+                <Otbee4KPuppet growthProgress={0} size={145} followPointer={false} />
               </div>
             )}
 
@@ -391,15 +391,14 @@ export default function CustomerServiceWidget() {
                   {/* Interactive Head */}
                   <div
                     onClick={handleHeadLoveReaction}
-                    className="cursor-pointer transition-transform hover:scale-105 active:scale-95 relative"
+                    className="cursor-pointer transition-transform hover:scale-105 active:scale-95 relative flex items-center justify-center"
                     title="Klik kepala Otbee!"
                   >
-                    <OtbeeAvatar
+                    <Otbee4KPuppet
                       ref={heroAvatarRef}
-                      headOnly
-                      size={150}
+                      growthProgress={0}
+                      size={145}
                       followPointer
-                      view="front"
                     />
                   </div>
 

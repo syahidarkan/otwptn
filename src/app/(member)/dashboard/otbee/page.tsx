@@ -26,8 +26,8 @@ import {
 } from 'lucide-react'
 import SearchInput from '@/components/ui/SearchInput'
 import { completeQuest, awardPoints } from '@/lib/gamification'
-import { OtbeeAvatar } from '@/components/mascot/otbee'
-import type { ClipName, OtbeeHandle } from '@/components/mascot/otbee'
+import { OtbeeAvatar, Otbee4KPuppet } from '@/components/mascot/otbee'
+import type { ClipName, OtbeeHandle, Otbee4KPuppetHandle } from '@/components/mascot/otbee'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -87,7 +87,7 @@ export default function OtbeePage() {
   const [isShrinkingHead, setIsShrinkingHead] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const heroAvatarRef = useRef<OtbeeHandle>(null)
+  const heroAvatarRef = useRef<Otbee4KPuppetHandle>(null)
 
   const handleHeadLoveReaction = () => {
     heroAvatarRef.current?.fx('heart', 1)
@@ -451,15 +451,14 @@ export default function OtbeePage() {
                   {/* Interactive Head with Love Click */}
                   <div
                     onClick={handleHeadLoveReaction}
-                    className="cursor-pointer transition-transform hover:scale-105 active:scale-95 relative"
+                    className="cursor-pointer transition-transform hover:scale-105 active:scale-95 relative flex items-center justify-center"
                     title="Klik kepala Otbee!"
                   >
-                    <OtbeeAvatar
+                    <Otbee4KPuppet
                       ref={heroAvatarRef}
-                      headOnly
-                      size={150}
+                      growthProgress={0}
+                      size={145}
                       followPointer
-                      view="front"
                     />
                   </div>
 
