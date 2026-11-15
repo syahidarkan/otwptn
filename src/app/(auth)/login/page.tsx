@@ -34,7 +34,13 @@ function LoginForm({ initialError = null }: { initialError?: string | null }) {
       return
     }
 
-    const { error: err } = await createClient().auth.signInWithPassword({ email, password })
+    const { error: err } = await createClient().auth.signInWithPassword({
+      email,
+      password,
+      options: {
+        captchaToken: turnstileToken,
+      },
+    })
     if (err) {
       setError('Email atau password salah.')
       setLoading(false)

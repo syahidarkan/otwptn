@@ -39,7 +39,14 @@ export default function RegisterPage() {
       return
     }
 
-    const { data, error: err } = await createClient().auth.signUp({ email, password, options: { data: { full_name: fullName } } })
+    const { data, error: err } = await createClient().auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName },
+        captchaToken: turnstileToken,
+      },
+    })
     if (err) { setError(err.message); setLoading(false); setTurnstileToken(null); return }
     if (data.session) {
       router.push('/onboarding')
