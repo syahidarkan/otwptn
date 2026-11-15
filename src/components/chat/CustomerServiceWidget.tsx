@@ -52,6 +52,7 @@ export default function CustomerServiceWidget() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [stage, setStage] = useState(false) // the standing mascot is on screen (jump / salto / dissolve)
+  const [view, setView] = useState<'welcome' | 'chat'>('welcome')
   const figRef = useRef<HTMLDivElement>(null)
   const figAvatar = useRef<OtbeeHandle>(null)
   const heroAvatarRef = useRef<OtbeeHandle>(null)
@@ -63,12 +64,46 @@ export default function CustomerServiceWidget() {
   const [isShrinkingHead, setIsShrinkingHead] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Auto-scroll to bottom on new message
+  const STORAGE_KEY = 'otwptn_cs_chat_messages'
+
+  // Restore messages from sessionStorage on initial mount
   useEffect(() => {
-    if (isOpen && messages.length > 0) {
+    try {
+      if (typeof window !== 'undefined') {
+        const saved = sessionStorage.getItem(STORAGE_KEY)
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setMessages(parsed)
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[CS Chat] Failed to restore session messages:', e)
+    }
+  }, [])
+
+  // Persist messages to sessionStorage
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        if (messages.length > 0) {
+          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages))
+        } else {
+          sessionStorage.removeItem(STORAGE_KEY)
+        }
+      }
+    } catch (e) {
+      console.warn('[CS Chat] Failed to persist session messages:', e)
+    }
+  }, [messages])
+
+  // Auto-scroll to bottom on new message or when viewing chat
+  useEffect(() => {
+    if (isOpen && view === 'chat' && messages.length > 0) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages, isTyping, isOpen])
+  }, [messages, isTyping, isOpen, view])
 
   // Head icon click -> body grows out of the head -> jump + salto -> white card emerges from the body, body melts away
   const handleOpenChat = () => {
@@ -109,6 +144,20 @@ export default function CustomerServiceWidget() {
     otbeeBrain.emit({ type: 'cs-chat-close' })
   }
 
+  const handleBackToWelcome = () => {
+    setView('welcome')
+  }
+
+  const handleResetChat = () => {
+    setMessages([])
+    try {
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem(STORAGE_KEY)
+      }
+    } catch {}
+    setView('welcome')
+  }
+
   // Native vector love reaction using mascot rig fx and shy blushing action
   const handleHeadLoveReaction = () => {
     heroAvatarRef.current?.fx('heart', 1)
@@ -121,13 +170,13 @@ export default function CustomerServiceWidget() {
     const text = (textToSend || inputMessage).trim()
     if (!text || isTyping) return
 
-    const isFirst = messages.length === 0
-    if (isFirst) {
-      // Trigger the head shrinking animation towards the AI profile position!
+    if (view === 'welcome') {
+      // Trigger the head shrinking animation from center into avatar position
       setIsShrinkingHead(true)
       setTimeout(() => {
+        setView('chat')
         setIsShrinkingHead(false)
-      }, 480)
+      }, 420)
     }
 
     const userMsg: Message = {
@@ -215,11 +264,15 @@ export default function CustomerServiceWidget() {
             transform: translate(-50%, -50%) scale(1);
             opacity: 1;
           }
+          45% {
+            transform: translate(-50%, -50%) scale(0.65) rotate(-6deg);
+            opacity: 0.95;
+          }
           100% {
-            top: 76px;
+            top: 74px;
             left: 20px;
-            transform: translate(0, 0) scale(0.24);
-            opacity: 0.85;
+            transform: translate(0, 0) scale(0.23);
+            opacity: 0.9;
           }
         }
       `}</style>
@@ -277,12 +330,12 @@ export default function CustomerServiceWidget() {
               animation: 'otbee-card-emerge-anim 0.5s cubic-bezier(0.34, 1.3, 0.64, 1) forwards',
             }}
           >
-            {/* Transient Shrinking Head (Animates when first message is sent from Attempt 1 into Attempt 2) */}
+            {/* Transient Shrinking Head (Animates when first message is sent from Welcome into Chat) */}
             {isShrinkingHead && (
               <div
                 className="absolute pointer-events-none z-50 select-none"
                 style={{
-                  animation: 'otbee-shrink-to-avatar 0.48s cubic-bezier(0.2, 0.9, 0.3, 1) forwards',
+                  animation: 'otbee-shrink-to-avatar 0.42s cubic-bezier(0.2, 0.9, 0.3, 1) forwards',
                   transformOrigin: 'top left',
                 }}
               >
@@ -291,12 +344,18 @@ export default function CustomerServiceWidget() {
             )}
 
             {/* ======================================================== */}
-            {/* ATTEMPT 1: NO CHAT MESSAGES YET (Zero State)             */}
+            {/* VIEW 1: WELCOME SCREEN (Interactive Mascot & Quick Start)*/}
             {/* ======================================================== */}
-            {messages.length === 0 ? (
+            {view === 'welcome' ? (
               <div className="flex-1 flex flex-col justify-between p-5 select-none relative overflow-hidden bg-gradient-to-b from-white via-amber-50/20 to-white">
-                {/* Top Bar with Close button only (No Otbee CS Online badge) */}
-                <div className="flex items-center justify-end">
+                {/* Top Bar with active badge if returning from chat, and Close button */}
+                <div className="flex items-center justify-between">
+                  {messages.length > 0 ? (
+                    <span className="text-[10px] font-bold text-amber-900/70 bg-amber-100/80 px-2.5 py-0.5 rounded-full border border-amber-200/60 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Chat Aktif ({messages.length} pesan)
+                    </span>
+                  ) : <span />}
                   <button
                     onClick={handleCloseChat}
                     className="w-8 h-8 rounded-full hover:bg-gray-100 text-gray-500 flex items-center justify-center transition-all cursor-pointer"
@@ -306,7 +365,7 @@ export default function CustomerServiceWidget() {
                   </button>
                 </div>
 
-                {/* Big Title (Attempt 1 styling) */}
+                {/* Big Title */}
                 <div className="text-center pt-1 pb-1">
                   <h2 className="text-[25px] sm:text-[27px] font-black text-gray-950 tracking-tight leading-[1.18]">
                     Your{' '}
@@ -348,6 +407,30 @@ export default function CustomerServiceWidget() {
                   <p className="text-xs font-semibold text-gray-500 text-center max-w-[250px] leading-relaxed mt-2">
                     Get instant help and support with any task or problem
                   </p>
+
+                  {/* If there are existing messages in session, show continue action */}
+                  {messages.length > 0 && (
+                    <div className="w-full max-w-[290px] mt-2.5 flex flex-col gap-1 items-center animate-in fade-in zoom-in-95 duration-200">
+                      <button
+                        onClick={() => setView('chat')}
+                        className="w-full py-2 px-4 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:brightness-105 text-amber-950 font-black text-xs shadow-xs hover:shadow-md transition-all flex items-center justify-between cursor-pointer group"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+                          <span>Lanjutkan Percakapan ({messages.length})</span>
+                        </div>
+                        <span className="text-xs font-black text-amber-950/70 group-hover:translate-x-0.5 transition-transform">
+                          &rarr;
+                        </span>
+                      </button>
+                      <button
+                        onClick={handleResetChat}
+                        className="text-[10px] font-bold text-gray-400 hover:text-red-500 transition-colors cursor-pointer py-0.5"
+                      >
+                        Mulai percakapan baru (reset)
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Quick Question Pills */}
@@ -363,7 +446,7 @@ export default function CustomerServiceWidget() {
                   ))}
                 </div>
 
-                {/* Pill-shaped Input Bar (No paperclip, No AI label) */}
+                {/* Pill-shaped Input Bar */}
                 <div className="w-full">
                   <div className="flex items-center gap-2 bg-gray-100/90 rounded-full pl-4 pr-1.5 py-1.5 border border-gray-200/80 shadow-inner">
                     <input
@@ -387,27 +470,40 @@ export default function CustomerServiceWidget() {
               </div>
             ) : (
               /* ======================================================== */
-              /* ATTEMPT 2: ACTIVE CHAT MESSAGES                          */
+              /* VIEW 2: ACTIVE CHAT MESSAGES STREAM                      */
               /* ======================================================== */
               <div className="flex-1 flex flex-col overflow-hidden bg-white">
-                {/* Topbar: Back button, Title, Close button */}
-                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-white/90 backdrop-blur-md flex-shrink-0">
+                {/* Topbar: Back button, Live Otbee Mascot Avatar + Title, Close button */}
+                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-white/95 backdrop-blur-md flex-shrink-0">
                   <button
-                    onClick={() => setMessages([])}
+                    onClick={handleBackToWelcome}
                     className="w-8 h-8 rounded-full hover:bg-gray-100 text-gray-700 flex items-center justify-center transition-all cursor-pointer"
-                    title="Kembali ke Layar Awal"
+                    title="Kembali ke Layar Awal (Percakapan Tersimpan)"
                     aria-label="Kembali"
                   >
                     <ArrowLeft size={18} />
                   </button>
 
-                  <div className="text-center">
-                    <h3 className="text-sm font-black text-gray-900 tracking-tight">
-                      Otbee AI Assistant
-                    </h3>
-                    <div className="flex items-center justify-center gap-1 text-[10px] font-bold text-emerald-600">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span>Aktif Siaga</span>
+                  <div className="flex items-center gap-2">
+                    {/* Live Animated Otbee Vector Mascot Head in Header */}
+                    <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center overflow-hidden shadow-2xs flex-shrink-0">
+                      <OtbeeAvatar
+                        headOnly
+                        size={28}
+                        view="front"
+                        followPointer
+                        paused={false}
+                        action={isTyping ? 'talk' : 'idle'}
+                      />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="text-xs sm:text-sm font-black text-gray-900 tracking-tight leading-tight">
+                        Otbee AI Assistant
+                      </h3>
+                      <div className="flex items-center gap-1 text-[9.5px] font-bold text-emerald-600">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>Aktif Siaga</span>
+                      </div>
                     </div>
                   </div>
 
@@ -422,54 +518,66 @@ export default function CustomerServiceWidget() {
 
                 {/* Messages Stream */}
                 <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50/40">
-                  {messages.map(msg => (
-                    <div key={msg.id} className="space-y-1">
-                      {msg.role === 'user' ? (
-                        /* User message (Attempt 2 style) */
-                        <div className="flex justify-end">
-                          <div className="max-w-[82%] bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 font-bold rounded-2xl rounded-tr-xs px-4 py-2.5 text-xs shadow-xs leading-relaxed">
-                            {msg.content}
-                            <div className="text-[9px] font-bold text-amber-950/60 text-right mt-1">
-                              {msg.timestamp}
+                  {messages.map((msg, idx) => {
+                    const isLatestBotMsg = msg.role === 'assistant' && idx === messages.length - 1
+                    return (
+                      <div key={msg.id} className="space-y-1">
+                        {msg.role === 'user' ? (
+                          /* User message */
+                          <div className="flex justify-end">
+                            <div className="max-w-[82%] bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 font-bold rounded-2xl rounded-tr-xs px-4 py-2.5 text-xs shadow-xs leading-relaxed">
+                              {msg.content}
+                              <div className="text-[9px] font-bold text-amber-950/60 text-right mt-1">
+                                {msg.timestamp}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ) : (
-                        /* AI Assistant message (Attempt 2 style: NO CIRCLE FRAME, direct head mascot) */
-                        <div className="flex items-start gap-2.5">
-                          {/* Direct Otbee Vector Head Photo Profile */}
-                          <div className="flex-shrink-0 -mt-1 select-none">
-                            <OtbeeAvatar
-                              headOnly
-                              size={34}
-                              paused={!isTyping}
-                              action={isTyping ? 'talk' : 'idle'}
-                            />
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            {/* Timestamp & Name */}
-                            <div className="flex items-center gap-1.5 mb-1 text-[10.5px]">
-                              <span className="text-gray-400 font-bold">{msg.timestamp}</span>
-                              <span className="text-gray-300">•</span>
-                              <span className="font-black text-gray-900">Ai-Assistant</span>
+                        ) : (
+                          /* AI Assistant message: Live Animated Otbee Vector Head Photo Profile */
+                          <div className="flex items-start gap-2.5">
+                            {/* Live Otbee Vector Mascot Head Photo Profile (Moving, Blinking, Follows Cursor) */}
+                            <div className="flex-shrink-0 -mt-1 select-none">
+                              <OtbeeAvatar
+                                headOnly
+                                size={34}
+                                view="front"
+                                followPointer
+                                paused={false}
+                                action={isTyping && isLatestBotMsg ? 'talk' : 'idle'}
+                              />
                             </div>
 
-                            {/* Message bubble */}
-                            <div className="bg-white rounded-2xl rounded-tl-xs p-3.5 text-xs text-gray-800 font-medium border border-gray-100 shadow-3xs leading-relaxed">
-                              {formatChatText(msg.content)}
+                            <div className="flex-1 min-w-0">
+                              {/* Timestamp & Name */}
+                              <div className="flex items-center gap-1.5 mb-1 text-[10.5px]">
+                                <span className="text-gray-400 font-bold">{msg.timestamp}</span>
+                                <span className="text-gray-300">•</span>
+                                <span className="font-black text-gray-900">Ai-Assistant</span>
+                              </div>
+
+                              {/* Message bubble */}
+                              <div className="bg-white rounded-2xl rounded-tl-xs p-3.5 text-xs text-gray-800 font-medium border border-gray-100 shadow-3xs leading-relaxed">
+                                {formatChatText(msg.content)}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                        )}
+                      </div>
+                    )
+                  })}
 
                   {/* Typing Indicator */}
                   {isTyping && (
                     <div className="flex items-start gap-2.5">
                       <div className="flex-shrink-0 -mt-1 select-none">
-                        <OtbeeAvatar headOnly size={34} action="talk" />
+                        <OtbeeAvatar
+                          headOnly
+                          size={34}
+                          view="front"
+                          followPointer
+                          paused={false}
+                          action="talk"
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 mb-1 text-[10.5px]">
@@ -489,7 +597,7 @@ export default function CustomerServiceWidget() {
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Bottom Pill Input Bar (No paperclip, No AI label) */}
+                {/* Bottom Pill Input Bar */}
                 <div className="p-3 bg-white border-t border-gray-100 flex-shrink-0">
                   <div className="flex items-center gap-2 bg-gray-100/90 rounded-full pl-4 pr-1.5 py-1.5 border border-gray-200/80 shadow-inner">
                     <input
