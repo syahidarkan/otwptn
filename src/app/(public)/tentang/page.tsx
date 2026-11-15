@@ -3,7 +3,6 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Play } from 'lucide-react'
 
 interface TeamMember {
   name: string
@@ -15,7 +14,7 @@ interface TeamMember {
 
 const TEAM_MEMBERS: TeamMember[] = [
   {
-    name: 'Syahid Arkan',
+    name: 'Founder OTWPTN',
     role: 'Founder & Product',
     avatar: '/avatars/avatar-4.png',
   },
@@ -40,13 +39,13 @@ const TEAM_MEMBERS: TeamMember[] = [
 ]
 
 const VALUES = [
-  { text: 'Review esai tanpa ribet', emoji: '✍️', bg: 'bg-[#fef8ee]', border: 'border-[#fae8cb]', textCol: 'text-[#92400e]' },
-  { text: 'Rasionalisasi data riil', emoji: '📊', bg: 'bg-[#f0fdf4]', border: 'border-[#dcfce7]', textCol: 'text-[#166534]' },
-  { text: 'Hemat ratusan jam', emoji: '⏳', bg: 'bg-[#f4f7fb]', border: 'border-[#e2e8f0]', textCol: 'text-[#334155]' },
-  { text: 'Personal untuk profilmu', emoji: '🪡', bg: 'bg-[#fdf4ff]', border: 'border-[#f5d0fe]', textCol: 'text-[#86198f]' },
-  { text: 'Dibuat untuk kelulusan nyata', emoji: '📈', bg: 'bg-[#eff6ff]', border: 'border-[#dbeafe]', textCol: 'text-[#1e40af]' },
-  { text: 'Didampingi kakak tingkat PTN', emoji: '🎓', bg: 'bg-[#fff1f2]', border: 'border-[#ffe4e6]', textCol: 'text-[#9f1239]' },
-  { text: 'Bebas stres ujian tertulis', emoji: '🧘', bg: 'bg-[#faf5ff]', border: 'border-[#f3e8ff]', textCol: 'text-[#6b21a8]' },
+  { text: 'Review esai tanpa ribet', emoji: '✍️' },
+  { text: 'Rasionalisasi data riil', emoji: '📊' },
+  { text: 'Hemat ratusan jam', emoji: '⏳' },
+  { text: 'Personal untuk profilmu', emoji: '🪡' },
+  { text: 'Dibuat untuk kelulusan nyata', emoji: '📈' },
+  { text: 'Didampingi kakak tingkat PTN', emoji: '🎓' },
+  { text: 'Bebas stres ujian tertulis', emoji: '🧘' },
 ]
 
 export default function TentangPage() {
@@ -64,51 +63,20 @@ export default function TentangPage() {
         </p>
       </section>
 
-      {/* ── 2. Featured Showcase Card (Sky Blue Pastel with Video) ────── */}
-      <section className="max-w-4xl mx-auto px-4 mb-20 sm:mb-28">
-        <div className="relative rounded-[28px] sm:rounded-[36px] overflow-hidden bg-gradient-to-b from-[#dce8f8] via-[#e8f1fc] to-[#d7e6f8] border border-blue-100/80 p-5 sm:p-10 shadow-sm flex flex-col items-center justify-center">
-          {/* Subtle cloud ambience */}
-          <div className="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.8),transparent_70%)]" />
-
-          {/* Floating Pill Badges around Showcase */}
-          <div className="hidden sm:flex items-center justify-between w-full max-w-2xl text-[11px] font-semibold text-gray-600 mb-4 px-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-xs shadow-xs border border-white/60">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-              Review Esai AI
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-xs shadow-xs border border-white/60">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-              Rasionalisasi SNBP
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-xs shadow-xs border border-white/60">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              Mentor Alumni PTN
-            </span>
-          </div>
-
-          {/* Clean 16:9 Video Frame */}
-          <div className="relative w-full max-w-2xl aspect-video rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-white/80 bg-black z-10 group">
-            <iframe
-              width="100%"
-              height="100%"
-              src="https://www.youtube.com/embed/nLaq2c4v3yU?si=0wrXzzSin4bXIIXJ"
-              title="Official Launching OTWPTN"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-              className="w-full h-full block"
-            />
-          </div>
-
-          <div className="hidden sm:flex items-center justify-center gap-6 w-full text-[11px] font-semibold text-gray-500 mt-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 backdrop-blur-xs border border-white/60 shadow-xs">
-              ✦ 25+ Direktori Kampus
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 backdrop-blur-xs border border-white/60 shadow-xs">
-              ✦ Rekomendasi Personal Rapor
-            </span>
-          </div>
+      {/* ── 2. Showcase Video (Direct Player without card wrapper or buttons) ─ */}
+      <section className="max-w-3xl mx-auto px-4 mb-20 sm:mb-28">
+        <div className="relative w-full aspect-video rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-zinc-200/80 bg-black">
+          <iframe
+            width="100%"
+            height="100%"
+            src="https://www.youtube.com/embed/nLaq2c4v3yU?si=0wrXzzSin4bXIIXJ"
+            title="Official Launching OTWPTN"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+            className="w-full h-full block"
+          />
         </div>
       </section>
 
@@ -118,13 +86,13 @@ export default function TentangPage() {
           Berjuang masuk PTN sendirian itu berat. Itulah alasan utama OTWPTN didirikan: membuat prosesnya jauh lebih mudah, cerdas, dan menyenangkan.
         </p>
         <p className="text-sm sm:text-base text-gray-500 leading-relaxed font-normal">
-          Kami memulai OTWPTN dengan satu gagasan sederhana: membantu setiap pejuang PTN fokus pada potensi autentik, capaian prestasi, dan mimpi besarnya — bukan pusing memikirkan syarat berkas yang membingungkan atau tebak-tebakan kuota. Kami percaya, perpaduan teknologi analitis dengan bimbingan tulus alumni kampus impian mampu membuang rasa cemas dan mengeluarkan versi terbaik dari cerita setiap siswa.
+          Kami memulai OTWPTN dengan satu gagasan sederhana: membantu setiap pejuang PTN fokus pada potensi autentik, capaian prestasi, dan mimpi besarnya, bukan pusing memikirkan syarat berkas yang membingungkan atau tebak-tebakan kuota. Kami percaya, perpaduan teknologi analitis dengan bimbingan tulus alumni kampus impian mampu membuang rasa cemas dan mengeluarkan versi terbaik dari cerita setiap siswa.
         </p>
       </section>
 
-      {/* ── 4. Our Value (Less "ugh", more "yay!") ─────────────────────── */}
+      {/* ── 4. Our Values (Black & Yellow sleek cards) ────────────────── */}
       <section className="max-w-3xl mx-auto px-4 text-center mb-28 sm:mb-36">
-        <div className="mb-7">
+        <div className="mb-8">
           <p className="text-[11px] font-semibold text-gray-400 tracking-wider mb-1">
             Nilai Kami.
           </p>
@@ -133,16 +101,18 @@ export default function TentangPage() {
           </h2>
         </div>
 
-        {/* Sticker badges with subtle pastel colors */}
-        <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 max-w-xl mx-auto">
+        {/* Sleek black-and-amber glass cards */}
+        <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 max-w-2xl mx-auto">
           {VALUES.map((item, idx) => (
-            <span
+            <div
               key={idx}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium border ${item.bg} ${item.border} ${item.textCol} transition-transform hover:-translate-y-0.5`}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-950 text-white border border-zinc-800 shadow-sm hover:border-amber-400 hover:bg-zinc-900 transition-all cursor-default group"
             >
-              <span>{item.text}</span>
-              <span>{item.emoji}</span>
-            </span>
+              <span className="text-sm group-hover:scale-110 transition-transform">{item.emoji}</span>
+              <span className="text-xs sm:text-sm font-medium tracking-tight text-zinc-200 group-hover:text-amber-300 transition-colors">
+                {item.text}
+              </span>
+            </div>
           ))}
         </div>
       </section>
@@ -215,20 +185,45 @@ export default function TentangPage() {
           <p>
             Di balik setiap esai dan rapor ada cerita nyata, ada perjuangan orang tua, dan cita-cita masa depan. Misi kami adalah memastikan setiap cerita itu bersinar.
           </p>
-          <p className="pt-2 font-semibold text-gray-600 text-xs">
-            — Syahid Arkan, Founder OTWPTN
+          <p className="pt-2 font-semibold text-gray-700 text-xs">
+            - Founder OTWPTN
           </p>
         </div>
       </section>
 
-      {/* ── 6. Minimalist Bottom Action ─────────────────────────────────── */}
-      <section className="text-center pt-8">
-        <Link
-          href="/register"
-          className="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-xs font-semibold bg-gray-900 text-white hover:bg-gray-800 transition-all shadow-sm"
-        >
-          Mulai Perjalananmu Sekarang
-        </Link>
+      {/* ── 6. Bottom CTA Card (Brand Black & Yellow) ──────────────────── */}
+      <section className="max-w-4xl mx-auto px-4 mt-8">
+        <div className="relative overflow-hidden rounded-3xl bg-zinc-950 border border-zinc-800 text-white p-8 sm:p-12 text-center shadow-2xl">
+          {/* Subtle amber ambient glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 bg-amber-400/10 blur-3xl pointer-events-none rounded-full" />
+
+          <div className="relative z-10 max-w-xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-300 text-[11px] font-semibold mb-4 tracking-wide uppercase">
+              🚀 Siap Lolos PTN Impian?
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-3">
+              Mulai Perjalananmu Bersama OTWPTN Hari Ini
+            </h3>
+            <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed mb-8">
+              Dapatkan analisis rasionalisasi rapor SNBP yang akurat, review esai berstandar mentor PTN top, dan bimbingan terarah untuk hasil terbaik.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                href="/register"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-full text-xs sm:text-sm font-bold bg-amber-400 text-black hover:bg-amber-300 transition-all shadow-lg shadow-amber-400/20"
+              >
+                Daftar Sekarang - Gratis
+              </Link>
+              <Link
+                href="/pricing"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-full text-xs sm:text-sm font-semibold bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-700 transition-all"
+              >
+                Lihat Pilihan Paket
+              </Link>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
   )
