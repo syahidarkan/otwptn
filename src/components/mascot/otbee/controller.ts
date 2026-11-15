@@ -386,6 +386,7 @@ export function createController(d: ControllerDeps) {
         anchor = target.anchor
         phase = 'resting'
         setPose(1, 0)
+        say('Nonton dulu yaa! Aku jalan-jalan di bawah! 🐝🍿', 4000)
         resetIdle()
         return
       }
@@ -401,6 +402,7 @@ export function createController(d: ControllerDeps) {
     if (ok && tok === token) {
       phase = 'resting'
       setPose(1, 0)
+      say('Nonton dulu yaa! Aku jalan-jalan di bawah! 🐝🍿', 4000)
       resetIdle()
     }
   }
@@ -459,6 +461,7 @@ export function createController(d: ControllerDeps) {
   const inHeroSection = (path: string): boolean => {
     if (path !== '/') return false
     if (typeof window === 'undefined') return false
+    if (typeof document !== 'undefined' && document.body.classList.contains('otwptn-hero-video-active')) return false
     return window.scrollY < 260
   }
 
@@ -908,6 +911,13 @@ export function createController(d: ControllerDeps) {
     }
   })
 
+  const onReturnHero = () => {
+    if (d.pathname() === '/' && !document.body.classList.contains('otwptn-hero-video-active')) {
+      returnToHero()
+    }
+  }
+  window.addEventListener('otbee:return-hero', onReturnHero)
+
   window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('click', onClick, true)
   window.addEventListener('focusin', onFocus, true)
@@ -938,8 +948,17 @@ export function createController(d: ControllerDeps) {
       if (performance.now() - navStartedAt > 7000) { despawn(); spawnWhenReady(getMascotConfigForPath(d.pathname())) }
       else setTimeout(() => { if (!disposed && phase === 'hidden') spawnWhenReady(getMascotConfigForPath(d.pathname())) }, 5000)
     },
+    undockFromHero() {
+      return undockFromHero()
+    },
+    returnToHero() {
+      return returnToHero()
+    },
     startDrag(clientX: number, clientY: number) {
       if (disposed) return
+      if (phase === 'hero-docked') {
+        d.onDockChange?.(false)
+      }
       isDragging = true
       phase = 'traveling'
       token++
@@ -1101,6 +1120,7 @@ export function createController(d: ControllerDeps) {
       window.removeEventListener('touchend', onTouchEnd)
       window.removeEventListener('keydown', activity)
       window.removeEventListener('resize', onResize)
+      window.removeEventListener('otbee:return-hero', onReturnHero)
       awareness.dispose()
     },
   }
