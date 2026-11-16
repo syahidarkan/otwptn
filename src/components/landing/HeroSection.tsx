@@ -203,7 +203,7 @@ export default function HeroSection() {
         </motion.p>
 
         {/* Buttons: Compact & Centered on Mobile, teks diperbesar */}
-        <motion.div {...fadeUp(0.24)} className="flex flex-col sm:flex-row items-center justify-center gap-3 w-auto mx-auto mb-8">
+        <motion.div {...fadeUp(0.24)} className="flex flex-col sm:flex-row items-center justify-center gap-3 w-auto mx-auto mb-10 sm:mb-12">
           <Link href="/register" className="btn btn-primary w-auto min-w-[225px] sm:min-w-0 px-7 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-extrabold shadow-md mx-auto justify-center">
             <Zap size={18} fill="currentColor" />
             Mulai Belajar Sekarang
@@ -223,7 +223,7 @@ export default function HeroSection() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 16 }}
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-2xl mx-auto mt-4 px-2 relative z-20 pointer-events-auto"
+              className="w-full max-w-2xl mx-auto mt-6 px-2 relative z-20 pointer-events-auto"
             >
               {/* Pure video player with soft rounded corners and shadow (no black frame border, no text, no buttons) */}
               <div className="relative aspect-video w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl bg-black">
@@ -244,11 +244,11 @@ export default function HeroSection() {
             <motion.div
               key="hero-mascot-spot-wrap"
               {...fadeUp(0.32)}
-              className="w-full flex justify-center mt-6 pt-4 pb-2 min-h-[200px] relative pointer-events-none"
+              className="w-full flex justify-center mt-8 sm:mt-12 pt-4 pb-2 min-h-[220px] relative pointer-events-none"
             >
               <div
                 id="hero-mascot-spot"
-                className="w-full h-full min-h-[200px] flex items-center justify-center relative cursor-pointer pointer-events-auto"
+                className="w-full h-full min-h-[220px] flex items-center justify-center relative cursor-pointer pointer-events-auto"
                 title="Sentuh atau geser maskot untuk video launching!"
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent('otbee:launch-video'))

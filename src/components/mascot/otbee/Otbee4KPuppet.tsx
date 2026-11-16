@@ -78,8 +78,6 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
     const cheekRRef = useRef<HTMLDivElement>(null)
     const eyeLRef = useRef<HTMLDivElement>(null)
     const eyeRRef = useRef<HTMLDivElement>(null)
-    const pupilLRef = useRef<HTMLDivElement>(null)
-    const pupilRRef = useRef<HTMLDivElement>(null)
     const eyeLSvgRef = useRef<SVGPathElement>(null)
     const eyeRSvgRef = useRef<SVGPathElement>(null)
     const mouthRef = useRef<HTMLDivElement>(null)
@@ -356,11 +354,9 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
           cheekRRef.current.style.transform = `${faceTf} ${about(BD.cheekR.c[0], BD.cheekR.c[1], `scale(${P.cheek.toFixed(3)})`)}`
         }
 
-        // Eyes: Eyeball pupils actively follow cursor across the sclera socket
+        // Eyes: Blink, wink, natural gaze tracking towards cursor
         const sc = P.eyeScale
-        const pupilLookTf = `translate(${(P.lookX * 36).toFixed(1)}px, ${(P.lookY * 26).toFixed(1)}px)`
-        if (pupilLRef.current) pupilLRef.current.style.transform = pupilLookTf
-        if (pupilRRef.current) pupilRRef.current.style.transform = pupilLookTf
+        const lookTf = `translate(${(P.lookX * 12).toFixed(1)}px, ${(P.lookY * 8).toFixed(1)}px)`
 
         const updateEye = (
           wink: number,
@@ -377,7 +373,7 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
           const eh = eData.box[3] - eData.box[1]
 
           eyeEl.style.opacity = `${(1 - arc).toFixed(3)}`
-          eyeEl.style.transform = `${faceTf} ${about(cx, cy, `scale(${sc}, ${(sc * Math.max(0.04, 1 - closing * 0.96)).toFixed(4)})`)}`
+          eyeEl.style.transform = `${faceTf} ${lookTf} ${about(cx, cy, `scale(${sc}, ${(sc * Math.max(0.04, 1 - closing * 0.96)).toFixed(4)})`)}`
 
           if (svgPath) {
             svgPath.parentElement!.style.opacity = `${arc.toFixed(3)}`
@@ -497,12 +493,9 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
                 {layerImg('cheekR')}
               </div>
 
-              {/* Eye Left: White Sclera with Dynamic Pupil tracking cursor */}
+              {/* Eye Left */}
               <div ref={eyeLRef} style={layerStyle}>
-                {layerImg('sclera_eyeL')}
-                <div ref={pupilLRef} style={layerStyle}>
-                  {layerImg('pupil_eyeL')}
-                </div>
+                {layerImg('eyeL')}
               </div>
               <svg
                 width={BD.w}
@@ -524,12 +517,9 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
                 />
               </svg>
 
-              {/* Eye Right: White Sclera with Dynamic Pupil tracking cursor */}
+              {/* Eye Right */}
               <div ref={eyeRRef} style={layerStyle}>
-                {layerImg('sclera_eyeR')}
-                <div ref={pupilRRef} style={layerStyle}>
-                  {layerImg('pupil_eyeR')}
-                </div>
+                {layerImg('eyeR')}
               </div>
               <svg
                 width={BD.w}

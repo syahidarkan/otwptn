@@ -282,6 +282,11 @@ export function createController(d: ControllerDeps) {
  }, 500)
  }
 
+ const getHeroDockY = (hr: DOMRect) => {
+ const s = d.size() < 100 ? 190 : 210
+ return hr.top + Math.max(hr.height - 10, s + 20) + window.scrollY
+ }
+
  const dockAtHero = () => {
  token++
  const heroSpot = document.getElementById('hero-mascot-spot')
@@ -289,7 +294,7 @@ export function createController(d: ControllerDeps) {
  const hr = heroSpot.getBoundingClientRect()
  const target: Spot = {
  x: hr.left + hr.width / 2 + window.scrollX,
- y: hr.top + hr.height / 2 + window.scrollY,
+ y: getHeroDockY(hr),
  }
  anchor = {
  resolve: () => {
@@ -298,7 +303,7 @@ export function createController(d: ControllerDeps) {
  const r = spot.getBoundingClientRect()
  return {
  x: r.left + r.width / 2 + window.scrollX,
- y: r.top + 140 + window.scrollY,
+ y: getHeroDockY(r),
  }
  },
  el: heroSpot,
@@ -321,7 +326,7 @@ export function createController(d: ControllerDeps) {
  const hr = heroSpot.getBoundingClientRect()
  const target: Spot = {
  x: hr.left + hr.width / 2 + window.scrollX,
- y: hr.top + hr.height / 2 + window.scrollY,
+ y: getHeroDockY(hr),
  }
 
  const cur = anchor?.resolve() ?? pos
