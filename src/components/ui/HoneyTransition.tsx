@@ -125,13 +125,13 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
     const isMobileNow = typeof window !== 'undefined' && (window.matchMedia('(max-width: 767px)').matches || window.innerWidth < 768)
 
     if (isMobileNow) {
-      // Mobile mode: pure dark blurred backdrop + special 4K Otbee loading animation (ZERO video playback)
+      // Mobile mode: instantaneous route navigation with sleek top loading bar
       setTimeout(() => {
         if (!coveredFiredRef.current) {
           coveredFiredRef.current = true
           coveredRef.current?.()
         }
-      }, 160)
+      }, 40)
 
       // Safety timeout
       fallbackTimerRef.current = setTimeout(() => {
@@ -220,15 +220,15 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
       <style>{`
         @media (max-width: 767px) {
           .honey-overlay-container {
-            background-color: rgba(9, 10, 14, 0.82) !important;
-            backdrop-filter: blur(18px) !important;
-            -webkit-backdrop-filter: blur(18px) !important;
+            background-color: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
           }
           .honey-desktop-layer {
             display: none !important;
           }
           .honey-mobile-layer {
-            display: flex !important;
+            display: block !important;
           }
         }
         @media (min-width: 768px) {
@@ -246,35 +246,18 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
         }
       `}</style>
 
-      {/* 1. Mobile Experience: Dark Blurred Screen + Special 4K Otbee Loading Animation */}
-      <div className="honey-mobile-layer absolute inset-0 flex flex-col items-center justify-center p-6 select-none pointer-events-none">
-        <div className="relative flex flex-col items-center justify-center">
-          {/* Soft glowing ambient gold aura */}
-          <div className="absolute w-40 h-40 rounded-full bg-amber-400/25 blur-3xl animate-pulse pointer-events-none" />
-
-          {/* Special Otbee 4K Loading Rig */}
-          <div className="relative z-10 drop-shadow-2xl">
-            <Otbee4KPuppet
-              growthProgress={1}
-              size={124}
-              action="loading"
-              paused={false}
-              followPointer={false}
-            />
-          </div>
-
-          {/* Dark glassmorphic status pill */}
-          <div className="mt-4 px-4 py-2 rounded-full bg-black/70 border border-amber-400/35 backdrop-blur-md shadow-xl flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-            <p className="text-xs font-black text-amber-200 tracking-wide">
-              Menyiapkan Halaman...
-            </p>
-          </div>
-
-          {/* Pulsing golden progress line */}
-          <div className="w-40 h-1.5 bg-white/10 rounded-full overflow-hidden mt-3 shadow-inner">
-            <div className="w-1/2 h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full animate-pulse" />
-          </div>
+      {/* 1. Mobile Experience: Sleek Top Loading Line in OtwPTN Yellow (No dark blur, no blocking animations) */}
+      <div className="honey-mobile-layer fixed top-0 left-0 right-0 h-[3.5px] z-[9999999] pointer-events-none overflow-hidden bg-transparent">
+        <div className="w-full h-full relative">
+          <div
+            className="h-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 shadow-[0_0_14px_rgba(245,158,11,1)]"
+            style={{
+              width: isRouteLoaded ? '100%' : '75%',
+              transition: isRouteLoaded
+                ? 'width 180ms ease-out'
+                : 'width 600ms cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          />
         </div>
       </div>
 

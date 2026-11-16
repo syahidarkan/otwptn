@@ -78,6 +78,8 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
     const cheekRRef = useRef<HTMLDivElement>(null)
     const eyeLRef = useRef<HTMLDivElement>(null)
     const eyeRRef = useRef<HTMLDivElement>(null)
+    const pupilLRef = useRef<SVGGElement>(null)
+    const pupilRRef = useRef<SVGGElement>(null)
     const eyeLSvgRef = useRef<SVGPathElement>(null)
     const eyeRSvgRef = useRef<SVGPathElement>(null)
     const mouthRef = useRef<HTMLDivElement>(null)
@@ -354,9 +356,17 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
           cheekRRef.current.style.transform = `${faceTf} ${about(BD.cheekR.c[0], BD.cheekR.c[1], `scale(${P.cheek.toFixed(3)})`)}`
         }
 
-        // Eyes: Blink, wink, natural gaze tracking towards cursor
+        // Eyes: Blink, wink, dynamic iris/pupil tracking inside the socket
         const sc = P.eyeScale
-        const lookTf = `translate(${(P.lookX * 12).toFixed(1)}px, ${(P.lookY * 8).toFixed(1)}px)`
+        const lookTf = `translate(${(P.lookX * 8).toFixed(1)}px, ${(P.lookY * 6).toFixed(1)}px)`
+        const pupilDx = (P.lookX * 18).toFixed(1)
+        const pupilDy = (P.lookY * 14).toFixed(1)
+        if (pupilLRef.current) {
+          pupilLRef.current.setAttribute('transform', `translate(${pupilDx}, ${pupilDy})`)
+        }
+        if (pupilRRef.current) {
+          pupilRRef.current.setAttribute('transform', `translate(${pupilDx}, ${pupilDy})`)
+        }
 
         const updateEye = (
           wink: number,
@@ -493,9 +503,35 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
                 {layerImg('cheekR')}
               </div>
 
-              {/* Eye Left */}
+              {/* Eye Left: Solid Sclera + Clipped Moving Pupil */}
               <div ref={eyeLRef} style={layerStyle}>
-                {layerImg('eyeL')}
+                <svg
+                  viewBox={`0 0 ${BD.w} ${BD.h}`}
+                  width={BD.w}
+                  height={BD.h}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
+                    overflow: 'visible',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <defs>
+                    <clipPath id="otbee-eyeL-socket">
+                      <ellipse cx="517" cy="488" rx="72" ry="68" />
+                    </clipPath>
+                  </defs>
+                  {/* Solid White Sclera with natural black eyelid/eyelashes */}
+                  <image href="/brand/body/sclera_solid_eyeL.webp" width={BD.w} height={BD.h} />
+                  {/* Clipped Pupil & Iris: Actively Glides Following Cursor */}
+                  <g clipPath="url(#otbee-eyeL-socket)">
+                    <g ref={pupilLRef}>
+                      <image href="/brand/body/pupil_eyeL.webp" width={BD.w} height={BD.h} />
+                    </g>
+                  </g>
+                </svg>
               </div>
               <svg
                 width={BD.w}
@@ -517,9 +553,35 @@ export const Otbee4KPuppet = forwardRef<Otbee4KPuppetHandle, Otbee4KPuppetProps>
                 />
               </svg>
 
-              {/* Eye Right */}
+              {/* Eye Right: Solid Sclera + Clipped Moving Pupil */}
               <div ref={eyeRRef} style={layerStyle}>
-                {layerImg('eyeR')}
+                <svg
+                  viewBox={`0 0 ${BD.w} ${BD.h}`}
+                  width={BD.w}
+                  height={BD.h}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
+                    overflow: 'visible',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <defs>
+                    <clipPath id="otbee-eyeR-socket">
+                      <ellipse cx="792" cy="471" rx="70" ry="66" />
+                    </clipPath>
+                  </defs>
+                  {/* Solid White Sclera with natural black eyelid/eyelashes */}
+                  <image href="/brand/body/sclera_solid_eyeR.webp" width={BD.w} height={BD.h} />
+                  {/* Clipped Pupil & Iris: Actively Glides Following Cursor */}
+                  <g clipPath="url(#otbee-eyeR-socket)">
+                    <g ref={pupilRRef}>
+                      <image href="/brand/body/pupil_eyeR.webp" width={BD.w} height={BD.h} />
+                    </g>
+                  </g>
+                </svg>
               </div>
               <svg
                 width={BD.w}
