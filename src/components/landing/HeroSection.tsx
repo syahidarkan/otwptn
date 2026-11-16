@@ -48,7 +48,7 @@ function ResponsiveBee({
     <>
       {/* Mobile & Tablet Bee (Scaled, non-blocking at viewport margins) */}
       <div
-        className="hidden sm:block xl:hidden absolute pointer-events-none select-none z-0"
+        className="hidden md:block xl:hidden absolute pointer-events-none select-none z-0"
         style={{ ...mobilePos, ...(rotate ? { transform: `rotate(${rotate}deg)` } : {}) }}
       >
         <motion.div
@@ -175,18 +175,18 @@ export default function HeroSection() {
         parallaxFactor={90} entranceDelay={0.6}
       />
 
-      <div className="relative z-10 px-4 flex flex-col items-center text-center max-w-3xl mx-auto w-full py-8 md:py-12">
-        <motion.h1 {...fadeUp(0.04)} className="text-[44px] xs:text-[52px] sm:text-5xl md:text-hero text-gray-950 mb-6 md:mb-7 leading-[1.08] sm:leading-[1.12] tracking-tight font-black max-w-xs xs:max-w-md sm:max-w-2xl md:max-w-3xl mx-auto">
-          Masuk PTN Impianmu{' '}
-          <span className="inline-flex items-center align-middle flex-wrap gap-2 justify-center mt-1 sm:mt-0">
-            <span className="text-gray-950 font-black">Tanpa</span>
-            <span className="inline-flex items-center justify-center px-4 sm:px-5 py-1 sm:py-1.5 rounded-2xl font-black overflow-hidden shadow-xs" style={{ background: 'rgba(255,255,255,0.48)', backdropFilter: 'blur(20px) saturate(2.2)', WebkitBackdropFilter: 'blur(20px) saturate(2.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 16px rgba(0,0,0,0.08), inset 0 0 0 1.5px rgba(255,255,255,0.6)', color: '#92400e' }}>
+      <div className="relative z-10 px-4 flex flex-col items-center text-center max-w-4xl mx-auto w-full py-8 md:py-12">
+        <motion.h1 {...fadeUp(0.04)} className="text-[44px] xs:text-[54px] sm:text-6xl md:text-[68px] lg:text-[76px] text-gray-950 mb-6 md:mb-7 leading-[1.08] sm:leading-[1.12] tracking-tight font-black max-w-4xl mx-auto flex flex-col items-center justify-center">
+          <span className="block">Masuk PTN</span>
+          <span className="block mt-1 sm:mt-1.5">Impianmu Tanpa</span>
+          <span className="inline-flex items-center justify-center mt-2.5 sm:mt-3">
+            <span className="inline-flex items-center justify-center px-5 sm:px-8 py-1.5 sm:py-2 rounded-2xl sm:rounded-3xl font-black overflow-hidden shadow-xs" style={{ background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(20px) saturate(2.2)', WebkitBackdropFilter: 'blur(20px) saturate(2.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 16px rgba(0,0,0,0.08), inset 0 0 0 1.5px rgba(255,255,255,0.6)', color: '#92400e' }}>
               <AnimatePresence mode="wait">
                 <motion.span
                   key={WORDS[idx]}
-                  initial={{ opacity: 0, y: 14 }}
+                  initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -14 }}
+                  exit={{ opacity: 0, y: -16 }}
                   transition={{ duration: 0.28, ease: 'easeOut' }}
                   className="inline-block"
                 >
@@ -202,13 +202,13 @@ export default function HeroSection() {
           skor essay, estimasi peluang rasionalisasi SNBP, dan bimbingan 1-on-1 mentor alumni UI, ITB, & UGM.
         </motion.p>
 
-        {/* Buttons: Compact & Centered on Mobile (tidak mentok kanan-kiri) */}
-        <motion.div {...fadeUp(0.24)} className="flex flex-col sm:flex-row items-center justify-center gap-2.5 w-auto mx-auto mb-8">
-          <Link href="/register" className="btn btn-primary w-auto min-w-[210px] max-w-[230px] sm:min-w-0 sm:max-w-none px-6 sm:px-7 py-3 sm:py-3.5 text-xs sm:text-sm font-extrabold shadow-md mx-auto justify-center">
-            <Zap size={15} fill="currentColor" />
+        {/* Buttons: Compact & Centered on Mobile, teks diperbesar */}
+        <motion.div {...fadeUp(0.24)} className="flex flex-col sm:flex-row items-center justify-center gap-3 w-auto mx-auto mb-8">
+          <Link href="/register" className="btn btn-primary w-auto min-w-[225px] sm:min-w-0 px-7 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-extrabold shadow-md mx-auto justify-center">
+            <Zap size={18} fill="currentColor" />
             Mulai Belajar Sekarang
           </Link>
-          <Link href="/dashboard/kalkulator" className="btn btn-outline w-auto min-w-[210px] max-w-[230px] sm:min-w-0 sm:max-w-none px-5 sm:px-6 py-3 sm:py-3.5 text-xs sm:text-sm font-bold border-gray-300 hover:bg-white/80 text-gray-900 bg-white/60 mx-auto justify-center">
+          <Link href="/dashboard/kalkulator" className="btn btn-outline w-auto min-w-[225px] sm:min-w-0 px-6 sm:px-7 py-3.5 sm:py-4 text-sm sm:text-base font-bold border-gray-300 hover:bg-white/80 text-gray-900 bg-white/60 mx-auto justify-center">
             Simulasi Peluang Gratis
           </Link>
         </motion.div>
