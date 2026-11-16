@@ -454,7 +454,7 @@ export default function OmegleSection({ onBattleInvite }: OmegleSectionProps = {
                   <motion.div key="timeout" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
                     className="relative z-10 flex flex-col items-center gap-3 p-5 text-center max-w-sm">
                     <div className="w-14 h-14 relative animate-bounce">
-                      <Image src="/mascot/reading-clock.png" alt="" width={56} height={56} className="object-contain" />
+                      <Image src="/mascot/reading-clock.webp" alt="" width={56} height={56} loading="lazy" decoding="async" className="object-contain" />
                     </div>
                     <div className="p-3.5 rounded-2xl bg-black/75 border border-white/10 text-center space-y-1">
                       <h4 className="text-xs sm:text-sm font-black text-amber-300">Belum Ada Partner Online</h4>

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   X, Send, ArrowLeft
@@ -301,16 +302,15 @@ export default function CustomerServiceWidget() {
                 transform: isHovered ? 'scale(1.08)' : 'scale(1)',
               }}
             />
-            <div className="relative w-14 h-14 rounded-full bg-gradient-to-b from-amber-50 to-amber-100/90 overflow-hidden border-2 border-white/95 shadow-inner flex items-center justify-center">
-              <div style={{ transform: 'scaleX(-1)' }}>
-                <Otbee4KPuppet
-                  growthProgress={0}
-                  size={44}
-                  facing={-1}
-                  followPointer={true}
-                  paused={stage}
-                />
-              </div>
+            <div className="relative w-14 h-14 rounded-full bg-gradient-to-b from-amber-50 to-amber-100/90 overflow-hidden border-2 border-white/95 shadow-inner flex items-center justify-center p-1">
+              <Image
+                src="/logo-head.webp"
+                alt="Tanya Otbee"
+                width={48}
+                height={48}
+                className="w-11 h-11 object-contain drop-shadow-xs transition-transform duration-300 group-hover:scale-110"
+                priority={false}
+              />
             </div>
             <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-xs animate-pulse" />
             <span className="absolute -bottom-2 bg-amber-950/90 text-amber-300 text-[8.5px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-400/30 shadow-xs pointer-events-none whitespace-nowrap">
@@ -345,7 +345,13 @@ export default function CustomerServiceWidget() {
                   transformOrigin: 'top left',
                 }}
               >
-                <Otbee4KPuppet growthProgress={0} size={145} followPointer={false} />
+                <Image
+                  src="/logo-head.webp"
+                  alt="Otbee"
+                  width={145}
+                  height={145}
+                  className="w-36 h-36 object-contain"
+                />
               </div>
             )}
 
@@ -490,13 +496,14 @@ export default function CustomerServiceWidget() {
                   </button>
 
                   <div className="flex items-center gap-2">
-                    {/* Live Animated Otbee Vector Mascot Head in Header */}
-                    <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center overflow-hidden shadow-2xs flex-shrink-0">
-                      <Otbee4KPuppet
-                        growthProgress={0}
-                        size={32}
-                        followPointer={true}
-                        paused={false}
+                    {/* Otbee Avatar in Header */}
+                    <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center overflow-hidden shadow-2xs flex-shrink-0 p-0.5">
+                      <Image
+                        src="/logo-head.webp"
+                        alt="Otbee AI"
+                        width={32}
+                        height={32}
+                        className="w-6 h-6 object-contain"
                       />
                     </div>
                     <div className="text-left">
@@ -536,15 +543,16 @@ export default function CustomerServiceWidget() {
                             </div>
                           </div>
                         ) : (
-                          /* AI Assistant message: Live Animated Otbee Vector Head Photo Profile */
+                          /* AI Assistant message */
                           <div className="flex items-start gap-2.5">
-                            {/* Live Otbee Vector Mascot Head Photo Profile */}
-                            <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center overflow-hidden shadow-2xs flex-shrink-0 -mt-0.5 select-none">
-                              <Otbee4KPuppet
-                                growthProgress={0}
-                                size={32}
-                                followPointer={true}
-                                paused={false}
+                            {/* Otbee Avatar Profile */}
+                            <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center overflow-hidden shadow-2xs flex-shrink-0 -mt-0.5 select-none p-0.5">
+                              <Image
+                                src="/logo-head.webp"
+                                alt="Otbee AI"
+                                width={32}
+                                height={32}
+                                className="w-6 h-6 object-contain"
                               />
                             </div>
 
@@ -570,12 +578,13 @@ export default function CustomerServiceWidget() {
                   {/* Typing Indicator */}
                   {isTyping && (
                     <div className="flex items-start gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center overflow-hidden shadow-2xs flex-shrink-0 -mt-0.5 select-none">
-                        <Otbee4KPuppet
-                          growthProgress={0}
-                          size={32}
-                          followPointer={true}
-                          paused={false}
+                      <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center overflow-hidden shadow-2xs flex-shrink-0 -mt-0.5 select-none p-0.5">
+                        <Image
+                          src="/logo-head.webp"
+                          alt="Otbee AI"
+                          width={32}
+                          height={32}
+                          className="w-6 h-6 object-contain"
                         />
                       </div>
                       <div className="flex-1 min-w-0">

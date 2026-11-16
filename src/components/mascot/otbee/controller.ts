@@ -217,6 +217,7 @@ export function createController(d: ControllerDeps) {
 
  const tick = () => {
  raf = requestAnimationFrame(tick)
+ if (typeof document !== 'undefined' && document.hidden) return
  if ((phase !=='resting' && phase !=='hero-docked') || !anchor) return
 
  // When docked at hero, position is static in document coordinates; avoid calling getBoundingClientRect 60fps!

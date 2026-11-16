@@ -47,6 +47,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "images.pexels.com" },
@@ -90,8 +91,13 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
       {
-        // Favicons, icons, and footer brand logos
-        source: "/:file(favicon\\.png|favicon\\.ico|logo-footer\\.png|manifest\\.webmanifest)",
+        // PTN campus logos
+        source: "/ptn-logos/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
+        // Favicons, icons, brand illustrations and footer brand logos
+        source: "/:file(favicon\\.png|favicon\\.ico|logo-footer\\.png|logo\\.png|logo-dark\\.png|logo-head\\.webp|bee1\\.webp|bee2\\.webp|bee3\\.webp|manifest\\.webmanifest)",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
     ];

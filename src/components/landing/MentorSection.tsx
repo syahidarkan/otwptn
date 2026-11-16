@@ -100,10 +100,12 @@ export default function MentorSection() {
           >
             <motion.div style={{ y: y1 }}>
               <Image
-                src="/mascot/mentor.png"
+                src="/mascot/mentor.webp"
                 alt="Tim mentor otwptn"
                 width={400}
                 height={299}
+                loading="lazy"
+                decoding="async"
                 className="drop-shadow-2xl"
               />
             </motion.div>

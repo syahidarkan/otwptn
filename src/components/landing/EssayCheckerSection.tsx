@@ -64,7 +64,7 @@ export default function EssayCheckerSection() {
             animate={{ y: [0, -10, 0] }}
             transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <Image src="/mascot/thumbsup.png" alt="Maskot otwptn" width={150} height={192} />
+            <Image src="/mascot/thumbsup.webp" alt="Maskot otwptn" width={150} height={192} loading="lazy" decoding="async" />
           </motion.div>
 
           <div className="card p-5 md:p-6 relative overflow-hidden">

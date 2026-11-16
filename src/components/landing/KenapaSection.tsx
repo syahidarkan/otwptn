@@ -6,9 +6,9 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 
 const ITEMS = [
-  { img: '/mascot/confused.png', title: 'Info Jalur Berantakan', desc: 'Deadline beda-beda, syarat berubah tiap tahun. Kamu harus ngumpulin sendiri dari ratusan sumber yang gak jelas mana yang update.' },
-  { img: '/mascot/reading-books.png', title: 'Gak Tau Essay-mu Layak', desc: 'Nulis essay motivasi tapi gak ada yang review. Kakak atau guru pun belum tentu paham konteks seleksi PTN non-tes.' },
-  { img: '/mascot/map-pointing.png', title: 'Strategi Asal-asalan', desc: 'Tanpa data, kamu cuma bisa nebak apakah profil akademikmu cukup kuat buat jalur yang kamu incar.' },
+  { img: '/mascot/confused.webp', title: 'Info Jalur Berantakan', desc: 'Deadline beda-beda, syarat berubah tiap tahun. Kamu harus ngumpulin sendiri dari ratusan sumber yang gak jelas mana yang update.' },
+  { img: '/mascot/reading-books.webp', title: 'Gak Tau Essay-mu Layak', desc: 'Nulis essay motivasi tapi gak ada yang review. Kakak atau guru pun belum tentu paham konteks seleksi PTN non-tes.' },
+  { img: '/mascot/map-pointing.webp', title: 'Strategi Asal-asalan', desc: 'Tanpa data, kamu cuma bisa nebak apakah profil akademikmu cukup kuat buat jalur yang kamu incar.' },
 ]
 
 export default function KenapaSection() {

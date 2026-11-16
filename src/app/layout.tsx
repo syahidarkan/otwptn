@@ -3,9 +3,9 @@ import { Outfit, Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 import { LEGAL_ENTITY } from '@/lib/constants'
 import ThemeHydrator from '@/components/ThemeHydrator'
-import CustomerServiceWidget from '@/components/chat/CustomerServiceWidget'
 import GlobalPageLoader from '@/components/ui/GlobalPageLoader'
-import AdminSwitcher from '@/components/ui/AdminSwitcher'
+import AdminSwitcherLoader from '@/components/ui/AdminSwitcherLoader'
+import CustomerServiceWidgetLoader from '@/components/chat/CustomerServiceWidgetLoader'
 import FloatingMascotLoader from '@/components/mascot/FloatingMascotLoader'
 import { OtbeeMascotProvider } from '@/components/mascot/OtbeeMascotContext'
 import AnalyticsScripts from '@/components/analytics/AnalyticsScripts'
@@ -324,9 +324,9 @@ export default function RootLayout({
         <ThemeHydrator />
         <OtbeeMascotProvider>
           {children}
-          <AdminSwitcher />
+          <AdminSwitcherLoader />
           <FloatingMascotLoader />
-          <CustomerServiceWidget />
+          <CustomerServiceWidgetLoader />
           <GlobalPageLoader />
         </OtbeeMascotProvider>
       </body>

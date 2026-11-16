@@ -33,6 +33,13 @@ export default function FloatingMascot() {
   const isDraggingRef = useRef(false)
   const dragStartPos = useRef({ x: 0, y: 0 })
   const hasMovedRef = useRef(false)
+  const [isTabVisible, setIsTabVisible] = useState(true)
+
+  useEffect(() => {
+    const handleVis = () => setIsTabVisible(!document.hidden)
+    document.addEventListener('visibilitychange', handleVis)
+    return () => document.removeEventListener('visibilitychange', handleVis)
+  }, [])
 
   // Docking state: whether Otbee is currently docked at the hero head position
   const [isDockedAtHero, setIsDockedAtHero] = useState(() => {
@@ -385,34 +392,35 @@ export default function FloatingMascot() {
             }}
           >
             {/* Stage A: 4K HD Round-Chin Interactive Head in Hero (enlarged on mobile for clear impact) */}
-            <div
-              style={{
-                display: isDockedAtHero && growthProgress < 0.6 && !isDraggingState ? 'block' : 'none',
-              }}
-            >
-              <Otbee4KPuppet
-                ref={puppetRef}
-                growthProgress={0}
-                size={size < 100 ? 190 : 210}
-                followPointer={!isDraggingState}
-                onErraticPointer={() => ctl.current?.onDizzy()}
-              />
-            </div>
+            {(() => {
+              const isHeadStage = isDockedAtHero && growthProgress < 0.6 && !isDraggingState
+              return (
+                <>
+                  <div style={{ display: isHeadStage ? 'block' : 'none' }}>
+                    <Otbee4KPuppet
+                      ref={puppetRef}
+                      growthProgress={0}
+                      size={size < 100 ? 190 : 210}
+                      followPointer={!isDraggingState}
+                      paused={!isTabVisible || !isHeadStage}
+                      onErraticPointer={() => ctl.current?.onDizzy()}
+                    />
+                  </div>
 
-            {/* Stage B: Fully Elastic Skeletal Mascot (skinD joints, elbow & knee bending, footsteps, saltos) for Roaming */}
-            <div
-              style={{
-                display: !(isDockedAtHero && growthProgress < 0.6 && !isDraggingState) ? 'block' : 'none',
-              }}
-            >
-              <OtbeeAvatar
-                ref={avatarRef}
-                view="front"
-                size={size}
-                followPointer={!isDraggingState}
-                onErraticPointer={() => ctl.current?.onDizzy()}
-              />
-            </div>
+                  {/* Stage B: Fully Elastic Skeletal Mascot for Roaming */}
+                  <div style={{ display: !isHeadStage ? 'block' : 'none' }}>
+                    <OtbeeAvatar
+                      ref={avatarRef}
+                      view="front"
+                      size={size}
+                      followPointer={!isDraggingState}
+                      paused={!isTabVisible || isHeadStage}
+                      onErraticPointer={() => ctl.current?.onDizzy()}
+                    />
+                  </div>
+                </>
+              )
+            })()}
           </div>
         </div>
       </div>

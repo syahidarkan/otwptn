@@ -1,14 +1,17 @@
+import dynamic from 'next/dynamic'
 import HeroSection from '@/components/landing/HeroSection'
-import EssayCheckerSection from '@/components/landing/EssayCheckerSection'
 import PTNLogoSection from '@/components/landing/PTNLogoSection'
-import KenapaSection from '@/components/landing/KenapaSection'
-import FiturSection from '@/components/landing/FiturSection'
-import MentorSection from '@/components/landing/MentorSection'
-import OmegleSection from '@/components/landing/OmegleSection'
-import PricingSection from '@/components/landing/PricingSection'
-import TestimonialSection from '@/components/landing/TestimonialSection'
-import StatsCTASection from '@/components/landing/StatsCTASection'
-import FAQSection from '@/components/landing/FAQSection'
+
+// Dynamically import below-the-fold sections to optimize mobile First Contentful Paint (FCP) and eliminate TBT
+const EssayCheckerSection = dynamic(() => import('@/components/landing/EssayCheckerSection'))
+const KenapaSection = dynamic(() => import('@/components/landing/KenapaSection'))
+const FiturSection = dynamic(() => import('@/components/landing/FiturSection'))
+const MentorSection = dynamic(() => import('@/components/landing/MentorSection'))
+const OmegleSection = dynamic(() => import('@/components/landing/OmegleSection'))
+const PricingSection = dynamic(() => import('@/components/landing/PricingSection'))
+const TestimonialSection = dynamic(() => import('@/components/landing/TestimonialSection'))
+const StatsCTASection = dynamic(() => import('@/components/landing/StatsCTASection'))
+const FAQSection = dynamic(() => import('@/components/landing/FAQSection'))
 
 export default function HomePage() {
   return (

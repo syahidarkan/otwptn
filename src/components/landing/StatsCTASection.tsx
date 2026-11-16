@@ -85,7 +85,7 @@ export default function StatsCTASection() {
             transition={{ duration: 0.45, ease: 'easeOut' }}
             className="flex justify-center mb-6"
           >
-            <Image src="/mascot/top.png" alt="Alumni otwptn" width={420} height={313} className="drop-shadow-xl" />
+            <Image src="/mascot/top.webp" alt="Alumni otwptn" width={420} height={313} loading="lazy" decoding="async" className="drop-shadow-xl" />
           </motion.div>
 
           <motion.h2
@@ -127,7 +127,7 @@ export default function StatsCTASection() {
             transition={{ duration: 0.4 }}
             className="flex justify-center mb-4"
           >
-            <Image src="/mascot/trophy-jump.png" alt="otwptn" width={140} height={160} />
+            <Image src="/mascot/trophy-jump.webp" alt="otwptn" width={140} height={160} loading="lazy" decoding="async" />
           </motion.div>
 
           <motion.h2

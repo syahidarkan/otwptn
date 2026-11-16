@@ -20,6 +20,14 @@ export default function AdminSwitcher() {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    // Only check auth if an active Supabase session exists in localStorage
+    try {
+      const hasSession = typeof window !== 'undefined' && Object.keys(localStorage).some(k => k.startsWith('sb-') && k.endsWith('-auth-token'))
+      if (!hasSession) return
+    } catch {
+      return
+    }
+
     createClient().auth.getUser().then(async ({ data }) => {
       if (!data.user) return
       const { data: profile } = await createClient()

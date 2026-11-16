@@ -69,7 +69,7 @@ function MatchingPreview() {
           <span className="absolute bottom-2 left-2 text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(0,0,0,0.5)', color: '#fff' }}>Kamu</span>
         </div>
         <div className="aspect-[3/4] rounded-xl relative overflow-hidden flex flex-col items-center justify-center gap-1" style={{ background: 'var(--bg-alt)' }}>
-          <Image src="/mascot/thinking-idea.png" alt="Teman belajar" width={56} height={64} />
+          <Image src="/mascot/thinking-idea.webp" alt="Teman belajar" width={56} height={64} loading="lazy" decoding="async" />
           <span className="text-xs font-semibold" style={{ color: 'var(--muted)' }}>Mencari...</span>
         </div>
       </div>
@@ -256,15 +256,15 @@ type Feature = {
 }
 
 const FEATURES: Feature[] = [
-  { id: 'mentor', label: 'Mentor Alumni', title: 'Konsultasi grup, sharescreen bareng mentor.', desc: 'Sesi video call grup bareng mentor alumni - sharescreen langsung di essay-mu lewat Google Docs, kayak kelas kecil.', mascot: '/mascot/medal.png', publicHref: '/upgrade', preview: () => <MentorZoomPreview /> },
-  { id: 'essay', label: 'Essay AI Review', title: 'Dikoreksi kayak di Google Docs, tapi sama AI.', desc: 'Tiap kalimat di-highlight dengan catatan revisi spesifik - bagian yang kuat, yang perlu diperbaiki, dan saran kalimat pengganti.', mascot: '/mascot/writing-essay.png', publicHref: '/essay-review', preview: () => <EssayPaperPreview /> },
-  { id: 'kalkulator', label: 'Kalkulator Peluang', title: 'Estimasi peluang, bukan tebak-tebakan.', desc: 'Isi rapor, peringkat sekolah, dan sertifikatmu - otwptn hitung estimasi peluangmu dengan animasi real-time.', mascot: '/mascot/bar-chart-point.png', publicHref: '/kalkulator', preview: ({ active }) => <KalkulatorFormPreview active={active} /> },
-  { id: 'otbee', label: 'Otbee AI', title: 'Konsultan yang gak pernah tidur.', desc: 'Chat 24/7 dengan AI yang udah dilatih dari data kelulusan jalur non-tes tahun-tahun sebelumnya, langsung dari HP-mu.', mascot: '/mascot/otbee-phone.png', publicHref: '/tanya-otbee', preview: () => <OtbeePhonePreview /> },
-  { id: 'modul', label: 'Modul & Video', title: 'Belajar terstruktur lewat video dan modul.', desc: 'Materi dipecah per jalur - strategi essay, portofolio, sampai simulasi wawancara, dalam video singkat yang gampang dicerna.', mascot: '/mascot/tablet-play.png', publicHref: '/dashboard/ecourse', preview: () => <ModulGridPreview /> },
-  { id: 'komunitas', label: 'Komunitas', title: 'Gak berjuang sendirian.', desc: 'Forum diskusi real-time dengan sesama pejuang jalur non-tes - tanya jawab, sharing pengalaman, saling semangatin.', mascot: '/mascot/megaphone-community.png', publicHref: '/komunitas', preview: () => <KomunitasPostPreview /> },
-  { id: 'tracking', label: 'Tracking Jalur', title: 'Pantau progres semua jalur yang kamu ikuti.', desc: 'Timeline yang nunjukin status tiap pendaftaran jalur - draf, submit, hasil - biar gak ada yang kelewat.', mascot: '/mascot/roadmap-flags.png', publicHref: '/tracking-jalur', preview: () => <TrackingTimelinePreview /> },
-  { id: 'dokumen', label: 'Penyimpanan Dokumen', title: 'Semua dokumen pendaftaran, satu tempat.', desc: 'Simpan rapor, sertifikat, dan essay versi terbaru - tinggal download pas butuh submit.', mascot: '/mascot/file-box-storage.png', publicHref: '/dashboard/dokumen', preview: () => <DokumenFolderPreview /> },
-  { id: 'matching', label: 'Otbee TV', title: 'Belajar bareng di Otbee TV, video call pejuang PTN.', desc: 'Terhubung instan dengan sesama pejuang jalur non-tes buat ngobrol, sharing strategi, atau saling semangatin.', mascot: '/mascot/video-call-match.png', publicHref: '/dashboard', preview: () => <MatchingPreview /> },
+  { id: 'mentor', label: 'Mentor Alumni', title: 'Konsultasi grup, sharescreen bareng mentor.', desc: 'Sesi video call grup bareng mentor alumni - sharescreen langsung di essay-mu lewat Google Docs, kayak kelas kecil.', mascot: '/mascot/medal.webp', publicHref: '/upgrade', preview: () => <MentorZoomPreview /> },
+  { id: 'essay', label: 'Essay AI Review', title: 'Dikoreksi kayak di Google Docs, tapi sama AI.', desc: 'Tiap kalimat di-highlight dengan catatan revisi spesifik - bagian yang kuat, yang perlu diperbaiki, dan saran kalimat pengganti.', mascot: '/mascot/writing-essay.webp', publicHref: '/essay-review', preview: () => <EssayPaperPreview /> },
+  { id: 'kalkulator', label: 'Kalkulator Peluang', title: 'Estimasi peluang, bukan tebak-tebakan.', desc: 'Isi rapor, peringkat sekolah, dan sertifikatmu - otwptn hitung estimasi peluangmu dengan animasi real-time.', mascot: '/mascot/bar-chart-point.webp', publicHref: '/kalkulator', preview: ({ active }) => <KalkulatorFormPreview active={active} /> },
+  { id: 'otbee', label: 'Otbee AI', title: 'Konsultan yang gak pernah tidur.', desc: 'Chat 24/7 dengan AI yang udah dilatih dari data kelulusan jalur non-tes tahun-tahun sebelumnya, langsung dari HP-mu.', mascot: '/mascot/otbee-phone.webp', publicHref: '/tanya-otbee', preview: () => <OtbeePhonePreview /> },
+  { id: 'modul', label: 'Modul & Video', title: 'Belajar terstruktur lewat video dan modul.', desc: 'Materi dipecah per jalur - strategi essay, portofolio, sampai simulasi wawancara, dalam video singkat yang gampang dicerna.', mascot: '/mascot/tablet-play.webp', publicHref: '/dashboard/ecourse', preview: () => <ModulGridPreview /> },
+  { id: 'komunitas', label: 'Komunitas', title: 'Gak berjuang sendirian.', desc: 'Forum diskusi real-time dengan sesama pejuang jalur non-tes - tanya jawab, sharing pengalaman, saling semangatin.', mascot: '/mascot/megaphone-community.webp', publicHref: '/komunitas', preview: () => <KomunitasPostPreview /> },
+  { id: 'tracking', label: 'Tracking Jalur', title: 'Pantau progres semua jalur yang kamu ikuti.', desc: 'Timeline yang nunjukin status tiap pendaftaran jalur - draf, submit, hasil - biar gak ada yang kelewat.', mascot: '/mascot/roadmap-flags.webp', publicHref: '/tracking-jalur', preview: () => <TrackingTimelinePreview /> },
+  { id: 'dokumen', label: 'Penyimpanan Dokumen', title: 'Semua dokumen pendaftaran, satu tempat.', desc: 'Simpan rapor, sertifikat, dan essay versi terbaru - tinggal download pas butuh submit.', mascot: '/mascot/file-box-storage.webp', publicHref: '/dashboard/dokumen', preview: () => <DokumenFolderPreview /> },
+  { id: 'matching', label: 'Otbee TV', title: 'Belajar bareng di Otbee TV, video call pejuang PTN.', desc: 'Terhubung instan dengan sesama pejuang jalur non-tes buat ngobrol, sharing strategi, atau saling semangatin.', mascot: '/mascot/video-call-match.webp', publicHref: '/dashboard', preview: () => <MatchingPreview /> },
 ]
 
 export default function FiturSection() {

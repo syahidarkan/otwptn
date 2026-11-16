@@ -1,7 +1,5 @@
 'use client'
 
-// Adapted from pintarly - trust strip with real PTN logos, seamless infinite loop
-
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 
@@ -19,27 +17,47 @@ const PTN = [
   { slug: 'uny', name: 'Universitas Negeri Yogyakarta' },
 ]
 
-// Repeat 4x so a single copy's width always exceeds the viewport - keeps the
-// loop truly circular (no visible seam/reset even on ultra-wide screens).
-const items = [...PTN, ...PTN, ...PTN, ...PTN]
+// Repeat 2x for a perfectly seamless infinite loop without memory bloat
+const items = [...PTN, ...PTN]
 
 export default function PTNLogoSection() {
   return (
-    <section className="py-16 px-4 overflow-hidden" style={{ background: 'var(--bg)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+    <section
+      className="py-10 md:py-14 px-4 overflow-hidden"
+      style={{
+        background: 'var(--bg)',
+        borderTop: '1px solid var(--border)',
+        borderBottom: '1px solid var(--border)',
+      }}
+    >
       <motion.p
         initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.4 }}
-        className="text-center text-xs font-semibold uppercase tracking-widest mb-10"
+        className="text-center text-xs font-semibold uppercase tracking-widest mb-6 md:mb-8"
         style={{ color: 'var(--muted-2)', letterSpacing: '0.12em' }}
       >
         Alumni & Mentor kami tersebar di semua PTN terbaik Indonesia
       </motion.p>
-      <div className="animate-marquee-x4 flex items-center gap-16" style={{ width: 'max-content' }}>
+      <div
+        className="animate-marquee flex items-center gap-8 md:gap-14"
+        style={{ width: 'max-content' }}
+      >
         {items.map((p, i) => (
-          <div key={i} className="flex-shrink-0 h-32 w-32 flex items-center justify-center grayscale hover:grayscale-0 transition-[filter] duration-300">
-            <Image src={`/ptn-logos/${p.slug}.png`} alt={p.name} width={128} height={128} style={{ objectFit: 'contain', maxHeight: '100%', width: 'auto', height: 'auto' }} />
+          <div
+            key={i}
+            className="flex-shrink-0 h-16 w-16 md:h-20 md:w-20 flex items-center justify-center opacity-70 hover:opacity-100 grayscale hover:grayscale-0 transition-all duration-300"
+          >
+            <Image
+              src={`/ptn-logos/${p.slug}.png`}
+              alt={p.name}
+              width={80}
+              height={80}
+              loading="lazy"
+              decoding="async"
+              className="max-h-full max-w-full object-contain"
+            />
           </div>
         ))}
       </div>
