@@ -108,6 +108,9 @@ export const metadata: Metadata = {
   verification: {
     google: 'paBrOvG67JJfuK2_-vQcV3fLnDcfiBgF4zHKOmA4iWQ',
   },
+  other: {
+    'trustpilot-one-time-domain-verification-id': 'c5c558e5-865b-41c9-af72-1c696170ec4a',
+  },
 }
 
 export default function RootLayout({
@@ -302,6 +305,7 @@ export default function RootLayout({
       className={`${outfit.variable} ${plusJakarta.variable}`}
     >
       <head>
+        <meta name="trustpilot-one-time-domain-verification-id" content="c5c558e5-865b-41c9-af72-1c696170ec4a" />
         <link rel="icon" href="/favicon.png?v=3" type="image/png" />
         <link rel="icon" href="/favicon.ico?v=3" sizes="any" />
         <link rel="shortcut icon" href="/favicon.png?v=3" type="image/png" />
