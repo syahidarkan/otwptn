@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import NewEssayButton from './NewEssayButton'
 import EssayRow from './EssayRow'
 import FeatureHeader from '@/components/dashboard/FeatureHeader'
+import PendingEssayHandler from './PendingEssayHandler'
 
 export default async function EssayListPage() {
   const supabase = await createClient()
@@ -20,6 +21,8 @@ export default async function EssayListPage() {
       <FeatureHeader title="Essay AI Review" subtitle="Tulis essay-mu dan dapatkan review instan dari AI." mascot="/fitur/essay-ai-review.png" color="yellow">
         <NewEssayButton />
       </FeatureHeader>
+
+      <PendingEssayHandler />
 
       <div className="flex flex-col gap-3">
         {!essays || essays.length === 0 ? (

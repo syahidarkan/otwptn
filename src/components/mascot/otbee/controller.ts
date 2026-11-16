@@ -636,12 +636,12 @@ export function createController(d: ControllerDeps) {
  }
 
  // ============================================================ talking about things
- const speakAbout = (target: Element, prefix ='') => {
- if (disposed || phase !=='resting' || typing) return
+ const speakAbout = (target: Element, prefix = '') => {
+ if (disposed || phase !== 'resting' || typing) return
  const now = performance.now()
- if (now - lastSpeakAt < 2200) return
+ if (now - lastSpeakAt < 1200) return
  const last = seen.get(target)
- if (last && now - last < 60000) return
+ if (last && now - last < 15000) return
  const ex = explain(target)
  if (!ex) return
  seen.set(target, now)
@@ -650,12 +650,12 @@ export function createController(d: ControllerDeps) {
  setPose(r.left + r.width / 2 + window.scrollX < pos.x ? -1 : 1, 0)
  const text = prefix + withName(ex.text, d.name())
  act('talk', { force: true, text })
- setTimeout(() => { if (!disposed && phase ==='resting') play('idle') }, clamp(1800 + text.length * 25, 2400, 5200))
+ setTimeout(() => { if (!disposed && phase === 'resting') play('idle') }, clamp(1800 + text.length * 25, 2400, 5200))
  }
 
  let hoverEl: Element | null = null
  let hoverTimer: ReturnType<typeof setTimeout> | null = null
- const considerPoint = (x: number, y: number, delay: number, prefix ='') => {
+ const considerPoint = (x: number, y: number, delay: number, prefix = '') => {
  const target = meaningfulTarget(document.elementFromPoint(x, y))
  if (target === hoverEl) return
  hoverEl = target
@@ -665,11 +665,28 @@ export function createController(d: ControllerDeps) {
  }
 
  const readAssist = () => {
- if (disposed || phase !=='resting') return
+ if (disposed || phase !== 'resting') return
  const vw = window.innerWidth, vh = window.innerHeight
- for (const f of [0.42, 0.55, 0.32, 0.65]) {
+
+ // 1. Proactively detect section or heading in current view
+ const sections = Array.from(document.querySelectorAll('section[id], [data-section], h2, h3'))
+ for (const sec of sections) {
+ const r = sec.getBoundingClientRect()
+ if (r.top >= vh * 0.05 && r.top <= vh * 0.65 && r.height > 20) {
+ if (!(seen.get(sec) && performance.now() - (seen.get(sec) ?? 0) < 15000)) {
+ const ex = explain(sec)
+ if (ex) {
+ speakAbout(sec, '')
+ return
+ }
+ }
+ }
+ }
+
+ // 2. Scan central vertical samples
+ for (const f of [0.38, 0.50, 0.28, 0.62]) {
  const t = meaningfulTarget(document.elementFromPoint(vw / 2, vh * f))
- if (t && explain(t) && !(seen.get(t) && performance.now() - (seen.get(t) ?? 0) < 60000)) { speakAbout(t,'Lagi baca ini ya?'); return }
+ if (t && explain(t) && !(seen.get(t) && performance.now() - (seen.get(t) ?? 0) < 15000)) { speakAbout(t, 'Nih, '); return }
  }
  }
 
@@ -733,7 +750,7 @@ export function createController(d: ControllerDeps) {
 
  if (settleTimer) clearTimeout(settleTimer)
  settleTimer = setTimeout(() => decide(false), SETTLE_MS)
- if (isTouch) { if (readTimer) clearTimeout(readTimer); readTimer = setTimeout(readAssist, 1500) }
+ if (isTouch) { if (readTimer) clearTimeout(readTimer); readTimer = setTimeout(readAssist, 420) }
  }
 
  const hopOnto = async (el: Element, clientX: number) => {

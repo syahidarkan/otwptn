@@ -8,6 +8,7 @@ import GlobalPageLoader from '@/components/ui/GlobalPageLoader'
 import AdminSwitcher from '@/components/ui/AdminSwitcher'
 import FloatingMascotLoader from '@/components/mascot/FloatingMascotLoader'
 import { OtbeeMascotProvider } from '@/components/mascot/OtbeeMascotContext'
+import AnalyticsScripts from '@/components/analytics/AnalyticsScripts'
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -257,6 +258,39 @@ export default function RootLayout({
         description: 'Jadwal dan syarat lengkap PPKB UI, PBUB UGM, SJP IPB, Golden Ticket UNAIR, SNBP.',
         url: 'https://otwptn.com/jalur',
       },
+      {
+        '@type': 'Course',
+        '@id': 'https://otwptn.com/#course-non-tes',
+        name: 'Program Bimbingan Intensif Masuk PTN Jalur Non-Tes (SNBP, PPKB UI, PBUB UGM)',
+        description:
+          'Bimbingan komprehensif rasionalisasi nilai rapor 5 semester, kurasi portofolio prestasi Puspresnas, dan pembedahan esai motivasi bersama mentor alumni UI, ITB, & UGM.',
+        provider: {
+          '@type': 'EducationalOrganization',
+          name: 'otwptn - PT. Lembaga Sains Nasional',
+          sameAs: 'https://otwptn.com',
+        },
+        hasCourseInstance: {
+          '@type': 'CourseInstance',
+          courseMode: 'Online / Blended',
+          courseWorkload: 'PT8W',
+          instructor: {
+            '@type': 'Person',
+            name: 'Tim Mentor Alumni UI, ITB, & UGM',
+          },
+        },
+        offers: {
+          '@type': 'Offer',
+          category: 'Paid',
+          price: '49000',
+          priceCurrency: 'IDR',
+          availability: 'https://schema.org/InStock',
+        },
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: '4.9',
+          reviewCount: '1250',
+        },
+      },
     ],
   }
 
@@ -282,6 +316,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col antialiased bg-bg text-fg font-sans">
+        <AnalyticsScripts />
         <ThemeHydrator />
         <OtbeeMascotProvider>
           {children}

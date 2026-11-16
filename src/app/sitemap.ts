@@ -14,6 +14,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1.0,
     },
     {
+      url: `${baseUrl}/kalkulator`,
+      lastModified: currentDate,
+      changeFrequency: 'daily',
+      priority: 0.98,
+    },
+    {
+      url: `${baseUrl}/essay-review`,
+      lastModified: currentDate,
+      changeFrequency: 'daily',
+      priority: 0.98,
+    },
+    {
+      url: `${baseUrl}/atur-strategi`,
+      lastModified: currentDate,
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/tanya-otbee`,
+      lastModified: currentDate,
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/latihan-seleksi`,
+      lastModified: currentDate,
+      changeFrequency: 'daily',
+      priority: 0.92,
+    },
+    {
+      url: `${baseUrl}/tracking-jalur`,
+      lastModified: currentDate,
+      changeFrequency: 'daily',
+      priority: 0.92,
+    },
+    {
       url: `${baseUrl}/jalur`,
       lastModified: currentDate,
       changeFrequency: 'daily',

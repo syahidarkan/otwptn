@@ -450,7 +450,7 @@ function applyPose(
   // head turn / nod = parallax: surface features slide further than the head silhouette
   const yaw = clamp(P.headYaw, -1, 1), pit = clamp(P.headPitch, -1, 1)
   const sideK = facing !== 0 ? 0.55 : 1
-  const tr = (depth: number) => `translate(${(yaw * hw * 0.11 * depth * sideK).toFixed(2)} ${(-pit * hh * 0.1 * depth).toFixed(2)})`
+  const tr = (depth: number) => `translate(${(yaw * hw * 0.12 * depth * sideK).toFixed(2)} ${(-pit * hh * 0.14 * depth).toFixed(2)})`
   setT('fig',
     `translate(${(P.x * H).toFixed(2)} ${(P.y * H).toFixed(2)}) ${scl(P.sx * turnX, P.sy, feet)} ${rot(P.rot, centre)}`)
   const lift = clamp(1 + P.y * 1.8, 0.45, 1.1)
@@ -468,7 +468,8 @@ function applyPose(
       // parallax on top (nested inside this <g>) so the turn reads as one solid head, not a
       // floating face.
       const originX = pv[0] + yaw * hw * 0.16 * sideK, originY = pv[1] - pit * hh * 0.12
-      setT('head', `translate(${(P.headX * H).toFixed(2)} ${(P.headY * H).toFixed(2)}) ${tr(1)} ${rot(P.headRot + yaw * 5 * sideK, pv)} ${scl(1 - 0.09 * Math.abs(yaw) * sideK, 1 - 0.06 * Math.abs(pit), [originX, originY])}`)
+      const headCenter: [number, number] = [pv[0], pv[1] - 50]
+      setT('head', `translate(${(P.headX * H).toFixed(2)} ${(P.headY * H - pit * 8).toFixed(2)}) ${tr(1)} ${rot(P.headRot * 0.35 + yaw * 2.5 * sideK, headCenter)} ${scl(1 - 0.09 * Math.abs(yaw) * sideK, 1 - 0.06 * Math.abs(pit), [originX, originY])}`)
     } else if (name === 'goggles') {
       setT(name, `${tr(0.18)} ${scl(1 - 0.04 * Math.abs(yaw), 1, part.center ?? pv)}`)
     } else if (name.startsWith('wing')) {
@@ -528,7 +529,7 @@ function applyPose(
       setO(name + ':closed', happy ? 0 : arcAmt)
       setO(name + ':happy', happy ? arcAmt : 0)
       const pe = part.eye!.pupilE
-      setT(name + ':look', `translate(${(P.lookX * pe[2] * 0.42).toFixed(2)} ${(P.lookY * pe[3] * 0.4).toFixed(2)})`)
+      setT(name + ':look', `translate(${(P.lookX * pe[2] * 0.95).toFixed(2)} ${(P.lookY * pe[3] * 0.9).toFixed(2)})`)
     } else if (name === 'mouth') {
       setT('mouthW', `${tr(0.05)} ${scl(1 - 0.12 * Math.abs(yaw), 1, part.center ?? pv)}`)
       drawMouth(part, P, els, setO)

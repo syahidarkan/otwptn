@@ -29,7 +29,7 @@ export default function EssayCheckerSection() {
   useEffect(() => {
     if (countdown === null) return
     if (countdown === 0) {
-      router.push('/login')
+      router.push('/essay-review')
       return
     }
     const timer = setTimeout(() => setCountdown(c => (c !== null ? c - 1 : null)), 1000)
@@ -161,13 +161,13 @@ export default function EssayCheckerSection() {
                     Ingin menulis dan mengecek esai motivasimu sendiri dengan AI?
                   </p>
                   <p className="text-[11px] text-amber-800">
-                    Otomatis dialihkan ke halaman login dalam <strong>{countdown} detik</strong>...
+                    Otomatis dialihkan ke lembar kerja review dalam <strong>{countdown} detik</strong>...
                   </p>
                   <Link
-                    href="/login"
+                    href="/essay-review"
                     className="btn btn-primary w-full py-2.5 text-xs font-black flex items-center justify-center gap-1.5 shadow-sm"
                   >
-                    <span>Masuk & Tulis Esaimu Sekarang</span>
+                    <span>Tulis & Review Esaimu Sekarang</span>
                     <ArrowRight size={14} />
                   </Link>
                 </div>

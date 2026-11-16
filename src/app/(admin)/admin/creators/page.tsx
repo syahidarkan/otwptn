@@ -653,18 +653,18 @@ export default function AdminCreatorsPage() {
 
       {/* Detail Modal */}
       {selectedApp && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl p-6 sm:p-8 animate-in fade-in zoom-in-95">
-            <div className="flex items-start justify-between gap-4 pb-4 border-b border-border">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#18191e] border border-gray-150 dark:border-neutral-800 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl p-6 sm:p-8 animate-in zoom-in-95 duration-200 text-gray-900 dark:text-neutral-100">
+            <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-100 dark:border-neutral-800/80">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-bold bg-muted px-2.5 py-1 rounded-md text-foreground">
+                  <span className="text-xs font-mono font-bold bg-gray-100 dark:bg-neutral-800/80 px-2.5 py-1 rounded-md text-gray-900 dark:text-neutral-200">
                     {selectedApp.reference_id}
                   </span>
                   {getStatusBadge(selectedApp.status)}
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-foreground mt-2">{selectedApp.full_name}</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-neutral-100 mt-2 tracking-tight">{selectedApp.full_name}</h2>
+                <p className="text-xs text-gray-500 dark:text-neutral-400 mt-0.5">
                   Mendaftar pada{' '}
                   {new Date(selectedApp.created_at).toLocaleDateString('id-ID', {
                     day: 'numeric',
@@ -677,76 +677,76 @@ export default function AdminCreatorsPage() {
               </div>
               <button
                 onClick={() => setSelectedApp(null)}
-                className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                className="p-2 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-5 text-sm">
-              <div className="p-3.5 bg-muted/40 rounded-2xl">
-                <p className="text-xs text-muted-foreground font-medium">Asal Sekolah / Kampus</p>
-                <p className="font-bold text-foreground mt-1">{selectedApp.school_or_campus}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{selectedApp.education_status}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 py-5 text-sm">
+              <div className="p-4 bg-gray-50/80 dark:bg-neutral-900/80 rounded-2xl border border-gray-100 dark:border-neutral-800/80">
+                <p className="text-xs text-gray-500 dark:text-neutral-400 font-medium">Asal Sekolah / Kampus</p>
+                <p className="font-bold text-gray-900 dark:text-neutral-100 mt-1">{selectedApp.school_or_campus}</p>
+                <p className="text-xs text-gray-500 dark:text-neutral-400 mt-0.5">{selectedApp.education_status}</p>
               </div>
-              <div className="p-3.5 bg-muted/40 rounded-2xl">
-                <p className="text-xs text-muted-foreground font-medium">Usia & Perangkat HP</p>
-                <p className="font-bold text-foreground mt-1">{selectedApp.age} Tahun</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Device: {selectedApp.phone_model}</p>
+              <div className="p-4 bg-gray-50/80 dark:bg-neutral-900/80 rounded-2xl border border-gray-100 dark:border-neutral-800/80">
+                <p className="text-xs text-gray-500 dark:text-neutral-400 font-medium">Usia & Perangkat HP</p>
+                <p className="font-bold text-gray-900 dark:text-neutral-100 mt-1">{selectedApp.age} Tahun</p>
+                <p className="text-xs text-gray-500 dark:text-neutral-400 mt-0.5">Device: {selectedApp.phone_model}</p>
               </div>
-              <div className="p-3.5 bg-muted/40 rounded-2xl">
-                <p className="text-xs text-muted-foreground font-medium">Kontak & WhatsApp</p>
-                <p className="font-bold text-foreground mt-1">{selectedApp.phone}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{selectedApp.email}</p>
+              <div className="p-4 bg-gray-50/80 dark:bg-neutral-900/80 rounded-2xl border border-gray-100 dark:border-neutral-800/80">
+                <p className="text-xs text-gray-500 dark:text-neutral-400 font-medium">Kontak & WhatsApp</p>
+                <p className="font-bold text-gray-900 dark:text-neutral-100 mt-1">{selectedApp.phone}</p>
+                <p className="text-xs text-gray-500 dark:text-neutral-400 mt-0.5">{selectedApp.email}</p>
               </div>
-              <div className="p-3.5 bg-muted/40 rounded-2xl">
-                <p className="text-xs text-muted-foreground font-medium">Media Sosial</p>
-                <p className="font-bold text-foreground mt-1">IG: {selectedApp.instagram}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">TikTok: {selectedApp.tiktok || '-'}</p>
+              <div className="p-4 bg-gray-50/80 dark:bg-neutral-900/80 rounded-2xl border border-gray-100 dark:border-neutral-800/80">
+                <p className="text-xs text-gray-500 dark:text-neutral-400 font-medium">Media Sosial</p>
+                <p className="font-bold text-gray-900 dark:text-neutral-100 mt-1">IG: {selectedApp.instagram}</p>
+                <p className="text-xs text-gray-500 dark:text-neutral-400 mt-0.5">TikTok: {selectedApp.tiktok || '-'}</p>
               </div>
             </div>
 
             {/* Portofolio & Link */}
-            <div className="p-4 bg-brand-primary/5 border border-brand-primary/20 rounded-2xl mb-5">
-              <p className="text-xs font-semibold text-brand-primary mb-1">Link Portofolio Video</p>
+            <div className="p-4 bg-gradient-to-r from-amber-50 to-amber-100/50 dark:from-amber-950/30 dark:to-amber-900/20 border border-amber-200 dark:border-amber-800/60 rounded-2xl mb-5">
+              <p className="text-xs font-bold text-amber-900 dark:text-amber-300 mb-1">Link Portofolio Video</p>
               {selectedApp.portfolio_link ? (
                 <a
                   href={selectedApp.portfolio_link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-bold text-brand-primary hover:underline break-all inline-flex items-center gap-1.5"
+                  className="text-sm font-bold text-amber-700 dark:text-amber-400 hover:underline break-all inline-flex items-center gap-1.5"
                 >
                   <ExternalLink className="w-4 h-4 shrink-0" />
                   {selectedApp.portfolio_link}
                 </a>
               ) : (
-                <p className="text-sm text-muted-foreground">Tidak melampirkan link</p>
+                <p className="text-sm text-gray-500 dark:text-neutral-400">Tidak melampirkan link</p>
               )}
             </div>
 
             {/* Alasan Bergabung */}
             <div className="mb-6">
-              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+              <h3 className="text-xs font-bold text-gray-500 dark:text-neutral-400 uppercase tracking-wider mb-2">
                 Alasan & Minat Bergabung
               </h3>
-              <div className="p-4 bg-muted/50 rounded-2xl text-sm text-foreground whitespace-pre-wrap leading-relaxed border border-border">
+              <div className="p-4 bg-gray-50/80 dark:bg-neutral-900/80 rounded-2xl text-sm text-gray-900 dark:text-neutral-200 whitespace-pre-wrap leading-relaxed border border-gray-150 dark:border-neutral-800/80">
                 {selectedApp.reason}
               </div>
             </div>
 
             {/* Status Change & Actions */}
-            <div className="border-t border-border pt-5">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
+            <div className="border-t border-gray-100 dark:border-neutral-800/80 pt-5">
+              <h4 className="text-xs font-bold text-gray-500 dark:text-neutral-400 uppercase tracking-wider mb-3">
                 Ubah Status & Kontak Kandidat
               </h4>
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   disabled={updatingId === selectedApp.id}
                   onClick={() => handleUpdateStatus(selectedApp.id, 'reviewed')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-colors ${
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-colors cursor-pointer ${
                     selectedApp.status === 'reviewed'
                       ? 'bg-purple-600 text-white border-purple-600'
-                      : 'border-border text-foreground hover:bg-muted'
+                      : 'border-gray-200 dark:border-neutral-700 text-gray-700 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-800'
                   }`}
                 >
                   Tandai Di-review
@@ -754,10 +754,10 @@ export default function AdminCreatorsPage() {
                 <button
                   disabled={updatingId === selectedApp.id}
                   onClick={() => handleUpdateStatus(selectedApp.id, 'interview')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-colors ${
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-colors cursor-pointer ${
                     selectedApp.status === 'interview'
                       ? 'bg-blue-600 text-white border-blue-600'
-                      : 'border-border text-foreground hover:bg-muted'
+                      : 'border-gray-200 dark:border-neutral-700 text-gray-700 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-800'
                   }`}
                 >
                   Jadwalkan Interview
@@ -765,10 +765,10 @@ export default function AdminCreatorsPage() {
                 <button
                   disabled={updatingId === selectedApp.id}
                   onClick={() => handleUpdateStatus(selectedApp.id, 'accepted')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-colors ${
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-colors cursor-pointer ${
                     selectedApp.status === 'accepted'
                       ? 'bg-emerald-600 text-white border-emerald-600'
-                      : 'border-border text-foreground hover:bg-muted'
+                      : 'border-gray-200 dark:border-neutral-700 text-gray-700 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-800'
                   }`}
                 >
                   Terima (Accepted)
@@ -776,10 +776,10 @@ export default function AdminCreatorsPage() {
                 <button
                   disabled={updatingId === selectedApp.id}
                   onClick={() => handleUpdateStatus(selectedApp.id, 'rejected')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-colors ${
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-colors cursor-pointer ${
                     selectedApp.status === 'rejected'
                       ? 'bg-red-600 text-white border-red-600'
-                      : 'border-border text-foreground hover:bg-muted'
+                      : 'border-gray-200 dark:border-neutral-700 text-gray-700 dark:text-neutral-200 hover:bg-gray-100 dark:hover:bg-neutral-800'
                   }`}
                 >
                   Tolak (Rejected)

@@ -796,51 +796,51 @@ export default function TrackingJalurPage() {
 
       {/* MODAL LINK DRIVE / CLOUD URL */}
       {activeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#18191e] border border-gray-150 dark:border-neutral-800 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl space-y-4 animate-in zoom-in-95 duration-200 text-gray-950 dark:text-neutral-100">
             <div className="flex items-start justify-between">
               <div>
-                <span className="text-[10px] font-black uppercase text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">
+                <span className="text-[10px] font-black uppercase text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-400/15 px-2.5 py-0.5 rounded-full">
                   Tautan Cloud Storage
                 </span>
-                <h3 className="text-base font-black text-gray-950 mt-1">
+                <h3 className="text-base font-black text-gray-950 dark:text-neutral-100 mt-1.5 tracking-tight">
                   {activeModal.docName}
                 </h3>
               </div>
               <button
                 onClick={() => setActiveModal(null)}
-                className="text-gray-400 hover:text-gray-700"
+                className="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <p className="text-xs text-gray-500 leading-relaxed">
+            <p className="text-xs text-gray-500 dark:text-neutral-400 leading-relaxed">
               Masukkan tautan Google Drive, Dropbox, atau folder cloud berkas untuk dokumen ini.
             </p>
 
             <div className="space-y-3">
               <div>
-                <label className="text-[11px] font-bold text-gray-700 block mb-1">
+                <label className="text-[11px] font-bold text-gray-700 dark:text-neutral-200 block mb-1">
                   Nama Label File (opsional)
                 </label>
                 <input
                   value={modalFileName}
                   onChange={e => setModalFileName(e.target.value)}
                   placeholder="Contoh: Sertifikat_OSN_Biologi.pdf"
-                  className="w-full px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-900 outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-gray-50/80 dark:bg-neutral-900/80 border border-gray-200 dark:border-neutral-700 text-xs text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-bold text-gray-700 block mb-1">
+                <label className="text-[11px] font-bold text-gray-700 dark:text-neutral-200 block mb-1">
                   Tautan Google Drive / Cloud URL *
                 </label>
                 <input
                   value={modalLink}
                   onChange={e => setModalLink(e.target.value)}
                   placeholder="https://drive.google.com/file/d/..."
-                  className="w-full px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-900 outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-gray-50/80 dark:bg-neutral-900/80 border border-gray-200 dark:border-neutral-700 text-xs text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all"
                 />
               </div>
             </div>
@@ -848,13 +848,13 @@ export default function TrackingJalurPage() {
             <div className="flex items-center gap-2 pt-2">
               <button
                 onClick={handleSaveLink}
-                className="btn-brand-primary flex-1 py-2.5 rounded-full text-xs font-black shadow-xs"
+                className="flex-1 py-3 rounded-2xl text-xs font-black bg-amber-400 hover:bg-amber-300 text-neutral-950 shadow-md shadow-amber-400/20 active:scale-[0.99] transition-all cursor-pointer"
               >
                 Simpan Tautan Dokumen
               </button>
               <button
                 onClick={() => setActiveModal(null)}
-                className="px-4 py-2.5 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700"
+                className="px-4 py-3 rounded-2xl text-xs font-bold bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-gray-700 dark:text-neutral-200 transition-colors cursor-pointer"
               >
                 Batal
               </button>

@@ -430,6 +430,28 @@ export default function KalkulatorPage() {
         if (profile.certificates && Array.isArray(profile.certificates)) setCertificates(profile.certificates)
         if (profile.savedAt) setLastSaved(`Data profil akademik tersinkron (${profile.savedAt})`)
       }
+
+      // Check if user came from public kalkulator preview
+      const pendingRaw = localStorage.getItem('otwptn_pending_kalkulator')
+      if (pendingRaw) {
+        try {
+          const pending = JSON.parse(pendingRaw)
+          if (pending.ptn1) setPilihan1Ptn(pending.ptn1)
+          if (pending.prodi1) setPilihan1Prodi(pending.prodi1)
+          if (pending.ptn2) setPilihan2Ptn(pending.ptn2)
+          if (pending.prodi2) setPilihan2Prodi(pending.prodi2)
+          if (pending.akreditasi) setSchoolAccreditation(pending.akreditasi)
+          if (pending.jurusanSma) {
+            const j = pending.jurusanSma.toLowerCase()
+            if (j.includes('ips')) setJurusanSma('ips')
+            else if (j.includes('smk') || j.includes('kejuruan')) setJurusanSma('kejuruan')
+            else setJurusanSma('ipa')
+          }
+          localStorage.removeItem('otwptn_pending_kalkulator')
+        } catch (pendingErr) {
+          console.warn('Gagal memulihkan pending kalkulator:', pendingErr)
+        }
+      }
     } catch (e) {
       console.warn('Gagal memulihkan draf nilai rapor:', e)
     }

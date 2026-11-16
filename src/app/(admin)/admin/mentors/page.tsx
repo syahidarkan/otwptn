@@ -963,50 +963,50 @@ export default function SuperAdminMentorsPage() {
 
       {/* MODAL: Audit LOA & Portofolio Mentor */}
       {inspectMentor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 space-y-5 border-0 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#18191e] rounded-3xl max-w-xl w-full p-6 md:p-8 space-y-5 border border-gray-150 dark:border-neutral-800 shadow-2xl animate-in zoom-in-95 duration-200 text-gray-950 dark:text-neutral-100">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-neutral-800 pb-4">
               <div>
-                <h3 className="text-lg font-black text-gray-950">Audit Verifikasi Dokumen Calon Mentor</h3>
-                <p className="text-xs text-gray-500 font-medium">Periksa keabsahan bukti Letter of Acceptance (LOA) & portofolio prestasi.</p>
+                <h3 className="text-lg font-black text-gray-950 dark:text-neutral-100 tracking-tight">Audit Verifikasi Dokumen Calon Mentor</h3>
+                <p className="text-xs text-gray-500 dark:text-neutral-400 font-medium">Periksa keabsahan bukti Letter of Acceptance (LOA) & portofolio prestasi.</p>
               </div>
-              <button onClick={() => setInspectMentor(null)} className="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-gray-200 cursor-pointer border-0">
+              <button onClick={() => setInspectMentor(null)} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-neutral-700 cursor-pointer border-0 transition-colors">
                 <X size={16} />
               </button>
             </div>
 
-            <div className="p-4 rounded-2xl bg-gray-50 space-y-2 border-0">
-              <p className="text-xs text-gray-400 font-bold uppercase">Biodata Calon Mentor</p>
-              <p className="text-sm font-black text-gray-900">{inspectMentor.fullName}</p>
-              <p className="text-xs text-gray-600">{inspectMentor.university} · {inspectMentor.major} · Angkatan {inspectMentor.graduationYear}</p>
-              <p className="text-xs text-amber-900 font-bold">Jalur: {inspectMentor.admissionTrack}</p>
+            <div className="p-4 rounded-2xl bg-gray-50/80 dark:bg-neutral-900/80 border border-gray-100 dark:border-neutral-800/80 space-y-2">
+              <p className="text-xs text-gray-400 dark:text-neutral-500 font-bold uppercase">Biodata Calon Mentor</p>
+              <p className="text-sm font-black text-gray-900 dark:text-neutral-100">{inspectMentor.fullName}</p>
+              <p className="text-xs text-gray-600 dark:text-neutral-400">{inspectMentor.university} · {inspectMentor.major} · Angkatan {inspectMentor.graduationYear}</p>
+              <p className="text-xs text-amber-700 dark:text-amber-400 font-bold">Jalur: {inspectMentor.admissionTrack}</p>
             </div>
 
-            <div className="p-5 rounded-2xl border border-dashed border-gray-200 text-center space-y-2 bg-amber-50/40">
-              <FileText className="w-8 h-8 text-amber-600 mx-auto" />
-              <p className="text-xs font-black text-gray-900">Letter of Acceptance (LOA) Resmi Kampus</p>
-              <p className="text-[11px] text-gray-500">File PDF Terenkripsi & Terverifikasi Digital</p>
+            <div className="p-5 rounded-2xl border border-dashed border-gray-200 dark:border-neutral-700 text-center space-y-2 bg-amber-50/40 dark:bg-amber-950/20">
+              <FileText className="w-8 h-8 text-amber-600 dark:text-amber-400 mx-auto" />
+              <p className="text-xs font-black text-gray-900 dark:text-neutral-100">Letter of Acceptance (LOA) Resmi Kampus</p>
+              <p className="text-[11px] text-gray-500 dark:text-neutral-400">File PDF Terenkripsi & Terverifikasi Digital</p>
               <a
                 href={inspectMentor.loaUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-amber-950 text-xs font-bold shadow-2xs border-0"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-amber-950 text-xs font-bold shadow-2xs border-0 cursor-pointer"
               >
                 <ExternalLink className="w-3.5 h-3.5" /> Buka Dokumen LOA
               </a>
             </div>
 
             {inspectMentor.status === 'approved' && (
-              <div className="p-3.5 rounded-2xl bg-emerald-50 text-emerald-900 flex items-center justify-between border-0 shadow-2xs">
+              <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between shadow-2xs">
                 <span className="text-xs font-bold">Status: Akun Mentor Sudah Terverifikasi</span>
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               </div>
             )}
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-neutral-800">
               <button
                 onClick={() => setInspectMentor(null)}
-                className="px-4 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold border-0 cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-gray-700 dark:text-neutral-200 text-xs font-bold border-0 cursor-pointer transition-colors"
               >
                 Tutup
               </button>
@@ -1033,28 +1033,28 @@ export default function SuperAdminMentorsPage() {
 
       {/* MODAL: Assign Mentee ke Mentor */}
       {assignMenteeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 space-y-5 border-0 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <h3 className="text-lg font-black text-gray-950">Penugasan Mentee ke Mentor Alumni</h3>
-              <button onClick={() => setAssignMenteeModal(null)} className="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center hover:bg-gray-200 cursor-pointer border-0">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#18191e] rounded-3xl max-w-lg w-full p-6 md:p-8 space-y-5 border border-gray-150 dark:border-neutral-800 shadow-2xl animate-in zoom-in-95 duration-200 text-gray-950 dark:text-neutral-100">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-neutral-800 pb-4">
+              <h3 className="text-lg font-black text-gray-950 dark:text-neutral-100 tracking-tight">Penugasan Mentee ke Mentor Alumni</h3>
+              <button onClick={() => setAssignMenteeModal(null)} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-neutral-700 cursor-pointer border-0 transition-colors">
                 <X size={16} />
               </button>
             </div>
 
-            <div className="p-4 rounded-2xl bg-amber-50 text-xs space-y-1 border-0 shadow-2xs">
-              <p className="font-bold text-amber-950">Mentee: {assignMenteeModal.name}</p>
-              <p className="text-gray-600">Asal: {assignMenteeModal.school}</p>
-              <p className="text-gray-600">Target PTN: {assignMenteeModal.targetPTN}</p>
-              <p className="font-black text-amber-900">Paket: {assignMenteeModal.package}</p>
+            <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 text-xs space-y-1 shadow-2xs">
+              <p className="font-bold text-amber-950 dark:text-amber-200">Mentee: {assignMenteeModal.name}</p>
+              <p className="text-gray-600 dark:text-neutral-400">Asal: {assignMenteeModal.school}</p>
+              <p className="text-gray-600 dark:text-neutral-400">Target PTN: {assignMenteeModal.targetPTN}</p>
+              <p className="font-black text-amber-900 dark:text-amber-300">Paket: {assignMenteeModal.package}</p>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-black text-gray-800 block">Pilih Mentor Alumni Sesuai Target:</label>
+              <label className="text-xs font-black text-gray-800 dark:text-neutral-200 block">Pilih Mentor Alumni Sesuai Target:</label>
               <select
                 value={selectedMentorForAssignment}
                 onChange={e => setSelectedMentorForAssignment(e.target.value)}
-                className="w-full p-3 rounded-2xl bg-gray-50 text-xs text-gray-900 focus:bg-white outline-none border-0 shadow-2xs"
+                className="w-full p-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 dark:focus:border-amber-400 outline-none shadow-2xs transition-all"
               >
                 <option value="">-- Pilih Kakak Mentor --</option>
                 {mentors.filter(m => m.status === 'approved').map(m => (

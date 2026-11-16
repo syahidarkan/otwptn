@@ -60,18 +60,6 @@ export const REAL_TOP_MENTEES: MenteeTestimonial[] = [
     isTopMentee: true,
     rating: 5,
   },
-  {
-    id: 'shehnaz',
-    name: 'Andi Shehnaz Rieandra Beiby',
-    univ: 'Universitas Indonesia',
-    prodi: 'Ilmu Hukum',
-    jalur: 'PPKB UI',
-    quote:
-      'Seneng banget bisa kenal Kak Salwa dan tim OTWPTN yang selalu bantuin aku, aku tanya-tanya selalu dijawab detail dan beneran ngebantu aku banget. Terima kasih banyak Kak Salwa dan kakak-kakak OTWPTN!',
-    photo: '/mentees/shehnaz.webp',
-    isTopMentee: true,
-    rating: 5,
-  },
 ]
 
 export const DUMMY_MENTEES: MenteeTestimonial[] = [

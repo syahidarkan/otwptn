@@ -1,0 +1,35 @@
+# otwptn - Platform #1 Persiapan Masuk PTN Jalur Non-Tes di Indonesia
+
+> Platform resmi edukasi berbasis AI dan bimbingan 1-on-1 mentor alumni UI, ITB, & UGM untuk seleksi masuk PTN tanpa ujian (SNBP, PPKB UI, PBUB UGM, SJP IPB, Golden Ticket UNAIR). Dioperasikan secara legal oleh **PT. Lembaga Sains Nasional**.
+
+## Ikhtisar Platform
+- **Nama Platform**: otwptn (OtwPTN Indonesia)
+- **Badan Hukum**: PT. Lembaga Sains Nasional
+- **Website Resmi**: https://otwptn.com
+- **Kategori**: Teknologi Pendidikan (EdTech), Kecerdasan Buatan (AI), Bimbingan Seleksi Perguruan Tinggi Negeri
+- **Target Pengguna**: Siswa SMA/SMK/MA sederajat se-Indonesia, pejuang SNBP, PPKB UI, PBUB UGM, SJP IPB, serta para orang tua siswa.
+- **Slogan**: *Masuk PTN Impianmu Tanpa Ujian*
+
+## Fitur Utama & Layanan
+- [Kalkulator Peluang SNBP & Nilai Rapor](https://otwptn.com/dashboard/kalkulator): Simulasi rasionalisasi nilai rapor 5 semester berdasarkan mata pelajaran pendukung prodi, akreditasi sekolah, rekam jejak alumni, dan sertifikat juara Puspresnas.
+- [AI Essay Review Instan](https://otwptn.com/dashboard/essay): Pemindaian draf esai motivasi (PPKB UI, Talent Scouting, PBUB UGM) secara otomatis untuk memeriksa struktur paragraf, koherensi argumen, tone akademik, dan logika institusional.
+- [Bimbingan 1-on-1 Mentor Alumni PTN](https://otwptn.com/upgrade): Sesi mentoring privat via Zoom & bedah esai intensif bersama kakak mentor mahasiswa/alumni berprestasi dari UI, ITB, dan UGM.
+- [Tanya Jawab Otbee AI 24/7](https://otwptn.com/tanya-otbee): Asisten virtual cerdas untuk menjawab seluruh regulasi seleksi mandiri non-tes, syarat sertifikat, dan pemilihan jurusan.
+- [Direktori & Tracking Jalur Non-Tes](https://otwptn.com/jalur): Basis data terpadu jadwal, persyaratan, kuota, dan link pendaftaran resmi seluruh jalur mandiri prestasi PTN di Indonesia.
+- [Komunitas Pejuang PTN (Circle Belajar)](https://otwptn.com/dashboard/komunitas): Ruang diskusi terkurasi per kampus target (UI, ITB, UGM, Unpad, IPB, Undip, dsb).
+
+## Struktur Paket Layanan & Biaya
+- **Akun Gratis (Freemium)**: Akses kalkulator peluang dasar, tanya jawab Otbee AI, direktori jalur, dan circle komunitas kampus (Rp 0).
+- **Akun Premium (Fitur Only)**: Akses unlimited seluruh tools AI, kalkulator peluang tanpa batas, dan unlock modul e-course (Rp 49.000).
+- **Paket Nectar (Review Esai Mentor)**: Cek berkas komprehensif + 2x putaran review esai langsung oleh mentor alumni (Rp 99.000).
+- **Paket Honeycomb (Intensif Mentoring)**: Sesi privat Zoom 1-on-1 + review esai multi-putaran + garansi pendampingan berkas (Rp 189.000).
+- **Paket Royal Jelly / Queen Bee (Full VIP)**: Pendampingan penuh dari nol sampai submit, dokumen analisis profil eksklusif, hingga campus tour ke kampus impian (Rp 299.000).
+
+## Informasi Perusahaan & Legalitas
+- **Perusahaan**: PT. Lembaga Sains Nasional
+- **Email Dukungan**: support@otwptn.com
+- **Nomor Layanan / WhatsApp**: +62 851-9080-6070
+- **Kebijakan Privasi**: https://otwptn.com/kebijakan-privasi
+- **Syarat & Ketentuan**: https://otwptn.com/syarat-ketentuan
+- **Kebijakan Pengembalian Dana**: https://otwptn.com/kebijakan-pengembalian-dana
+- **Sitemap Resmi**: https://otwptn.com/sitemap.xml

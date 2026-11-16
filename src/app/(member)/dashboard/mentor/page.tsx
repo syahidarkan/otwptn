@@ -1032,17 +1032,17 @@ export default function MentorAlumniPage() {
 
           {/* Version History Modal */}
           {versionHistoryOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-              <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl relative">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+              <div className="bg-white dark:bg-[#18191e] border border-gray-150 dark:border-neutral-800 rounded-3xl p-6 max-w-md w-full shadow-2xl relative animate-in zoom-in-95 duration-200 text-gray-900 dark:text-neutral-100">
                 <button
                   onClick={() => setVersionHistoryOpen(false)}
-                  className="absolute top-5 right-5 text-gray-400 hover:text-gray-600"
+                  className="absolute top-5 right-5 p-1.5 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
                 >
                   <X size={18} />
                 </button>
                 <div className="flex items-center gap-2 mb-4">
-                  <History size={18} className="text-amber-600" />
-                  <h3 className="text-sm font-black text-gray-900">Riwayat Versi Essay</h3>
+                  <History size={18} className="text-amber-600 dark:text-amber-400" />
+                  <h3 className="text-sm font-black text-gray-900 dark:text-neutral-100">Riwayat Versi Essay</h3>
                 </div>
 
                 <div className="space-y-3 mb-5">
@@ -1053,20 +1053,20 @@ export default function MentorAlumniPage() {
                   ].map((v, idx) => (
                     <div
                       key={idx}
-                      className="p-3.5 rounded-2xl bg-gray-50 flex items-center justify-between text-xs"
+                      className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-neutral-900/80 border border-gray-100 dark:border-neutral-800 flex items-center justify-between text-xs"
                     >
                       <div>
-                        <p className="font-extrabold text-gray-900">{v.ver}</p>
-                        <p className="text-[11px] text-gray-400">{v.author}</p>
+                        <p className="font-extrabold text-gray-900 dark:text-neutral-100">{v.ver}</p>
+                        <p className="text-[11px] text-gray-500 dark:text-neutral-400">{v.author}</p>
                       </div>
-                      <span className="text-[10px] text-gray-400">{v.time}</span>
+                      <span className="text-[10px] text-gray-400 dark:text-neutral-500">{v.time}</span>
                     </div>
                   ))}
                 </div>
 
                 <button
                   onClick={() => setVersionHistoryOpen(false)}
-                  className="w-full btn-brand-primary py-2.5 rounded-full text-xs font-black"
+                  className="w-full py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-neutral-950 text-xs font-black shadow-md shadow-amber-400/20 active:scale-[0.99] transition-all cursor-pointer"
                 >
                   Tutup Riwayat
                 </button>

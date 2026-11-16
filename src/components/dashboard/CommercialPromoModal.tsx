@@ -271,7 +271,7 @@ export default function CommercialPromoModal() {
 
           {/* Footer Option: Don't show again today */}
           <div className="flex items-center justify-between text-xs pt-1">
-            <label className="flex items-center gap-2 cursor-pointer text-gray-500 hover:text-gray-700">
+            <label className="flex items-center gap-2 cursor-pointer text-gray-500 dark:text-zinc-400 hover:text-gray-700 dark:hover:text-zinc-200">
               <input
                 type="checkbox"
                 checked={dontShowToday}
@@ -283,7 +283,7 @@ export default function CommercialPromoModal() {
 
             <button
               onClick={handleClose}
-              className="text-[11px] font-bold text-gray-400 hover:text-gray-600"
+              className="text-[11px] font-bold text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-300 transition-colors cursor-pointer"
             >
               Nanti Saja
             </button>

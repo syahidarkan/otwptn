@@ -302,12 +302,15 @@ export default function CustomerServiceWidget() {
               }}
             />
             <div className="relative w-14 h-14 rounded-full bg-gradient-to-b from-amber-50 to-amber-100/90 overflow-hidden border-2 border-white/95 shadow-inner flex items-center justify-center">
-              <Otbee4KPuppet
-                growthProgress={0}
-                size={42}
-                followPointer={true}
-                paused={stage}
-              />
+              <div style={{ transform: 'scaleX(-1)' }}>
+                <Otbee4KPuppet
+                  growthProgress={0}
+                  size={44}
+                  facing={-1}
+                  followPointer={true}
+                  paused={stage}
+                />
+              </div>
             </div>
             <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white shadow-xs animate-pulse" />
             <span className="absolute -bottom-2 bg-amber-950/90 text-amber-300 text-[8.5px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-400/30 shadow-xs pointer-events-none whitespace-nowrap">

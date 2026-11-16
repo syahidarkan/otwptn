@@ -51,11 +51,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   React.useEffect(() => {
     try {
-      const isDarkStored = localStorage.getItem('theme') === 'dark' || document.documentElement.classList.contains('dark')
+      const isDarkStored = localStorage.getItem('theme') === 'dark'
       setIsDark(isDarkStored)
       if (isDarkStored) {
         document.documentElement.classList.add('dark')
         document.documentElement.setAttribute('data-theme', 'dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+        document.documentElement.setAttribute('data-theme', 'light')
       }
     } catch {}
   }, [])

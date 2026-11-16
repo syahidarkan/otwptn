@@ -1,24 +1,12 @@
 'use client'
 
 /**
- * HoneyTransition - Authentic High-Definition Video Transition Engine.
- *
- *  - 100% Authentic Animation: Plays the true honey splash footage directly from
- *    the source video asset without any artificial or generated approximations.
- *  - Zero Gepeng / Distortion: Uses CSS `object-fit: cover` with centered placement
- *    to preserve strict aspect ratio geometry across any screen size. Circles remain
- *    flawlessly circular.
- *  - Native Hardware Acceleration: Decoded and composited directly by the browser's
- *    GPU video pipeline (Apple VideoToolbox / Chromium VP9). Zero main-thread overhead,
- *    zero canvas frame-dropping, zero lag or freezing during route hydration.
- *  - Dual Native Alpha Codecs:
- *    * Safari (macOS / iOS): HEVC Apple VideoToolbox with alpha channel (`hvc1`).
- *    * Chrome / Firefox: VP9 with alpha channel (`yuva420p` / `alpha_mode=1`).
- *    * Universal fallback: Standard MP4.
+ * HoneyTransition - Authentic High-Definition Video Transition Engine (Desktop)
+ * and Focused Glassmorphic Otbee Loading Screen (Mobile).
  */
 
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
-import { OtbeeAvatar } from '@/components/mascot/otbee'
+import { OtbeeAvatar, Otbee4KPuppet } from '@/components/mascot/otbee'
 
 export interface HoneyHandle {
   start: () => void
@@ -32,10 +20,7 @@ interface Props {
   engineRef?: React.Ref<HoneyHandle>
 }
 
-// Key frame timestamps (78 frames @ 30fps = 2.6s total):
-// Inflow: 0.0s -> ~1.26s (Frame 38: honey covers 100% of the screen)
-// Hold: ~1.26s -> 1.32s (screen fully opaque with honey)
-// Drain: 1.33s -> 2.60s (honey drains down and reveals new route)
+// Key frame timestamps for Desktop video
 const COVER_TIME = 1.26
 const DRAIN_START = 1.32
 
@@ -54,6 +39,7 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
   const completedFiredRef = useRef(false)
   const isHoldingRef = useRef(false)
   const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const mobileHoldTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     routeRef.current = isRouteLoaded
@@ -63,16 +49,35 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
 
   useImperativeHandle(ref, () => rootRef.current as HTMLDivElement)
 
-  const clearFallbackTimer = () => {
+  const clearTimers = () => {
     if (fallbackTimerRef.current) {
       clearTimeout(fallbackTimerRef.current)
       fallbackTimerRef.current = null
     }
+    if (mobileHoldTimerRef.current) {
+      clearTimeout(mobileHoldTimerRef.current)
+      mobileHoldTimerRef.current = null
+    }
   }
 
-  // When route finishes loading, resume video to complete the drain phase
+  // When route finishes loading
   useEffect(() => {
     if (!isRouteLoaded) return
+
+    const isMobileNow = typeof window !== 'undefined' && (window.matchMedia('(max-width: 767px)').matches || window.innerWidth < 768)
+
+    if (isMobileNow) {
+      // Mobile: smooth hold for 260ms then dismiss cleanly
+      if (!mobileHoldTimerRef.current && !completedFiredRef.current) {
+        mobileHoldTimerRef.current = setTimeout(() => {
+          completedFiredRef.current = true
+          doneRef.current?.()
+        }, 260)
+      }
+      return
+    }
+
+    // Desktop: resume video to complete the drain phase
     const video = videoRef.current
     if (!video) return
 
@@ -85,40 +90,62 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
   }, [isRouteLoaded])
 
   const stop = useCallback(() => {
-    clearFallbackTimer()
+    clearTimers()
+    isHoldingRef.current = false
     coveredFiredRef.current = false
     completedFiredRef.current = false
-    isHoldingRef.current = false
     setMascotVisible(false)
-
-    const root = rootRef.current
-    if (root) {
-      root.style.visibility = 'hidden'
-      root.style.opacity = '0'
-    }
 
     const video = videoRef.current
     if (video) {
-      try {
-        video.pause()
-        video.currentTime = 0
-      } catch {}
+      video.pause()
+      video.currentTime = 0
+    }
+
+    const root = rootRef.current
+    if (root) {
+      root.style.opacity = '0'
+      root.style.visibility = 'hidden'
     }
   }, [])
 
   const start = useCallback(() => {
-    clearFallbackTimer()
+    clearTimers()
+    isHoldingRef.current = false
     coveredFiredRef.current = false
     completedFiredRef.current = false
-    isHoldingRef.current = false
     setMascotVisible(false)
 
     const root = rootRef.current
-    const video = videoRef.current
-    if (!root || !video) return
+    if (!root) return
 
     root.style.visibility = 'visible'
     root.style.opacity = '1'
+
+    const isMobileNow = typeof window !== 'undefined' && (window.matchMedia('(max-width: 767px)').matches || window.innerWidth < 768)
+
+    if (isMobileNow) {
+      // Mobile mode: pure dark blurred backdrop + special 4K Otbee loading animation (ZERO video playback)
+      setTimeout(() => {
+        if (!coveredFiredRef.current) {
+          coveredFiredRef.current = true
+          coveredRef.current?.()
+        }
+      }, 160)
+
+      // Safety timeout
+      fallbackTimerRef.current = setTimeout(() => {
+        if (!completedFiredRef.current) {
+          completedFiredRef.current = true
+          doneRef.current?.()
+        }
+      }, 3500)
+      return
+    }
+
+    // Desktop mode: transparent video playback
+    const video = videoRef.current
+    if (!video) return
 
     video.currentTime = 0
     video.playbackRate = 1.0
@@ -126,7 +153,6 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
     const playPromise = video.play()
     if (playPromise !== undefined) {
       playPromise.catch(() => {
-        // Autoplay policy or media error fallback: guarantee navigation proceeds
         coveredRef.current?.()
         fallbackTimerRef.current = setTimeout(() => {
           doneRef.current?.()
@@ -138,9 +164,8 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
   useImperativeHandle(engineRef, () => ({
     start,
     reset: stop,
-  }), [start, stop])
+  }))
 
-  // Handle continuous video time updates for frame-accurate transitions
   const handleTimeUpdate = useCallback(() => {
     const video = videoRef.current
     if (!video) return
@@ -179,6 +204,7 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
     <div
       ref={rootRef}
       aria-hidden="true"
+      className="honey-overlay-container"
       style={{
         position: 'fixed',
         inset: 0,
@@ -187,54 +213,114 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
         userSelect: 'none',
         visibility: 'hidden',
         opacity: 0,
-        transition: 'opacity 200ms cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: 'opacity 220ms cubic-bezier(0.4, 0, 0.2, 1)',
         overflow: 'hidden',
       }}
     >
-      {/* Native Hardware-Accelerated Video Player */}
-      <video
-        ref={videoRef}
-        playsInline
-        muted
-        preload="metadata"
-        onTimeUpdate={handleTimeUpdate}
-        onEnded={handleEnded}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          objectPosition: 'center',
-          display: 'block',
-          pointerEvents: 'none',
-        }}
-      >
-        {/* Safari (macOS / iOS) native transparent HEVC */}
-        <source src="/honey-transition.mov" type='video/quicktime; codecs="hvc1"' />
-        <source src="/honey-transition.mp4" type='video/mp4; codecs="hvc1"' />
-        {/* Chromium / Firefox native transparent VP9 */}
-        <source src="/honey-transition.webm" type='video/webm; codecs="vp9"' />
-        {/* Universal Fallback */}
-        <source src="/honey-fast.mp4" type="video/mp4" />
-      </video>
+      <style>{`
+        @media (max-width: 767px) {
+          .honey-overlay-container {
+            background-color: rgba(9, 10, 14, 0.82) !important;
+            backdrop-filter: blur(18px) !important;
+            -webkit-backdrop-filter: blur(18px) !important;
+          }
+          .honey-desktop-layer {
+            display: none !important;
+          }
+          .honey-mobile-layer {
+            display: flex !important;
+          }
+        }
+        @media (min-width: 768px) {
+          .honey-overlay-container {
+            background-color: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+          }
+          .honey-desktop-layer {
+            display: block !important;
+          }
+          .honey-mobile-layer {
+            display: none !important;
+          }
+        }
+      `}</style>
 
-      {/* Floating Otbee Mascot when page load takes a moment */}
-      <div
-        className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none transition-opacity duration-300"
-        style={{
-          opacity: mascotVisible ? 1 : 0,
-          transform: mascotVisible ? 'scale(1)' : 'scale(0.92)',
-          transition: 'opacity 250ms ease-out, transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1)',
-        }}
-      >
-        <div className="relative flex flex-col items-center animate-bounce">
-          <OtbeeAvatar size={92} action="fly" />
-          <div className="mt-3 px-4 py-2 rounded-full bg-white/95 shadow-xl border border-amber-200/80 backdrop-blur-md">
-            <p className="text-sm font-bold text-amber-950 flex items-center gap-1.5 whitespace-nowrap">
-              <span>Sebentar ya, Otbee siapin halamannya...</span>
-              <span>🍯✨</span>
+      {/* 1. Mobile Experience: Dark Blurred Screen + Special 4K Otbee Loading Animation */}
+      <div className="honey-mobile-layer absolute inset-0 flex flex-col items-center justify-center p-6 select-none pointer-events-none">
+        <div className="relative flex flex-col items-center justify-center">
+          {/* Soft glowing ambient gold aura */}
+          <div className="absolute w-40 h-40 rounded-full bg-amber-400/25 blur-3xl animate-pulse pointer-events-none" />
+
+          {/* Special Otbee 4K Loading Rig */}
+          <div className="relative z-10 drop-shadow-2xl">
+            <Otbee4KPuppet
+              growthProgress={1}
+              size={124}
+              action="loading"
+              paused={false}
+              followPointer={false}
+            />
+          </div>
+
+          {/* Dark glassmorphic status pill */}
+          <div className="mt-4 px-4 py-2 rounded-full bg-black/70 border border-amber-400/35 backdrop-blur-md shadow-xl flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+            <p className="text-xs font-black text-amber-200 tracking-wide">
+              Menyiapkan Halaman...
             </p>
+          </div>
+
+          {/* Pulsing golden progress line */}
+          <div className="w-40 h-1.5 bg-white/10 rounded-full overflow-hidden mt-3 shadow-inner">
+            <div className="w-1/2 h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full animate-pulse" />
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Desktop Experience: Authentic Transparent Honey Splash Video */}
+      <div className="honey-desktop-layer absolute inset-0">
+        <video
+          ref={videoRef}
+          playsInline
+          muted
+          preload="metadata"
+          onTimeUpdate={handleTimeUpdate}
+          onEnded={handleEnded}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center',
+            display: 'block',
+            pointerEvents: 'none',
+          }}
+        >
+          <source src="/honey-transition.mov" type='video/quicktime; codecs="hvc1"' />
+          <source src="/honey-transition.mp4" type='video/mp4; codecs="hvc1"' />
+          <source src="/honey-transition.webm" type='video/webm; codecs="vp9"' />
+          <source src="/honey-fast.mp4" type="video/mp4" />
+        </video>
+
+        {/* Floating Otbee Mascot when page load takes a moment on Desktop */}
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none transition-opacity duration-300"
+          style={{
+            opacity: mascotVisible ? 1 : 0,
+            transform: mascotVisible ? 'scale(1)' : 'scale(0.92)',
+            transition: 'opacity 250ms ease-out, transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+          }}
+        >
+          <div className="relative flex flex-col items-center animate-bounce">
+            <OtbeeAvatar size={92} action="fly" />
+            <div className="mt-3 px-4 py-2 rounded-full bg-white/95 shadow-xl border border-amber-200/80 backdrop-blur-md">
+              <p className="text-sm font-bold text-amber-950 flex items-center gap-1.5 whitespace-nowrap">
+                <span>Sebentar ya, Otbee siapin halamannya...</span>
+                <span>🍯✨</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>

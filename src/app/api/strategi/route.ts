@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { consumeQuota } from '@/lib/security'
 import { NextResponse } from 'next/server'
-import { getAiClient } from '@/lib/ai/client'
+import { getAiClient, extractJsonFromAi } from '@/lib/ai/client'
 
 const TIER_STRATEGI_LIMIT: Record<string, number | null> = {
   free: 0, web_premium: null, review: null, dokumen: null, menyeluruh: null, intensif: null,
@@ -85,7 +85,7 @@ Berikan rekomendasi strategi dalam JSON valid berikut (HANYA JSON):
       max_tokens: 1200,
     })
 
-    const result = JSON.parse(completion.choices[0].message.content ?? '{}')
+    const result = extractJsonFromAi(completion.choices[0].message.content ?? '{}')
 
     await supabase.from('strategi_sessions').insert({
       user_id: user.id,

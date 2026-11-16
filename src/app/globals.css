@@ -184,59 +184,59 @@ html.dark .public-light-theme .card {
 html.dark:not(:has(.public-light-theme)),
 html[data-theme="dark"]:not(:has(.public-light-theme)) {
   color-scheme: dark;
-  --fg: #f3f4f6;
-  --bg: #0f1013;
-  --bg-alt: #16171b;
-  --card: #1c1d22;
+  --fg: #f4f4f5;
+  --bg: #0d0e12;
+  --bg-alt: #131418;
+  --card: #18191e;
   --muted: #9ca3af;
   --muted-2: #71717a;
-  --border: #2c2d33;
+  --border: #262830;
 }
 
 html.dark body:not(:has(.public-light-theme)),
 html.dark main:not(:has(.public-light-theme)) {
-  background-color: #16171b !important;
-  color: #f3f4f6 !important;
+  background-color: #131418 !important;
+  color: #f4f4f5 !important;
 }
 
 html.dark:not(:has(.public-light-theme)) aside,
 html.dark:not(:has(.public-light-theme)) [style*="var(--bg)"] {
-  background-color: #0f1013 !important;
-  border-color: #2c2d33 !important;
+  background-color: #0d0e12 !important;
+  border-color: #262830 !important;
 }
 
-html.dark:not(:has(.public-light-theme)) .bg-white,
-html.dark:not(:has(.public-light-theme)) .bg-white\/95,
-html.dark:not(:has(.public-light-theme)) .bg-white\/90,
-html.dark:not(:has(.public-light-theme)) .bg-white\/85,
-html.dark:not(:has(.public-light-theme)) .bg-white\/80,
-html.dark:not(:has(.public-light-theme)) .bg-white\/75,
-html.dark:not(:has(.public-light-theme)) .bg-white\/70,
+html.dark:not(:has(.public-light-theme)) .bg-white:not([class*="dark:bg-"]),
+html.dark:not(:has(.public-light-theme)) .bg-white\/95:not([class*="dark:bg-"]),
+html.dark:not(:has(.public-light-theme)) .bg-white\/90:not([class*="dark:bg-"]),
+html.dark:not(:has(.public-light-theme)) .bg-white\/85:not([class*="dark:bg-"]),
+html.dark:not(:has(.public-light-theme)) .bg-white\/80:not([class*="dark:bg-"]),
+html.dark:not(:has(.public-light-theme)) .bg-white\/75:not([class*="dark:bg-"]),
+html.dark:not(:has(.public-light-theme)) .bg-white\/70:not([class*="dark:bg-"]),
 html.dark:not(:has(.public-light-theme)) .card,
 html.dark:not(:has(.public-light-theme)) .glass-panel {
-  background-color: #1c1d22 !important;
+  background-color: #18191e !important;
   background-image: none !important;
-  color: #f3f4f6 !important;
-  border-color: #2c2d33 !important;
+  color: #f4f4f5 !important;
+  border-color: #262830 !important;
 }
 
-html.dark:not(:has(.public-light-theme)) .border-white,
-html.dark:not(:has(.public-light-theme)) .border-white\/90,
-html.dark:not(:has(.public-light-theme)) .border-white\/80,
-html.dark:not(:has(.public-light-theme)) .border-white\/70 {
-  border-color: #2c2d33 !important;
+html.dark:not(:has(.public-light-theme)) .border-white:not([class*="dark:border-"]),
+html.dark:not(:has(.public-light-theme)) .border-white\/90:not([class*="dark:border-"]),
+html.dark:not(:has(.public-light-theme)) .border-white\/80:not([class*="dark:border-"]),
+html.dark:not(:has(.public-light-theme)) .border-white\/70:not([class*="dark:border-"]) {
+  border-color: #262830 !important;
 }
 
 html.dark:not(:has(.public-light-theme)) .glass-badge {
   background: rgba(255, 255, 255, 0.08) !important;
-  color: #f3f4f6 !important;
+  color: #f4f4f5 !important;
   border-color: rgba(255, 255, 255, 0.15) !important;
 }
 
-html.dark:not(:has(.public-light-theme)) .bg-gray-50 {
-  background-color: #23252b !important;
-  color: #f3f4f6 !important;
-  border-color: #2c2d33 !important;
+html.dark:not(:has(.public-light-theme)) .bg-gray-50:not([class*="dark:bg-"]) {
+  background-color: #1f2128 !important;
+  color: #f4f4f5 !important;
+  border-color: #262830 !important;
 }
 
 html.dark:not(:has(.public-light-theme)) .bg-gray-100 {
@@ -1050,29 +1050,29 @@ html.dark:not(:has(.public-light-theme)) .text-rose-900 {
 }
 
 /* Explicit hardcoded white/light backgrounds in cards */
-html.dark:not(:has(.public-light-theme)) [style*="background: white"],
-html.dark:not(:has(.public-light-theme)) [style*="background: #fff"],
-html.dark:not(:has(.public-light-theme)) [style*="background-color: white"],
-html.dark:not(:has(.public-light-theme)) [style*="background-color: #ffffff"],
-html.dark:not(:has(.public-light-theme)) [style*="background:#fff"],
-html.dark:not(:has(.public-light-theme)) [style*="background: #ffffff"] {
-  background-color: #1c1d22 !important;
-  color: #f3f4f6 !important;
+html.dark:not(:has(.public-light-theme)) [style*="background: white"]:not([class*="dark:bg-"]),
+html.dark:not(:has(.public-light-theme)) [style*="background: #fff"]:not([class*="dark:bg-"]),
+html.dark:not(:has(.public-light-theme)) [style*="background-color: white"]:not([class*="dark:bg-"]),
+html.dark:not(:has(.public-light-theme)) [style*="background-color: #ffffff"]:not([class*="dark:bg-"]),
+html.dark:not(:has(.public-light-theme)) [style*="background:#fff"]:not([class*="dark:bg-"]),
+html.dark:not(:has(.public-light-theme)) [style*="background: #ffffff"]:not([class*="dark:bg-"]) {
+  background-color: #18191e !important;
+  color: #f4f4f5 !important;
 }
 
 /* Border color inline overrides */
-html.dark:not(:has(.public-light-theme)) [style*="border-color: #e9e9e7"],
-html.dark:not(:has(.public-light-theme)) [style*="borderColor: #e9e9e7"],
-html.dark:not(:has(.public-light-theme)) [style*="border: 1px solid #f"] {
-  border-color: #2c2d33 !important;
+html.dark:not(:has(.public-light-theme)) [style*="border-color: #e9e9e7"]:not([class*="dark:border-"]),
+html.dark:not(:has(.public-light-theme)) [style*="borderColor: #e9e9e7"]:not([class*="dark:border-"]),
+html.dark:not(:has(.public-light-theme)) [style*="border: 1px solid #f"]:not([class*="dark:border-"]) {
+  border-color: #262830 !important;
 }
 
 /* Rounded white pop-up menus (profile dropdown, etc) */
-html.dark:not(:has(.public-light-theme)) .rounded-3xl.bg-white,
-html.dark:not(:has(.public-light-theme)) .rounded-2xl.bg-white,
-html.dark:not(:has(.public-light-theme)) .rounded-xl.bg-white {
-  background-color: #1c1d22 !important;
-  color: #f3f4f6 !important;
+html.dark:not(:has(.public-light-theme)) .rounded-3xl.bg-white:not([class*="dark:bg-"]),
+html.dark:not(:has(.public-light-theme)) .rounded-2xl.bg-white:not([class*="dark:bg-"]),
+html.dark:not(:has(.public-light-theme)) .rounded-xl.bg-white:not([class*="dark:bg-"]) {
+  background-color: #18191e !important;
+  color: #f4f4f5 !important;
 }
 
 /* Profile menu hover states */

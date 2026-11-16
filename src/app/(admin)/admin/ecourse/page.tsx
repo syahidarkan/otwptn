@@ -612,15 +612,15 @@ export default function AdminEcoursePage() {
 
       {/* Module Add/Edit Modal (Clean Otbee styling) */}
       {modModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl border border-gray-100 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-100">
-              <h3 className="text-lg font-black text-gray-950">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#18191e] rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl border border-gray-150 dark:border-neutral-800 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto text-gray-950 dark:text-neutral-100">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-100 dark:border-neutral-800">
+              <h3 className="text-lg font-black text-gray-950 dark:text-neutral-100 tracking-tight">
                 {editingMod ? 'Edit Modul Pembahasan' : 'Tambah Modul Pembahasan Baru'}
               </h3>
               <button
                 onClick={() => setModModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-gray-600 dark:text-neutral-400 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -736,16 +736,16 @@ export default function AdminEcoursePage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-6 mt-6 border-t border-gray-100">
+            <div className="flex items-center justify-end gap-3 pt-6 mt-6 border-t border-gray-100 dark:border-neutral-800">
               <button
                 onClick={() => setModModalOpen(false)}
-                className="px-5 py-2.5 rounded-2xl bg-gray-100 hover:bg-gray-200 font-extrabold text-xs text-gray-700 transition-colors"
+                className="px-5 py-2.5 rounded-2xl bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 font-extrabold text-xs text-gray-700 dark:text-neutral-300 transition-colors cursor-pointer"
               >
                 Batal
               </button>
               <button
                 onClick={handleSaveModule}
-                className="px-6 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-500 font-black text-xs text-amber-950 transition-all shadow-xs"
+                className="px-6 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 font-black text-xs text-neutral-950 transition-all shadow-md shadow-amber-400/20 cursor-pointer"
               >
                 Simpan Modul
               </button>
@@ -756,13 +756,13 @@ export default function AdminEcoursePage() {
 
       {/* Lesson Add Modal */}
       {lessonModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-gray-100 animate-in zoom-in-95">
-            <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-100">
-              <h3 className="text-lg font-black text-gray-950">Tambah Lesson Baru</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#18191e] rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-gray-150 dark:border-neutral-800 animate-in zoom-in-95 duration-200 text-gray-950 dark:text-neutral-100">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-100 dark:border-neutral-800">
+              <h3 className="text-lg font-black text-gray-950 dark:text-neutral-100 tracking-tight">Tambah Lesson Baru</h3>
               <button
                 onClick={() => setLessonModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-gray-600 dark:text-neutral-400 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X size={16} />
               </button>

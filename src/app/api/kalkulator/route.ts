@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { consumeQuota, rateLimit } from '@/lib/security'
 import { NextResponse } from 'next/server'
-import { getAiClient } from '@/lib/ai/client'
+import { getAiClient, extractJsonFromAi } from '@/lib/ai/client'
 import { calculateDeterministicChance, type KalkulatorInput } from '@/lib/kalkulator/scoringEngine'
 
 const TIER_KALKULATOR_LIMIT: Record<string, number | null> = {
@@ -155,7 +155,7 @@ Berikan respons HANYA dalam format JSON valid (tanpa markdown backtick):
     })
 
     const rawContent = completion.choices[0].message.content ?? '{}'
-    const aiResult = JSON.parse(rawContent)
+    const aiResult = extractJsonFromAi(rawContent)
 
     const mergedResult = {
       ...aiResult,

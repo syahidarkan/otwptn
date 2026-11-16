@@ -928,38 +928,38 @@ export default function AmbassadorDashboardPage() {
 
       {/* WITHDRAWAL MODAL */}
       {withdrawModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl relative space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#18191e] rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl relative space-y-5 border border-gray-150 dark:border-neutral-800 animate-in zoom-in-95 duration-200 text-gray-900 dark:text-neutral-100">
             <button
               onClick={() => setWithdrawModalOpen(false)}
-              className="absolute top-5 right-5 text-gray-400 hover:text-gray-700"
+              className="absolute top-5 right-5 p-1.5 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
 
             <div>
-              <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+              <span className="text-[10px] font-black uppercase text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full">
                 Pencairan Komisi Tunai
               </span>
-              <h3 className="text-lg font-black text-gray-900 mt-1">
+              <h3 className="text-lg font-black text-gray-900 dark:text-neutral-100 mt-1.5 tracking-tight">
                 Tarik Saldo Komisi ke Rekening
               </h3>
-              <p className="text-xs text-gray-500">
-                Saldo aktif kamu: <strong>Rp {activeBalance.toLocaleString('id-ID')}</strong>. Bebas biaya admin.
+              <p className="text-xs text-gray-500 dark:text-neutral-400 mt-0.5">
+                Saldo aktif kamu: <strong className="text-gray-900 dark:text-neutral-200">Rp {activeBalance.toLocaleString('id-ID')}</strong>. Bebas biaya admin.
               </p>
             </div>
 
             {withdrawSuccess ? (
-              <div className="p-5 rounded-2xl bg-emerald-50 text-emerald-950 text-center space-y-2">
+              <div className="p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-200 text-center space-y-2 border border-emerald-200 dark:border-emerald-800/60">
                 <p className="text-sm font-black">Permintaan Pencairan Berhasil!</p>
-                <p className="text-xs text-emerald-800">
+                <p className="text-xs text-emerald-800 dark:text-emerald-300">
                   Dana sebesar <strong>Rp {Number(withdrawAmount).toLocaleString('id-ID')}</strong> sedang diproses ke {bankTarget} ({accountNumber} a.n {accountHolder}). Estimasi masuk 1–15 menit.
                 </p>
               </div>
             ) : (
               <form onSubmit={handleWithdrawSubmit} className="space-y-3.5">
                 <div>
-                  <label className="text-xs font-bold text-gray-700 mb-1 block">
+                  <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 mb-1 block">
                     Jumlah Pencairan (Rp)
                   </label>
                   <input
@@ -968,18 +968,18 @@ export default function AmbassadorDashboardPage() {
                     onChange={e => setWithdrawAmount(e.target.value)}
                     max={activeBalance}
                     min="20000"
-                    className="w-full px-4 py-2.5 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50/80 dark:bg-neutral-900/80 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-gray-700 mb-1 block">
+                  <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 mb-1 block">
                     Bank / E-Wallet Tujuan
                   </label>
                   <select
                     value={bankTarget}
                     onChange={e => setBankTarget(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50/80 dark:bg-neutral-900/80 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all"
                   >
                     <option value="BCA">BCA (Bank Central Asia)</option>
                     <option value="Mandiri">Bank Mandiri</option>
@@ -993,42 +993,42 @@ export default function AmbassadorDashboardPage() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-gray-700 mb-1 block">
+                  <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 mb-1 block">
                     Nomor Rekening / Nomor HP
                   </label>
                   <input
                     value={accountNumber}
                     onChange={e => setAccountNumber(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50/80 dark:bg-neutral-900/80 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-gray-700 mb-1 block">
+                  <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 mb-1 block">
                     Nama Pemilik Rekening
                   </label>
                   <input
                     value={accountHolder}
                     onChange={e => setAccountHolder(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50/80 dark:bg-neutral-900/80 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all"
                   />
                 </div>
 
                 {withdrawError && (
-                  <p className="text-xs text-red-600 font-semibold bg-red-50 px-3 py-2 rounded-xl">{withdrawError}</p>
+                  <p className="text-xs text-red-600 dark:text-red-400 font-semibold bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 px-3 py-2 rounded-xl">{withdrawError}</p>
                 )}
 
                 <div className="pt-2 flex items-center gap-3">
                   <button
                     type="submit"
-                    className="flex-1 btn-brand-primary py-3 rounded-full text-xs font-black shadow-md"
+                    className="flex-1 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-neutral-950 text-xs font-black shadow-md shadow-amber-400/20 active:scale-[0.99] transition-all cursor-pointer"
                   >
                     Konfirmasi Pencairan Dana
                   </button>
                   <button
                     type="button"
                     onClick={() => setWithdrawModalOpen(false)}
-                    className="px-5 py-3 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    className="px-4 py-3 rounded-2xl bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-gray-700 dark:text-neutral-200 text-xs font-bold transition-colors cursor-pointer"
                   >
                     Batal
                   </button>

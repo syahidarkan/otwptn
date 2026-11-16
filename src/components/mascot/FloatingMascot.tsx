@@ -384,17 +384,16 @@ export default function FloatingMascot() {
               transition: 'filter .2s',
             }}
           >
-            {/* Stage A: 4K HD Round-Chin Interactive Head & Emergence in Hero (growthProgress < 0.95) */}
+            {/* Stage A: 4K HD Round-Chin Interactive Head in Hero (enlarged on mobile for clear impact) */}
             <div
               style={{
-                display: growthProgress < 0.95 ? 'block' : 'none',
+                display: isDockedAtHero && growthProgress < 0.6 && !isDraggingState ? 'block' : 'none',
               }}
             >
               <Otbee4KPuppet
                 ref={puppetRef}
-                growthProgress={growthProgress}
-                size={size}
-                paused={growthProgress >= 0.95}
+                growthProgress={0}
+                size={size < 100 ? 142 : 152}
                 followPointer={!isDraggingState}
                 onErraticPointer={() => ctl.current?.onDizzy()}
               />
@@ -403,14 +402,13 @@ export default function FloatingMascot() {
             {/* Stage B: Fully Elastic Skeletal Mascot (skinD joints, elbow & knee bending, footsteps, saltos) for Roaming */}
             <div
               style={{
-                display: growthProgress >= 0.95 ? 'block' : 'none',
+                display: !(isDockedAtHero && growthProgress < 0.6 && !isDraggingState) ? 'block' : 'none',
               }}
             >
               <OtbeeAvatar
                 ref={avatarRef}
                 view="front"
                 size={size}
-                paused={growthProgress < 0.95}
                 followPointer={!isDraggingState}
                 onErraticPointer={() => ctl.current?.onDizzy()}
               />

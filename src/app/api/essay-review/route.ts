@@ -1,7 +1,7 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { consumeQuota, rateLimit } from '@/lib/security'
 import { NextResponse } from 'next/server'
-import { getAiClient } from '@/lib/ai/client'
+import { getAiClient, extractJsonFromAi } from '@/lib/ai/client'
 import { analyzeEssayWithNLP } from '@/lib/nlp/essayNlpEngine'
 
 const TIER_ESSAY_LIMIT: Record<string, number | null> = {
@@ -136,7 +136,7 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
     })
 
     const rawContent = completion.choices[0].message.content ?? '{}'
-    result = JSON.parse(rawContent)
+    result = extractJsonFromAi(rawContent)
     result.nlpBenchmark = nlpBenchmark
   } catch (apiErr) {
     console.warn('[AI Essay Review] Primary AI call failed, generating heuristic evaluation:', apiErr)

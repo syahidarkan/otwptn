@@ -167,9 +167,9 @@ export default function DailyPromoModal() {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-4xl bg-white dark:bg-[#18191e] rounded-3xl shadow-2xl overflow-hidden border border-gray-150 dark:border-neutral-800 animate-in zoom-in-95 duration-200 text-gray-950 dark:text-neutral-100"
         style={{ maxHeight: '92vh', overflowY: 'auto' }}
       >
         {/* Top Header Banner: Green Pill matching design */}
@@ -179,7 +179,7 @@ export default function DailyPromoModal() {
           <button
             onClick={handleDismiss}
             aria-label="Tutup"
-            className="w-7 h-7 rounded-full bg-black/10 hover:bg-black/20 flex items-center justify-center text-[#225010] transition-colors"
+            className="w-7 h-7 rounded-full bg-black/10 hover:bg-black/20 flex items-center justify-center text-[#225010] transition-colors cursor-pointer"
           >
             <X size={15} strokeWidth={2.5} />
           </button>
@@ -190,10 +190,10 @@ export default function DailyPromoModal() {
           {/* Left Column: Heading, Plans & CTA */}
           <div className="flex flex-col">
             <div className="flex items-start justify-between gap-3 mb-1">
-              <h2 className="text-xl md:text-2xl font-black text-gray-900 leading-tight">
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-neutral-100 leading-tight tracking-tight">
                 Biar persiapan PTN-nya lancar sampai hari H.
               </h2>
-              <div className="w-12 h-12 rounded-full bg-amber-100 flex-shrink-0 flex items-center justify-center p-1 overflow-hidden border-2 border-amber-300">
+              <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-400/20 flex-shrink-0 flex items-center justify-center p-1 overflow-hidden border-2 border-amber-300 dark:border-amber-400/50">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/mascot-hd/maskot-kepala-logo-avatar.png"
@@ -206,7 +206,7 @@ export default function DailyPromoModal() {
               </div>
             </div>
 
-            <p className="text-xs font-semibold text-gray-500 mb-4">
+            <p className="text-xs font-semibold text-gray-500 dark:text-neutral-400 mb-4">
               12.500+ pelajar udah belajar bareng otwptn
             </p>
 
@@ -220,35 +220,35 @@ export default function DailyPromoModal() {
                     onClick={() => setSelectedPlan(tier.id)}
                     className={`relative p-3 rounded-2xl border-2 cursor-pointer transition-all ${
                       isSelected
-                        ? 'border-gray-950 bg-amber-50/20 shadow-md ring-1 ring-gray-950'
-                        : 'border-gray-200 bg-gray-50/60 hover:border-gray-300'
+                        ? 'border-gray-950 dark:border-amber-400 bg-amber-50/20 dark:bg-amber-400/10 shadow-md ring-1 ring-gray-950 dark:ring-amber-400'
+                        : 'border-gray-200 dark:border-neutral-800 bg-gray-50/60 dark:bg-neutral-900/60 hover:border-gray-300 dark:hover:border-neutral-700'
                     }`}
                   >
                     {isSelected && (
-                      <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-gray-900 text-white flex items-center justify-center">
+                      <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-gray-900 dark:bg-amber-400 text-white dark:text-neutral-950 flex items-center justify-center">
                         <Check size={12} strokeWidth={3} />
                       </div>
                     )}
                     <div className="flex items-center gap-1.5 mb-0.5">
-                      <span className="text-xs font-black text-gray-900 leading-tight">
+                      <span className="text-xs font-black text-gray-900 dark:text-neutral-100 leading-tight">
                         {tier.name}
                       </span>
                     </div>
                     {tier.badge && (
-                      <span className="text-[9px] font-black uppercase text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded-md inline-block mb-1">
+                      <span className="text-[9px] font-black uppercase text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-400/20 px-1.5 py-0.2 rounded-md inline-block mb-1">
                         {tier.badge}
                       </span>
                     )}
-                    <div className="text-[10px] text-gray-400 line-through leading-none">
+                    <div className="text-[10px] text-gray-400 dark:text-neutral-500 line-through leading-none">
                       {tier.oldPrice}
                     </div>
-                    <div className="text-sm sm:text-base font-black text-gray-950 leading-tight">
+                    <div className="text-sm sm:text-base font-black text-gray-950 dark:text-white leading-tight">
                       {tier.price}
                     </div>
-                    <div className="text-[10px] text-gray-500 font-medium mt-0.5">
+                    <div className="text-[10px] text-gray-500 dark:text-neutral-400 font-medium mt-0.5">
                       {tier.totalPrice}
                     </div>
-                    <div className="text-[10px] font-bold text-sky-600 mt-0.5">
+                    <div className="text-[10px] font-bold text-sky-600 dark:text-sky-400 mt-0.5">
                       {tier.perDay}
                     </div>
                   </div>
@@ -260,7 +260,7 @@ export default function DailyPromoModal() {
             <div className="flex flex-col gap-2">
               <button
                 onClick={handleMintaOrtu}
-                className="w-full py-3 px-4 rounded-full bg-[#fed45b] hover:bg-[#facb40] active:scale-[0.99] font-black text-[#583e00] text-sm shadow-xs transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 rounded-full bg-[#fed45b] hover:bg-[#facb40] active:scale-[0.99] font-black text-[#583e00] text-sm shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Share2 size={16} />
                 Minta dibayarin orang tua
@@ -268,21 +268,21 @@ export default function DailyPromoModal() {
 
               <button
                 onClick={handleBayarSendiri}
-                className="w-full py-2.5 px-4 rounded-full border-2 border-gray-900 hover:bg-gray-50 font-black text-gray-950 text-sm transition-all"
+                className="w-full py-2.5 px-4 rounded-full border-2 border-gray-900 dark:border-neutral-600 hover:bg-gray-50 dark:hover:bg-neutral-800 font-black text-gray-950 dark:text-neutral-100 text-sm transition-all cursor-pointer"
               >
                 Bayar sendiri ({currentTier.price})
               </button>
 
               <button
                 onClick={handleDismiss}
-                className="w-full py-1 text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors"
+                className="w-full py-1 text-xs font-bold text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 transition-colors cursor-pointer"
               >
                 Nanti dulu
               </button>
             </div>
 
-            <div className="flex items-center justify-center gap-1.5 mt-3 text-xs font-bold text-emerald-700">
-              <Check size={14} strokeWidth={3} className="text-emerald-600" />
+            <div className="flex items-center justify-center gap-1.5 mt-3 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+              <Check size={14} strokeWidth={3} className="text-emerald-600 dark:text-emerald-400" />
               <span>Premium aktif begitu pembayaran masuk</span>
             </div>
           </div>
@@ -332,63 +332,63 @@ export default function DailyPromoModal() {
             </div>
 
             {/* "Yang kamu dapat di otwptn:" */}
-            <h4 className="text-xs font-black uppercase tracking-wider text-gray-900 mb-3">
+            <h4 className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-neutral-100 mb-3">
               Yang kamu dapat di ekosistem otwptn:
             </h4>
 
             {/* Checklist items in 2 columns (100% relevant to PTN Non-Tes & SNBP) */}
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 text-[11px] font-semibold text-gray-700">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 text-[11px] font-semibold text-gray-700 dark:text-neutral-300">
               <div className="flex items-start gap-2">
-                <Sparkles size={14} className="text-amber-600 flex-shrink-0 mt-0.5" />
+                <Sparkles size={14} className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                 <span className="leading-tight">Kalkulator Peluang Rapor AI Unlimited</span>
               </div>
               <div className="flex items-start gap-2">
-                <FileEdit size={14} className="text-gray-900 flex-shrink-0 mt-0.5" />
+                <FileEdit size={14} className="text-gray-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                 <span className="leading-tight">Review Essay Personal & AI Mendalam</span>
               </div>
 
               <div className="flex items-start gap-2">
-                <Bot size={14} className="text-gray-900 flex-shrink-0 mt-0.5" />
+                <Bot size={14} className="text-gray-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                 <span className="leading-tight">Tanya Jawab AI Otbee 24/7 Tanpa Limit</span>
               </div>
               <div className="flex items-start gap-2">
-                <Award size={14} className="text-teal-600 flex-shrink-0 mt-0.5" />
+                <Award size={14} className="text-teal-600 dark:text-teal-400 flex-shrink-0 mt-0.5" />
                 <span className="leading-tight">Kurasi Sertifikat Juara Puspresnas/BPTI</span>
               </div>
 
               <div className="flex items-start gap-2">
-                <FolderCheck size={14} className="text-gray-900 flex-shrink-0 mt-0.5" />
+                <FolderCheck size={14} className="text-gray-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                 <span className="leading-tight">Tracking Dokumen & Checklist Otomatis</span>
               </div>
               <div className="flex items-start gap-2">
-                <GraduationCap size={14} className="text-gray-900 flex-shrink-0 mt-0.5" />
+                <GraduationCap size={14} className="text-gray-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                 <span className="leading-tight">Akses 100% Seluruh Modul & E-Course</span>
               </div>
 
               <div className="flex items-start gap-2">
-                <Compass size={14} className="text-gray-900 flex-shrink-0 mt-0.5" />
+                <Compass size={14} className="text-gray-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                 <span className="leading-tight">Fitur Atur Strategi Pilihan 1 & 2</span>
               </div>
               <div className="flex items-start gap-2">
-                <Users size={14} className="text-gray-900 flex-shrink-0 mt-0.5" />
+                <Users size={14} className="text-gray-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                 <span className="leading-tight">Circle Komunitas & Kampus Impian</span>
               </div>
 
               <div className="flex items-start gap-2">
-                <HeartHandshake size={14} className="text-gray-900 flex-shrink-0 mt-0.5" />
+                <HeartHandshake size={14} className="text-gray-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                 <span className="leading-tight">Review Esai Mentor Alumni (Nectar+)</span>
               </div>
               <div className="flex items-start gap-2">
-                <Video size={14} className="text-gray-900 flex-shrink-0 mt-0.5" />
+                <Video size={14} className="text-gray-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                 <span className="leading-tight">Sesi Privat Zoom 1-on-1 (Honeycomb+)</span>
               </div>
 
               <div className="flex items-start gap-2">
-                <TrendingUp size={14} className="text-gray-900 flex-shrink-0 mt-0.5" />
+                <TrendingUp size={14} className="text-gray-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
                 <span className="leading-tight">Dokumen Analisis Mentor (Queen Bee)</span>
               </div>
               <div className="flex items-start gap-2">
-                <ShieldCheck size={14} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                <ShieldCheck size={14} className="text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
                 <span className="leading-tight">Campus Tour ke Kampus UI (Queen Bee)</span>
               </div>
             </div>

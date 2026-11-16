@@ -176,11 +176,11 @@ export default function HeroSection() {
       />
 
       <div className="relative z-10 px-4 flex flex-col items-center text-center max-w-3xl mx-auto w-full py-8 md:py-12">
-        <motion.h1 {...fadeUp(0.04)} className="text-hero text-gray-950 mb-6 md:mb-7 leading-[1.14] tracking-tight">
+        <motion.h1 {...fadeUp(0.04)} className="text-[42px] xs:text-[48px] sm:text-5xl md:text-hero text-gray-950 mb-6 md:mb-7 leading-[1.1] sm:leading-[1.14] tracking-tight font-extrabold">
           Masuk PTN Impianmu{' '}
-          <span className="inline-flex items-center align-middle flex-wrap gap-2.5 justify-center">
-            <span className="text-gray-950 font-extrabold">Tanpa</span>
-            <span className="inline-flex items-center justify-center px-5 py-1.5 rounded-2xl font-black overflow-hidden" style={{ background: 'rgba(255,255,255,0.38)', backdropFilter: 'blur(20px) saturate(2.2)', WebkitBackdropFilter: 'blur(20px) saturate(2.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.7), 0 4px 16px rgba(0,0,0,0.08), inset 0 0 0 1.5px rgba(255,255,255,0.5)', color: '#92400e' }}>
+          <span className="inline-flex items-center align-middle flex-wrap gap-2 justify-center mt-1 sm:mt-0">
+            <span className="text-gray-950 font-black">Tanpa</span>
+            <span className="inline-flex items-center justify-center px-4 sm:px-5 py-1 sm:py-1.5 rounded-2xl font-black overflow-hidden shadow-xs" style={{ background: 'rgba(255,255,255,0.48)', backdropFilter: 'blur(20px) saturate(2.2)', WebkitBackdropFilter: 'blur(20px) saturate(2.2)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 16px rgba(0,0,0,0.08), inset 0 0 0 1.5px rgba(255,255,255,0.6)', color: '#92400e' }}>
               <AnimatePresence mode="wait">
                 <motion.span
                   key={WORDS[idx]}
@@ -197,17 +197,18 @@ export default function HeroSection() {
           </span>
         </motion.h1>
 
-        <motion.p {...fadeUp(0.16)} className="mb-8 max-w-xl mx-auto text-sm sm:text-base leading-relaxed px-2 text-gray-700 font-medium">
+        <motion.p {...fadeUp(0.16)} className="mb-7 md:mb-8 max-w-xl mx-auto text-sm sm:text-base leading-relaxed px-2 text-gray-700 font-medium">
           Upload essay-mu, isi profil akademikmu, dan otwptn langsung beri analisis AI canggih -
           skor essay, estimasi peluang rasionalisasi SNBP, dan bimbingan 1-on-1 mentor alumni UI, ITB, & UGM.
         </motion.p>
 
-        <motion.div {...fadeUp(0.24)} className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mb-8">
-          <Link href="/register" className="btn btn-primary px-7 py-3.5 text-sm font-extrabold w-full sm:w-auto shadow-md">
+        {/* Buttons: Compact & Centered on Mobile (tidak mentok kanan-kiri) */}
+        <motion.div {...fadeUp(0.24)} className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-xs sm:max-w-none mx-auto mb-8">
+          <Link href="/register" className="btn btn-primary w-full sm:w-auto min-w-[220px] sm:min-w-0 max-w-[260px] sm:max-w-none px-6 sm:px-7 py-3 sm:py-3.5 text-xs sm:text-sm font-extrabold shadow-md mx-auto justify-center">
             <Zap size={15} fill="currentColor" />
             Mulai Belajar Sekarang
           </Link>
-          <Link href="/dashboard/kalkulator" className="btn btn-outline px-6 py-3.5 text-sm font-bold w-full sm:w-auto border-gray-300 hover:bg-white/80 text-gray-900 bg-white/50">
+          <Link href="/dashboard/kalkulator" className="btn btn-outline w-full sm:w-auto min-w-[220px] sm:min-w-0 max-w-[260px] sm:max-w-none px-5 sm:px-6 py-3 sm:py-3.5 text-xs sm:text-sm font-bold border-gray-300 hover:bg-white/80 text-gray-900 bg-white/60 mx-auto justify-center">
             Simulasi Peluang Gratis
           </Link>
         </motion.div>

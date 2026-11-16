@@ -20,7 +20,28 @@ export interface ProviderDef {
 }
 
 /**
- * Build prioritized list of active providers from environment variables.
+ * Safely extract and parse JSON from AI response even if wrapped in thinking or markdown blocks
+ */
+export function extractJsonFromAi<T = any>(content: string | undefined | null): T {
+  if (!content) return {} as T
+  const trimmed = content.trim()
+  try {
+    return JSON.parse(trimmed) as T
+  } catch {
+    // Match first '{' to last '}'
+    const firstBrace = trimmed.indexOf('{')
+    const lastBrace = trimmed.lastIndexOf('}')
+    if (firstBrace !== -1 && lastBrace > firstBrace) {
+      const candidate = trimmed.substring(firstBrace, lastBrace + 1)
+      try {
+        return JSON.parse(candidate) as T
+      } catch {}
+    }
+    return {} as T
+  }
+}
+
+/**
  * Rotation Priority:
  * 1. Groq (Ultra-fast, ~200ms latency, high tokens/sec, free)
  * 2. OpenRouter (Multi-model free failover router, instant response, free)
@@ -37,11 +58,11 @@ export function getActiveProviders(): ProviderDef[] {
       name: 'Groq',
       baseURL: 'https://api.groq.com/openai/v1',
       apiKey: groqKey,
-      timeout: 8000,
+      timeout: 12000,
       modelMap: {
-        fast: 'qwen/qwen3.8-27b',
-        default: 'qwen/qwen3.8-27b',
-        complex: 'qwen/qwen3.8-27b',
+        fast: 'openai/gpt-oss-120b',
+        default: 'openai/gpt-oss-120b',
+        complex: 'openai/gpt-oss-120b',
       },
     })
   }
@@ -53,14 +74,14 @@ export function getActiveProviders(): ProviderDef[] {
       name: 'OpenRouter',
       baseURL: 'https://openrouter.ai/api/v1',
       apiKey: openrouterKey,
-      timeout: 8000,
+      timeout: 12000,
       defaultHeaders: {
         'HTTP-Referer': 'https://otwptn.id',
         'X-Title': 'OtwPTN',
       },
       modelMap: {
-        fast: 'inclusionai/ling-3.2-flash:free',
-        default: 'inclusionai/ling-3.2-flash:free',
+        fast: 'nvidia/nemotron-3.5-lightning:free',
+        default: 'nvidia/nemotron-3.5-lightning:free',
         complex: 'nvidia/nemotron-3.5-lightning:free',
       },
     })
@@ -73,11 +94,11 @@ export function getActiveProviders(): ProviderDef[] {
       name: 'Google AI Studio (Gemini)',
       baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
       apiKey: geminiKey.trim(),
-      timeout: 6000,
+      timeout: 12000,
       modelMap: {
-        fast: 'gemini-flash-latest',
-        default: 'gemini-flash-latest',
-        complex: 'gemini-flash-latest',
+        fast: 'gemini-2.0-flash',
+        default: 'gemini-2.0-flash',
+        complex: 'gemini-2.0-flash',
       },
     })
   }

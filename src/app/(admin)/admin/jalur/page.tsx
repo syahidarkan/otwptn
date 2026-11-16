@@ -218,54 +218,60 @@ export default function AdminJalurPage() {
       </div>
 
       <Modal isOpen={modal} onClose={() => setModal(false)} title={editing ? 'Edit Jalur' : 'Tambah Jalur'} size="lg">
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3.5">
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <label className="text-xs font-semibold text-brand-dark block mb-1">Universitas</label>
-              <input value={form.university} onChange={f('university')} placeholder="Universitas Indonesia" className="w-full px-3 py-2.5 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+              <label className="text-xs font-bold text-gray-800 dark:text-neutral-200 block mb-1">Universitas</label>
+              <input value={form.university} onChange={f('university')} placeholder="Universitas Indonesia" className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-neutral-700 bg-gray-50/80 dark:bg-neutral-900/80 text-sm text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all" />
             </div>
             <div className="col-span-2">
-              <label className="text-xs font-semibold text-brand-dark block mb-1">Nama Jalur</label>
-              <input value={form.name} onChange={f('name')} placeholder="PPKB UI" className="w-full px-3 py-2.5 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+              <label className="text-xs font-bold text-gray-800 dark:text-neutral-200 block mb-1">Nama Jalur</label>
+              <input value={form.name} onChange={f('name')} placeholder="PPKB UI" className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-neutral-700 bg-gray-50/80 dark:bg-neutral-900/80 text-sm text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-brand-dark block mb-1">Kategori</label>
-              <select value={form.category} onChange={f('category')} className="w-full px-3 py-2.5 rounded-lg border border-brand-gray-2 text-sm bg-white outline-none focus:border-brand-black">
+              <label className="text-xs font-bold text-gray-800 dark:text-neutral-200 block mb-1">Kategori</label>
+              <select value={form.category} onChange={f('category')} className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-neutral-700 bg-gray-50/80 dark:bg-neutral-900/80 text-sm text-gray-900 dark:text-neutral-100 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all">
                 <option value="essay_only">Essay Only</option>
                 <option value="prestasi_only">Prestasi Only</option>
                 <option value="hybrid">Hybrid</option>
               </select>
             </div>
             <div>
-              <label className="text-xs font-semibold text-brand-dark block mb-1">Biaya (Rp)</label>
-              <input type="number" value={form.biaya} onChange={f('biaya')} placeholder="250000" className="w-full px-3 py-2.5 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+              <label className="text-xs font-bold text-gray-800 dark:text-neutral-200 block mb-1">Biaya (Rp)</label>
+              <input type="number" value={form.biaya} onChange={f('biaya')} placeholder="250000" className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-neutral-700 bg-gray-50/80 dark:bg-neutral-900/80 text-sm text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all" />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-brand-dark block mb-1">Persyaratan & Dokumen</label>
-            <textarea value={form.persyaratan} onChange={f('persyaratan')} placeholder="Pisahkan setiap syarat dengan &#34; - &#34; (spasi dash spasi)&#10;Contoh: Rapor sem 1-5 - Sertifikat prestasi - Foto 3x4" rows={5} className="w-full px-3 py-2.5 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black resize-none" />
+            <label className="text-xs font-bold text-gray-800 dark:text-neutral-200 block mb-1">Persyaratan & Dokumen</label>
+            <textarea value={form.persyaratan} onChange={f('persyaratan')} placeholder="Pisahkan setiap syarat dengan &#34; - &#34; (spasi dash spasi)&#10;Contoh: Rapor sem 1-5 - Sertifikat prestasi - Foto 3x4" rows={4} className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-neutral-700 bg-gray-50/80 dark:bg-neutral-900/80 text-sm text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all resize-none" />
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-brand-dark block mb-1">Website Resmi</label>
-            <input value={form.url} onChange={f('url')} placeholder="https://..." className="w-full px-3 py-2.5 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+            <label className="text-xs font-bold text-gray-800 dark:text-neutral-200 block mb-1">Website Resmi</label>
+            <input value={form.url} onChange={f('url')} placeholder="https://..." className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-neutral-700 bg-gray-50/80 dark:bg-neutral-900/80 text-sm text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-brand-dark block mb-1">Periode Pendaftaran</label>
-              <input value={form.pendaftaran} onChange={f('pendaftaran')} placeholder="6 – 29 April 2026" className="w-full px-3 py-2.5 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+              <label className="text-xs font-bold text-gray-800 dark:text-neutral-200 block mb-1">Periode Pendaftaran</label>
+              <input value={form.pendaftaran} onChange={f('pendaftaran')} placeholder="6 – 29 April 2026" className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-neutral-700 bg-gray-50/80 dark:bg-neutral-900/80 text-sm text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-brand-dark block mb-1">Pengumuman</label>
-              <input value={form.pengumuman} onChange={f('pengumuman')} placeholder="4 Juni 2026" className="w-full px-3 py-2.5 rounded-lg border border-brand-gray-2 text-sm outline-none focus:border-brand-black" />
+              <label className="text-xs font-bold text-gray-800 dark:text-neutral-200 block mb-1">Pengumuman</label>
+              <input value={form.pengumuman} onChange={f('pengumuman')} placeholder="4 Juni 2026" className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-neutral-700 bg-gray-50/80 dark:bg-neutral-900/80 text-sm text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all" />
             </div>
           </div>
 
-          <Button onClick={save} variant="primary" fullWidth disabled={!form.university || !form.name}>
-            Simpan
-          </Button>
+          <div className="pt-2">
+            <button
+              onClick={save}
+              disabled={!form.university || !form.name}
+              className="w-full py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-neutral-950 font-black text-sm shadow-md shadow-amber-400/20 transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer"
+            >
+              Simpan Data Jalur
+            </button>
+          </div>
         </div>
       </Modal>
     </div>

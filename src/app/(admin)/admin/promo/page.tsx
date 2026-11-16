@@ -372,16 +372,21 @@ export default function AdminPromoPage() {
 
       {/* Modal Generate Promo Baru */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-3xl w-full max-w-lg shadow-2xl p-6 sm:p-7 animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-4 border-b border-border mb-5">
-              <div className="flex items-center gap-2">
-                <Ticket className="w-5 h-5 text-amber-500" />
-                <h2 className="text-lg font-black text-foreground">Generate Kode Promo Khusus</h2>
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#18191e] border border-gray-150 dark:border-neutral-800 rounded-3xl w-full max-w-lg shadow-2xl p-6 sm:p-7 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-neutral-800/80 mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 dark:bg-amber-400/15 flex items-center justify-center text-amber-600 dark:text-amber-400 shadow-xs">
+                  <Ticket className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-black text-gray-900 dark:text-neutral-100 tracking-tight">Generate Kode Promo Khusus</h2>
+                  <p className="text-[11px] text-gray-500 dark:text-neutral-400">Buat voucher diskon atau akses 100% gratis</p>
+                </div>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                className="p-2 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -389,14 +394,14 @@ export default function AdminPromoPage() {
 
             <form onSubmit={handleCreatePromo} className="space-y-4">
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-bold text-foreground">Kode Promo (Referral Code)</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold text-gray-800 dark:text-neutral-200">Kode Promo (Referral Code)</label>
                   <button
                     type="button"
                     onClick={handleGenerateRandomCode}
-                    className="text-[11px] font-bold text-amber-600 hover:underline"
+                    className="px-2 py-0.5 rounded-lg bg-amber-500/10 dark:bg-amber-400/15 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1"
                   >
-                    Acak Kode
+                    <Sparkles className="w-3 h-3" /> Acak Kode
                   </button>
                 </div>
                 <input
@@ -405,13 +410,13 @@ export default function AdminPromoPage() {
                   value={formCode}
                   onChange={e => setFormCode(e.target.value.toUpperCase())}
                   placeholder="Contoh: OTW100, BEASISWA, TIKTOK20"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-card font-mono font-bold uppercase tracking-wider text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-neutral-900/80 font-mono font-bold uppercase tracking-wider text-sm text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">Tipe Diskon</label>
+                  <label className="block text-xs font-bold text-gray-800 dark:text-neutral-200 mb-1.5">Tipe Diskon</label>
                   <select
                     value={formType}
                     onChange={e => {
@@ -420,7 +425,7 @@ export default function AdminPromoPage() {
                       if (t === 'percentage') setFormValue(100)
                       else setFormValue(50000)
                     }}
-                    className="w-full px-3 py-2.5 rounded-xl border border-border bg-card text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3.5 py-3 rounded-2xl border border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-neutral-900/80 text-xs font-bold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
                   >
                     <option value="percentage">Persentase (%)</option>
                     <option value="fixed">Nominal Tetap (Rp)</option>
@@ -428,7 +433,7 @@ export default function AdminPromoPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">
+                  <label className="block text-xs font-bold text-gray-800 dark:text-neutral-200 mb-1.5">
                     {formType === 'percentage' ? 'Besar Diskon (%)' : 'Besar Potongan (Rp)'}
                   </label>
                   <input
@@ -439,21 +444,21 @@ export default function AdminPromoPage() {
                     value={formValue}
                     onChange={e => setFormValue(Number(e.target.value))}
                     placeholder={formType === 'percentage' ? '100' : '50000'}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-card text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-neutral-900/80 text-xs font-bold text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
                   />
                 </div>
               </div>
 
               {formType === 'percentage' && formValue === 100 && (
-                <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-800 dark:text-amber-300 font-semibold flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 shrink-0" />
+                <div className="p-3.5 bg-gradient-to-r from-amber-50 to-amber-100/60 dark:from-amber-950/40 dark:to-amber-900/20 border border-amber-200 dark:border-amber-800/60 rounded-2xl text-xs text-amber-900 dark:text-amber-200 font-semibold flex items-center gap-2.5">
+                  <Sparkles className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
                   <span>Kupon ini memberikan akses 100% GRATIS (Total tagihan Rp 0 & auto-aktif).</span>
                 </div>
               )}
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">
+                  <label className="block text-xs font-bold text-gray-800 dark:text-neutral-200 mb-1.5">
                     Batas Kuota Pengguna
                   </label>
                   <input
@@ -462,31 +467,31 @@ export default function AdminPromoPage() {
                     value={formMaxUses}
                     onChange={e => setFormMaxUses(e.target.value)}
                     placeholder="Kosongkan jika unlimited"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-card text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-neutral-900/80 text-xs font-medium text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">
+                  <label className="block text-xs font-bold text-gray-800 dark:text-neutral-200 mb-1.5">
                     Kedaluwarsa (Expired Date)
                   </label>
                   <input
                     type="datetime-local"
                     value={formValidUntil}
                     onChange={e => setFormValidUntil(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3.5 py-3 rounded-2xl border border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-neutral-900/80 text-xs font-medium text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1">Catatan / Keperluan</label>
+                <label className="block text-xs font-bold text-gray-800 dark:text-neutral-200 mb-1.5">Catatan / Keperluan</label>
                 <input
                   type="text"
                   value={formNotes}
                   onChange={e => setFormNotes(e.target.value)}
                   placeholder="Contoh: Beasiswa Juara OSN / Promo Live TikTok"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-card text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-neutral-900/80 text-xs font-medium text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
                 />
               </div>
 
@@ -494,7 +499,7 @@ export default function AdminPromoPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-md transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-neutral-950 font-black text-sm shadow-md shadow-amber-400/20 transition-all active:scale-[0.99] cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Menyimpan...' : 'Simpan & Aktifkan Kode'}
                 </button>

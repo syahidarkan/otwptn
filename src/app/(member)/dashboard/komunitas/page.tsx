@@ -1185,42 +1185,42 @@ export default function KomunitasPage() {
 
       {/* CREATE CIRCLE MODAL (PREMIUM ONLY) */}
       {createModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl relative space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#18191e] border border-gray-150 dark:border-neutral-800 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl relative space-y-4 animate-in zoom-in-95 duration-200 text-gray-900 dark:text-neutral-100">
             <button
               onClick={() => setCreateModalOpen(false)}
-              className="absolute top-5 right-5 text-gray-400 hover:text-gray-700"
+              className="absolute top-5 right-5 p-1.5 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
 
             <div>
-              <span className="text-[10px] font-black uppercase text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full">
+              <span className="text-[10px] font-black uppercase text-amber-800 dark:text-amber-300 bg-amber-100/80 dark:bg-amber-400/15 px-2.5 py-0.5 rounded-full">
                 Fitur Eksklusif Member Paket
               </span>
-              <h3 className="text-lg font-black text-gray-900 mt-1">
+              <h3 className="text-lg font-black text-gray-900 dark:text-neutral-100 mt-1.5 tracking-tight">
                 Bikin Circle Belajar Baru
               </h3>
             </div>
 
             <div className="space-y-3">
               <div>
-                <label className="text-xs font-bold text-gray-700 mb-1 block">Nama Circle</label>
+                <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 mb-1 block">Nama Circle</label>
                 <input
                   value={newCircleName}
                   onChange={e => setNewCircleName(e.target.value)}
                   placeholder="Misal: Pejuang FKG UI 2026"
-                  className="w-full px-4 py-2.5 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
+                  className="w-full px-4 py-2.5 rounded-xl bg-gray-50/80 dark:bg-neutral-900/80 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-700 mb-1 block">Target Kampus</label>
+                <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 mb-1 block">Target Kampus</label>
                 <input
                   value={newCirclePtn}
                   onChange={e => setNewCirclePtn(e.target.value)}
                   placeholder="Misal: Universitas Indonesia"
-                  className="w-full px-4 py-2.5 rounded-2xl bg-gray-50 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-amber-400"
+                  className="w-full px-4 py-2.5 rounded-xl bg-gray-50/80 dark:bg-neutral-900/80 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-all"
                 />
               </div>
             </div>
@@ -1228,13 +1228,13 @@ export default function KomunitasPage() {
             <div className="pt-2 flex items-center gap-3">
               <button
                 onClick={handleCreateCircle}
-                className="flex-1 btn-brand-primary py-3 rounded-full text-xs font-black shadow-md"
+                className="flex-1 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-neutral-950 text-xs font-black shadow-md shadow-amber-400/20 active:scale-[0.99] transition-all cursor-pointer"
               >
                 Buat Circle Sekarang
               </button>
               <button
                 onClick={() => setCreateModalOpen(false)}
-                className="px-5 py-3 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700"
+                className="px-5 py-3 rounded-2xl text-xs font-bold bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-gray-700 dark:text-neutral-200 transition-colors cursor-pointer"
               >
                 Batal
               </button>
@@ -1245,24 +1245,24 @@ export default function KomunitasPage() {
 
       {/* UPGRADE GATING ALERT MODAL */}
       {upgradeAlertOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
-          <div className="bg-white rounded-3xl p-7 max-w-md w-full shadow-2xl relative text-center space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#18191e] border border-gray-150 dark:border-neutral-800 rounded-3xl p-7 max-w-md w-full shadow-2xl relative text-center space-y-4 animate-in zoom-in-95 duration-200 text-gray-900 dark:text-neutral-100">
             <button
               onClick={() => setUpgradeAlertOpen(false)}
-              className="absolute top-5 right-5 text-gray-400 hover:text-gray-700"
+              className="absolute top-5 right-5 p-1.5 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
 
-            <div className="w-14 h-14 rounded-3xl bg-amber-100 text-amber-800 flex items-center justify-center mx-auto shadow-sm">
-              <Lock size={26} />
+            <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-400/15 text-amber-800 dark:text-amber-400 flex items-center justify-center mx-auto shadow-xs">
+              <Lock size={24} />
             </div>
 
             <div>
-              <h3 className="text-lg font-black text-gray-900">
+              <h3 className="text-lg font-black text-gray-900 dark:text-neutral-100 tracking-tight">
                 Fitur Eksklusif Member Paket
               </h3>
-              <p className="text-xs text-gray-600 leading-relaxed mt-2">
+              <p className="text-xs text-gray-600 dark:text-neutral-400 leading-relaxed mt-2">
                 Pembuatan Circle baru dapat dilakukan oleh pengguna <strong>Akun Premium, Nectar, Honeycomb, atau Royal Jelly</strong>. Pengguna gratis tetap dapat bergabung di circle kampus manapun!
               </p>
             </div>
@@ -1270,13 +1270,13 @@ export default function KomunitasPage() {
             <div className="pt-2 flex flex-col sm:flex-row items-center gap-2">
               <Link
                 href="/upgrade"
-                className="w-full btn-brand-primary py-3 rounded-full text-xs font-black shadow-md text-center"
+                className="w-full py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-neutral-950 text-xs font-black shadow-md shadow-amber-400/20 text-center active:scale-[0.99] transition-all cursor-pointer"
               >
                 Upgrade Paket Sekarang
               </Link>
               <button
                 onClick={() => setUpgradeAlertOpen(false)}
-                className="w-full sm:w-auto px-5 py-3 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700"
+                className="w-full sm:w-auto px-5 py-3 rounded-2xl text-xs font-bold bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-gray-700 dark:text-neutral-200 transition-colors cursor-pointer"
               >
                 Tutup
               </button>
@@ -1287,29 +1287,29 @@ export default function KomunitasPage() {
 
       {/* KONFIRMASI GABUNG CIRCLE MODAL (ITEM 9) */}
       {circleToJoin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-3xl p-6 sm:p-7 max-w-sm w-full shadow-2xl relative text-center space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-[#18191e] border border-gray-150 dark:border-neutral-800 rounded-3xl p-6 sm:p-7 max-w-sm w-full shadow-2xl relative text-center space-y-4 animate-in zoom-in-95 duration-150 text-gray-900 dark:text-neutral-100">
             <button
               onClick={() => setCircleToJoin(null)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 cursor-pointer"
+              className="absolute top-4 right-4 p-1.5 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
             >
               <X size={18} />
             </button>
 
-            <div className="w-16 h-16 rounded-2xl bg-amber-100 p-2 mx-auto flex items-center justify-center shadow-xs">
+            <div className="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-400/15 p-2 mx-auto flex items-center justify-center shadow-xs">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={circleToJoin.avatar} alt="" className="w-full h-full object-contain" />
             </div>
 
             <div>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-50 dark:bg-amber-400/15 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-400/30">
                 Konfirmasi Bergabung
               </span>
-              <h3 className="text-base font-black text-gray-950 mt-1.5 leading-snug">
+              <h3 className="text-base font-black text-gray-950 dark:text-neutral-100 mt-1.5 leading-snug tracking-tight">
                 Gabung ke Circle &ldquo;{circleToJoin.name}&rdquo;?
               </h3>
-              <p className="text-xs text-gray-600 mt-2 leading-relaxed">
-                Circle ini fokus pada <strong>{circleToJoin.ptnTarget}</strong> dengan {circleToJoin.membersCount} anggota aktif. Dengan bergabung, kamu bisa ikut berdiskusi di grup chat komunitas ini.
+              <p className="text-xs text-gray-600 dark:text-neutral-400 mt-2 leading-relaxed">
+                Circle ini fokus pada <strong className="text-gray-900 dark:text-neutral-200">{circleToJoin.ptnTarget}</strong> dengan {circleToJoin.membersCount} anggota aktif. Dengan bergabung, kamu bisa ikut berdiskusi di grup chat komunitas ini.
               </p>
             </div>
 
@@ -1320,14 +1320,14 @@ export default function KomunitasPage() {
                   handleJoinCircle(circleToJoin.id)
                   setCircleToJoin(null)
                 }}
-                className="w-full btn-brand-primary py-3 rounded-full text-xs font-black shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+                className="w-full py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-neutral-950 text-xs font-black shadow-md shadow-amber-400/20 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <CheckCircle2 size={15} /> Ya, Gabung Circle Sekarang
               </button>
               <button
                 type="button"
                 onClick={() => setCircleToJoin(null)}
-                className="w-full py-2.5 rounded-full text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer"
+                className="w-full py-2.5 rounded-2xl text-xs font-bold bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-gray-700 dark:text-neutral-200 transition-colors cursor-pointer"
               >
                 Batal
               </button>

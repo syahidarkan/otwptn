@@ -121,8 +121,16 @@ function airAt(x: number, yFoot: number, scale: number): number {
 }
 
 export function isObstructingContent(x: number, y: number, scale = 1): boolean {
-  const air = airAt(x - window.scrollX, y - window.scrollY, scale)
-  return air < 0.78
+  const vx = x - window.scrollX
+  const vy = y - window.scrollY
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
+  // On mobile screens, the center band is prime reading area. If Otbee is in the center column, consider it obstructing!
+  if (isMobile) {
+    const vw = window.innerWidth
+    if (Math.abs(vx - vw / 2) < vw * 0.3) return true
+  }
+  const air = airAt(vx, vy, scale)
+  return air < (isMobile ? 0.86 : 0.78)
 }
 
 // ------------------------------------------------------------------ effective background
@@ -360,12 +368,19 @@ export function pickSpot(cands: Candidate[], o: PickOpts): Picked | null {
     .sort((a, b) => b.pre - a.pre)
     .slice(0, 10)
   const results: Picked[] = []
+  const isMobile = vw < 640
   for (const { c, pre } of pool) {
-    const xs = [
-      o.nearX ?? (c.xa + c.xb) / 2,
-      c.xa + 18 * scale,
-      c.xb - 18 * scale,
-    ]
+    const xs = isMobile
+      ? [
+          c.xb - 14 * scale,
+          c.xa + 14 * scale,
+          o.nearX !== undefined && Math.abs(o.nearX - vw / 2) > vw * 0.28 ? o.nearX : c.xb - 14 * scale,
+        ]
+      : [
+          o.nearX ?? (c.xa + c.xb) / 2,
+          c.xa + 18 * scale,
+          c.xb - 18 * scale,
+        ]
     let bestHere: Picked | null = null
     for (const xv of xs) {
       const m = c.make(xv)
@@ -374,7 +389,9 @@ export function pickSpot(cands: Candidate[], o: PickOpts): Picked | null {
       if (m.air < 0.65) continue
       const prox = o.nearX === undefined ? 1 : 0.8 + 0.2 * (1 - Math.min(1, Math.abs(m.x - o.nearX) / (vw * 0.6)))
       const clearBonus = m.air >= 0.88 ? 1.6 : (m.air >= 0.76 ? 1.1 : 0.25)
-      const score = pre * Math.pow(m.air, 3) * clearBonus * prox
+      // On mobile screens, penalize standing in the central reading column
+      const centerPenalty = isMobile && Math.abs(m.x - vw / 2) < vw * 0.28 ? 0.2 : 1
+      const score = pre * Math.pow(m.air, 3) * clearBonus * prox * centerPenalty
       if (!bestHere || score > bestHere.score) bestHere = { anchor: m.anchor, x: m.x, y: m.y, air: m.air, score }
     }
     if (bestHere) results.push(bestHere)

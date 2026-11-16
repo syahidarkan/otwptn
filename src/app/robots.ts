@@ -25,7 +25,28 @@ const PRIVATE_PATHS = [
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [{ userAgent: '*', allow: '/', disallow: PRIVATE_PATHS }],
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: PRIVATE_PATHS,
+      },
+      {
+        userAgent: [
+          'GPTBot',
+          'ChatGPT-User',
+          'Google-Extended',
+          'PerplexityBot',
+          'ClaudeBot',
+          'anthropic-ai',
+          'Applebot-Extended',
+          'cohere-ai',
+          'Bingbot',
+        ],
+        allow: ['/', '/llms.txt', '/artikel', '/jalur', '/panduan', '/upgrade', '/kalkulator', '/tentang'],
+        disallow: PRIVATE_PATHS,
+      },
+    ],
     sitemap: `${BASE_URL}/sitemap.xml`,
     host: BASE_URL,
   }
