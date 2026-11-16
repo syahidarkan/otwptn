@@ -628,7 +628,7 @@ export default function AdminEcoursePage() {
 
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-gray-700 block mb-1">
+                <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 block mb-1">
                   Judul Modul <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -636,28 +636,28 @@ export default function AdminEcoursePage() {
                   value={modForm.title}
                   onChange={e => setModForm(p => ({ ...p, title: e.target.value }))}
                   placeholder="Contoh: Strategi Pemetaan Kuota SNBP 2025"
-                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 focus:bg-white focus:border-amber-400 outline-none"
+                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-700 block mb-1">Deskripsi Modul</label>
+                <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 block mb-1">Deskripsi Modul</label>
                 <textarea
                   value={modForm.description}
                   onChange={e => setModForm(p => ({ ...p, description: e.target.value }))}
                   placeholder="Ringkasan apa yang dipelajari siswa di modul ini..."
                   rows={3}
-                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 focus:bg-white focus:border-amber-400 outline-none resize-none"
+                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 outline-none resize-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-gray-700 block mb-1">Kategori Modul</label>
+                  <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 block mb-1">Kategori Modul</label>
                   <select
                     value={modForm.category}
                     onChange={e => setModForm(p => ({ ...p, category: e.target.value }))}
-                    className="w-full px-3.5 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-bold text-gray-900 focus:bg-white focus:border-amber-400 outline-none"
+                    className="w-full px-3.5 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs font-bold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 outline-none cursor-pointer"
                   >
                     {CATEGORIES.filter(c => c.id !== 'all').map(c => (
                       <option key={c.id} value={c.id}>
@@ -668,13 +668,13 @@ export default function AdminEcoursePage() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-gray-700 block mb-1">Akses Paket Minimal</label>
+                  <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 block mb-1">Akses Paket Minimal</label>
                   <select
                     value={modForm.tier_access}
                     onChange={e =>
                       setModForm(p => ({ ...p, tier_access: e.target.value as any }))
                     }
-                    className="w-full px-3.5 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-bold text-gray-900 focus:bg-white focus:border-amber-400 outline-none"
+                    className="w-full px-3.5 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs font-bold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 outline-none cursor-pointer"
                   >
                     <option value="free">Gratis (Semua Siswa)</option>
                     <option value="nectar">Nectar (Review)</option>
@@ -686,22 +686,22 @@ export default function AdminEcoursePage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-gray-700 block mb-1">Urutan Modul (#)</label>
+                  <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 block mb-1">Urutan Modul (#)</label>
                   <input
                     type="number"
                     min={1}
                     value={modForm.order_index}
                     onChange={e => setModForm(p => ({ ...p, order_index: Number(e.target.value) }))}
-                    className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 focus:bg-white focus:border-amber-400 outline-none"
+                    className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-gray-700 block mb-1">Status Visibilitas</label>
+                  <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 block mb-1">Status Visibilitas</label>
                   <select
                     value={modForm.is_active ? 'active' : 'inactive'}
                     onChange={e => setModForm(p => ({ ...p, is_active: e.target.value === 'active' }))}
-                    className="w-full px-3.5 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-bold text-gray-900 focus:bg-white focus:border-amber-400 outline-none"
+                    className="w-full px-3.5 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs font-bold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 outline-none cursor-pointer"
                   >
                     <option value="active">Aktif (Dipublikasikan)</option>
                     <option value="inactive">Nonaktif (Draft)</option>
@@ -710,7 +710,7 @@ export default function AdminEcoursePage() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-700 block mb-1">
+                <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 block mb-1">
                   Thumbnail URL (Google Drive / Image Link)
                 </label>
                 <input
@@ -718,12 +718,12 @@ export default function AdminEcoursePage() {
                   value={modForm.thumbnail_url}
                   onChange={e => setModForm(p => ({ ...p, thumbnail_url: e.target.value }))}
                   placeholder="https://drive.google.com/file/d/... atau /mascot-hd/modul-video.png"
-                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 focus:bg-white focus:border-amber-400 outline-none"
+                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-700 block mb-1">
+                <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 block mb-1">
                   Link Lampiran Modul PDF / Slide PPT
                 </label>
                 <input
@@ -731,7 +731,7 @@ export default function AdminEcoursePage() {
                   value={modForm.file_url}
                   onChange={e => setModForm(p => ({ ...p, file_url: e.target.value }))}
                   placeholder="https://drive.google.com/file/d/..."
-                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 focus:bg-white focus:border-amber-400 outline-none"
+                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 outline-none"
                 />
               </div>
             </div>
@@ -770,7 +770,7 @@ export default function AdminEcoursePage() {
 
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-gray-700 block mb-1">
+                <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 block mb-1">
                   Judul Lesson <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -778,30 +778,30 @@ export default function AdminEcoursePage() {
                   value={lessonForm.title}
                   onChange={e => setLessonForm(p => ({ ...p, title: e.target.value }))}
                   placeholder="Contoh: Bedah Aturan Lintas Jurusan SNBP"
-                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 focus:bg-white focus:border-amber-400 outline-none"
+                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-700 block mb-1">Deskripsi Singkat</label>
+                <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 block mb-1">Deskripsi Singkat</label>
                 <textarea
                   value={lessonForm.description}
                   onChange={e => setLessonForm(p => ({ ...p, description: e.target.value }))}
                   placeholder="Poin penting yang dibahas pada video ini..."
                   rows={2}
-                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 focus:bg-white focus:border-amber-400 outline-none resize-none"
+                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 outline-none resize-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-gray-700 block mb-1">Tipe Konten</label>
+                  <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 block mb-1">Tipe Konten</label>
                   <select
                     value={lessonForm.content_type}
                     onChange={e =>
                       setLessonForm(p => ({ ...p, content_type: e.target.value as any }))
                     }
-                    className="w-full px-3.5 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-bold text-gray-900 focus:bg-white focus:border-amber-400 outline-none"
+                    className="w-full px-3.5 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs font-bold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 outline-none cursor-pointer"
                   >
                     <option value="video">Video (YouTube / Vimeo)</option>
                     <option value="pdf">Modul PDF / Dokumen</option>
@@ -810,19 +810,19 @@ export default function AdminEcoursePage() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-gray-700 block mb-1">Durasi / Halaman</label>
+                  <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 block mb-1">Durasi / Halaman</label>
                   <input
                     type="text"
                     value={lessonForm.duration_text}
                     onChange={e => setLessonForm(p => ({ ...p, duration_text: e.target.value }))}
                     placeholder="Contoh: 14:20 atau 25 Halaman"
-                    className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 focus:bg-white focus:border-amber-400 outline-none"
+                    className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-700 block mb-1">
+                <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 block mb-1">
                   URL Video (YouTube / Embed Link)
                 </label>
                 <input
@@ -830,12 +830,12 @@ export default function AdminEcoursePage() {
                   value={lessonForm.content_url}
                   onChange={e => setLessonForm(p => ({ ...p, content_url: e.target.value }))}
                   placeholder="https://www.youtube.com/watch?v=..."
-                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 focus:bg-white focus:border-amber-400 outline-none"
+                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-700 block mb-1">
+                <label className="text-xs font-bold text-gray-700 dark:text-neutral-200 block mb-1">
                   Link File PDF / Materi Downloadable (Opsional)
                 </label>
                 <input
@@ -843,7 +843,7 @@ export default function AdminEcoursePage() {
                   value={lessonForm.file_url}
                   onChange={e => setLessonForm(p => ({ ...p, file_url: e.target.value }))}
                   placeholder="https://drive.google.com/file/d/..."
-                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-semibold text-gray-900 focus:bg-white focus:border-amber-400 outline-none"
+                  className="w-full px-4 py-3 rounded-2xl bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-700 text-xs font-semibold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 outline-none"
                 />
               </div>
             </div>

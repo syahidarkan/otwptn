@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Zap, ArrowRight, ShieldCheck, Star } from 'lucide-react'
 import HoneycombBg from '@/components/ui/HoneycombBg'
 
-const WORDS = ['Tes', 'Ujian', 'CBT', 'Pusing!']
+const WORDS = ['Ujian', 'Tes', 'Ribet', 'Pusing!']
 
 function fadeUp(delay = 0) {
   return {
@@ -48,7 +48,7 @@ function ResponsiveBee({
     <>
       {/* Mobile & Tablet Bee (Scaled, non-blocking at viewport margins) */}
       <div
-        className="block xl:hidden absolute pointer-events-none select-none z-0"
+        className="hidden sm:block xl:hidden absolute pointer-events-none select-none z-0"
         style={{ ...mobilePos, ...(rotate ? { transform: `rotate(${rotate}deg)` } : {}) }}
       >
         <motion.div
@@ -176,7 +176,7 @@ export default function HeroSection() {
       />
 
       <div className="relative z-10 px-4 flex flex-col items-center text-center max-w-3xl mx-auto w-full py-8 md:py-12">
-        <motion.h1 {...fadeUp(0.04)} className="text-[42px] xs:text-[48px] sm:text-5xl md:text-hero text-gray-950 mb-6 md:mb-7 leading-[1.1] sm:leading-[1.14] tracking-tight font-extrabold">
+        <motion.h1 {...fadeUp(0.04)} className="text-[44px] xs:text-[52px] sm:text-5xl md:text-hero text-gray-950 mb-6 md:mb-7 leading-[1.08] sm:leading-[1.12] tracking-tight font-black max-w-xs xs:max-w-md sm:max-w-2xl md:max-w-3xl mx-auto">
           Masuk PTN Impianmu{' '}
           <span className="inline-flex items-center align-middle flex-wrap gap-2 justify-center mt-1 sm:mt-0">
             <span className="text-gray-950 font-black">Tanpa</span>
@@ -203,12 +203,12 @@ export default function HeroSection() {
         </motion.p>
 
         {/* Buttons: Compact & Centered on Mobile (tidak mentok kanan-kiri) */}
-        <motion.div {...fadeUp(0.24)} className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-xs sm:max-w-none mx-auto mb-8">
-          <Link href="/register" className="btn btn-primary w-full sm:w-auto min-w-[220px] sm:min-w-0 max-w-[260px] sm:max-w-none px-6 sm:px-7 py-3 sm:py-3.5 text-xs sm:text-sm font-extrabold shadow-md mx-auto justify-center">
+        <motion.div {...fadeUp(0.24)} className="flex flex-col sm:flex-row items-center justify-center gap-2.5 w-auto mx-auto mb-8">
+          <Link href="/register" className="btn btn-primary w-auto min-w-[210px] max-w-[230px] sm:min-w-0 sm:max-w-none px-6 sm:px-7 py-3 sm:py-3.5 text-xs sm:text-sm font-extrabold shadow-md mx-auto justify-center">
             <Zap size={15} fill="currentColor" />
             Mulai Belajar Sekarang
           </Link>
-          <Link href="/dashboard/kalkulator" className="btn btn-outline w-full sm:w-auto min-w-[220px] sm:min-w-0 max-w-[260px] sm:max-w-none px-5 sm:px-6 py-3 sm:py-3.5 text-xs sm:text-sm font-bold border-gray-300 hover:bg-white/80 text-gray-900 bg-white/60 mx-auto justify-center">
+          <Link href="/dashboard/kalkulator" className="btn btn-outline w-auto min-w-[210px] max-w-[230px] sm:min-w-0 sm:max-w-none px-5 sm:px-6 py-3 sm:py-3.5 text-xs sm:text-sm font-bold border-gray-300 hover:bg-white/80 text-gray-900 bg-white/60 mx-auto justify-center">
             Simulasi Peluang Gratis
           </Link>
         </motion.div>
@@ -244,11 +244,11 @@ export default function HeroSection() {
             <motion.div
               key="hero-mascot-spot-wrap"
               {...fadeUp(0.32)}
-              className="w-full flex justify-center mt-6 pt-6 pb-2 min-h-[175px] relative pointer-events-none"
+              className="w-full flex justify-center mt-6 pt-4 pb-2 min-h-[200px] relative pointer-events-none"
             >
               <div
                 id="hero-mascot-spot"
-                className="w-full h-full min-h-[175px] flex items-center justify-center relative cursor-pointer pointer-events-auto"
+                className="w-full h-full min-h-[200px] flex items-center justify-center relative cursor-pointer pointer-events-auto"
                 title="Sentuh atau geser maskot untuk video launching!"
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent('otbee:launch-video'))

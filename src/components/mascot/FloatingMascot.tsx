@@ -393,7 +393,7 @@ export default function FloatingMascot() {
               <Otbee4KPuppet
                 ref={puppetRef}
                 growthProgress={0}
-                size={size < 100 ? 142 : 152}
+                size={size < 100 ? 190 : 210}
                 followPointer={!isDraggingState}
                 onErraticPointer={() => ctl.current?.onDizzy()}
               />

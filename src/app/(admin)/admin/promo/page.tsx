@@ -164,11 +164,11 @@ export default function AdminPromoPage() {
             <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold">
               <Ticket className="w-4 h-4" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black text-gray-950 dark:text-white tracking-tight">
               Manajemen Kode Promo & Diskon Khusus
             </h1>
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-neutral-400 mt-1">
             Generate kode diskon fleksibel (potongan 100% gratis, persentase %, atau nominal Rp) dengan batas kuota dan durasi waktu.
           </p>
         </div>
@@ -176,14 +176,14 @@ export default function AdminPromoPage() {
         <div className="flex items-center gap-2.5">
           <button
             onClick={fetchPromoCodes}
-            className="p-2.5 rounded-xl border border-border bg-card text-foreground hover:bg-muted transition-colors"
+            className="p-2.5 rounded-xl border border-gray-200 dark:border-neutral-800 bg-white dark:bg-[#18191e] text-gray-700 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
             title="Refresh Data"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-sm transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-amber-400 hover:bg-amber-500 text-gray-950 shadow-sm transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Generate Kode Baru
@@ -200,45 +200,45 @@ export default function AdminPromoPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-card border border-border rounded-2xl p-4 shadow-sm">
-          <p className="text-xs font-medium text-muted-foreground">Total Kode Promo</p>
-          <p className="text-2xl font-black text-foreground mt-1">{totalCodes}</p>
+        <div className="bg-white dark:bg-[#18191e] border border-gray-150 dark:border-neutral-800 rounded-2xl p-4 shadow-xs">
+          <p className="text-xs font-medium text-gray-500 dark:text-neutral-400">Total Kode Promo</p>
+          <p className="text-2xl font-black text-gray-950 dark:text-white mt-1">{totalCodes}</p>
         </div>
-        <div className="bg-card border border-emerald-200/50 dark:border-emerald-900/40 rounded-2xl p-4 shadow-sm">
+        <div className="bg-white dark:bg-[#18191e] border border-emerald-200/50 dark:border-emerald-900/40 rounded-2xl p-4 shadow-xs">
           <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">Kode Aktif</p>
           <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{activeCodes}</p>
         </div>
-        <div className="bg-card border border-blue-200/50 dark:border-blue-900/40 rounded-2xl p-4 shadow-sm">
+        <div className="bg-white dark:bg-[#18191e] border border-blue-200/50 dark:border-blue-900/40 rounded-2xl p-4 shadow-xs">
           <p className="text-xs font-medium text-blue-700 dark:text-blue-400">Total Kali Dipakai (Redeem)</p>
           <p className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-1">{totalUsed}</p>
         </div>
-        <div className="bg-card border border-amber-200/50 dark:border-amber-900/40 rounded-2xl p-4 shadow-sm">
+        <div className="bg-white dark:bg-[#18191e] border border-amber-200/50 dark:border-amber-900/40 rounded-2xl p-4 shadow-xs">
           <p className="text-xs font-medium text-amber-700 dark:text-amber-400">Kupon Gratis 100%</p>
           <p className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{free100Codes}</p>
         </div>
       </div>
 
       {/* Promo Codes Table */}
-      <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-[#18191e] border border-gray-150 dark:border-neutral-800 rounded-3xl shadow-xs overflow-hidden">
         {loading ? (
           <div className="py-20 text-center">
             <RefreshCw className="w-8 h-8 animate-spin mx-auto text-amber-500 mb-3" />
-            <p className="text-sm text-muted-foreground font-medium">Memuat kode promo...</p>
+            <p className="text-sm text-gray-500 dark:text-neutral-400 font-medium">Memuat kode promo...</p>
           </div>
         ) : promoCodes.length === 0 ? (
           <div className="py-20 text-center px-4">
-            <Ticket className="w-12 h-12 mx-auto text-muted-foreground/40 mb-3" />
-            <p className="text-base font-bold text-foreground">Belum ada kode promo khusus</p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <Ticket className="w-12 h-12 mx-auto text-gray-300 dark:text-neutral-600 mb-3" />
+            <p className="text-base font-bold text-gray-950 dark:text-white">Belum ada kode promo khusus</p>
+            <p className="text-xs text-gray-500 dark:text-neutral-400 mt-1">
               Klik tombol &quot;Generate Kode Baru&quot; untuk membuat voucher diskon atau akses gratis 100%.
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-muted/50 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <thead className="bg-gray-50/75 dark:bg-neutral-900/60 border-b border-gray-150 dark:border-neutral-800 text-xs font-semibold text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                 <tr>
-                  <th className="py-3.5 px-4">Kode Promo & Catatan</th>
+                  <th className="py-3.5 px-4">Kode Promo &amp; Catatan</th>
                   <th className="py-3.5 px-4">Besaran Diskon</th>
                   <th className="py-3.5 px-4">Penggunaan (Kuota)</th>
                   <th className="py-3.5 px-4">Masa Berlaku</th>
@@ -246,29 +246,29 @@ export default function AdminPromoPage() {
                   <th className="py-3.5 px-4 text-right">Aksi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y divide-gray-100 dark:divide-neutral-800/60">
                 {promoCodes.map(promo => {
                   const isExpired = promo.valid_until && new Date(promo.valid_until).getTime() < Date.now()
                   const isFull = promo.max_uses !== null && promo.used_count >= promo.max_uses
                   const isFree = promo.discount_type === 'percentage' && promo.discount_value >= 100
 
                   return (
-                    <tr key={promo.id} className="hover:bg-muted/30 transition-colors">
+                    <tr key={promo.id} className="hover:bg-amber-50/20 dark:hover:bg-neutral-800/30 transition-colors">
                       <td className="py-4 px-4 align-top">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono font-black text-base text-foreground tracking-wider bg-muted px-2.5 py-1 rounded-lg border border-border">
+                          <span className="font-mono font-black text-base text-gray-950 dark:text-white tracking-wider bg-gray-100 dark:bg-neutral-800 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-neutral-700">
                             {promo.code}
                           </span>
                           <button
                             onClick={() => handleCopy(promo.code, promo.id)}
-                            className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+                            className="p-1.5 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-md transition-colors"
                             title="Salin Kode"
                           >
                             {copiedId === promo.id ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                           </button>
                         </div>
                         {promo.notes && (
-                          <p className="text-xs text-muted-foreground mt-1.5 max-w-xs">{promo.notes}</p>
+                          <p className="text-xs text-gray-500 dark:text-neutral-400 mt-1.5 max-w-xs">{promo.notes}</p>
                         )}
                       </td>
 
@@ -289,13 +289,13 @@ export default function AdminPromoPage() {
                       </td>
 
                       <td className="py-4 px-4 align-top">
-                        <div className="font-semibold text-foreground">
+                        <div className="font-semibold text-gray-900 dark:text-neutral-100">
                           {promo.used_count} {promo.max_uses ? `/ ${promo.max_uses}` : 'kali (unlimited)'}
                         </div>
                         {promo.max_uses && (
-                          <div className="w-28 bg-muted rounded-full h-1.5 mt-1.5 overflow-hidden">
+                          <div className="w-28 bg-gray-100 dark:bg-neutral-800 rounded-full h-1.5 mt-1.5 overflow-hidden">
                             <div
-                              className={`h-full rounded-full ${isFull ? 'bg-red-500' : 'bg-brand-primary'}`}
+                              className={`h-full rounded-full ${isFull ? 'bg-red-500' : 'bg-amber-400'}`}
                               style={{ width: `${Math.min(100, (promo.used_count / promo.max_uses) * 100)}%` }}
                             />
                           </div>
@@ -304,7 +304,7 @@ export default function AdminPromoPage() {
 
                       <td className="py-4 px-4 align-top">
                         {promo.valid_until ? (
-                          <div className={`text-xs ${isExpired ? 'text-red-600 font-bold' : 'text-muted-foreground'}`}>
+                          <div className={`text-xs ${isExpired ? 'text-red-600 font-bold' : 'text-gray-500 dark:text-neutral-400'}`}>
                             {new Date(promo.valid_until).toLocaleDateString('id-ID', {
                               day: 'numeric',
                               month: 'short',
@@ -312,16 +312,16 @@ export default function AdminPromoPage() {
                               hour: '2-digit',
                               minute: '2-digit',
                             })}
-                            {isExpired && <span className="block text-[10px] text-red-500">Kedaluwarsa</span>}
+                            {isExpired && <span className="block text-[10px] text-red-500 font-bold">Kedaluwarsa</span>}
                           </div>
                         ) : (
-                          <span className="text-xs text-muted-foreground">Aktif Selamanya</span>
+                          <span className="text-xs text-gray-500 dark:text-neutral-400">Aktif Selamanya</span>
                         )}
                       </td>
 
                       <td className="py-4 px-4 align-top">
                         {!promo.is_active ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-muted text-muted-foreground">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-150 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400">
                             Nonaktif
                           </span>
                         ) : isExpired ? (
@@ -346,7 +346,7 @@ export default function AdminPromoPage() {
                             className={`p-2 rounded-xl transition-colors ${
                               promo.is_active
                                 ? 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50'
-                                : 'text-muted-foreground hover:bg-muted'
+                                : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800'
                             }`}
                             title={promo.is_active ? 'Nonaktifkan Kode' : 'Aktifkan Kode'}
                           >
@@ -373,14 +373,14 @@ export default function AdminPromoPage() {
       {/* Modal Generate Promo Baru */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#18191e] border border-gray-150 dark:border-neutral-800 rounded-3xl w-full max-w-lg shadow-2xl p-6 sm:p-7 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-neutral-800/80 mb-5">
+          <div className="bg-white dark:bg-[#18191e] border border-gray-200 dark:border-neutral-700/80 rounded-3xl w-full max-w-lg shadow-2xl p-6 sm:p-8 animate-in zoom-in-95 duration-200 text-gray-950 dark:text-white">
+            <div className="flex items-center justify-between pb-4 border-b border-gray-150 dark:border-neutral-800 mb-5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-amber-500/10 dark:bg-amber-400/15 flex items-center justify-center text-amber-600 dark:text-amber-400 shadow-xs">
                   <Ticket className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-black text-gray-900 dark:text-neutral-100 tracking-tight">Generate Kode Promo Khusus</h2>
+                  <h2 className="text-lg font-black text-gray-950 dark:text-white tracking-tight">Generate Kode Promo Khusus</h2>
                   <p className="text-[11px] text-gray-500 dark:text-neutral-400">Buat voucher diskon atau akses 100% gratis</p>
                 </div>
               </div>
@@ -399,7 +399,7 @@ export default function AdminPromoPage() {
                   <button
                     type="button"
                     onClick={handleGenerateRandomCode}
-                    className="px-2 py-0.5 rounded-lg bg-amber-500/10 dark:bg-amber-400/15 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1"
+                    className="px-2.5 py-1 rounded-xl bg-amber-100 dark:bg-amber-400/20 text-amber-800 dark:text-amber-300 hover:bg-amber-200 font-bold text-xs transition-all cursor-pointer flex items-center gap-1"
                   >
                     <Sparkles className="w-3 h-3" /> Acak Kode
                   </button>
@@ -410,7 +410,7 @@ export default function AdminPromoPage() {
                   value={formCode}
                   onChange={e => setFormCode(e.target.value.toUpperCase())}
                   placeholder="Contoh: OTW100, BEASISWA, TIKTOK20"
-                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-neutral-900/80 font-mono font-bold uppercase tracking-wider text-sm text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
+                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 font-mono font-bold uppercase tracking-wider text-sm text-gray-950 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
                 />
               </div>
 
@@ -425,7 +425,7 @@ export default function AdminPromoPage() {
                       if (t === 'percentage') setFormValue(100)
                       else setFormValue(50000)
                     }}
-                    className="w-full px-3.5 py-3 rounded-2xl border border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-neutral-900/80 text-xs font-bold text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
+                    className="w-full px-3.5 py-3 rounded-2xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-xs font-bold text-gray-950 dark:text-white focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all cursor-pointer"
                   >
                     <option value="percentage">Persentase (%)</option>
                     <option value="fixed">Nominal Tetap (Rp)</option>
@@ -444,15 +444,15 @@ export default function AdminPromoPage() {
                     value={formValue}
                     onChange={e => setFormValue(Number(e.target.value))}
                     placeholder={formType === 'percentage' ? '100' : '50000'}
-                    className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-neutral-900/80 text-xs font-bold text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
+                    className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-xs font-bold text-gray-950 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
                   />
                 </div>
               </div>
 
               {formType === 'percentage' && formValue === 100 && (
-                <div className="p-3.5 bg-gradient-to-r from-amber-50 to-amber-100/60 dark:from-amber-950/40 dark:to-amber-900/20 border border-amber-200 dark:border-amber-800/60 rounded-2xl text-xs text-amber-900 dark:text-amber-200 font-semibold flex items-center gap-2.5">
+                <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-700/60 rounded-2xl text-xs text-amber-950 dark:text-amber-200 font-semibold flex items-center gap-2.5">
                   <Sparkles className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
-                  <span>Kupon ini memberikan akses 100% GRATIS (Total tagihan Rp 0 & auto-aktif).</span>
+                  <span>Kupon ini memberikan akses 100% GRATIS (Total tagihan Rp 0 &amp; auto-aktif).</span>
                 </div>
               )}
 
@@ -467,7 +467,7 @@ export default function AdminPromoPage() {
                     value={formMaxUses}
                     onChange={e => setFormMaxUses(e.target.value)}
                     placeholder="Kosongkan jika unlimited"
-                    className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-neutral-900/80 text-xs font-medium text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
+                    className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-xs font-medium text-gray-950 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
                   />
                 </div>
 
@@ -479,7 +479,7 @@ export default function AdminPromoPage() {
                     type="datetime-local"
                     value={formValidUntil}
                     onChange={e => setFormValidUntil(e.target.value)}
-                    className="w-full px-3.5 py-3 rounded-2xl border border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-neutral-900/80 text-xs font-medium text-gray-900 dark:text-neutral-100 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
+                    className="w-full px-3.5 py-3 rounded-2xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-xs font-medium text-gray-950 dark:text-white [color-scheme:light] dark:[color-scheme:dark] focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
                   />
                 </div>
               </div>
@@ -491,7 +491,7 @@ export default function AdminPromoPage() {
                   value={formNotes}
                   onChange={e => setFormNotes(e.target.value)}
                   placeholder="Contoh: Beasiswa Juara OSN / Promo Live TikTok"
-                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-neutral-800 bg-gray-50/70 dark:bg-neutral-900/80 text-xs font-medium text-gray-900 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:bg-white dark:focus:bg-neutral-900 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
+                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-xs font-medium text-gray-950 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:border-amber-400 dark:focus:border-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-400/15 transition-all"
                 />
               </div>
 
