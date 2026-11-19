@@ -224,7 +224,17 @@ export default function FloatingMascot() {
     }
   }, [])
 
-  const hidden = !!pathname && (pathname.startsWith('/dashboard/essay/') || pathname.startsWith('/admin'))
+  // /login and /register are small, sparse single-card pages - there's nowhere for the
+  // roaming mascot's surface-picker to stand without its body (normal site-wide size) covering
+  // the password field or the Turnstile captcha, which blocks the user from completing the form.
+  // Unlike richer pages, there's no reasonably-sized alternative surface to fall back to here, so
+  // hide the roaming mascot outright instead of trying to make placement avoid a card this small.
+  const hidden = !!pathname && (
+    pathname.startsWith('/dashboard/essay/') ||
+    pathname.startsWith('/admin') ||
+    pathname === '/login' ||
+    pathname === '/register'
+  )
 
   useEffect(() => { pathRef.current = pathname ?? '/' }, [pathname])
 
