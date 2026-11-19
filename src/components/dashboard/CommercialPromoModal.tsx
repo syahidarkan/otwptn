@@ -249,7 +249,7 @@ export default function CommercialPromoModal() {
                 <div className="text-right">
                   <span className="line-through text-xs text-gray-400 font-bold">Rp 99.000</span>
                   <div className="text-2xl font-black text-gray-900 dark:text-white">
-                    Rp 49.000
+                    Rp 29.000<span className="text-xs font-bold text-gray-400">/bulan</span>
                   </div>
                 </div>
               </div>

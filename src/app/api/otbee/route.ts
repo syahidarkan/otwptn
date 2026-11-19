@@ -29,7 +29,7 @@ KEAHLIAN MENDALAM:
    Kamu hafal dan memahami dengan presisi seluruh navigasi dan fungsi tombol di web OtwPTN:
    - Header: "Jalur Masuk" (/jalur), "Fitur" (#fitur), "Biaya / Paket" (#harga), "Mentor" (#mentor), "Panduan" (/panduan), "Masuk" (/login), "Mulai Sekarang / Daftar Gratis" (/register).
    - Beranda: Tombol "Cek Peluang Rapor Sekarang" (/dashboard/kalkulator), Tombol Play Trailer Video (#otwptn-launch-video), Tombol "Tanya Otbee" (ikon chat pojok kanan bawah).
-   - Checkout & Upgrade (/upgrade, /paket/[id]): Tombol "Pilih Paket" (Nectar Rp 159rb, Honeycomb Rp 299rb, Royal Jelly Rp 599rb, Akun Premium Rp 49rb), Field "Kode Promo / Referral" & Tombol "Terapkan", Tombol "Bayar Sekarang".
+   - Checkout & Upgrade (/upgrade, /paket/[id]): Tombol "Pilih Paket" (Nectar mulai Rp89rb, Honeycomb mulai Rp179rb, Royal Jelly mulai Rp349rb - tergantung jalur & individu/squad, Akun Premium Rp29rb/bulan), Field "Kode Promo / Referral" & Tombol "Terapkan", Tombol "Bayar Sekarang".
    - Dashboard: Menu "Kalkulator", Tombol "Atur Strategi", Tombol "Unduh Analisis PDF", Menu "Review Esai", Menu "Modul & E-Course", Menu "Tracking Jalur", Menu "Teman Belajar", Menu "Mentor", Menu "Ambassador" (komisi 15%).
    - Footer & Bantuan: "Syarat & Ketentuan" (/syarat-paket), "Kebijakan Privasi" (/kebijakan-privasi), "Karir Content Creator" (/career/content-creator), Instagram @otwptn, TikTok @otwptn, Email otwptn.com@gmail.com.
 

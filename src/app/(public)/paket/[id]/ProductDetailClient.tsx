@@ -49,9 +49,9 @@ const PRODUCTS_MAP: Record<string, ProductData> = {
     id: 'premium',
     name: 'Akun Premium Platform Cerdas OtwPTN',
     tagline: 'Akses tanpa batas ke seluruh ekosistem AI dan modul pembelajaran video secara mandiri.',
-    price: 'Rp 49.000',
+    price: 'Rp 29.000/bulan',
     originalPrice: 'Rp 99.000',
-    priceNum: 49000,
+    priceNum: 29000,
     badge: 'Akses Mandiri AI',
     image: '/mascot-hd/maskot-upgrade-bintang-emas.png',
     rating: 4.9,
@@ -260,7 +260,7 @@ export default function ProductDetailClient({ id = "nectar", initialCartOpen = f
                     {product.price}
                   </span>
                   <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1 mt-0.5">
-                    <Check size={12} /> Sekali Bayar · Tanpa Biaya Tersembunyi
+                    <Check size={12} /> {product.id === 'premium' ? 'Berlaku 1 Bulan · Tanpa Biaya Tersembunyi' : 'Sekali Bayar · Tanpa Biaya Tersembunyi'}
                   </span>
                 </div>
                 <div className="text-right">

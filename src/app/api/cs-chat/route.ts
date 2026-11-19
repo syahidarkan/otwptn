@@ -35,11 +35,12 @@ PENGETAHUAN LENGKAP OTWPTN:
 
 3. Pilihan Paket & Biaya Investasi:
    - Akun Gratis: Kuota uji coba (kalkulator peluang 1x/bulan, chat AI 3x/hari, review essay 1x/bulan, join circle).
-   - Akun Premium (Rp 49.000 sekali bayar): Akses mandiri tak terbatas tanpa mentor. Kalkulator Peluang Rapor Unlimited, Chat AI Otbee Unlimited, AI Review Essay Unlimited, Buka 100% Modul & Video E-Course, Fitur Atur Strategi.
-   - Paket Nectar (Rp 159.000 total / Rp 53.000 per bulan): Sudah termasuk Akun Premium + 2x Putaran Revisi Dokumen & Essay via chat WhatsApp bersama Mentor Alumni UI ITB UGM.
-   - Paket Honeycomb (Rp 299.000): Paket terpopuler. Sudah termasuk Akun Premium + 5x Putaran Revisi Dokumen & Essay + 2x Sesi Mentoring Zoom 1-on-1 + Akses WhatsApp Group Eksklusif 3 Pihak (Mentor + Admin + Mentee).
-   - Royal Jelly VIP / Queen Bee (Rp 599.000): Paket terlengkap & paling eksklusif. Bimbingan 1-on-1 Unlimited sampai hari H pengumuman, Zoom tanpa batas, Dokumen Analisis Rekomendasi Pilihan 1 & 2 dari Mentor, Prioritas 24/7, plus Tiket Trip Campus Tour ke Universitas Indonesia (UI).
-   *Catatan Penting: Seluruh paket bimbingan mentor (Nectar, Honeycomb, Queen Bee) SUDAH OTOMATIS MENDAPATKAN AKUN PREMIUM gratis!
+   - Akun Premium (Rp 29.000/bulan): Akses mandiri tak terbatas tanpa mentor. Kalkulator Peluang Rapor Unlimited, Chat AI Otbee Unlimited, AI Review Essay Unlimited, Buka 100% Modul & Video E-Course, Fitur Atur Strategi.
+   - Paket Nectar (mulai Rp 89.000): Sudah termasuk Akun Premium + 2x Putaran Revisi Dokumen & Essay via chat WhatsApp bersama Mentor Alumni UI ITB UGM.
+   - Paket Honeycomb (mulai Rp 179.000): Paket terpopuler. Sudah termasuk Akun Premium + 5x Putaran Revisi Dokumen & Essay + 2x Sesi Mentoring Zoom 1-on-1 + Akses WhatsApp Group Eksklusif 3 Pihak (Mentor + Admin + Mentee).
+   - Royal Jelly VIP (mulai Rp 349.000): Paket terlengkap & paling eksklusif. Bimbingan 1-on-1 Unlimited sampai hari H pengumuman, Zoom tanpa batas, Dokumen Analisis Rekomendasi Pilihan 1 & 2 dari Mentor, Prioritas 24/7, plus Tiket Trip Campus Tour ke Universitas Indonesia (UI).
+   *Catatan: harga Nectar/Honeycomb/Royal Jelly di atas adalah harga mulai dari (jalur Essay/Prestasi, individu) - harga tepatnya tergantung jalur dan individu/squad yang dipilih, lihat halaman Harga untuk rincian lengkap.
+   *Catatan Penting: Seluruh paket bimbingan mentor (Nectar, Honeycomb, Royal Jelly) SUDAH OTOMATIS MENDAPATKAN AKUN PREMIUM gratis!
 
 4. Fitur-Fitur Utama Platform:
    - Kalkulator Peluang Rapor 2026: Rasionalisasi nilai semester 1-5, kuota akreditasi sekolah (A: 40%, B: 25%, C: 5%), bobot mapel pendukung prodi SNPMB, dan kurasi Puspresnas.
@@ -126,7 +127,7 @@ function generateRuleBasedReply(query: string): string | null {
 
   // Harga & Paket
   if (q.includes('harga') || q.includes('biaya') || q.includes('paket') || q.includes('bayar') || q.includes('upgrade') || q.includes('nectar') || q.includes('honeycomb') || q.includes('queen bee')) {
-    return 'Halo Kak! OtwPTN menyediakan pilihan paket belajar yang fleksibel:\n\n1. **Akun Premium (Rp 29.000/bulan):** Akses mandiri tak terbatas ke seluruh fitur cerdas (Kalkulator Peluang Rapor Unlimited, Review Essay AI 2.0 Unlimited, Chat AI Otbee Unlimited, 100% Video & Modul E-Course).\n2. **Paket Nectar (Rp 159.000 total / Rp 53.000/bln):** Termasuk Akun Premium + 2x Putaran Revisi Essay & Berkas via WhatsApp bersama Mentor Alumni UI ITB UGM.\n3. **Paket Honeycomb (Rp 299.000 - Paling Populer):** Termasuk Akun Premium + 5x Revisi Berkas + 2x Sesi Mentoring Zoom 1-on-1 + WhatsApp Group 3 Pihak (Mentor + Siswa + Admin).\n4. **Royal Jelly VIP (Rp 599.000):** Paket terlengkap dengan Bimbingan 1-on-1 Unlimited sampai hari H, Zoom tanpa batas, Dokumen Analisis Pilihan 1 & 2 dari Mentor, plus Tiket Trip Campus Tour ke UI!\n\n*Catatan:* Semua paket bimbingan mentor sudah otomatis termasuk Akun Premium!'
+    return 'Halo Kak! OtwPTN menyediakan pilihan paket belajar yang fleksibel:\n\n1. **Akun Premium (Rp 29.000/bulan):** Akses mandiri tak terbatas ke seluruh fitur cerdas (Kalkulator Peluang Rapor Unlimited, Review Essay AI 2.0 Unlimited, Chat AI Otbee Unlimited, 100% Video & Modul E-Course).\n2. **Paket Nectar (mulai Rp 89.000):** Termasuk Akun Premium + 2x Putaran Revisi Essay & Berkas via WhatsApp bersama Mentor Alumni UI ITB UGM.\n3. **Paket Honeycomb (mulai Rp 179.000 - Paling Populer):** Termasuk Akun Premium + 5x Revisi Berkas + 2x Sesi Mentoring Zoom 1-on-1 + WhatsApp Group 3 Pihak (Mentor + Siswa + Admin).\n4. **Royal Jelly VIP (mulai Rp 349.000):** Paket terlengkap dengan Bimbingan 1-on-1 Unlimited sampai hari H, Zoom tanpa batas, Dokumen Analisis Pilihan 1 & 2 dari Mentor, plus Tiket Trip Campus Tour ke UI!\n\n*Catatan:* Harga Nectar/Honeycomb/Royal Jelly mulai dari (tergantung jalur & individu/squad - cek halaman Harga untuk rincian). Semua paket bimbingan mentor sudah otomatis termasuk Akun Premium!'
   }
 
   // Kalkulator Peluang

@@ -25,7 +25,7 @@ const FAQS = [
   },
   {
     q: 'Apa saja paket belajar yang tersedia di otwptn?',
-    a: 'Kami menyediakan Akun Premium (Rp49.000 sekali bayar untuk unlock semua fitur AI & modul), Paket Nectar (Rp99.000 dengan 2x review esai mentor), Paket Honeycomb (Rp199.000 dengan 5x revisi + 2x sesi Zoom privat), dan Paket Queen Bee / Royal Jelly VIP (Rp399.000 bimbingan intensif unlimited sampai hari pengumuman + Campus Tour UI).',
+    a: 'Kami menyediakan Akun Premium (Rp29.000/bulan untuk unlock semua fitur AI & modul), Paket Nectar (mulai Rp89.000 dengan 2x review esai mentor), Paket Honeycomb (mulai Rp179.000 dengan 5x revisi + 2x sesi Zoom privat), dan Paket Royal Jelly VIP (mulai Rp349.000, bimbingan intensif unlimited sampai hari pengumuman + Campus Tour UI). Harga Nectar/Honeycomb/Royal Jelly tergantung jalur dan individu/squad yang dipilih - lihat rincian lengkap di halaman Harga.',
   },
   {
     q: 'Bagaimana cara kerja fitur Cari Teman Belajar (Tatap Muka Virtual)?',
