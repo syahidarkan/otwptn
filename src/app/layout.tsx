@@ -310,6 +310,16 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico?v=3" sizes="any" />
         <link rel="shortcut icon" href="/favicon.png?v=3" type="image/png" />
         <link rel="apple-touch-icon" href="/favicon.png?v=3" />
+        {/* Otbee mascot (chat widget icon on every page, plus the hero head on "/") is an image-layered
+            component that only starts fetching its layers once React mounts it - preloading the always-
+            visible head layers here lets the browser start that fetch in parallel with JS hydration
+            instead of waiting for it, so the mascot appears sooner instead of there being a visible gap. */}
+        {['head', 'antL', 'antR', 'cheekL', 'cheekR', 'mouth'].map(n => (
+          <link key={n} rel="preload" href={`/brand/body/${n}.webp`} as="image" type="image/webp" fetchPriority="low" />
+        ))}
+        {['sclera_solid_eyeL', 'sclera_solid_eyeR', 'pupil_eyeL', 'pupil_eyeR'].map(n => (
+          <link key={n} rel="preload" href={`/brand/body/${n}.webp`} as="image" type="image/webp" fetchPriority="low" />
+        ))}
         {/* Sync dark mode before first paint - prevents flash */}
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var p=window.location.pathname,pub=['/','/artikel','/upgrade','/panduan','/jalur','/daftar','/login','/register'];var isP=pub.some(function(x){return p===x;})||p.startsWith('/artikel/')||p.startsWith('/jalur/');if(!isP&&localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark');document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();` }} />
         {/* Service Worker for instant offline/repeat caching */}

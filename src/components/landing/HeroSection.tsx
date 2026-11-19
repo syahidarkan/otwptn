@@ -134,7 +134,7 @@ export default function HeroSection() {
   }, [])
 
   return (
-    <section id="hero-section" ref={sectionRef} className="relative overflow-hidden min-h-screen flex items-center pt-28 md:pt-32 pb-12 md:pb-16">
+    <section id="hero-section" ref={sectionRef} className="relative overflow-hidden min-h-screen flex [align-items:safe_center] pt-24 md:pt-28 pb-8 md:pb-10">
 
       {/* Honeycomb background texture */}
       <HoneycombBg opacity={0.18} colorScheme="light" size={30} />
@@ -175,8 +175,8 @@ export default function HeroSection() {
         parallaxFactor={90} entranceDelay={0.6}
       />
 
-      <div className="relative z-10 px-4 flex flex-col items-center text-center max-w-4xl mx-auto w-full py-8 md:py-12">
-        <motion.h1 {...fadeUp(0.04)} className="text-[44px] xs:text-[54px] sm:text-6xl md:text-[68px] lg:text-[76px] text-gray-950 mb-6 md:mb-7 leading-[1.08] sm:leading-[1.12] tracking-tight font-black max-w-4xl mx-auto flex flex-col items-center justify-center">
+      <div className="relative z-10 px-4 flex flex-col items-center text-center max-w-4xl mx-auto w-full py-5 md:py-8">
+        <motion.h1 {...fadeUp(0.04)} className="text-[44px] xs:text-[54px] sm:text-6xl md:text-[68px] lg:text-[76px] text-gray-950 mb-4 md:mb-5 leading-[1.08] sm:leading-[1.12] tracking-tight font-black max-w-4xl mx-auto flex flex-col items-center justify-center">
           <span className="block">Masuk PTN</span>
           <span className="block mt-1 sm:mt-1.5">Impianmu Tanpa</span>
           <span className="inline-flex items-center justify-center mt-2.5 sm:mt-3">
@@ -197,13 +197,13 @@ export default function HeroSection() {
           </span>
         </motion.h1>
 
-        <motion.p {...fadeUp(0.16)} className="mb-7 md:mb-8 max-w-xl mx-auto text-sm sm:text-base leading-relaxed px-2 text-gray-700 font-medium">
+        <motion.p {...fadeUp(0.16)} className="mb-5 md:mb-6 max-w-xl mx-auto text-sm sm:text-base leading-relaxed px-2 text-gray-700 font-medium">
           Upload essay-mu, isi profil akademikmu, dan otwptn langsung beri analisis AI canggih -
           skor essay, estimasi peluang rasionalisasi SNBP, dan bimbingan 1-on-1 mentor alumni UI, ITB, & UGM.
         </motion.p>
 
         {/* Buttons: Compact & Centered on Mobile, teks diperbesar */}
-        <motion.div {...fadeUp(0.24)} className="flex flex-col sm:flex-row items-center justify-center gap-3 w-auto mx-auto mb-10 sm:mb-12">
+        <motion.div {...fadeUp(0.24)} className="flex flex-col sm:flex-row items-center justify-center gap-3 w-auto mx-auto mb-6 sm:mb-8">
           <Link href="/register" className="btn btn-primary w-auto min-w-[225px] sm:min-w-0 px-7 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-extrabold shadow-md mx-auto justify-center">
             <Zap size={18} fill="currentColor" />
             Mulai Belajar Sekarang
@@ -244,11 +244,11 @@ export default function HeroSection() {
             <motion.div
               key="hero-mascot-spot-wrap"
               {...fadeUp(0.32)}
-              className="w-full flex justify-center mt-8 sm:mt-12 pt-4 pb-2 min-h-[220px] relative pointer-events-none"
+              className="w-full flex justify-center mt-3 sm:mt-5 pt-1 pb-1 min-h-[150px] relative pointer-events-none"
             >
               <div
                 id="hero-mascot-spot"
-                className="w-full h-full min-h-[220px] flex items-center justify-center relative cursor-pointer pointer-events-auto"
+                className="w-full h-full min-h-[150px] flex items-center justify-center relative cursor-pointer pointer-events-auto"
                 title="Sentuh atau geser maskot untuk video launching!"
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent('otbee:launch-video'))

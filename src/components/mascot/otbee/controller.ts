@@ -25,6 +25,9 @@ export interface ControllerDeps {
  tilt: HTMLElement
  pop: HTMLElement
  size: () => number
+ /** rendered size (px) of the docked hero puppet right now - must match the `size` prop FloatingMascot
+ * actually passes to <Otbee4KPuppet> while docked, so the dock position lines up with what's on screen. */
+ heroSize: () => number
  name: () => string | null
  setBubble: (b: Bubble | null) => void
  pathname: () => string
@@ -284,7 +287,7 @@ export function createController(d: ControllerDeps) {
  }
 
  const getHeroDockY = (hr: DOMRect) => {
- const s = d.size() < 100 ? 190 : 210
+ const s = d.heroSize()
  return hr.top + Math.max(hr.height - 10, s + 20) + window.scrollY
  }
 
@@ -919,7 +922,16 @@ export function createController(d: ControllerDeps) {
  if (holdTimer) { clearTimeout(holdTimer); holdTimer = null }
  if (isTouch) { if (readTimer) clearTimeout(readTimer); readTimer = setTimeout(readAssist, 1800) }
  }
- const onResize = () => { if (settleTimer) clearTimeout(settleTimer); settleTimer = setTimeout(() => decide(false), SETTLE_MS) }
+ const onResize = () => {
+ // The hero-docked position is cached (tick() intentionally skips re-resolving it every frame -
+ // see the comment there), so a window resize / mobile address-bar show-hide / orientation change
+ // must explicitly refresh it here, or the mascot is left floating at its old, now-wrong coordinates.
+ if (phase ==='hero-docked' && anchor) {
+ const p = anchor.resolve()
+ if (p) place(p)
+ }
+ if (settleTimer) clearTimeout(settleTimer); settleTimer = setTimeout(() => decide(false), SETTLE_MS)
+ }
 
  const unsub = otbeeBrain.subscribe(e => {
  if (e.type ==='nav-start') { navStartedAt = performance.now(); despawn() }

@@ -13,6 +13,14 @@ import { createController, type Bubble, type Controller } from './otbee/controll
 import { createClient } from '@/lib/supabase/client'
 
 const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v))
+const clampN = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v))
+/** docked hero puppet's rendered height (px): scales continuously with viewport HEIGHT (not just a
+ * narrow-vs-wide width breakpoint), so a common ~850-950px-tall laptop browser window - not just an
+ * extreme edge case - still gets a puppet small enough to fit without being pushed below the fold. */
+const computeHeroPuppetSize = (w: number, h: number) => {
+  const base = clampN(h * 0.18, 95, 190)
+  return Math.round(w < 640 ? base * 0.86 : base)
+}
 
 export default function FloatingMascot() {
   const pathname = usePathname()
@@ -25,8 +33,10 @@ export default function FloatingMascot() {
   const nameRef = useRef<string | null>(null)
   const pathRef = useRef(pathname ?? '/')
   const sizeRef = useRef(118)
+  const heroSizeRef = useRef(210)
   const [mounted, setMounted] = useState(false)
   const [size, setSize] = useState(118)
+  const [heroPuppetSize, setHeroPuppetSize] = useState(210)
   const [hovered, setHovered] = useState(false)
   const [bubble, setBubble] = useState<Bubble | null>(null)
   const [isDraggingState, setIsDraggingState] = useState(false)
@@ -223,9 +233,15 @@ export default function FloatingMascot() {
     return () => clearTimeout(t)
   }, [])
 
-  // responsive size (smaller on phones)
+  // responsive size (smaller on phones, and on short/non-maximized windows for the docked hero puppet)
   useEffect(() => {
-    const upd = () => { const s = window.innerWidth < 640 ? 88 : 118; sizeRef.current = s; setSize(s) }
+    const upd = () => {
+      const w = window.innerWidth, h = window.innerHeight
+      const s = w < 640 ? 88 : 118
+      sizeRef.current = s; setSize(s)
+      const hs = computeHeroPuppetSize(w, h)
+      heroSizeRef.current = hs; setHeroPuppetSize(hs)
+    }
     upd()
     window.addEventListener('resize', upd)
     return () => window.removeEventListener('resize', upd)
@@ -250,6 +266,7 @@ export default function FloatingMascot() {
       avatar: () => combinedAvatar.current,
       container, pop, tilt,
       size: () => sizeRef.current,
+      heroSize: () => heroSizeRef.current,
       name: () => nameRef.current,
       setBubble,
       pathname: () => pathRef.current,
@@ -393,14 +410,20 @@ export default function FloatingMascot() {
           >
             {/* Stage A: 4K HD Round-Chin Interactive Head in Hero (enlarged on mobile for clear impact) */}
             {(() => {
-              const isHeadStage = isDockedAtHero && growthProgress < 0.6 && !isDraggingState
+              // Show the 4K puppet for the whole docked period so its own growthProgress-driven
+              // body/wing emergence animation (shrink -> body & limbs slide out -> wings unfold) plays
+              // out in full as the user scrolls; only hand off to the walking SVG avatar once undocked
+              // (growthProgress snaps to 1 at that exact moment - see handleDockChange). Switching at an
+              // arbitrary mid-morph threshold (previously growthProgress < 0.6) cut that animation off
+              // partway and made the swap look like an instant, untransitioned jump to full body.
+              const isHeadStage = isDockedAtHero && !isDraggingState
               return (
                 <>
                   <div style={{ display: isHeadStage ? 'block' : 'none' }}>
                     <Otbee4KPuppet
                       ref={puppetRef}
-                      growthProgress={0}
-                      size={size < 100 ? 190 : 210}
+                      growthProgress={growthProgress}
+                      size={heroPuppetSize}
                       followPointer={!isDraggingState}
                       paused={!isTabVisible || !isHeadStage}
                       onErraticPointer={() => ctl.current?.onDizzy()}
