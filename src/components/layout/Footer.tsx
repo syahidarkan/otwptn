@@ -186,56 +186,32 @@ export default function Footer() {
             ))}
           </div>
 
-          {/* Trust Signals, Trustpilot & Product Directory Badges */}
-          <div className="p-4 sm:p-5 rounded-2xl mb-8 flex flex-col md:flex-row items-center justify-between gap-4" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <div className="flex flex-wrap items-center gap-4 text-center md:text-left">
+          {/* Divider */}
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.12)', marginBottom: '2rem' }} />
+
+          {/* Copyright + Trustpilot rating (the one trust signal that's real and checkable) */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3 mb-10">
+            <p className="text-xs flex flex-wrap items-center justify-center md:justify-start gap-x-2 gap-y-1" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              <span>
+                © {new Date().getFullYear()} otwptn · PT. Lembaga Sains Nasional · Dibuat oleh para Alumni Fasilkom UI untuk pejuang PTN Indonesia
+              </span>
               <a
                 href="https://www.trustpilot.com/review/otwptn.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-xl transition-all"
-                style={{ background: 'rgba(0,182,122,0.15)', border: '1px solid rgba(0,182,122,0.3)' }}
+                className="inline-flex items-center gap-1 font-semibold text-white/60 hover:text-white transition-colors"
               >
-                <div className="flex items-center gap-0.5 text-emerald-400">
-                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                </div>
-                <div className="text-left">
-                  <div className="text-xs font-black text-white flex items-center gap-1.5">
-                    Trustpilot <span className="text-[10px] font-bold text-emerald-300">★ 4.9 / 5.0</span>
-                  </div>
-                  <div className="text-[9.5px] text-gray-300">1.250+ Verifikasi Ulasan Siswa</div>
-                </div>
+                <svg className="w-3 h-3 fill-emerald-400 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+                · 4.9/5 di Trustpilot · 1.250+ ulasan siswa
               </a>
-
-              <div className="hidden sm:block h-6 w-px bg-white/10" />
-
-              <div className="flex items-center gap-2 text-xs text-gray-300 font-medium">
-                <span className="px-2 py-0.5 rounded-md bg-amber-400/20 text-amber-300 font-bold text-[10px] uppercase">
-                  EdTech Terverifikasi
-                </span>
-                <span>Terdaftar di SaaSHub, AlternativeTo, &amp; Crunchbase</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 text-xs text-gray-400 font-medium">
-              <span>Keamanan Data ISO 27001 &amp; RLS Bank-Grade</span>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.12)', marginBottom: '2rem' }} />
-
-          {/* Copyright */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3 mb-10">
-            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
-              © {new Date().getFullYear()} otwptn · PT. Lembaga Sains Nasional · Dibuat oleh para Alumni Fasilkom UI untuk pejuang PTN Indonesia
             </p>
             <div className="flex flex-wrap items-center gap-4 sm:gap-5">
               {[
                 { label: 'Kebijakan Privasi', href: '/kebijakan-privasi' },
                 { label: 'Syarat & Ketentuan', href: '/syarat-ketentuan' },
                 { label: 'Kebijakan Pengembalian Dana (Refund)', href: '/kebijakan-pengembalian-dana' },
-                { label: 'API & LLM Context (/llms.txt)', href: '/llms.txt' },
               ].map(l => (
                 <Link key={l.label} href={l.href} className="text-xs transition-colors" style={{ color: 'rgba(255,255,255,0.45)' }}
                   onMouseEnter={e => (e.currentTarget.style.color = '#ffd400')}
