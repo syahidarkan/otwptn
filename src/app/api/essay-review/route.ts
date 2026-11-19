@@ -174,6 +174,7 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
         },
       ],
       nlpBenchmark,
+      isFallback: true,
     }
   }
 

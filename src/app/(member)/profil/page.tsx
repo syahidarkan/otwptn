@@ -140,12 +140,14 @@ export default function ProfilPage() {
   }, [])
 
   const [insightError, setInsightError] = useState<string | null>(null)
+  const [insightIsFallback, setInsightIsFallback] = useState(false)
 
   const fetchCampusInsight = async (ptn: string, prodi: string) => {
     if (!ptn || !prodi) return
     setInsightLoading(true)
     setInsightError(null)
     setCampusInsight(null)
+    setInsightIsFallback(false)
     try {
       const res = await fetch(
         `/api/campus-insight?ptn=${encodeURIComponent(ptn)}&jurusan=${encodeURIComponent(prodi)}`
@@ -155,6 +157,7 @@ export default function ProfilPage() {
         setInsightError(json.message ?? `Program studi "${prodi}" tidak ditemukan di "${ptn}".`)
       } else if (res.ok && json.data) {
         setCampusInsight(json.data)
+        setInsightIsFallback(Boolean(json.isFallback))
       } else {
         setInsightError('Gagal memuat insight. Coba lagi beberapa saat.')
       }
@@ -768,9 +771,15 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
                   <span className="text-[10px] font-black uppercase tracking-wider bg-black/10 px-3 py-1 rounded-full inline-block">
                     Insight Karir & Lingkungan Kampus AI
                   </span>
-                  <span className="text-[10px] font-bold bg-white/50 px-2.5 py-0.5 rounded-full text-amber-950">
-                    Terverifikasi Data Resmi
-                  </span>
+                  {insightIsFallback ? (
+                    <span className="text-[10px] font-bold bg-white/50 px-2.5 py-0.5 rounded-full text-amber-950">
+                      Estimasi Umum
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold bg-white/50 px-2.5 py-0.5 rounded-full text-amber-950">
+                      Terverifikasi Data Resmi
+                    </span>
+                  )}
                 </div>
                 <h2 className="text-xl md:text-2xl font-black tracking-tight leading-snug">
                   {campusInsight?.headline ||
@@ -780,6 +789,15 @@ Jurusan: Kecerdasan Artifisial, Universitas Indonesia
                   {form.target_prodi_1 || 'Program Studi'}, {form.target_ptn_1 || 'Universitas Negeri'}
                 </p>
               </div>
+
+              {insightIsFallback && (
+                <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-xs font-semibold text-rose-800 flex items-start gap-2">
+                  <span className="text-sm leading-none">⚠️</span>
+                  <span>
+                    AI sedang tidak dapat dihubungi, jadi data di bawah ini adalah estimasi umum template (bukan hasil riset personalisasi AI untuk kampus/jurusan ini). Coba muat ulang beberapa saat lagi untuk insight yang lebih akurat.
+                  </span>
+                </div>
+              )}
 
               {/* 5 STRUCTURED INSIGHT SECTIONS */}
               <div className="space-y-6">

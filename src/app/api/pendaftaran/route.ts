@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createServiceClient } from '@/lib/supabase/server'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { getClientIp, rateLimit, verifyTurnstileToken } from '@/lib/security'
 import { PRICE_MATRIX, type Track } from '@/lib/pricing'
 import { sendEmail } from '@/lib/email/send'
@@ -80,6 +81,43 @@ export async function POST(request: Request) {
       .maybeSingle()
 
     if (existingProfile?.id) {
+      // Email already belongs to an existing account: never silently attach this order to
+      // it just because the submitter knows that email. Require proof of ownership first -
+      // either the request already carries a logged-in session for that same profile, or the
+      // submitted password actually matches that account's credentials.
+      let verified = false
+
+      const sessionClient = await createClient()
+      const { data: { user: sessionUser } } = await sessionClient.auth.getUser()
+      if (sessionUser?.id === existingProfile.id) {
+        verified = true
+      }
+
+      if (!verified) {
+        // Throwaway client (persistSession/autoRefreshToken off) just to check the password -
+        // it never touches this request's cookies, so it can't leak a session either way.
+        const verifyClient = createSupabaseClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          { auth: { persistSession: false, autoRefreshToken: false } }
+        )
+        const { data: signInData, error: signInErr } = await verifyClient.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
+        })
+        if (!signInErr && signInData?.user?.id === existingProfile.id) {
+          verified = true
+        }
+        await verifyClient.auth.signOut().catch(() => {})
+      }
+
+      if (!verified) {
+        return NextResponse.json(
+          { error: 'Email ini sudah terdaftar. Silakan login terlebih dahulu untuk melanjutkan pendaftaran.' },
+          { status: 409 }
+        )
+      }
+
       userId = existingProfile.id
     } else {
       const { data: newUser, error: signUpError } = await supabase.auth.admin.createUser({

@@ -13,9 +13,15 @@ export async function GET() {
   // 1. Fetch user profile
   let { data: profile } = await db
     .from('profiles')
-    .select('id, full_name, avatar_url, role, referral_code, school_name, phone')
+    .select('id, full_name, avatar_url, role, is_active, referral_code, school_name, phone')
     .eq('id', user.id)
     .maybeSingle()
+
+  // Only users approved as Content Creator (via /career/content-creator + admin
+  // approval in /api/admin/career-applications) may read the creator dashboard data.
+  if (profile?.role !== 'creator' || profile?.is_active !== true) {
+    return NextResponse.json({ error: 'Forbidden: bukan content creator yang disetujui' }, { status: 403 })
+  }
 
   // Auto-generate referral code if not present yet
   let referralCode = profile?.referral_code
@@ -117,6 +123,17 @@ export async function POST(request: Request) {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const db0 = createServiceClient()
+  const { data: callerProfile } = await db0
+    .from('profiles')
+    .select('role, is_active')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (callerProfile?.role !== 'creator' || callerProfile?.is_active !== true) {
+    return NextResponse.json({ error: 'Forbidden: bukan content creator yang disetujui' }, { status: 403 })
+  }
 
   try {
     const body = await request.json()

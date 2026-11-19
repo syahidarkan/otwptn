@@ -92,20 +92,43 @@ export default function MentorAuthPage() {
         },
       })
 
+      let sessionUser = data?.session?.user ?? null
+
       if (err) {
-        setError(err.message)
-        setLoading(false)
-        return
+        const alreadyRegistered = /already registered|already exists|user already registered/i.test(err.message)
+
+        if (!alreadyRegistered) {
+          setError(err.message)
+          setLoading(false)
+          return
+        }
+
+        // Email sudah punya akun OtwPTN (misalnya akun member biasa). Coba sambungkan ke
+        // akun yang sudah ada alih-alih gagal total, selama password yang dimasukkan cocok.
+        const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+
+        if (signInErr || !signInData.user) {
+          setError(
+            'Email ini sudah terdaftar sebagai akun OtwPTN. Silakan masuk lewat tab "Masuk Mentor" di atas dengan password akun kamu yang sudah ada, lalu lengkapi data mentor dari halaman pengajuan.'
+          )
+          setLoading(false)
+          return
+        }
+
+        sessionUser = signInData.user
       }
 
-      if (data.session) {
+      if (sessionUser) {
         await supabase.from('profiles').update({
           full_name: fullName,
           school_name: university,
-        }).eq('id', data.session.user.id)
+        }).eq('id', sessionUser.id)
 
         await supabase.from('mentor_applications').upsert({
-          user_id: data.session.user.id,
+          user_id: sessionUser.id,
           full_name: fullName,
           email,
           university,

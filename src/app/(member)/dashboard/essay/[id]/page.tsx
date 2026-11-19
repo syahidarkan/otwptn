@@ -70,6 +70,7 @@ interface Feedback {
   suggestions: string[]
   issues?: Issue[]
   nlpBenchmark?: NlpBenchmarkData
+  isFallback?: boolean
 }
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -423,23 +424,26 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
               comment: 'Bagus untuk draf awal, bisa dipertajam dengan hook pemantik yang lebih unik.',
             },
           ],
+          isFallback: true,
         }
         setFeedback(fallbackFeedback)
         setSidebarOpen(true)
       }
     } catch {
-      // Fallback intelligent review instead of failing with network error
+      // AI provider unreachable (network/server error) - this is a generic placeholder, not a
+      // real personalized review, so it must be clearly marked as a fallback to the user.
       const fallbackFeedback: Feedback = {
         structure: 85,
         coherence: 82,
         argument: 84,
         language: 86,
         overall: 84,
-        feedback: 'Analisis draf esai berhasil disinkronkan. Struktur paragrafmu sudah tertata cukup rapi. Pastikan bukti aksi dan relevansi prodi diperjelas sebelum finalisasi pendaftaran.',
+        feedback: 'AI reviewer sedang tidak dapat dihubungi, jadi ini adalah placeholder sementara, bukan hasil analisis asli esaimu. Coba klik "Review AI" lagi dalam beberapa saat.',
         suggestions: [
           'Fokus pada cerita pengalaman autentik daripada teori umum.',
           'Hubungkan minat riset/studi dengan dosen atau laboratorium di prodi tujuan.',
         ],
+        isFallback: true,
       }
       setFeedback(fallbackFeedback)
       setSidebarOpen(true)
@@ -853,6 +857,14 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                 </div>
               ) : (
                 <>
+                  {feedback.isFallback && (
+                    <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/50 text-xs font-semibold text-rose-800 dark:text-rose-300 flex items-start gap-2 mb-4">
+                      <span className="text-sm leading-none">⚠️</span>
+                      <span>
+                        AI reviewer sedang tidak dapat dihubungi. Skor dan feedback di bawah ini adalah <strong>placeholder sementara</strong>, bukan analisis asli esaimu - jangan jadikan acuan final. Coba klik &quot;Review AI&quot; lagi beberapa saat lagi.
+                      </span>
+                    </div>
+                  )}
                   {/* Overall Score Card */}
                   <div className="card p-5 rounded-2xl bg-gradient-to-br from-amber-50/60 to-yellow-50/60 dark:from-amber-950/40 dark:to-yellow-950/30 border border-amber-200/80 dark:border-amber-700/50 shadow-2xs text-center transition-colors">
                     <p className="text-[11px] font-black text-amber-900 dark:text-amber-300 uppercase tracking-wider">

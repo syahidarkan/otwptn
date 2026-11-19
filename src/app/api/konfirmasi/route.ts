@@ -5,6 +5,7 @@ import { sendEmail } from '@/lib/email/send'
 import PembayaranDikonfirmasi from '@/lib/email/templates/PembayaranDikonfirmasi'
 import PembayaranDitolak from '@/lib/email/templates/PembayaranDitolak'
 import { createElement } from 'react'
+import { claimOrderPaid, fulfillPaidOrder } from '@/lib/orderFulfillment'
 
 const schema = z.object({
   order_id: z.string().uuid(),
@@ -55,42 +56,42 @@ export async function POST(request: Request) {
 
       const now = new Date().toISOString()
 
-      // Update order
+      // Atomically flip pending/expired -> paid (same guard the Mayar webhook uses), so a
+      // double-click or a race with the webhook can never fulfil the same order twice.
+      const claimed = await claimOrderPaid(supabase, order_id)
+      if (!claimed) {
+        return NextResponse.json({ error: 'Order sudah dikonfirmasi sebelumnya atau tidak berstatus pending' }, { status: 409 })
+      }
+
       await supabase.from('orders').update({
-        status: 'paid',
-        wa_group_link: wa_group_link ?? null,
-        mentor_name: mentor_name ?? null,
         notes: notes ?? null,
         confirmed_by: user.id,
         confirmed_at: now,
         updated_at: now,
       }).eq('id', order_id)
 
-      // Update user's tier
-      await supabase.from('profiles')
-        .update({ tier: order.tier, updated_at: now })
-        .eq('id', profile.id)
+      // Shared fulfillment: sets tier / pending_activation the same way the webhook does,
+      // credits ambassador commission, and auto-assigns a mentor.
+      await fulfillPaidOrder(supabase, claimed)
 
-      // Upsert mentoring record
-      const tierConfig: Record<string, { zoom: number; revisions: number }> = {
-        dokumen: { zoom: 0, revisions: 2 },
-        menyeluruh: { zoom: 2, revisions: 5 },
-      }
-      const cfg = tierConfig[order.tier] ?? { zoom: 0, revisions: 2 }
-
+      // Manual bank-transfer confirmation lets the admin pick the mentor and WA group link by
+      // hand (there is no auto-match UI here) - this overrides whatever fulfillPaidOrder's
+      // auto-assignment picked, with the admin-provided values.
       await supabase.from('mentoring').upsert({
         user_id: profile.id,
         order_id: order_id,
-        tier: order.tier,
+        tier: claimed.tier,
         wa_group_link: wa_group_link ?? null,
         mentor_name: mentor_name ?? null,
         mentor_id: mentor_id ?? null,
         status: 'active',
-        zoom_sessions_total: cfg.zoom,
-        zoom_sessions_used: 0,
-        revision_count_total: cfg.revisions,
-        revision_count_used: 0,
       }, { onConflict: 'order_id' })
+
+      await supabase.from('orders').update({
+        wa_group_link: wa_group_link ?? null,
+        mentor_name: mentor_name ?? null,
+        mentor_id: mentor_id ?? null,
+      }).eq('id', order_id)
 
       await sendEmail({
         to: profile.email,

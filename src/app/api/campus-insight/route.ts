@@ -263,15 +263,18 @@ Balas HANYA dengan format JSON valid tanpa format markdown atau kutipan teks tam
       .trim()
 
     let parsedData: CampusInsightPayload
+    let usedFallback = false
     try {
       parsedData = JSON.parse(cleanJson)
     } catch {
       parsedData = buildFallbackInsight(ptn, jurusan)
+      usedFallback = true
     }
 
     // Validate that basic keys exist
     if (!parsedData.gaji || !parsedData.lingkungan || !parsedData.jalur_dan_biaya) {
       parsedData = buildFallbackInsight(ptn, jurusan)
+      usedFallback = true
     }
 
     memoryInsightCache[cacheKey] = parsedData
@@ -294,7 +297,8 @@ Balas HANYA dengan format JSON valid tanpa format markdown atau kutipan teks tam
 
     return NextResponse.json({
       data: parsedData,
-      source: 'ai_generated',
+      source: usedFallback ? 'fallback_template' : 'ai_generated',
+      isFallback: usedFallback,
       ptn,
       jurusan,
     })
@@ -305,6 +309,7 @@ Balas HANYA dengan format JSON valid tanpa format markdown atau kutipan teks tam
     return NextResponse.json({
       data: fallbackData,
       source: 'fallback_template',
+      isFallback: true,
       ptn,
       jurusan,
     })

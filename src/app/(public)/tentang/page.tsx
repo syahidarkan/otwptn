@@ -246,7 +246,7 @@ export default function TentangPage() {
                 Daftar Sekarang - Gratis
               </Link>
               <Link
-                href="/pricing"
+                href="/upgrade"
                 className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 rounded-full text-xs sm:text-sm font-bold bg-white/90 hover:bg-white text-gray-950 shadow-md transition-all hover:scale-105 active:scale-95 border border-black/10 backdrop-blur-xs"
               >
                 Lihat Pilihan Paket

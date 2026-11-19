@@ -16,6 +16,7 @@ import {
   Award,
   ShieldCheck,
 } from 'lucide-react'
+import { OFFICIAL_WA } from '@/lib/constants'
 
 const QUALIFICATIONS = [
   'Berusia 16 - 24 tahun (Siswa SMA, SMK, Gap Year, atau Mahasiswa aktif).',
@@ -148,7 +149,7 @@ export default function ContentCreatorCareerPage() {
   }
 
   const whatsappConfirmUrl = successData
-    ? `https://wa.me/6281283921102?text=${encodeURIComponent(
+    ? `${OFFICIAL_WA.url}?text=${encodeURIComponent(
         `Halo Tim Rekrutmen OTWPTN, nama saya ${successData.fullName} (Ref ID: ${successData.referenceId}). Saya telah mengirimkan pendaftaran sebagai Marketing Partner (Content Creator). Mohon informasi langkah seleksi berikutnya. Terima kasih!`
       )}`
     : '#'

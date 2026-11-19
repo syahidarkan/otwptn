@@ -349,9 +349,11 @@ export async function POST(request: Request) {
     }
 
     if (appliedPromoId) {
-      const { data: p } = await db.from('promo_codes').select('used_count').eq('id', appliedPromoId).single()
-      if (p) {
-        await db.from('promo_codes').update({ used_count: (p.used_count || 0) + 1 }).eq('id', appliedPromoId)
+      // Atomic increment-with-limit-check (see migration 022) - a plain read-then-write here
+      // would let concurrent checkouts both read the same used_count and over-use a capped code.
+      const { error: promoIncErr } = await db.rpc('increment_promo_usage', { p_promo_id: appliedPromoId })
+      if (promoIncErr) {
+        console.warn('[checkout] increment_promo_usage RPC failed (migration 022 not applied?):', promoIncErr)
       }
     }
 
@@ -365,11 +367,6 @@ export async function POST(request: Request) {
     })
   }
 
-  // Jago bank transfer: unique amount (base + random 3-digit suffix) for matching
-  const uniqueAmount = payment_method === 'transfer'
-    ? baseAmount + Math.floor(Math.random() * 900) + 100
-    : baseAmount
-
   const { data: order, error: orderError } = await db.from('orders').insert({
     user_id: user.id,
     tier,
@@ -377,7 +374,7 @@ export async function POST(request: Request) {
     track,
     squad_group_id: squadGroupId,
     referral_code: appliedReferralCode,
-    amount: uniqueAmount,
+    amount: baseAmount,
     status: 'pending',
     invoice_number: invoiceNumber,
     payment_method,
@@ -400,19 +397,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to create order', details: orderError?.message }, { status: 500 })
   }
 
-  if (payment_method === 'transfer') {
-    return NextResponse.json({
-      payment_method: 'transfer',
-      order_id: order.id,
-      invoice_number: invoiceNumber,
-      bank_name: 'Bank Jago',
-      account_number: process.env.JAGO_ACCOUNT_NUMBER ?? '',
-      account_name: process.env.JAGO_ACCOUNT_NAME ?? '',
-      amount: uniqueAmount,
-      base_amount: baseAmount,
-      tier_name: tierName,
-    })
-  }
+  // Note: manual bank-transfer checkout is handled entirely by a separate endpoint
+  // (src/app/api/pendaftaran/route.ts, with admin confirmation via src/app/api/konfirmasi/route.ts).
+  // This endpoint only ever accepts payment_method === 'mayar' (validated above), so no
+  // 'transfer' branch belongs here.
 
   // Mayar payment link
   try {
@@ -447,9 +435,11 @@ export async function POST(request: Request) {
     }).eq('id', order.id)
 
     if (appliedPromoId) {
-      const { data: p } = await db.from('promo_codes').select('used_count').eq('id', appliedPromoId).single()
-      if (p) {
-        await db.from('promo_codes').update({ used_count: (p.used_count || 0) + 1 }).eq('id', appliedPromoId)
+      // Atomic increment-with-limit-check (see migration 022) - a plain read-then-write here
+      // would let concurrent checkouts both read the same used_count and over-use a capped code.
+      const { error: promoIncErr } = await db.rpc('increment_promo_usage', { p_promo_id: appliedPromoId })
+      if (promoIncErr) {
+        console.warn('[checkout] increment_promo_usage RPC failed (migration 022 not applied?):', promoIncErr)
       }
     }
 

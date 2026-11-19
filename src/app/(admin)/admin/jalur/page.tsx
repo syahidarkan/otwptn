@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import Badge from '@/components/ui/Badge'
-import { Plus, Edit, ExternalLink } from 'lucide-react'
+import { Plus, Edit, ExternalLink, AlertCircle } from 'lucide-react'
 
 const CATEGORY_LABEL: Record<string, string> = {
   essay_only: 'Essay Only',
@@ -44,6 +44,7 @@ export default function AdminJalurPage() {
   const [modal, setModal] = useState(false)
   const [editing, setEditing] = useState<JalurPage | null>(null)
   const [form, setForm] = useState(emptyForm)
+  const [error, setError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     try {
@@ -95,8 +96,9 @@ export default function AdminJalurPage() {
       pengumuman: form.pengumuman || null,
     }
 
+    setError(null)
     try {
-      await fetch('/api/admin/jalur', {
+      const res = await fetch('/api/admin/jalur', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -105,8 +107,15 @@ export default function AdminJalurPage() {
           payload,
         }),
       })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setError(data.error || 'Gagal menyimpan data jalur')
+        return
+      }
     } catch (err) {
       console.error('[Admin Jalur Save Error]', err)
+      setError('Gagal menghubungi server')
+      return
     }
 
     setModal(false)
@@ -114,8 +123,9 @@ export default function AdminJalurPage() {
   }
 
   async function toggleActive(j: JalurPage) {
+    setError(null)
     try {
-      await fetch('/api/admin/jalur', {
+      const res = await fetch('/api/admin/jalur', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -124,8 +134,15 @@ export default function AdminJalurPage() {
           is_active: !j.is_active,
         }),
       })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setError(data.error || 'Gagal mengubah status jalur')
+        return
+      }
     } catch (err) {
       console.error('[Admin Jalur Toggle Error]', err)
+      setError('Gagal menghubungi server')
+      return
     }
     load()
   }
@@ -170,6 +187,13 @@ export default function AdminJalurPage() {
           <span>Tambah Jalur Baru</span>
         </button>
       </div>
+
+      {error && (
+        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs font-semibold text-rose-800 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
 
       <div className="bg-white rounded-3xl border border-gray-100 shadow-xs overflow-hidden">
         <table className="w-full text-left text-xs">

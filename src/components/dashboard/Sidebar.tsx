@@ -95,6 +95,7 @@ export default function Sidebar() {
   const [school, setSchool] = useState('')
   const [tier, setTier] = useState('free')
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isApprovedCreator, setIsApprovedCreator] = useState(false)
   const [avatar, setAvatar] = useState('/avatars/avatar-1.png')
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
@@ -219,12 +220,13 @@ export default function Sidebar() {
       if (!data.user) return
       const userMetaName = data.user.user_metadata?.full_name || data.user.user_metadata?.name
       const userEmailFallback = data.user.email?.split('@')[0]
-      supabase.from('profiles').select('full_name, tier, avatar_url, school_name, school, is_admin').eq('id', data.user.id).maybeSingle().then(({ data: profile }) => {
+      supabase.from('profiles').select('full_name, tier, avatar_url, school_name, school, is_admin, role, is_active').eq('id', data.user.id).maybeSingle().then(({ data: profile }) => {
         const finalName = profile?.full_name || userMetaName || userEmailFallback || 'Pejuang PTN'
         setName(finalName)
         setSchool(profile?.school_name || profile?.school || '')
         setTier(profile?.tier || 'free')
         setIsAdmin(!!profile?.is_admin)
+        setIsApprovedCreator(profile?.role === 'creator' && profile?.is_active === true)
         if (profile?.avatar_url) {
           setAvatar(profile.avatar_url)
           try { localStorage.setItem('otwptn_user_avatar', profile.avatar_url) } catch {}
@@ -294,7 +296,7 @@ export default function Sidebar() {
               </p>
             )}
             {collapsed && group.category && <div className="pt-2" />}
-            {group.items.map(item => {
+            {group.items.filter(item => item.id !== 'nav-creator' || isApprovedCreator).map(item => {
               const { id, label, href, icon: Icon, children } = item
               const isDirectActive = pathname === href
               const isParentActive = isDirectActive || (href !== '/dashboard' && pathname?.startsWith(href))
@@ -638,19 +640,21 @@ export default function Sidebar() {
                   Papan peringkat
                 </Link>
 
-                <Link
-                  href="/dashboard/creator"
-                  onClick={() => setProfileMenuOpen(false)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 hover:text-amber-950 dark:hover:text-amber-200 transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <Video size={17} className="text-amber-600 group-hover:scale-110 transition-transform" />
-                    <span>Content Creator Hub</span>
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 px-2 py-0.5 rounded-full">
-                    Kreator
-                  </span>
-                </Link>
+                {isApprovedCreator && (
+                  <Link
+                    href="/dashboard/creator"
+                    onClick={() => setProfileMenuOpen(false)}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-extrabold text-gray-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 hover:text-amber-950 dark:hover:text-amber-200 transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Video size={17} className="text-amber-600 group-hover:scale-110 transition-transform" />
+                      <span>Content Creator Hub</span>
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 px-2 py-0.5 rounded-full">
+                      Kreator
+                    </span>
+                  </Link>
+                )}
 
                 <Link
                   href="/dashboard/ambassador"

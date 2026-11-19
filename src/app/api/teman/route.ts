@@ -1,10 +1,15 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { rateLimit } from '@/lib/security'
 
 export async function GET(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  if (!(await rateLimit('teman', user.id, 30, 60))) {
+    return NextResponse.json({ error: 'Terlalu banyak permintaan. Tunggu sebentar.' }, { status: 429 })
+  }
 
   const url = new URL(request.url)
   const q = (url.searchParams.get('q') || '').trim().toLowerCase()
