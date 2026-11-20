@@ -18,7 +18,7 @@ export { ARTICLES, type Article } from '@/lib/articlesData'
 import { ARTICLES } from '@/lib/articlesData'
 
 
-const CATEGORY_FILTERS = ['SNBP', 'PPKB UI', 'SJP IPB', 'PBUB UGM', 'Essay & Portofolio', 'Strategi Rapor'] as const
+const CATEGORY_FILTERS = ['SNBP', 'PPKB UI', 'SJP IPB', 'PBUB UGM', 'Essay & Portofolio', 'Strategi Rapor', 'Fitur & Ekosistem', 'Program & Karir'] as const
 
 export default async function ArtikelPage({
   searchParams,

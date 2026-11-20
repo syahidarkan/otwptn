@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import type { Metadata } from 'next'
 import { ARTICLES, type Article } from '../page'
+import { ARTICLE_CONTENTS } from '@/lib/articlesContent'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -148,7 +149,9 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
         {/* Rich Article Body Content */}
         <div className="prose prose-sm md:prose-base max-w-none text-gray-800 leading-relaxed space-y-6">
-          {slug === 'apa-itu-snbp' ? (
+          {ARTICLE_CONTENTS[slug] ? (
+            ARTICLE_CONTENTS[slug]
+          ) : slug === 'apa-itu-snbp' ? (
             <>
               <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
                 1. Pengertian Resmi SNBP (Seleksi Nasional Berdasarkan Prestasi)

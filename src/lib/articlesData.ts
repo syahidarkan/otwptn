@@ -2,7 +2,7 @@ export interface Article {
   slug: string
   title: string
   excerpt: string
-  category: 'SNBP' | 'PPKB UI' | 'SJP IPB' | 'PBUB UGM' | 'Essay & Portofolio' | 'Strategi Rapor' | 'Jalur Khusus & Prestasi'
+  category: 'SNBP' | 'PPKB UI' | 'SJP IPB' | 'PBUB UGM' | 'Essay & Portofolio' | 'Strategi Rapor' | 'Jalur Khusus & Prestasi' | 'Fitur & Ekosistem' | 'Program & Karir'
   readTime: string
   date: string
   author: {
@@ -15,6 +15,123 @@ export interface Article {
 }
 
 export const ARTICLES: Article[] = [
+  {
+    slug: 'sjp-ui-jalur-prestasi-masuk-ui-tanpa-tes',
+    title: 'SJP UI: Apakah UI Punya Seleksi Jalur Prestasi? Panduan Masuk UI Tanpa Tes 2026',
+    excerpt: 'Banyak yang mencari SJP UI. Ketahui fakta resmi jalur prestasi Universitas Indonesia: PPKB UI, Talent Scouting, dan SIMAK Jalur Prestasi tanpa tes CBT.',
+    category: 'PPKB UI',
+    readTime: '7 menit baca',
+    date: '20 November 2026',
+    author: {
+      name: 'Kak Rifqi Alumni UI',
+      role: 'Mentor Senior Jalur Prestasi UI',
+      avatar: '/ptn-logos/ui.png',
+    },
+    featured: true,
+    tags: ['SJP UI', 'SJP UI 2026', 'Jalur Prestasi UI', 'PPKB UI', 'Talent Scouting UI', 'Masuk UI Tanpa Tes'],
+  },
+  {
+    slug: 'otbee-tv-belajar-bareng-study-cam-pejuang-ptn',
+    title: 'Otbee TV: Fitur Video Call & Study Cam 24 Jam Bareng Pejuang Masuk PTN Se-Indonesia',
+    excerpt: 'Lawan rasa malas dan sepi belajar! Fitur Otbee TV hadir sebagai virtual study room dan video matching pejuang SNBP & jalur mandiri prestasi dengan pengawasan aman.',
+    category: 'Fitur & Ekosistem',
+    readTime: '5 menit baca',
+    date: '20 November 2026',
+    author: {
+      name: 'Tim Produk & Komunitas otwptn',
+      role: 'Pengembang Ekosistem Belajar',
+      avatar: '/brand/body/head.webp',
+    },
+    featured: true,
+    tags: ['Otbee TV', 'Study Cam PTN', 'Study With Me', 'Video Call Belajar', 'Komunitas SNBP'],
+  },
+  {
+    slug: 'penyimpanan-dokumen-persiapan-jalur-non-tes-ptn',
+    title: 'Penyimpanan Dokumen OtwPTN: Amankan Berkas Rapor, Portofolio & Sertifikat Masuk PTN',
+    excerpt: 'Jangan sampai gagal seleksi cuma karena berkas scan rapor tercecer atau sertifikat hilang saat pendaftaran dibuka. Simpan dan kurasi dokumenmu di cloud vault terenkripsi.',
+    category: 'Fitur & Ekosistem',
+    readTime: '5 menit baca',
+    date: '20 November 2026',
+    author: {
+      name: 'Tim Riset Akademik otwptn',
+      role: 'Kurator Portofolio & Dokumen',
+      avatar: '/brand/body/head.webp',
+    },
+    tags: ['Penyimpanan Dokumen PTN', 'Upload Sertifikat SNBP', 'Berkas PPKB UI', 'Portofolio Non-Tes'],
+  },
+  {
+    slug: 'tracking-jalur-non-tes-ptn-timeline-kalender-resmi',
+    title: 'Tracking Jalur Non-Tes PTN: Kalender & Timeline Pendaftaran SNBP, PPKB UI, PBUB UGM 2026',
+    excerpt: 'Pantau lebih dari 50+ jadwal pembukaan jalur prestasi seluruh PTN se-Indonesia. Dapatkan reminder deadline otomatis agar tidak ada satu pun peluang kampus impian yang terlewat.',
+    category: 'Fitur & Ekosistem',
+    readTime: '6 menit baca',
+    date: '20 November 2026',
+    author: {
+      name: 'Kak Sarah Alumni ITB',
+      role: 'Lead Essay Reviewer otwptn',
+      avatar: '/ptn-logos/itb.png',
+    },
+    featured: true,
+    tags: ['Tracking Jalur PTN', 'Jadwal SNBP 2026', 'Kalender Pendaftaran PTN', 'Timeline Jalur Mandiri'],
+  },
+  {
+    slug: 'game-edukasi-persiapan-ptn-baku-kalimat-padanan-kata',
+    title: 'Asah Kemampuan Esai & Literasi dengan Games Interaktif OtwPTN: Baku Atau Nggak & Padanan Kata',
+    excerpt: 'Bikin persiapan esai dan verbal jadi seru! Mainkan mini games edukasi Baku Atau Nggak, Benerin Kalimat, dan Padanan Kata untuk mempertajam tata bahasa esai motivasimu.',
+    category: 'Fitur & Ekosistem',
+    readTime: '5 menit baca',
+    date: '20 November 2026',
+    author: {
+      name: 'Tim Edukasi & Gamifikasi otwptn',
+      role: 'Spesialis Literasi Bahasa',
+      avatar: '/brand/body/head.webp',
+    },
+    tags: ['Game Belajar PTN', 'Kata Baku Online', 'Latihan Literasi Bahasa', 'Game Edukasi PTN'],
+  },
+  {
+    slug: 'komunitas-pejuang-ptn-non-tes-otwptn',
+    title: 'Komunitas Pejuang PTN Non-Tes Indonesia: Ruang Diskusi, Sharing Info Rapor & Saling Semangat',
+    excerpt: 'Bergabung dengan ribuan pejuang SNBP dan jalur prestasi dari berbagai kota. Bahas strategi prodi, tukar pengalaman sertifikat juara, dan diskusi langsung dengan mentor alumni.',
+    category: 'Fitur & Ekosistem',
+    readTime: '5 menit baca',
+    date: '20 November 2026',
+    author: {
+      name: 'Kak Nabila FK UI',
+      role: 'Mentor Review Essay PPKB UI',
+      avatar: '/ptn-logos/ui.png',
+    },
+    tags: ['Komunitas Pejuang PTN', 'Grup Diskusi SNBP', 'Forum Masuk PTN', 'Networking Siswa SMA'],
+  },
+  {
+    slug: 'program-student-ambassador-otwptn-pelajar-sma',
+    title: 'Program Student Ambassador OtwPTN: Peluang Pelajar SMA Berprestasi, Relasi Mentor & Komisi Nyata',
+    excerpt: 'Jadilah perwakilan resmi OtwPTN di sekolahmu! Dapatkan sertifikat nasional, akses bimbingan mentor 1-on-1 gratis, komisi referral, dan perkuat CV portofolio kepemimpinanmu.',
+    category: 'Program & Karir',
+    readTime: '6 menit baca',
+    date: '20 November 2026',
+    author: {
+      name: 'Tim People & Partnership otwptn',
+      role: 'Koordinator Program Pelajar',
+      avatar: '/brand/body/head.webp',
+    },
+    featured: true,
+    tags: ['Student Ambassador OtwPTN', 'Duta Pelajar SMA', 'Program Ambassador Pendidikan', 'Portofolio Kepemimpinan'],
+  },
+  {
+    slug: 'program-content-creator-otwptn-dibayar-per-video',
+    title: 'Program Content Creator OtwPTN: Bikin Konten Edukasi Masuk PTN, Dibayar per Video & Kerja Remote',
+    excerpt: 'Kamu suka bikin konten TikTok atau Reels seputar kehidupan sekolah dan persiapan kuliah? Bergabunglah sebagai content creator resmi OtwPTN, dibayar per video dengan jam kerja fleksibel.',
+    category: 'Program & Karir',
+    readTime: '6 menit baca',
+    date: '20 November 2026',
+    author: {
+      name: 'Tim Creative & Marketing otwptn',
+      role: 'Lead Creator Partnership',
+      avatar: '/brand/body/head.webp',
+    },
+    featured: true,
+    tags: ['Content Creator OtwPTN', 'Lowongan Creator TikTok', 'Kerja Remote Pelajar Mahasiswa', 'Creator Edukasi'],
+  },
   {
     slug: 'panduan-lolos-snbp-2026-strategi-rapor-dan-prodi',
     title: 'Panduan Lengkap Lolos SNBP 2026: Strategi Nilai Rapor & Trik Pemilihan Jurusan',
