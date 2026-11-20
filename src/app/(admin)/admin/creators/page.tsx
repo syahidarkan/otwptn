@@ -148,7 +148,11 @@ export default function AdminCreatorsPage() {
         if (selectedApp?.id === id) {
           setSelectedApp((prev) => (prev ? { ...prev, status: newStatus as CareerApplication['status'] } : null))
         }
-        setNotification(`Status pelamar berhasil diperbarui menjadi "${newStatus}"!`)
+        setNotification(
+          newStatus === 'accepted'
+            ? 'Pelamar berhasil di-ACC! Akun otomatis aktif dan di-upgrade ke Akun Premium.'
+            : `Status pelamar berhasil diperbarui menjadi "${newStatus}"!`
+        )
         setTimeout(() => setNotification(null), 4000)
       } else {
         const errorData = await res.json()

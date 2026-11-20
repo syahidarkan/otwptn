@@ -36,19 +36,19 @@ const RESPONSIBILITIES = [
 
 const PERKS = [
   {
-    title: 'Fee Menarik & Kompetitif',
-    desc: 'Dapatkan kompensasi untuk setiap video yang diterima tim serta bonus komisi referral. Tidak ada batas maksimal penghasilan.',
+    title: 'Akun OTWPTN Premium Gratis',
+    desc: 'Begitu di-ACC, akunmu otomatis langsung di-upgrade ke Akun Premium. Bebas explore seluruh fitur: Kalkulator Rasionalisasi SNBP, AI Essay Review, Direktori Jalur, dan materi eksklusif tanpa biaya.',
+    icon: Sparkles,
+  },
+  {
+    title: 'Kompensasi Berbayar (Paid)',
+    desc: 'Dapatkan kompensasi paid untuk setiap video yang disetujui tim serta peluang bonus komisi tambahan tanpa ribet.',
     icon: DollarSign,
   },
   {
     title: 'Kerja Fleksibel (WFA)',
     desc: 'Kerja dari mana saja tanpa perlu ngantor. Atur waktu rekaman sesuai jadwal sekolah atau kuliah kamu.',
     icon: MapPin,
-  },
-  {
-    title: 'Free Akses Semua Fitur OTWPTN',
-    desc: 'Gratis akses seumur hidup ke Modul Lengkap, Essay AI Review, dan Bimbingan Mentor Alumni senilai jutaan rupiah.',
-    icon: Sparkles,
   },
   {
     title: 'Sertifikat & Portofolio Resmi',
@@ -168,7 +168,7 @@ export default function ContentCreatorCareerPage() {
           </h1>
 
           <p className="text-sm sm:text-base text-gray-700 max-w-2xl font-medium leading-relaxed">
-            Dapatkan kompensasi menarik untuk setiap video yang diterima tim serta bonus komisi referral dari rumah. Bantu jutaan pejuang PTN sambil bangun personal branding kamu!
+            Dapatkan kompensasi paid untuk setiap video yang disetujui serta Free Akun Premium OtwPTN. Bantu jutaan pejuang PTN sambil bangun personal branding kamu dari rumah!
           </p>
 
           {/* Quick Metrics Badges */}
@@ -177,13 +177,13 @@ export default function ContentCreatorCareerPage() {
               <span className="text-[10px] uppercase font-bold text-gray-400 block">Tipe Pekerjaan</span>
               <p className="text-xs sm:text-sm font-black text-gray-900 mt-0.5">Part-time (Fleksibel)</p>
             </div>
-            <div className="p-3.5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
-              <span className="text-[10px] uppercase font-bold text-gray-400 block">Lokasi</span>
-              <p className="text-xs sm:text-sm font-black text-gray-900 mt-0.5">Work From Anywhere</p>
+            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80 shadow-2xs">
+              <span className="text-[10px] uppercase font-bold text-amber-800 block">Benefit Akun</span>
+              <p className="text-xs sm:text-sm font-black text-amber-950 mt-0.5">Free Akun Premium</p>
             </div>
             <div className="p-3.5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
-              <span className="text-[10px] uppercase font-bold text-gray-400 block">Kompensasi</span>
-              <p className="text-xs sm:text-sm font-black text-emerald-600 mt-0.5">Fee Per Video + Bonus</p>
+              <span className="text-[10px] uppercase font-bold text-gray-400 block">Sistem Kompensasi</span>
+              <p className="text-xs sm:text-sm font-black text-emerald-600 mt-0.5">Paid Per Video</p>
             </div>
             <div className="p-3.5 rounded-2xl bg-white border border-gray-200/80 shadow-2xs">
               <span className="text-[10px] uppercase font-bold text-gray-400 block">Syarat Followers</span>
@@ -224,7 +224,7 @@ export default function ContentCreatorCareerPage() {
                 { title: 'Tim HR meninjau profil & portofolio', desc: 'Dinilai dari keaktifan medsos, gaya bicara di video, dan kecocokan dengan target pejuang PTN.' },
                 { title: 'Dihubungi via WhatsApp', desc: 'Kandidat yang lolos tahap awal akan dihubungi langsung untuk briefing singkat / interview ringan.' },
                 { title: 'Keputusan akhir', desc: 'Diterima atau tidak, kamu akan diberi tahu. Pastikan nomor WhatsApp yang diisi aktif dan benar.' },
-                { title: 'Diterima → akun otomatis aktif', desc: 'Role akun berubah jadi Konten Kreator, dan kamu bisa login untuk mengirim video, lihat brief, dan cek status honor di Dashboard Konten Kreator.' },
+                { title: 'Diterima (ACC) → Akun Otomatis Jadi Premium', desc: 'Akun kamu otomatis aktif sebagai Konten Kreator & langsung di-upgrade ke Akun Premium! Bebas explore seluruh fitur OtwPTN, kirim video, dan kelola penugasan.' },
               ].map((step, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-amber-400 text-amber-950 flex items-center justify-center flex-shrink-0 text-xs font-black">
@@ -338,7 +338,7 @@ export default function ContentCreatorCareerPage() {
                 <div className="p-3.5 bg-amber-50 rounded-xl border border-amber-200/80 text-left text-xs space-y-1.5 text-amber-900">
                   <p className="font-bold">Status Akun: Menunggu Verifikasi Tim Admin</p>
                   <p className="text-[11.5px] text-amber-800 leading-relaxed">
-                    Akun kamu saat ini masih nonaktif sementara tim kami meninjau formulir & portofoliomu. Begitu disetujui (ACC) oleh admin, akun kamu otomatis aktif dan kamu bisa <strong>langsung login</strong> menggunakan email dan password yang baru kamu daftarkan tanpa perlu mendaftar ulang.
+                    Akun kamu saat ini masih dalam proses peninjauan. Begitu disetujui (ACC) oleh admin, akun kamu otomatis aktif dan <strong>langsung di-upgrade ke Akun Premium</strong> agar kamu bisa leluasa mengeksplorasi seluruh fitur canggih OTWPTN untuk bahan pembuatan kontenmu!
                   </p>
                 </div>
 

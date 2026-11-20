@@ -20,7 +20,7 @@ export default async function ContentCreatorDashboardPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('is_creator, is_active, is_admin, role')
+    .select('is_creator, is_active, is_admin, role, tier')
     .eq('id', user.id)
     .maybeSingle()
 
@@ -31,6 +31,25 @@ export default async function ContentCreatorDashboardPage() {
 
   if (!isApprovedCreator) {
     redirect('/career/content-creator')
+  }
+
+  // Auto-upgrade approved creators to web_premium if currently on free tier,
+  // ensuring all active creators can explore every feature (calculator, essay review, etc.)
+  if (profile?.is_creator === true && profile?.is_active === true && (!profile?.tier || profile?.tier === 'free')) {
+    try {
+      const { createServiceClient } = await import('@/lib/supabase/server')
+      const serviceClient = createServiceClient()
+      const now = new Date()
+      const expiresAt = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000).toISOString()
+      await serviceClient.from('profiles').update({
+        tier: 'web_premium',
+        tier_starts_at: now.toISOString(),
+        tier_expires_at: expiresAt,
+        pending_activation_tier: null,
+      }).eq('id', user.id)
+    } catch (e) {
+      console.warn('[Creator Auto-Upgrade Web Premium Warn]', e)
+    }
   }
 
   return <CreatorDashboardClient />

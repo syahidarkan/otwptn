@@ -8,6 +8,7 @@ import {
   Video,
   CheckCircle2,
   TrendingUp,
+  Sparkles,
 } from 'lucide-react'
 
 export default function CareerPage() {
@@ -55,23 +56,23 @@ export default function CareerPage() {
               </div>
             </div>
 
-            {/* Compensation highlight */}
+            {/* Compensation & Benefit highlight */}
             <div className="mt-6 p-5 rounded-2xl bg-amber-50 border border-amber-200">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingUp size={16} className="text-amber-700" />
-                <span className="text-xs font-black text-amber-900 uppercase tracking-wide">Sistem Kompensasi</span>
+                <span className="text-xs font-black text-amber-900 uppercase tracking-wide">Sistem Kompensasi &amp; Benefit</span>
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-2">
-                <div className="text-2xl sm:text-3xl font-black text-amber-700">Fee Per Video</div>
+                <div className="text-2xl sm:text-3xl font-black text-amber-700">Paid Per Video</div>
                 <div>
-                  <div className="text-sm font-black text-gray-900">dibayar per video yang diterima + komisi affiliate</div>
-                  <div className="text-xs text-gray-600 mt-0.5">Upload 5–7 video/minggu · tanpa batas maksimal penghasilan</div>
+                  <div className="text-sm font-black text-gray-900">Kompensasi paid per video disetujui + Free Akun Premium OTWPTN</div>
+                  <div className="text-xs text-gray-600 mt-0.5">Explore semua fitur canggih tanpa biaya · Jam kerja fleksibel dari rumah</div>
                 </div>
               </div>
             </div>
 
             {/* Quick info row */}
-            <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="flex items-center gap-2 text-xs text-gray-600 font-semibold">
                 <MapPin size={14} className="text-gray-400 flex-shrink-0" />
                 <span>Work From Anywhere</span>
@@ -83,6 +84,10 @@ export default function CareerPage() {
               <div className="flex items-center gap-2 text-xs text-gray-600 font-semibold">
                 <Video size={14} className="text-gray-400 flex-shrink-0" />
                 <span>5–7 video/minggu</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-amber-900 font-bold">
+                <Sparkles size={14} className="text-amber-600 flex-shrink-0" />
+                <span>Free Akun Premium</span>
               </div>
             </div>
 

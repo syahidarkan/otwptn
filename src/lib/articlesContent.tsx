@@ -473,10 +473,11 @@ export const ARTICLE_CONTENTS: Record<string, React.ReactNode> = {
         2. Keuntungan Menjadi Content Creator OtwPTN
       </h2>
       <ul className="space-y-2 list-disc list-inside text-sm text-gray-700">
-        <li><strong>Dibayar Per Video yang Disetujui:</strong> Pembayaran transparan dan langsung cair tanpa perlu menunggu endorse ribet.</li>
-        <li><strong>Bonus Tambahan untuk Video Viral:</strong> Dapatkan reward ekstra jika videomu menembus angka views tertentu di FYP TikTok atau Reels.</li>
-        <li><strong>100% Kerja Remote dari Mana Saja:</strong> Cukup gunakan kamera HP dan rekam di kamar atau ruang belajarmu.</li>
-        <li><strong>Dukungan Ide &amp; Script:</strong> Tim kreatif OtwPTN menyediakan bank ide konten viral dan arahan copywriting yang siap pakai.</li>
+        <li><strong>Free Akun Premium OtwPTN:</strong> Begitu di-ACC, akunmu langsung otomatis di-upgrade ke Akun Premium. Bebas explore seluruh fitur canggih (Kalkulator Rasionalisasi SNBP, AI Essay Review, dan materi eksklusif) untuk bahan riset kontenmu.</li>
+        <li><strong>Paid Per Video yang Disetujui:</strong> Kompensasi berbayar transparan untuk setiap konten video yang disetujui tim.</li>
+        <li><strong>Peluang Reward Ekstra:</strong> Dapatkan reward tambahan untuk video dengan engagement dan performa tinggi.</li>
+        <li><strong>100% Kerja Remote dari Mana Saja:</strong> Fleksibel, cukup gunakan kamera HP dan rekam di kamar atau ruang belajarmu.</li>
+        <li><strong>Dukungan Ide &amp; Script:</strong> Tim kreatif OtwPTN menyediakan bank ide konten edukatif dan arahan copywriting yang siap pakai.</li>
       </ul>
 
       <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 my-6 flex flex-col sm:flex-row items-center justify-between gap-4">
