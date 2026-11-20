@@ -178,6 +178,18 @@ export async function POST(request: Request) {
       .update({ status: 'paid' })
       .eq('mentor_id', payoutMentorId)
       .in('status', ['pending', 'cleared'])
+  } else if (action === 'update_loa') {
+    const { loa_url } = body
+    if (!loa_url) return NextResponse.json({ error: 'Missing loa_url' }, { status: 400 })
+    const { error } = await supabase
+      .from('mentor_applications')
+      .update({
+        loa_url,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', application_id)
+
+    if (error) return NextResponse.json({ error: 'Gagal memperbarui LOA: ' + error.message }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })

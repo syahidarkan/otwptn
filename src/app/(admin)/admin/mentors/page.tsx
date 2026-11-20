@@ -31,6 +31,8 @@ import {
   Phone,
   Zap,
   X,
+  Upload,
+  Loader2,
 } from 'lucide-react'
 import { LEGAL_ENTITY } from '@/lib/constants'
 import { autoAssignBatchMentees, type MenteeMatchProfile, type MentorMatchProfile } from '@/lib/mentor-matching'
@@ -119,6 +121,8 @@ export default function SuperAdminMentorsPage() {
   const [unassignedList, setUnassignedList] = useState<UnassignedMentee[]>([])
   const [copiedBank, setCopiedBank] = useState<string | null>(null)
   const [dataLoading, setDataLoading] = useState(true)
+  const [adminUploadingLoa, setAdminUploadingLoa] = useState(false)
+  const [adminLoaMsg, setAdminLoaMsg] = useState<{ text: string; isError: boolean } | null>(null)
 
   const load = useCallback(async () => {
     setDataLoading(true)
@@ -142,7 +146,7 @@ export default function SuperAdminMentorsPage() {
         major: app.major,
         admissionTrack: app.track ?? '',
         graduationYear: app.grad_year ?? '',
-        loaUrl: app.loa_url ?? '#',
+        loaUrl: app.loa_url || '',
         essayUrl: app.essay_url,
         certUrl: app.cert_url,
         status: app.status as 'pending' | 'approved' | 'rejected',
@@ -210,6 +214,47 @@ export default function SuperAdminMentorsPage() {
     setNotification('Pengajuan mentor ditolak.')
     setInspectMentor(null)
     setTimeout(() => setNotification(null), 4000)
+  }
+
+  const handleAdminUploadLoa = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !inspectMentor) return
+    setAdminUploadingLoa(true)
+    setAdminLoaMsg(null)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('type', 'loa')
+      const upRes = await fetch('/api/mentor/upload', {
+        method: 'POST',
+        body: fd,
+      })
+      const upData = await upRes.json()
+      if (!upRes.ok || !upData.url) {
+        throw new Error(upData.error || 'Gagal mengunggah file LOA')
+      }
+
+      const res = await fetch('/api/admin/mentor-applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_loa',
+          application_id: inspectMentor.id,
+          loa_url: upData.url,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Gagal menyimpan ke database')
+
+      const newUrl = upData.url
+      setInspectMentor(prev => prev ? { ...prev, loaUrl: newUrl } : null)
+      setMentors(prev => prev.map(m => m.id === inspectMentor.id ? { ...m, loaUrl: newUrl } : m))
+      setAdminLoaMsg({ text: 'Dokumen LOA berhasil diunggah & disimpan!', isError: false })
+    } catch (err: any) {
+      setAdminLoaMsg({ text: err?.message || 'Gagal mengunggah LOA', isError: true })
+    } finally {
+      setAdminUploadingLoa(false)
+    }
   }
 
   const handleAssignMentee = async () => {
@@ -982,19 +1027,85 @@ export default function SuperAdminMentorsPage() {
               <p className="text-xs text-amber-700 dark:text-amber-400 font-bold">Jalur: {inspectMentor.admissionTrack}</p>
             </div>
 
-            <div className="p-5 rounded-2xl border border-dashed border-gray-200 dark:border-neutral-700 text-center space-y-2 bg-amber-50/40 dark:bg-amber-950/20">
-              <FileText className="w-8 h-8 text-amber-600 dark:text-amber-400 mx-auto" />
-              <p className="text-xs font-black text-gray-900 dark:text-neutral-100">Letter of Acceptance (LOA) Resmi Kampus</p>
-              <p className="text-[11px] text-gray-500 dark:text-neutral-400">File PDF Terenkripsi & Terverifikasi Digital</p>
-              <a
-                href={inspectMentor.loaUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-amber-950 text-xs font-bold shadow-2xs border-0 cursor-pointer"
-              >
-                <ExternalLink className="w-3.5 h-3.5" /> Buka Dokumen LOA
-              </a>
-            </div>
+            {Boolean(inspectMentor.loaUrl && inspectMentor.loaUrl !== '#' && inspectMentor.loaUrl.trim()) ? (
+              <div className="p-5 rounded-2xl border border-dashed border-gray-200 dark:border-neutral-700 text-center space-y-3 bg-amber-50/40 dark:bg-amber-950/20">
+                <FileText className="w-8 h-8 text-amber-600 dark:text-amber-400 mx-auto" />
+                <div>
+                  <p className="text-xs font-black text-gray-900 dark:text-neutral-100">Letter of Acceptance (LOA) Resmi Kampus</p>
+                  <p className="text-[11px] text-gray-500 dark:text-neutral-400 mt-0.5">File PDF / Dokumen Terverifikasi Digital</p>
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                  <a
+                    href={inspectMentor.loaUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-amber-950 text-xs font-bold shadow-2xs border-0 cursor-pointer"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> Buka Dokumen LOA
+                  </a>
+                  <label className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700 text-gray-700 dark:text-neutral-300 text-xs font-bold cursor-pointer transition-colors">
+                    {adminUploadingLoa ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Upload className="w-3.5 h-3.5" />
+                    )}
+                    Ganti Dokumen
+                    <input
+                      type="file"
+                      accept=".pdf,.png,.jpg,.jpeg"
+                      className="hidden"
+                      disabled={adminUploadingLoa}
+                      onChange={handleAdminUploadLoa}
+                    />
+                  </label>
+                </div>
+              </div>
+            ) : (
+              <div className="p-5 rounded-2xl border border-amber-300 dark:border-amber-800/60 bg-amber-50/60 dark:bg-amber-950/30 text-center space-y-3">
+                <AlertCircle className="w-8 h-8 text-amber-600 dark:text-amber-400 mx-auto" />
+                <div>
+                  <p className="text-xs font-black text-amber-950 dark:text-amber-200">Belum Ada Dokumen LOA</p>
+                  <p className="text-[11px] text-amber-800 dark:text-amber-400 mt-0.5 leading-relaxed">
+                    Calon mentor belum mengunggah file bukti Letter of Acceptance (LOA) saat mendaftar.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-1">
+                  <label className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-2xs cursor-pointer">
+                    {adminUploadingLoa ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Mengunggah...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3.5 h-3.5" /> Upload LOA Manual (Admin)
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept=".pdf,.png,.jpg,.jpeg"
+                      className="hidden"
+                      disabled={adminUploadingLoa}
+                      onChange={handleAdminUploadLoa}
+                    />
+                  </label>
+                  {inspectMentor.whatsapp && (
+                    <a
+                      href={`https://wa.me/${inspectMentor.whatsapp.replace(/\D/g, '')}?text=Halo%20${encodeURIComponent(inspectMentor.fullName)},%20kami%20dari%20tim%20OtwPTN%20ingin%20meminta%20bukti%20LOA%20penerimaan%20kampusmu.`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-2xs cursor-pointer"
+                    >
+                      <Phone className="w-3.5 h-3.5" /> Hubungi via WA
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+            {adminLoaMsg && (
+              <p className={`text-xs font-bold text-center ${adminLoaMsg.isError ? 'text-rose-600' : 'text-emerald-600'}`}>
+                {adminLoaMsg.text}
+              </p>
+            )}
 
             {inspectMentor.status === 'approved' && (
               <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-between shadow-2xs">

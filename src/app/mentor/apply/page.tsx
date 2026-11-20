@@ -18,6 +18,8 @@ import {
   Lock,
   AlertCircle,
   ArrowLeft,
+  Upload,
+  ExternalLink,
 } from 'lucide-react'
 import { LEGAL_ENTITY, JALUR_LIST } from '@/lib/constants'
 import { INDONESIA_PTN_LIST, INDONESIA_JURUSAN_LIST } from '@/lib/indonesiaDirectory'
@@ -28,6 +30,10 @@ export default function MentorApplyPage() {
   const [certFile, setCertFile] = useState<File | null>(null)
   const [almetFile, setAlmetFile] = useState<File | null>(null)
   const [existingAlmetUrl, setExistingAlmetUrl] = useState('')
+  const [existingLoaUrl, setExistingLoaUrl] = useState('')
+  const [singleLoaFile, setSingleLoaFile] = useState<File | null>(null)
+  const [uploadingLoa, setUploadingLoa] = useState(false)
+  const [singleLoaMsg, setSingleLoaMsg] = useState<{ text: string; isError: boolean } | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [checkingSession, setCheckingSession] = useState(true)
@@ -88,6 +94,7 @@ export default function MentorApplyPage() {
 
       if (app) {
         setExistingAlmetUrl(app.almet_photo_url || '')
+        setExistingLoaUrl(app.loa_url || '')
         setForm(prev => ({
           ...prev,
           fullName: app.full_name || prev.fullName,
@@ -148,6 +155,35 @@ export default function MentorApplyPage() {
       throw new Error(data.error || `Gagal mengunggah dokumen ${type}`)
     }
     return data.url
+  }
+
+  async function handleUploadSingleLoa() {
+    if (!singleLoaFile || !userId) return
+    setUploadingLoa(true)
+    setSingleLoaMsg(null)
+    try {
+      const url = await uploadDoc(singleLoaFile, 'loa')
+      const supabase = createClient()
+      const { error } = await supabase
+        .from('mentor_applications')
+        .update({
+          loa_url: url,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', userId)
+
+      if (error) {
+        throw new Error('Gagal menyimpan ke database: ' + error.message)
+      }
+
+      setExistingLoaUrl(url)
+      setSingleLoaFile(null)
+      setSingleLoaMsg({ text: 'Dokumen LOA berhasil diunggah & disimpan!', isError: false })
+    } catch (err: any) {
+      setSingleLoaMsg({ text: err?.message || 'Gagal mengunggah dokumen LOA', isError: true })
+    } finally {
+      setUploadingLoa(false)
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -244,6 +280,7 @@ export default function MentorApplyPage() {
 
       if (loaFile) {
         loaUrl = await uploadDoc(loaFile, 'loa')
+        setExistingLoaUrl(loaUrl)
       }
       if (essayFile) {
         essayUrl = await uploadDoc(essayFile, 'essay')
@@ -253,6 +290,7 @@ export default function MentorApplyPage() {
       }
       if (almetFile) {
         almetUrl = await uploadDoc(almetFile, 'almet')
+        setExistingAlmetUrl(almetUrl)
       }
 
       // Also saved on profiles (not just this one-time application row) so it stays
@@ -270,7 +308,7 @@ export default function MentorApplyPage() {
         major: form.major,
         track: form.track,
         grad_year: form.gradYear,
-        loa_url: loaUrl || undefined,
+        loa_url: loaUrl || existingLoaUrl || undefined,
         essay_url: essayUrl || undefined,
         cert_url: certUrl || undefined,
         almet_photo_url: almetUrl || undefined,
@@ -401,34 +439,128 @@ export default function MentorApplyPage() {
             </div>
           </div>
         ) : submitted ? (
-          <div className="p-8 rounded-3xl bg-white shadow-md text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-              <CheckCircle2 size={36} />
-            </div>
-            <h2 className="text-xl font-black text-gray-950">
-              {needsEmailConfirm ? 'Cek Email untuk Konfirmasi Akun Mentor!' : 'Pengajuan Mentor Berhasil Dikirim!'}
-            </h2>
-            <p className="text-xs sm:text-sm text-gray-600 max-w-lg mx-auto leading-relaxed">
-              {needsEmailConfirm
-                ? 'Akun mentor kamu telah dibuat. Silakan klik link verifikasi di inbox email kamu, lalu login di Portal Mentor untuk mengunggah dokumen LOA jika belum.'
-                : `Tim supervisi akademik ${LEGAL_ENTITY.name} akan memeriksa keaslian bukti LOA dan profil jurusanmu dalam 1x24 jam kerja.`}
-            </p>
-            <div className="pt-2 flex flex-wrap justify-center gap-3">
-              {userRole === 'mentor' ? (
-                <Link
-                  href="/mentor/dashboard"
-                  className="btn-brand-primary px-7 py-3 rounded-full text-xs font-black shadow-md inline-block"
-                >
-                  Kembali ke Workspace Mentor
-                </Link>
-              ) : (
-                <Link
-                  href="/mentor/auth"
-                  className="btn-brand-primary px-7 py-3 rounded-full text-xs font-black shadow-md inline-block"
-                >
-                  Masuk ke Portal Mentor
-                </Link>
-              )}
+          <div className="space-y-6">
+            <div className="p-8 rounded-3xl bg-white shadow-md text-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+                <CheckCircle2 size={36} />
+              </div>
+              <h2 className="text-xl font-black text-gray-950">
+                {needsEmailConfirm ? 'Cek Email untuk Konfirmasi Akun Mentor!' : 'Pengajuan Mentor Sedang Ditinjau'}
+              </h2>
+              <p className="text-xs sm:text-sm text-gray-600 max-w-lg mx-auto leading-relaxed">
+                {needsEmailConfirm
+                  ? 'Akun mentor kamu telah dibuat. Silakan klik link verifikasi di inbox email kamu, lalu login di Portal Mentor untuk mengunggah dokumen LOA jika belum.'
+                  : `Tim supervisi akademik ${LEGAL_ENTITY.name} akan memeriksa keaslian bukti LOA dan profil jurusanmu dalam 1x24 jam kerja.`}
+              </p>
+
+              {/* Ringkasan Profil */}
+              <div className="p-4 rounded-2xl bg-gray-50 text-left max-w-lg mx-auto text-xs space-y-2 border border-gray-100">
+                <div className="flex justify-between items-center text-gray-500">
+                  <span>Nama Lengkap:</span>
+                  <strong className="text-gray-900 font-bold">{form.fullName || 'Calon Mentor'}</strong>
+                </div>
+                <div className="flex justify-between items-center text-gray-500">
+                  <span>Perguruan Tinggi:</span>
+                  <strong className="text-gray-900 font-bold">{form.university || '-'}</strong>
+                </div>
+                <div className="flex justify-between items-center text-gray-500">
+                  <span>Program Studi:</span>
+                  <strong className="text-gray-900 font-bold">{form.major || '-'}</strong>
+                </div>
+                <div className="flex justify-between items-center text-gray-500">
+                  <span>Jalur Penerimaan:</span>
+                  <strong className="text-amber-800 font-bold">{form.track || '-'}</strong>
+                </div>
+              </div>
+
+              {/* Card Status LOA & Upload Form */}
+              <div className={`p-5 rounded-2xl text-left max-w-lg mx-auto border ${
+                existingLoaUrl ? 'bg-emerald-50/70 border-emerald-200' : 'bg-amber-50/80 border-amber-300'
+              }`}>
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                    existingLoaUrl ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-200 text-amber-800'
+                  }`}>
+                    {existingLoaUrl ? <CheckCircle2 size={22} /> : <AlertCircle size={22} />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xs sm:text-sm font-black text-gray-950">
+                      {existingLoaUrl ? 'Dokumen LOA Resmi Tersimpan' : 'Unggah Dokumen Letter of Acceptance (LOA)'}
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-gray-600 mt-1 leading-relaxed">
+                      {existingLoaUrl
+                        ? 'Dokumen LOA kamu sudah berhasil diunggah ke sistem OtwPTN. Kamu tetap dapat mengganti file jika ingin memperbarui berkas kelulusan.'
+                        : 'Bukti Letter of Acceptance (LOA) atau Pengumuman Resmi Kelulusan Kampus wajib diunggah agar tim kurasi dapat memverifikasi profilmu.'}
+                    </p>
+
+                    {existingLoaUrl && (
+                      <div className="mt-3">
+                        <a
+                          href={existingLoaUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer"
+                        >
+                          <ExternalLink size={14} /> Buka / Cek File LOA
+                        </a>
+                      </div>
+                    )}
+
+                    <div className="mt-4 pt-3.5 border-t border-gray-200/60 space-y-2">
+                      <label className="block text-[11px] font-bold text-gray-700">
+                        {existingLoaUrl ? 'Perbarui / Ganti File LOA (PDF / JPG / PNG, maks 10MB):' : 'Pilih File Dokumen LOA (PDF / JPG / PNG, maks 10MB):'}
+                      </label>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                          type="file"
+                          accept=".pdf,.png,.jpg,.jpeg"
+                          onChange={e => setSingleLoaFile(e.target.files?.[0] || null)}
+                          className="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-400 file:text-amber-950 hover:file:bg-amber-300"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleUploadSingleLoa}
+                          disabled={!singleLoaFile || uploadingLoa}
+                          className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 disabled:opacity-50 text-amber-950 text-xs font-black shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:cursor-not-allowed shrink-0"
+                        >
+                          {uploadingLoa ? (
+                            <>
+                              <Loader2 size={14} className="animate-spin" /> Mengunggah...
+                            </>
+                          ) : (
+                            <>
+                              <Upload size={14} /> Upload LOA
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      {singleLoaMsg && (
+                        <p className={`text-xs font-bold pt-1 ${singleLoaMsg.isError ? 'text-rose-600' : 'text-emerald-700'}`}>
+                          {singleLoaMsg.text}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 flex flex-wrap justify-center gap-3">
+                {userRole === 'mentor' ? (
+                  <Link
+                    href="/mentor/dashboard"
+                    className="btn-brand-primary px-7 py-3 rounded-full text-xs font-black shadow-md inline-block"
+                  >
+                    Kembali ke Workspace Mentor
+                  </Link>
+                ) : (
+                  <Link
+                    href="/mentor/auth"
+                    className="btn-brand-primary px-7 py-3 rounded-full text-xs font-black shadow-md inline-block"
+                  >
+                    Masuk ke Portal Mentor
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         ) : (
@@ -611,8 +743,8 @@ export default function MentorApplyPage() {
                     <FileText size={15} className="text-amber-600" />
                     Bukti Letter of Acceptance (LOA) / Bukti Kelulusan PTN <span className="text-rose-500">*Wajib</span>
                   </label>
-                  {loaFile && (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700"><Check size={12} /> {loaFile.name}</span>
+                  {(loaFile || existingLoaUrl) && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700"><Check size={12} /> {loaFile?.name || 'Sudah diunggah'}</span>
                   )}
                 </div>
                 <p className="text-[11px] text-gray-500">
