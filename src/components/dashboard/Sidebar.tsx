@@ -226,7 +226,11 @@ export default function Sidebar() {
         setSchool(profile?.school_name || profile?.school || '')
         setTier(profile?.tier || 'free')
         setIsAdmin(!!profile?.is_admin)
-        setIsApprovedCreator(profile?.is_creator === true && profile?.is_active === true)
+        // Admin/superadmin bypass too, matching dashboard/creator's page + API gate -
+        // otherwise AdminSwitcher's "Konten Kreator" preview lands on a page whose own
+        // sidebar doesn't show the link that got them there.
+        const isStaffAdmin = !!profile?.is_admin || profile?.role === 'superadmin' || profile?.role === 'admin'
+        setIsApprovedCreator((profile?.is_creator === true && profile?.is_active === true) || isStaffAdmin)
         if (profile?.avatar_url) {
           setAvatar(profile.avatar_url)
           try { localStorage.setItem('otwptn_user_avatar', profile.avatar_url) } catch {}
