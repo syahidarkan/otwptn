@@ -1,6 +1,7 @@
 import { rateLimit } from '@/lib/security'
 import { NextResponse } from 'next/server'
 import { getAiClient } from '@/lib/ai/client'
+import { OFFICIAL_WA } from '@/lib/constants'
 
 // Simple in-memory rate limiter: max 20 requests per IP per minute
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
@@ -27,6 +28,7 @@ PENGETAHUAN LENGKAP OTWPTN:
    - Nama: OtwPTN (Platform #1 Lolos Masuk PTN Jalur Non-Tes)
    - Perusahaan Pengelola: PT. Lembaga Sains Nasional
    - Email Resmi: otwptn.com@gmail.com
+   - WhatsApp Admin Resmi: ${OFFICIAL_WA.display} (${OFFICIAL_WA.url}) - JIKA USER BERTANYA NOMOR WA ADMIN, LANGSUNG SEBUTKAN NOMOR INI, jangan hanya menyuruh buka dashboard.
    - Website Resmi: https://otwptn.id (atau otwptn.com)
 
 2. Fokus & Spesialisasi:
@@ -122,7 +124,7 @@ function generateRuleBasedReply(query: string): string | null {
 
   // Email / Kontak
   if (q.includes('email') || q.includes('kontak') || q.includes('hubungi') || q.includes('cs') || q.includes('admin')) {
-    return 'Halo Pejuang PTN! Kamu dapat menghubungi tim resmi kami melalui:\n\n• **Email Resmi:** otwptn.com@gmail.com\n• **WhatsApp Support:** Terhubung langsung via dashboard atau halaman Komunitas OtwPTN.\n• **Layanan:** PT. Lembaga Sains Nasional\n\nAda kendala atau pertanyaan yang bisa Otbee bantu sekarang?'
+    return `Halo Pejuang PTN! Kamu dapat menghubungi tim resmi kami melalui:\n\n• **WhatsApp Admin:** ${OFFICIAL_WA.display} - [klik di sini untuk chat langsung](${OFFICIAL_WA.url})\n• **Email Resmi:** otwptn.com@gmail.com\n• **Layanan:** PT. Lembaga Sains Nasional\n\nAda kendala atau pertanyaan yang bisa Otbee bantu sekarang?`
   }
 
   // Harga & Paket

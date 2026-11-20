@@ -211,6 +211,34 @@ export default function ContentCreatorCareerPage() {
             </p>
           </div>
 
+          {/* Tahapan Pendaftaran */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-amber-50/60 border border-amber-200/70 shadow-sm space-y-4">
+            <h2 className="text-lg font-black text-gray-950 flex items-center gap-2">
+              <CheckCircle2 className="text-amber-600" size={20} />
+              <span>Tahapan Pendaftaran & Seleksi</span>
+            </h2>
+            <ol className="space-y-3">
+              {[
+                { title: 'Isi formulir di samping', desc: 'Lengkapi data diri, media sosial (IG/TikTok), dan link portofolio video kamu (kalau ada).' },
+                { title: 'Pengajuan masuk status "Pending"', desc: 'Akun kamu otomatis dibuat tapi belum aktif, menunggu ditinjau tim HR.' },
+                { title: 'Tim HR meninjau profil & portofolio', desc: 'Dinilai dari keaktifan medsos, gaya bicara di video, dan kecocokan dengan target pejuang PTN.' },
+                { title: 'Dihubungi via WhatsApp', desc: 'Kandidat yang lolos tahap awal akan dihubungi langsung untuk briefing singkat / interview ringan.' },
+                { title: 'Keputusan akhir', desc: 'Diterima atau tidak, kamu akan diberi tahu. Pastikan nomor WhatsApp yang diisi aktif dan benar.' },
+                { title: 'Diterima → akun otomatis aktif', desc: 'Role akun berubah jadi Konten Kreator, dan kamu bisa login untuk mengirim video, lihat brief, dan cek status honor di Dashboard Konten Kreator.' },
+              ].map((step, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-amber-400 text-amber-950 flex items-center justify-center flex-shrink-0 text-xs font-black">
+                    {i + 1}
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm font-black text-gray-900">{step.title}</p>
+                    <p className="text-[11px] sm:text-xs text-gray-600 leading-relaxed mt-0.5">{step.desc}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+
           {/* Responsibilities */}
           <div className="p-6 sm:p-8 rounded-3xl bg-white border border-gray-200/80 shadow-sm space-y-4">
             <h2 className="text-lg font-black text-gray-950 flex items-center gap-2">

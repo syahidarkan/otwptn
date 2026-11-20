@@ -323,6 +323,33 @@ export default function MentorApplyPage() {
           </p>
         </div>
 
+        {/* Tahapan Pendaftaran */}
+        <div className="p-7 rounded-3xl bg-amber-50/60 border border-amber-200/70 space-y-4">
+          <h2 className="text-sm font-black text-gray-950 flex items-center gap-2">
+            <FileText size={16} className="text-amber-600" /> Tahapan Pendaftaran Mentor
+          </h2>
+          <ol className="space-y-3">
+            {[
+              { title: 'Buat / login akun', desc: 'Isi email dan password. Kalau email kamu sudah terdaftar sebagai member biasa, pengajuan mentor otomatis ditempelkan ke akun itu juga, tanpa perlu akun baru.' },
+              { title: 'Isi data diri & jurusan', desc: 'Nama lengkap, nomor WhatsApp aktif, asal kampus, jurusan, jalur masuk yang kamu kuasai (SNBP/PPKB/dll), dan tahun lulus.' },
+              { title: 'Upload bukti LOA & portofolio', desc: 'Bukti Letter of Acceptance (LOA) / bukti kelulusan PTN wajib diunggah, ditambah contoh esai atau sertifikat prestasi sebagai portofolio pendukung.' },
+              { title: 'Kirim & verifikasi email', desc: 'Setelah submit, cek inbox email untuk klik link konfirmasi akun (jika akun baru dibuat).' },
+              { title: 'Ditinjau tim supervisi akademik', desc: `Tim ${LEGAL_ENTITY.name} memverifikasi keaslian LOA dan kesesuaian jurusan dalam 1x24 jam kerja.` },
+              { title: 'Disetujui → akses Portal Mentor', desc: 'Begitu disetujui, role akun otomatis berubah jadi Mentor. Wajib baca dan setujui SOP Mentor sebelum menerima mentee pertama.' },
+            ].map((step, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-amber-400 text-amber-950 flex items-center justify-center flex-shrink-0 text-xs font-black">
+                  {i}
+                </div>
+                <div>
+                  <p className="text-xs font-black text-gray-900">{step.title}</p>
+                  <p className="text-xs text-gray-600 leading-relaxed mt-0.5">{step.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
         {checkingSession ? (
           <div className="p-10 rounded-3xl bg-white shadow-md flex items-center justify-center gap-2 text-xs font-bold text-gray-500">
             <Loader2 size={16} className="animate-spin text-amber-500" /> Memeriksa sesi...
