@@ -20,22 +20,22 @@ export default function AdminSwitcher() {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Only check auth if an active Supabase session exists in localStorage
-    try {
-      const hasSession = typeof window !== 'undefined' && Object.keys(localStorage).some(k => k.startsWith('sb-') && k.endsWith('-auth-token'))
-      if (!hasSession) return
-    } catch {
-      return
-    }
-
+    // This app's Supabase client (@supabase/ssr's createBrowserClient) stores the session in
+    // COOKIES, not localStorage - a stale `sb-*-auth-token` localStorage pre-check here meant this
+    // effect returned before ever calling getUser(), so the switcher never appeared for anyone.
+    // getUser() itself is cheap and simply resolves with no user when there's no session, so no
+    // pre-check is needed.
     createClient().auth.getUser().then(async ({ data }) => {
       if (!data.user) return
       const { data: profile } = await createClient()
         .from('profiles')
-        .select('is_admin')
+        .select('is_admin, role')
         .eq('id', data.user.id)
         .single()
-      if (profile?.is_admin) setIsAdmin(true)
+      // Match the same admin check proxy.ts uses server-side, not just is_admin - an account set
+      // up via profiles.role = 'superadmin'/'admin' (without is_admin also being true) could pass
+      // the real middleware gate into /admin but never see this switcher.
+      if (profile?.is_admin || profile?.role === 'superadmin' || profile?.role === 'admin') setIsAdmin(true)
     })
   }, [])
 
