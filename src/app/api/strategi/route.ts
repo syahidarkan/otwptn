@@ -12,8 +12,8 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('tier, role').eq('id', user.id).maybeSingle()
-  const isStaff = profile?.role === 'superadmin' || profile?.role === 'mentor'
+  const { data: profile } = await supabase.from('profiles').select('tier, role, is_mentor').eq('id', user.id).maybeSingle()
+  const isStaff = profile?.role === 'superadmin' || profile?.role === 'mentor' || profile?.is_mentor === true
   const tier = profile?.tier ?? 'free'
 
   if (!isStaff && tier === 'free') {

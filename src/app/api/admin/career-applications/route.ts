@@ -62,24 +62,26 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // 3. Auto-activate or deactivate creator user profile
+    // 3. Auto-activate or deactivate the creator profile. is_creator is the real
+    // access flag (dashboard/creator gate checks it), so approving/rejecting a
+    // creator application never touches is_active or role for an account that
+    // already has standing as a member/mentor under this email.
     if (application) {
       try {
         if (status === 'accepted') {
-          const updatePayload = { is_active: true, role: 'creator' }
-          if (application.user_id) {
-            await supabase.from('profiles').update(updatePayload).eq('id', application.user_id)
-          }
-          if (application.email) {
-            await supabase.from('profiles').update(updatePayload).eq('email', application.email)
+          const targets = [application.user_id, application.email].filter(Boolean)
+          for (const key of targets) {
+            const col = key === application.user_id ? 'id' : 'email'
+            const { data: existing } = await supabase.from('profiles').select('role').eq(col, key).single()
+            const roleUpdate = !existing?.role || existing.role === 'user' ? { role: 'creator' } : {}
+            await supabase.from('profiles').update({ is_creator: true, is_active: true, ...roleUpdate }).eq(col, key)
           }
         } else if (status === 'rejected') {
-          const updatePayload = { is_active: false }
           if (application.user_id) {
-            await supabase.from('profiles').update(updatePayload).eq('id', application.user_id)
+            await supabase.from('profiles').update({ is_creator: false }).eq('id', application.user_id)
           }
           if (application.email) {
-            await supabase.from('profiles').update(updatePayload).eq('email', application.email)
+            await supabase.from('profiles').update({ is_creator: false }).eq('email', application.email)
           }
         }
       } catch (profSyncErr) {

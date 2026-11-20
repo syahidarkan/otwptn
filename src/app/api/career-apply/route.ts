@@ -50,8 +50,9 @@ export async function POST(request: Request) {
 
     const supabase = createServiceClient()
 
-    // 1. Create Auth User account via Admin API (pre-created, marked inactive until approved)
+    // 1. Create Auth User account via Admin API, or attach to an existing one
     let userId: string | null = null
+    let isExistingAccount = false
     const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
       email: data.email,
       password: data.password,
@@ -59,7 +60,6 @@ export async function POST(request: Request) {
       user_metadata: {
         full_name: data.fullName,
         phone: data.phone,
-        role: 'creator',
       },
     })
 
@@ -67,33 +67,50 @@ export async function POST(request: Request) {
       const isAlreadyRegistered =
         authError.message?.toLowerCase().includes('already registered') ||
         authError.message?.toLowerCase().includes('already exists')
-      if (isAlreadyRegistered) {
+
+      if (!isAlreadyRegistered) {
+        console.error('[Career Application Auth Creation Error]', authError)
         return NextResponse.json(
-          { error: 'Email ini sudah terdaftar sebagai akun OtwPTN. Silakan gunakan email lain atau login.' },
+          { error: `Gagal membuat akun kreator: ${authError.message}` },
+          { status: 500 }
+        )
+      }
+
+      // Email ini sudah punya akun OtwPTN (member biasa, mentor, dsb). Sambungkan
+      // lamaran ke akun yang sudah ada alih-alih menolak, selama password yang
+      // dimasukkan memang cocok dengan akun tersebut - sama seperti alur mentor.
+      const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      })
+
+      if (signInErr || !signInData.user) {
+        return NextResponse.json(
+          { error: 'Email ini sudah terdaftar sebagai akun OtwPTN. Silakan login lewat halaman Masuk dengan password akun kamu yang sudah ada, lalu kembali ke halaman ini untuk mengirim lamaran Content Creator.' },
           { status: 400 }
         )
       }
-      console.error('[Career Application Auth Creation Error]', authError)
-      return NextResponse.json(
-        { error: `Gagal membuat akun kreator: ${authError.message}` },
-        { status: 500 }
-      )
+
+      userId = signInData.user.id
+      isExistingAccount = true
+    } else {
+      userId = authUser.user.id
     }
 
-    userId = authUser.user.id
-
-    // 2. Set profile status to inactive (pending admin approval)
-    try {
-      await supabase.from('profiles').upsert({
-        id: userId,
-        email: data.email,
-        full_name: data.fullName,
-        phone: data.phone,
-        role: 'creator',
-        is_active: false,
-      })
-    } catch (profErr) {
-      console.warn('[Career Apply Profile Update Warn]', profErr)
+    // 2. Only touch the profile for a brand-new account. An existing account (member,
+    // mentor, etc.) keeps its current role/is_active untouched - creator access is
+    // granted for real only when the admin accepts the application below, via
+    // profiles.is_creator (see /api/admin/career-applications).
+    if (!isExistingAccount) {
+      try {
+        await supabase.from('profiles').update({
+          email: data.email,
+          full_name: data.fullName,
+          phone: data.phone,
+        }).eq('id', userId)
+      } catch (profErr) {
+        console.warn('[Career Apply Profile Update Warn]', profErr)
+      }
     }
 
     // 3. Store career application record

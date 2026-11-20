@@ -51,11 +51,11 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, school_name, avatar_url, role, is_admin')
+        .select('full_name, school_name, avatar_url, role, is_admin, is_mentor')
         .eq('id', data.user.id)
         .maybeSingle()
 
-      const isMentor = profile?.role === 'mentor' || profile?.is_admin || profile?.role === 'superadmin' || profile?.role === 'admin'
+      const isMentor = profile?.is_mentor || profile?.role === 'mentor' || profile?.is_admin || profile?.role === 'superadmin' || profile?.role === 'admin'
       if (!isMentor && pathname !== '/mentor/auth' && pathname !== '/mentor/apply') {
         router.replace('/dashboard')
         return

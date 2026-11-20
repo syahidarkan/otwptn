@@ -13,13 +13,13 @@ export async function GET() {
   // 1. Fetch user profile
   let { data: profile } = await db
     .from('profiles')
-    .select('id, full_name, avatar_url, role, is_active, referral_code, school_name, phone')
+    .select('id, full_name, avatar_url, role, is_active, is_creator, referral_code, school_name, phone')
     .eq('id', user.id)
     .maybeSingle()
 
   // Only users approved as Content Creator (via /career/content-creator + admin
   // approval in /api/admin/career-applications) may read the creator dashboard data.
-  if (profile?.role !== 'creator' || profile?.is_active !== true) {
+  if (profile?.is_creator !== true || profile?.is_active !== true) {
     return NextResponse.json({ error: 'Forbidden: bukan content creator yang disetujui' }, { status: 403 })
   }
 

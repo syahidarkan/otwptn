@@ -39,7 +39,8 @@ export default function RegisterPage() {
       return
     }
 
-    const { data, error: err } = await createClient().auth.signUp({
+    const supabase = createClient()
+    const { data, error: err } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -47,7 +48,26 @@ export default function RegisterPage() {
         captchaToken: turnstileToken,
       },
     })
-    if (err) { setError(err.message); setLoading(false); setTurnstileToken(null); return }
+
+    if (err) {
+      const alreadyRegistered = /already registered|already exists|user already registered/i.test(err.message)
+      if (alreadyRegistered) {
+        // Email ini mungkin sudah dibuat lewat jalur lain (apply mentor / content
+        // creator sebelum pernah daftar member biasa). Coba login langsung ke akun
+        // yang sama alih-alih menampilkan error buntu, selama password cocok.
+        const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email, password })
+        if (signInErr || !signInData.user) {
+          setError('Email ini sudah terdaftar. Silakan masuk lewat halaman Login, atau gunakan "Lupa password" jika kamu tidak ingat passwordnya.')
+          setLoading(false)
+          setTurnstileToken(null)
+          return
+        }
+        router.refresh()
+        router.push('/dashboard')
+        return
+      }
+      setError(err.message); setLoading(false); setTurnstileToken(null); return
+    }
     if (data.session) {
       router.push('/onboarding')
       return

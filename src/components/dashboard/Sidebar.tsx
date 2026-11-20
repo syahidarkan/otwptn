@@ -220,13 +220,13 @@ export default function Sidebar() {
       if (!data.user) return
       const userMetaName = data.user.user_metadata?.full_name || data.user.user_metadata?.name
       const userEmailFallback = data.user.email?.split('@')[0]
-      supabase.from('profiles').select('full_name, tier, avatar_url, school_name, school, is_admin, role, is_active').eq('id', data.user.id).maybeSingle().then(({ data: profile }) => {
+      supabase.from('profiles').select('full_name, tier, avatar_url, school_name, school, is_admin, role, is_active, is_creator').eq('id', data.user.id).maybeSingle().then(({ data: profile }) => {
         const finalName = profile?.full_name || userMetaName || userEmailFallback || 'Pejuang PTN'
         setName(finalName)
         setSchool(profile?.school_name || profile?.school || '')
         setTier(profile?.tier || 'free')
         setIsAdmin(!!profile?.is_admin)
-        setIsApprovedCreator(profile?.role === 'creator' && profile?.is_active === true)
+        setIsApprovedCreator(profile?.is_creator === true && profile?.is_active === true)
         if (profile?.avatar_url) {
           setAvatar(profile.avatar_url)
           try { localStorage.setItem('otwptn_user_avatar', profile.avatar_url) } catch {}

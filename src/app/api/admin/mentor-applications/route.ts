@@ -89,7 +89,12 @@ export async function POST(request: Request) {
       .single()
 
     if (app?.user_id) {
-      await supabase.from('profiles').update({ role: 'mentor' }).eq('id', app.user_id)
+      // is_mentor is the real access flag (gates checked against it). role is only
+      // overwritten when the account has no more senior role yet, so approving a
+      // mentor application never demotes an existing admin/creator account's role label.
+      const { data: existing } = await supabase.from('profiles').select('role').eq('id', app.user_id).single()
+      const roleUpdate = !existing?.role || existing.role === 'user' ? { role: 'mentor' } : {}
+      await supabase.from('profiles').update({ is_mentor: true, ...roleUpdate }).eq('id', app.user_id)
     }
 
   } else if (action === 'reject') {

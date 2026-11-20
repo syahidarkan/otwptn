@@ -35,7 +35,7 @@ function LoginForm({ initialError = null }: { initialError?: string | null }) {
     }
 
     const supabase = createClient()
-    const { data: authData, error: err } = await supabase.auth.signInWithPassword({
+    const { error: err } = await supabase.auth.signInWithPassword({
       email,
       password,
       options: {
@@ -49,25 +49,11 @@ function LoginForm({ initialError = null }: { initialError?: string | null }) {
       return
     }
 
-    if (authData?.user) {
-      try {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('is_active, role')
-          .eq('id', authData.user.id)
-          .maybeSingle()
-
-        if (profile && profile.is_active === false) {
-          await supabase.auth.signOut()
-          setError('Akun pendaftaran Content Creator kamu sedang dalam proses verifikasi tim admin OtwPTN. Kamu akan dihubungi via WhatsApp setelah akun kamu disetujui & diaktifkan.')
-          setLoading(false)
-          setTurnstileToken(null)
-          return
-        }
-      } catch (checkErr) {
-        console.warn('[Login Profile Active Check Warn]', checkErr)
-      }
-    }
+    // Note: is_active no longer blocks login here. It used to lock out the whole
+    // account while a Content Creator application was pending, but one email can
+    // legitimately also be a regular member or an approved mentor - is_active is
+    // only checked by the Content Creator dashboard gate itself (/dashboard/creator),
+    // not by login as a whole.
 
     router.refresh()
     router.push('/dashboard')
