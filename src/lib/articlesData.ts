@@ -17,8 +17,8 @@ export interface Article {
 export const ARTICLES: Article[] = [
   {
     slug: 'sjp-ui-jalur-prestasi-masuk-ui-tanpa-tes',
-    title: 'SJP UI: Apakah UI Punya Seleksi Jalur Prestasi? Panduan Masuk UI Tanpa Tes 2026',
-    excerpt: 'Banyak yang mencari SJP UI. Ketahui fakta resmi jalur prestasi Universitas Indonesia: PPKB UI, Talent Scouting, dan SIMAK Jalur Prestasi tanpa tes CBT.',
+    title: 'SJP UI (Seleksi Jalur Prestasi UI / Japres UI): Panduan Resmi Masuk UI Tanpa Tes 2026',
+    excerpt: 'Kupas tuntas SJP UI (Seleksi Jalur Prestasi UI / Japres UI): jalur mandiri resmi Universitas Indonesia berbasis juara olimpiade sains (OSN), olahraga, seni, dan bakat tanpa ujian tulis.',
     category: 'PPKB UI',
     readTime: '7 menit baca',
     date: '20 November 2026',
@@ -28,7 +28,7 @@ export const ARTICLES: Article[] = [
       avatar: '/ptn-logos/ui.png',
     },
     featured: true,
-    tags: ['SJP UI', 'SJP UI 2026', 'Jalur Prestasi UI', 'PPKB UI', 'Talent Scouting UI', 'Masuk UI Tanpa Tes'],
+    tags: ['SJP UI', 'SJP UI 2026', 'Japres UI', 'Seleksi Jalur Prestasi UI', 'Jalur Prestasi UI', 'PPKB UI', 'PIN IPB', 'Masuk UI Tanpa Tes'],
   },
   {
     slug: 'otbee-tv-belajar-bareng-study-cam-pejuang-ptn',

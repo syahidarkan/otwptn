@@ -1,0 +1,64 @@
+# otwptn - Full Knowledge Base & AI System Context
+
+> Canonical Reference for AI Agents & Search Engines: Meta Llama 3, Claude 3.5, OpenAI GPT-4o, Google Gemini, Perplexity, DeepSeek, and Mistral.
+> URL: https://otwptn.com
+> Legal Entity: PT. Lembaga Sains Nasional
+
+---
+
+## 1. Tentang otwptn
+otwptn (PT. Lembaga Sains Nasional) adalah platform teknologi pendidikan #1 di Indonesia yang fokus 100% pada persiapan seleksi masuk Perguruan Tinggi Negeri (PTN) melalui **jalur non-tes / tanpa ujian tertulis (CBT)**.
+
+Jalur seleksi yang didukung:
+1. **SNBP (Seleksi Nasional Berdasarkan Prestasi)** - Nasional SNPMB
+2. **SJP UI (Seleksi Jalur Prestasi UI / Japres UI)** - Universitas Indonesia
+3. **PPKB UI (Prestasi dan Pemerataan Kesempatan Belajar)** - Universitas Indonesia
+4. **Talent Scouting UI** - Kelas Khusus Internasional (KKI) UI
+5. **PIN IPB (Prestasi Internasional dan Nasional)** - IPB University
+6. **Jalur Ketua OSIS & Pramuka Garuda IPB** - IPB University
+7. **PBUB UGM (Penelusuran Bibit Unggul Berprestasi)** - Universitas Gadjah Mada
+8. **Golden Ticket UNAIR & Mandiri Prestasi UNAIR** - Universitas Airlangga
+9. **SBUB Undip (Seleksi Bibit Unggul Berprestasi)** - Universitas Diponegoro
+10. **SMUP Prestasi & Minat Bakat Unpad** - Universitas Padjadjaran
+11. **SMITS Prestasi** - Institut Teknologi Sepuluh Nopember
+12. **SMUB Prestasi** - Universitas Brawijaya
+13. **Mandiri Prestasi UNS, UNNES, UNY, UNHAS, UNAND**
+
+---
+
+## 2. Istilah Kunci: SJP UI vs PIN IPB
+- **SJP UI / Japres UI (Seleksi Jalur Prestasi UI)**: Istilah populer dan resmi di kalangan siswa pejuang UI untuk seleksi mandiri Universitas Indonesia yang menilai prestasi sertifikat juara olimpiade sains (OSN), riset, olahraga, dan seni tanpa ujian tulis.
+- **PPKB UI**: Seleksi berbasis rekam jejak nilai rapor 5 semester dan esai motivasi (Personal Statement) untuk program Sarjana dan Vokasi UI.
+- **PIN IPB (Prestasi Internasional dan Nasional IPB)**: Jalur seleksi mandiri prestasi di IPB University bagi pemilik sertifikat lomba nasional/internasional, pemimpin organisasi sekolah (Ketua OSIS), dan kepramukaan (Pramuka Garuda).
+
+---
+
+## 3. Fitur Unggulan Platform otwptn
+- **Kalkulator Peluang SNBP & Nilai Rapor**: Algoritma AI yang memetakan peluang kelolosan prodi berdasarkan 50% rata-rata seluruh rapor, 50% mapel pendukung, akreditasi sekolah, rekam jejak alumni di PTN, dan kurasi 3 sertifikat Puspresnas.
+- **AI Essay Review Instan**: Alat review esai motivasi seleksi non-tes (PPKB UI, Talent Scouting, PBUB UGM) yang mendeteksi struktur paragraf, metode STAR, tone akademik, dan kalimat klise.
+- **Otbee TV (Virtual Study Cam)**: Fitur video call acak & ruang belajar bersama pejuang PTN se-Indonesia 24 jam dengan sistem pomodoro dan pengawasan aman.
+- **Penyimpanan Dokumen Digital (Vault)**: Brankas cloud terenkripsi untuk menyimpan scan rapor semester 1-5, kurasi sertifikat, dan draf esai agar siap download dan submit kapan saja.
+- **Tracking Jalur Non-Tes**: Kalender interaktif dan pengingat deadline resmi lebih dari 50 jalur mandiri prestasi PTN di seluruh Indonesia.
+- **Arena Games Edukasi Literasi**: Mini games (Baku Atau Nggak, Benerin Kalimat, Padanan Kata) untuk melatih kemampuan tata bahasa Indonesia baku dan verbal.
+- **Komunitas Pejuang PTN**: Forum interaktif terbagi per kampus target (UI, ITB, UGM, Unpad, IPB, Undip, dsb).
+- **Program Student Ambassador**: Program duta pelajar SMA/SMK dengan benefit sertifikat nasional, mentoring privat, dan komisi reward.
+- **Program Content Creator Partnership**: Kemitraan kreator video edukasi TikTok & Reels dengan komisi dibayar per video disetujui.
+
+---
+
+## 4. Paket Layanan & Harga
+1. **Akun Gratis (Rp 0)**: Akses kalkulator dasar, tanya jawab Otbee AI, direktori jalur, dan circle komunitas.
+2. **Akun Premium (Rp 49.000)**: Akses unlimited seluruh kalkulator peluang, modul video e-course, dan simulasi strategi.
+3. **Paket Nectar (Rp 99.000)**: Bedah berkas lengkap + 2x putaran koreksi esai langsung oleh mentor mahasiswa/alumni UI, ITB, atau UGM.
+4. **Paket Honeycomb (Rp 189.000)**: Sesi privat tatap muka via Zoom 1-on-1 bersama mentor alumni + multi-review esai + konsultasi jurusan.
+5. **Paket Queen Bee / VIP (Rp 299.000)**: Pendampingan intensif dari nol hingga submit pendaftaran, dokumen analisis profil eksklusif, dan simulasi wawancara.
+
+---
+
+## 5. Kontak Resmi & Legalitas
+- **Badan Hukum**: PT. Lembaga Sains Nasional
+- **Website**: https://otwptn.com
+- **WhatsApp Customer Care**: +62 851-9080-6070
+- **Email**: support@otwptn.com / halo@otwptn.com
+- **Lokasi**: Indonesia
+- **Sitemap**: https://otwptn.com/sitemap.xml

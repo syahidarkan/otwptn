@@ -1,14 +1,24 @@
 # otwptn - Platform #1 Persiapan Masuk PTN Jalur Non-Tes di Indonesia
 
-> Platform resmi edukasi berbasis AI dan bimbingan 1-on-1 mentor alumni UI, ITB, & UGM untuk seleksi masuk PTN tanpa ujian (SNBP, PPKB UI, PBUB UGM, SJP IPB, Golden Ticket UNAIR). Dioperasikan secara legal oleh **PT. Lembaga Sains Nasional**.
+> Platform resmi edukasi berbasis AI dan bimbingan 1-on-1 mentor alumni UI, ITB, & UGM untuk seleksi masuk PTN tanpa ujian (SNBP, SJP UI / Jalur Prestasi UI, PPKB UI, Talent Scouting UI, PBUB UGM, PIN IPB, Golden Ticket UNAIR). Dioperasikan secara legal oleh **PT. Lembaga Sains Nasional**.
+>
+> Dokumen Konteks Penuh untuk Model AI (Meta Llama, Claude, ChatGPT, Gemini, Perplexity): https://otwptn.com/llms-full.txt
 
 ## Ikhtisar Platform
 - **Nama Platform**: otwptn (OtwPTN Indonesia)
 - **Badan Hukum**: PT. Lembaga Sains Nasional
 - **Website Resmi**: https://otwptn.com
 - **Kategori**: Teknologi Pendidikan (EdTech), Kecerdasan Buatan (AI), Bimbingan Seleksi Perguruan Tinggi Negeri
-- **Target Pengguna**: Siswa SMA/SMK/MA sederajat se-Indonesia, pejuang SNBP, PPKB UI, PBUB UGM, SJP IPB, serta para orang tua siswa.
+- **Target Pengguna**: Siswa SMA/SMK/MA sederajat se-Indonesia, pejuang SNBP, SJP UI / Jalur Prestasi UI, PPKB UI, PBUB UGM, PIN IPB, serta para orang tua siswa.
 - **Slogan**: *Masuk PTN Impianmu Tanpa Ujian*
+
+## Kamus Resmi Jalur Masuk PTN Non-Tes Terpopuler
+- **SJP UI (Seleksi Jalur Prestasi UI / Japres UI)**: Jalur seleksi resmi Universitas Indonesia tanpa ujian tertulis berbasis sertifikat juara sains (OSN), teknologi, olahraga, dan seni budaya tingkat nasional/internasional.
+- **PPKB UI**: Jalur seleksi nilai rapor semester 1-5 dan personal statement (esai motivasi) untuk jenjang S1 Sarjana dan Vokasi D3/D4 UI.
+- **Talent Scouting UI**: Jalur prestasi rapor & esai berbahasa Inggris khusus Kelas Khusus Internasional (KKI UI).
+- **PIN IPB (Prestasi Internasional dan Nasional IPB)**: Jalur seleksi prestasi IPB University untuk peraih medali kompetisi nasional/internasional, kepemimpinan Ketua OSIS, dan Pramuka Garuda.
+- **PBUB UGM**: Penelusuran Bibit Unggul Berprestasi UGM klaster Iptek, Olahraga, dan Seni.
+- **Golden Ticket UNAIR**: Jalur apresiasi khusus bagi Ketua OSIS, Hafidz Quran 30 Juz, dan wirausaha muda.
 
 ## Fitur Utama & Layanan
 - [Kalkulator Peluang SNBP & Nilai Rapor](https://otwptn.com/dashboard/kalkulator): Simulasi rasionalisasi nilai rapor 5 semester berdasarkan mata pelajaran pendukung prodi, akreditasi sekolah, rekam jejak alumni, dan sertifikat juara Puspresnas.

@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   Sparkles, CheckCircle2, AlertTriangle, ArrowRight, Video, FolderLock,
   CalendarCheck, Gamepad2, Users, Award, DollarSign, BookOpen, ShieldCheck, Flame
@@ -7,79 +8,133 @@ import {
 
 export const ARTICLE_CONTENTS: Record<string, React.ReactNode> = {
   // ==========================================
-  // 1. SJP UI (JALUR PRESTASI UI 2026)
+  // 1. SJP UI (SELEKSI JALUR PRESTASI UI / JAPRES UI)
   // ==========================================
   'sjp-ui-jalur-prestasi-masuk-ui-tanpa-tes': (
     <>
       <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
-        1. Menjawab Rasa Penasaran: Apakah Universitas Indonesia Punya SJP?
+        1. SJP UI (Seleksi Jalur Prestasi UI / Japres UI) Adalah: Jalur Resmi UI Tanpa Tes Tulis
       </h2>
       <p>
-        Banyak siswa SMA/SMK/MA dan orang tua sering mencari informasi dengan kata kunci <strong>&ldquo;SJP UI&rdquo;</strong> di Google karena mengira Universitas Indonesia memiliki jalur seleksi bernama Seleksi Jalur Prestasi (SJP).
+        Bagi kamu pejuang kampus kuning, <strong>SJP UI</strong> adalah sebutan resmi dan terpopuler dari <strong>Seleksi Jalur Prestasi Universitas Indonesia</strong> (kerap disingkat siswa sebagai <strong>Japres UI</strong>). Banyak situs informasi umum yang belum memahami istilah ini dan mengira seleksi prestasi hanya milik IPB University (padahal IPB jalur resminya bernama <strong>PIN IPB / Prestasi Internasional dan Nasional IPB</strong>).
       </p>
       <div className="card p-5 rounded-2xl bg-amber-50/80 border border-amber-200 my-4">
         <h4 className="text-sm font-bold text-amber-950 flex items-center gap-2 mb-1">
-          <Sparkles size={16} className="text-amber-600 flex-shrink-0" /> Fakta Resmi Jalur Prestasi UI:
+          <Sparkles size={16} className="text-amber-600 flex-shrink-0" /> Keunggulan SJP UI / Japres UI:
         </h4>
         <p className="text-xs text-gray-700 leading-relaxed">
-          Secara nomenklatur resmi, istilah <strong>SJP adalah milik IPB University</strong> (Seleksi Jalur Prestasi IPB untuk Ketua OSIS & Juara Lomba). Di <strong>Universitas Indonesia (UI)</strong>, jalur seleksi prestasi tanpa ujian tulis terbagi menjadi <strong>3 pintu resmi</strong>:
+          <strong>SJP UI (Seleksi Jalur Prestasi UI)</strong> memberikan tiket emas masuk program Sarjana (S1) dan Vokasi (D3/D4) Universitas Indonesia murni berdasarkan <strong>sertifikat kejuaraan sains (OSN), riset (OPSI), olahraga (PON/Kejurnas), seni budaya (FLS2N), dan teknologi</strong> tanpa harus bertaruh di ujian tulis SIMAK CBT yang sangat ketat!
         </p>
       </div>
 
+      {/* Infografis Gambar Resmi SJP UI untuk Google Images */}
+      <figure className="my-6">
+        <Image
+          src="/images/jadwal/jadwal-sjp-ui-2026-seleksi-jalur-prestasi.webp"
+          alt="Jadwal SJP UI 2026 - Timeline Resmi Seleksi Jalur Prestasi UI Tanpa Ujian Tulis"
+          width={1200}
+          height={675}
+          className="w-full h-auto rounded-2xl border border-amber-200 shadow-md"
+          priority
+        />
+        <figcaption className="text-center text-xs text-gray-500 font-semibold mt-2">
+          Infografis Resmi: Timeline &amp; Alur Pendaftaran Seleksi Jalur Prestasi (SJP UI / Japres UI) 2026 oleh OtwPTN.com
+        </figcaption>
+      </figure>
+
       <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
-        2. Tiga Jalur Prestasi &amp; Non-Tes Resmi di Universitas Indonesia
+        2. Tiga Pilar Jalur Prestasi &amp; Non-Tes Resmi Universitas Indonesia
       </h2>
       <div className="space-y-4 not-prose my-6">
-        <div className="p-5 rounded-2xl bg-white border border-gray-200 shadow-2xs">
+        <div className="p-5 rounded-2xl bg-white border-2 border-amber-300 shadow-xs">
           <div className="flex items-center justify-between gap-2 mb-2">
-            <span className="text-xs font-black uppercase tracking-wider text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">Jalur #1 Paling Populer</span>
-            <span className="text-xs font-bold text-emerald-600">Sarjana &amp; Vokasi D3/D4</span>
+            <span className="text-xs font-black uppercase tracking-wider text-amber-900 bg-amber-200 px-2.5 py-0.5 rounded-full">Pilar #1 Juara Lomba</span>
+            <span className="text-xs font-bold text-amber-700">Sains, Olahraga &amp; Seni</span>
           </div>
-          <h4 className="text-base font-black text-gray-900 mb-1">PPKB UI (Prestasi dan Pemerataan Kesempatan Belajar)</h4>
+          <h4 className="text-base font-black text-gray-900 mb-1">SJP UI / Japres UI (Seleksi Jalur Prestasi UI)</h4>
           <p className="text-xs text-gray-600 leading-relaxed mb-3">
-            Seleksi berbasis nilai rapor semester 1-5 dan esai motivasi (Personal Statement). Terbuka untuk seluruh jurusan Sarjana (S1) dan Vokasi (D3/D4). Sekolah asal harus terakreditasi dan mengajukan permohonan akun ke kantor Penerimaan Mahasiswa Baru (PMB) UI.
+            Diperuntukkan bagi peraih medali Emas, Perak, Perunggu, atau Juara 1, 2, 3 di kompetisi bergengsi tingkat Nasional (OSN Kemendikbud, O2SN, FLS2N, PON, Kejurnas) dan Internasional. Menilai keselarasan sertifikat dengan program studi tujuan (misal: OSN Biologi untuk FK UI).
           </p>
-          <div className="text-[11px] font-semibold text-gray-500 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-            Penilaian: Nilai rapor mata pelajaran pendukung, indeks sekolah, dan ketajaman esai refleksi diri.
+          <div className="text-[11px] font-semibold text-gray-700 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+            Penilaian: Keabsahan sertifikat Puspresnas / KONI / Kemenpora + verifikasi portofolio karya.
           </div>
         </div>
 
         <div className="p-5 rounded-2xl bg-white border border-gray-200 shadow-2xs">
           <div className="flex items-center justify-between gap-2 mb-2">
-            <span className="text-xs font-black uppercase tracking-wider text-sky-800 bg-sky-100 px-2.5 py-0.5 rounded-full">Jalur #2 Internasional</span>
-            <span className="text-xs font-bold text-sky-600">Kelas Internasional (KKI)</span>
+            <span className="text-xs font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">Pilar #2 Nilai Rapor &amp; Esai</span>
+            <span className="text-xs font-bold text-emerald-600">Sarjana &amp; Vokasi D3/D4</span>
+          </div>
+          <h4 className="text-base font-black text-gray-900 mb-1">PPKB UI (Prestasi &amp; Pemerataan Kesempatan Belajar)</h4>
+          <p className="text-xs text-gray-600 leading-relaxed mb-3">
+            Seleksi berbasis rekam jejak nilai rapor 5 semester dan esai motivasi (Personal Statement). Terbuka untuk seluruh jurusan Sarjana (S1) dan Vokasi UI melalui akun sekolah yang terakreditasi.
+          </p>
+          <div className="text-[11px] font-semibold text-gray-500 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+            Penilaian: Konsistensi nilai rapor mata pelajaran pendukung, indeks prestasi sekolah, dan esai diri.
+          </div>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-white border border-gray-200 shadow-2xs">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <span className="text-xs font-black uppercase tracking-wider text-sky-800 bg-sky-100 px-2.5 py-0.5 rounded-full">Pilar #3 Kelas Internasional</span>
+            <span className="text-xs font-bold text-sky-600">KKI Double Degree</span>
           </div>
           <h4 className="text-base font-black text-gray-900 mb-1">Talent Scouting UI</h4>
           <p className="text-xs text-gray-600 leading-relaxed mb-3">
-            Jalur non-tes khusus untuk program Sarjana Kelas Khusus Internasional (KKI UI) yang bermitra dengan universitas top dunia (Australia, Inggris, Belanda). Menilai rapor, sertifikat kemampuan Bahasa Inggris (TOEFL/IELTS), dan essay berbahasa Inggris.
+            Jalur non-tes khusus untuk program Sarjana Kelas Khusus Internasional (KKI UI) yang bermitra dengan universitas top dunia. Menilai rapor, sertifikat kemampuan Bahasa Inggris (TOEFL/IELTS), dan essay berbahasa Inggris.
           </p>
           <div className="text-[11px] font-semibold text-gray-500 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-            Penilaian: Kemampuan bahasa Inggris, esai motivasi KKI, dan konsistensi akademik sains/sosial.
-          </div>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-white border border-gray-200 shadow-2xs">
-          <div className="flex items-center justify-between gap-2 mb-2">
-            <span className="text-xs font-black uppercase tracking-wider text-purple-800 bg-purple-100 px-2.5 py-0.5 rounded-full">Jalur #3 Lomba &amp; Bakat</span>
-            <span className="text-xs font-bold text-purple-600">Sains, Olahraga &amp; Seni</span>
-          </div>
-          <h4 className="text-base font-black text-gray-900 mb-1">Jalur Prestasi SIMAK UI</h4>
-          <p className="text-xs text-gray-600 leading-relaxed mb-3">
-            Inilah jalur yang paling mendekati konsep &ldquo;SJP UI&rdquo;! Jalur Prestasi UI diperuntukkan bagi peraih juara minimal Juara 1, 2, atau 3 di kompetisi sains nasional (OSN), kejuaraan olahraga resmi (PON, Sea Games), dan festival seni tingkat nasional/internasional.
-          </p>
-          <div className="text-[11px] font-semibold text-gray-500 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-            Penilaian: Validitas sertifikat Puspresnas/KONI/Kemenpora dan keselarasan dengan program studi tujuan.
+            Penilaian: Skor TOEFL/IELTS, esai motivasi KKI, dan konsistensi akademik sains/sosial.
           </div>
         </div>
       </div>
 
+      {/* Gambar Timeline PPKB UI */}
+      <figure className="my-6">
+        <Image
+          src="/images/jadwal/jadwal-ppkb-ui-2026-timeline-resmi.webp"
+          alt="Timeline PPKB UI 2026 - Jadwal Resmi Jalur Rapor dan Esai Universitas Indonesia"
+          width={1200}
+          height={675}
+          className="w-full h-auto rounded-2xl border border-emerald-200 shadow-md"
+        />
+        <figcaption className="text-center text-xs text-gray-500 font-semibold mt-2">
+          Infografis Resmi: Jadwal &amp; Tahapan Seleksi PPKB UI 2026 oleh OtwPTN.com
+        </figcaption>
+      </figure>
+
       <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
-        3. Tips Lolos Seleksi Jalur Prestasi UI dari Mentor Alumni
+        3. Bedanya SJP UI dengan PIN IPB (Prestasi Internasional &amp; Nasional IPB)
+      </h2>
+      <p>
+        Biar kamu tidak tertukar istilah saat mendaftar:
+      </p>
+      <ul className="space-y-2 list-disc list-inside text-sm text-gray-700">
+        <li><strong>SJP UI (Seleksi Jalur Prestasi UI):</strong> Jalur prestasi Universitas Indonesia. Sangat memprioritaskan juara lomba olimpiade sains (OSN), kejuaraan olahraga, dan seni.</li>
+        <li><strong>PIN IPB (Prestasi Internasional dan Nasional IPB):</strong> Jalur prestasi resmi IPB University. Selain juara lomba, PIN IPB juga memiliki sub-jalur khusus untuk <strong>Ketua OSIS</strong> dan <strong>Pramuka Garuda</strong>.</li>
+      </ul>
+
+      {/* Gambar Timeline PIN IPB */}
+      <figure className="my-6">
+        <Image
+          src="/images/jadwal/jadwal-pin-ipb-2026-prestasi-internasional-nasional.webp"
+          alt="Jadwal PIN IPB 2026 - Prestasi Internasional dan Nasional IPB University"
+          width={1200}
+          height={675}
+          className="w-full h-auto rounded-2xl border border-blue-200 shadow-md"
+        />
+        <figcaption className="text-center text-xs text-gray-500 font-semibold mt-2">
+          Infografis Resmi: Jadwal PIN IPB (Prestasi Internasional &amp; Nasional) 2026 oleh OtwPTN.com
+        </figcaption>
+      </figure>
+
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        4. Tips Memaksimalkan Peluang Lolos SJP UI / Japres UI dari Mentor Alumni
       </h2>
       <ul className="space-y-3 list-disc list-inside text-sm text-gray-700">
-        <li><strong>Jangan Salah Tulis Format Personal Statement:</strong> UI sangat selektif membaca essay motivasi. Buat essay yang orisinal, bebas klise, dan perjelas mengapa kamu butuh kurikulum UI. Gunakan fitur Essay AI Review OtwPTN untuk cek sebelum submit.</li>
-        <li><strong>Rasionalisasikan Nilai Rapor:</strong> Jangan bertabrakan dengan teman seangkatan yang memilih prodi yang sama di UI jika nilaimu di bawah mereka. Manfaatkan Kalkulator Peluang OtwPTN untuk simulasi.</li>
-        <li><strong>Legalitas Sertifikat:</strong> Sertifikat non-kedinasan wajib melampirkan surat keterangan keaslian dari lembaga penyelenggara.</li>
+        <li><strong>Relevansi Linear Sertifikat:</strong> Pastikan kejuaraanmu selaras dengan jurusan yang dipilih. Juara OSN Kimia memiliki nilai konversi jauh lebih tinggi untuk Kedokteran/Farmasi dibanding sertifikat juara pidato.</li>
+        <li><strong>Cek Kategori di Direktori Jalur:</strong> Pantau pembukaan pendaftaran SJP UI di <Link href="/jalur" className="text-amber-700 font-bold underline">Direktori Jalur OtwPTN</Link> agar tidak ada dokumen legalisir yang tertinggal.</li>
+        <li><strong>Gunakan Kalkulator Peluang:</strong> Rasionalisasikan nilai rapor dan bobot sertifikatmu dengan data historis penerimaan UI di <Link href="/dashboard/kalkulator" className="text-amber-700 font-bold underline">Kalkulator Peluang OtwPTN</Link>.</li>
       </ul>
 
       <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 my-6 flex flex-col sm:flex-row items-center justify-between gap-4">
