@@ -3,20 +3,16 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import {
-  DollarSign,
   Wallet,
-  TrendingUp,
-  Users,
   Copy,
   Check,
   Share2,
-  Download,
-  Building,
-  CheckCircle2,
   X,
   Sparkles,
-  Award,
+  TrendingUp,
+  Users,
 } from 'lucide-react'
+import ReferralPromoKit from '@/components/dashboard/ReferralPromoKit'
 
 interface PayoutRow {
   id: string
@@ -25,6 +21,13 @@ interface PayoutRow {
   tier: string
   created_at: string
   profiles: { full_name: string } | null
+}
+
+interface CommissionRow {
+  amount: number
+  status: string
+  tier_purchased: string
+  created_at: string
 }
 
 export default function MentorPemasukanPage() {
@@ -38,6 +41,7 @@ export default function MentorPemasukanPage() {
   const [totalHonor, setTotalHonor] = useState(0)
   const [alreadyPaid, setAlreadyPaid] = useState(0)
   const [ambassadorEarnings, setAmbassadorEarnings] = useState(0)
+  const [recentCommissions, setRecentCommissions] = useState<CommissionRow[]>([])
 
   useEffect(() => {
     const supabase = createClient()
@@ -69,14 +73,17 @@ export default function MentorPemasukanPage() {
       setTotalHonor(total)
       setAlreadyPaid(paid)
 
-      // Get ambassador commissions
+      // Get ambassador commissions (anyone with a referral_code earns these when it's
+      // used at checkout - mentors included, see src/lib/commission.ts)
       const { data: commissions } = await supabase
         .from('ambassador_commissions')
-        .select('amount, status')
+        .select('amount, status, tier_purchased, created_at')
         .eq('ambassador_id', data.user.id)
-        .eq('status', 'cleared')
+        .order('created_at', { ascending: false })
 
-      setAmbassadorEarnings(commissions?.reduce((s, c) => s + c.amount, 0) ?? 0)
+      const clearedOrPaid = (commissions ?? []).filter(c => c.status === 'cleared' || c.status === 'paid')
+      setAmbassadorEarnings(clearedOrPaid.reduce((s, c) => s + c.amount, 0))
+      setRecentCommissions((commissions ?? []).slice(0, 10))
     })
   }, [])
 
@@ -263,7 +270,43 @@ export default function MentorPemasukanPage() {
             </button>
           </div>
         </div>
+
+        {/* Monitoring: siapa saja yang pakai kode mentormu */}
+        <div className="pt-2">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-black text-gray-900 flex items-center gap-2">
+              <TrendingUp size={15} className="text-emerald-600" /> Riwayat Komisi Referral ({recentCommissions.length})
+            </h3>
+            <span className="text-[11px] text-gray-400 font-medium">Terhubung otomatis ke checkout</span>
+          </div>
+          {recentCommissions.length === 0 ? (
+            <div className="p-8 text-center space-y-1.5 bg-gray-50 rounded-2xl">
+              <Users className="w-8 h-8 text-gray-300 mx-auto" />
+              <p className="text-xs font-bold text-gray-500">Belum ada yang pakai kode referralmu.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100 bg-gray-50/60 rounded-2xl px-4">
+              {recentCommissions.map((c, i) => (
+                <div key={i} className="py-3 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-gray-900">Upgrade Paket: {c.tier_purchased}</p>
+                    <p className="text-[11px] text-gray-400">
+                      {new Date(c.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-sm font-black text-emerald-600">+Rp {c.amount.toLocaleString('id-ID')}</span>
+                    <span className="text-[10px] font-bold block text-gray-400 uppercase">{c.status}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Materi Promosi: poster harga pakai kode + demo video fitur siap posting */}
+      {referralCode && <ReferralPromoKit referralCode={referralCode} />}
 
       {/* WITHDRAWAL MODAL */}
       {withdrawModalOpen && (

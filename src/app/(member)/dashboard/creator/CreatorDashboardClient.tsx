@@ -29,6 +29,7 @@ import {
   Eye,
 } from 'lucide-react'
 import { formatIDR } from '@/lib/pricing'
+import ReferralPromoKit from '@/components/dashboard/ReferralPromoKit'
 
 interface CreatorSubmission {
   id: string
@@ -702,6 +703,9 @@ export default function CreatorDashboardClient() {
                 )}
               </div>
             </div>
+
+            {/* Poster harga & demo video siap posting - sama dengan yang dipakai Student Ambassador */}
+            {data?.profile?.referralCode && <ReferralPromoKit referralCode={data.profile.referralCode} />}
           </div>
         )}
 

@@ -20,11 +20,14 @@ export default async function ContentCreatorDashboardPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('is_creator, is_active')
+    .select('is_creator, is_active, is_admin, role')
     .eq('id', user.id)
     .maybeSingle()
 
-  const isApprovedCreator = profile?.is_creator === true && profile?.is_active === true
+  // Admin/superadmin can always preview this dashboard (e.g. via the AdminSwitcher),
+  // same bypass pattern as the mentor gate in proxy.ts / mentor/layout.tsx.
+  const isAdmin = profile?.is_admin || profile?.role === 'superadmin' || profile?.role === 'admin'
+  const isApprovedCreator = (profile?.is_creator === true && profile?.is_active === true) || isAdmin
 
   if (!isApprovedCreator) {
     redirect('/career/content-creator')

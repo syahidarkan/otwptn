@@ -35,6 +35,7 @@ import {
   BarChart3,
 } from 'lucide-react'
 import { LEGAL_ENTITY } from '@/lib/constants'
+import MentorAlmetUploadCard from '@/components/dashboard/MentorAlmetUploadCard'
 
 interface MenteeItem {
   id: string
@@ -330,6 +331,8 @@ export default function MentorDashboardPage() {
           </div>
         </div>
       </div>
+
+      <MentorAlmetUploadCard />
 
       {/* LOA Verification Status Notice */}
       {isPendingLoa && (

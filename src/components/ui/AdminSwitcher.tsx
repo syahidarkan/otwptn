@@ -3,11 +3,12 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Crown, GraduationCap, Star, Globe, X, type LucideIcon } from 'lucide-react'
+import { Crown, GraduationCap, Star, Globe, Video, X, type LucideIcon } from 'lucide-react'
 
 const VIEWS: { label: string; icon: LucideIcon; href: string; color: string }[] = [
   { label: 'Super Admin',  icon: Crown, href: '/admin',           color: '#7c3aed' },
   { label: 'Mentor',       icon: GraduationCap, href: '/mentor/dashboard', color: '#0369a1' },
+  { label: 'Konten Kreator', icon: Video, href: '/dashboard/creator', color: '#b91c1c' },
   { label: 'Member',       icon: Star, href: '/dashboard',        color: '#b45309' },
   { label: 'Publik',       icon: Globe, href: '/',                 color: '#374151' },
 ]
@@ -54,7 +55,7 @@ export default function AdminSwitcher() {
   // Detect current view
   const current = VIEWS.find(v =>
     v.href !== '/' ? pathname.startsWith(v.href) : pathname === '/'
-  ) ?? VIEWS[2]
+  ) ?? VIEWS[3]
 
   return (
     <div

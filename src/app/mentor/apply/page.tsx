@@ -26,6 +26,8 @@ export default function MentorApplyPage() {
   const [loaFile, setLoaFile] = useState<File | null>(null)
   const [essayFile, setEssayFile] = useState<File | null>(null)
   const [certFile, setCertFile] = useState<File | null>(null)
+  const [almetFile, setAlmetFile] = useState<File | null>(null)
+  const [existingAlmetUrl, setExistingAlmetUrl] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [checkingSession, setCheckingSession] = useState(true)
@@ -85,6 +87,7 @@ export default function MentorApplyPage() {
         .maybeSingle()
 
       if (app) {
+        setExistingAlmetUrl(app.almet_photo_url || '')
         setForm(prev => ({
           ...prev,
           fullName: app.full_name || prev.fullName,
@@ -150,6 +153,11 @@ export default function MentorApplyPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (isAdminSession) return
+
+    if (!almetFile && !existingAlmetUrl) {
+      setErrorMsg('Foto formal memakai jaket almamater (almet) wajib diunggah sebagai bukti identitas alumni.')
+      return
+    }
 
     setErrorMsg(null)
     setLoading(true)
@@ -232,6 +240,7 @@ export default function MentorApplyPage() {
       let loaUrl = ''
       let essayUrl = ''
       let certUrl = ''
+      let almetUrl = existingAlmetUrl
 
       if (loaFile) {
         loaUrl = await uploadDoc(loaFile, 'loa')
@@ -241,6 +250,15 @@ export default function MentorApplyPage() {
       }
       if (certFile) {
         certUrl = await uploadDoc(certFile, 'cert')
+      }
+      if (almetFile) {
+        almetUrl = await uploadDoc(almetFile, 'almet')
+      }
+
+      // Also saved on profiles (not just this one-time application row) so it stays
+      // available for display/edit from the mentor dashboard after approval.
+      if (almetUrl) {
+        await supabase.from('profiles').update({ mentor_photo_url: almetUrl }).eq('id', activeUserId)
       }
 
       const { error: upsertErr } = await supabase.from('mentor_applications').upsert({
@@ -255,6 +273,7 @@ export default function MentorApplyPage() {
         loa_url: loaUrl || undefined,
         essay_url: essayUrl || undefined,
         cert_url: certUrl || undefined,
+        almet_photo_url: almetUrl || undefined,
         status: 'pending',
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
@@ -562,8 +581,29 @@ export default function MentorApplyPage() {
             <div className="p-7 rounded-3xl bg-white shadow-md space-y-5">
               <h2 className="text-base font-black text-gray-950 flex items-center gap-2">
                 <Award size={18} className="text-amber-500" />
-                2. Upload Bukti LOA & Portofolio Esai
+                2. Upload Foto Almet, Bukti LOA & Portofolio Esai
               </h2>
+
+              <div className="p-5 rounded-2xl bg-amber-50/50 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black text-amber-950 flex items-center gap-1.5">
+                    <School size={15} className="text-amber-600" />
+                    Foto Formal Memakai Jaket Almamater (Almet) <span className="text-rose-500">*Wajib</span>
+                  </label>
+                  {(almetFile || existingAlmetUrl) && (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700"><Check size={12} /> {almetFile?.name || 'Sudah diunggah'}</span>
+                  )}
+                </div>
+                <p className="text-[11px] text-gray-500">
+                  Foto setengah badan memakai jaket almamater kampusmu, wajah terlihat jelas - jadi bukti identitas alumni yang tampil di profil mentor.
+                </p>
+                <input
+                  type="file"
+                  accept=".png,.jpg,.jpeg"
+                  onChange={e => setAlmetFile(e.target.files?.[0] || null)}
+                  className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-amber-400 file:text-amber-950 hover:file:bg-amber-300"
+                />
+              </div>
 
               <div className="p-5 rounded-2xl bg-amber-50/50 space-y-2">
                 <div className="flex items-center justify-between">
