@@ -104,47 +104,58 @@ export default async function ArtikelPage({
         )}
 
         {/* Featured Articles */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-14">
-          {featured.map(article => (
-            <Link
-              key={article.slug}
-              href={`/artikel/${article.slug}`}
-              className="card p-6 md:p-8 flex flex-col justify-between hover-lift group border-0 shadow-md bg-white rounded-3xl"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <span className="text-xs font-black uppercase text-amber-800 bg-amber-50 px-3 py-1 rounded-full">
-                    {article.category}
-                  </span>
-                  <span className="flex items-center gap-1.5 text-xs text-gray-400 font-medium">
-                    <Clock size={13} /> {article.readTime}
-                  </span>
-                </div>
-                <h2 className="text-xl md:text-2xl font-black text-gray-900 group-hover:text-amber-600 transition-colors leading-snug mb-3">
-                  {article.title}
-                </h2>
-                <p className="text-xs md:text-sm text-gray-600 leading-relaxed font-normal mb-6">
-                  {article.excerpt}
-                </p>
-              </div>
+        <div className="mb-14">
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
+            <h2 className="text-xl md:text-2xl font-black text-gray-900 flex items-center gap-2">
+              <Sparkles size={20} className="text-amber-500 fill-amber-400" /> Panduan Utama SNBP &amp; Jalur Masuk PTN 2026
+            </h2>
+            <span className="text-xs font-bold text-amber-900 bg-amber-100/90 px-3 py-1 rounded-full">
+              🔥 Prioritas Pejuang PTN 2026
+            </span>
+          </div>
 
-              <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center p-1">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={article.author.avatar} alt="" className="w-full h-full object-contain" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {featured.map(article => (
+              <Link
+                key={article.slug}
+                href={`/artikel/${article.slug}`}
+                className="card p-6 md:p-8 flex flex-col justify-between hover-lift group border-0 shadow-md bg-white rounded-3xl"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <span className="text-xs font-black uppercase text-amber-800 bg-amber-50 px-3 py-1 rounded-full">
+                      {article.category}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-xs text-gray-400 font-medium">
+                      <Clock size={13} /> {article.readTime}
+                    </span>
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-gray-900 leading-none">{article.author.name}</p>
-                    <p className="text-[11px] text-gray-500 font-medium leading-none mt-1">{article.author.role}</p>
-                  </div>
+                  <h2 className="text-xl md:text-2xl font-black text-gray-900 group-hover:text-amber-600 transition-colors leading-snug mb-3">
+                    {article.title}
+                  </h2>
+                  <p className="text-xs md:text-sm text-gray-600 leading-relaxed font-normal mb-6">
+                    {article.excerpt}
+                  </p>
                 </div>
-                <span className="inline-flex items-center gap-1 text-xs font-black text-amber-700 group-hover:translate-x-1 transition-transform">
-                  Baca <ArrowRight size={13} />
-                </span>
-              </div>
-            </Link>
-          ))}
+
+                <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center p-0.5 overflow-hidden flex-shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={article.author.avatar} alt="" className="w-full h-full object-contain" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-gray-900 leading-none">{article.author.name}</p>
+                      <p className="text-[11px] text-gray-500 font-medium leading-none mt-1">{article.author.role}</p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 text-xs font-black text-amber-700 group-hover:translate-x-1 transition-transform">
+                    Baca <ArrowRight size={13} />
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Regular Articles Grid */}

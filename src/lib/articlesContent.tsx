@@ -752,4 +752,290 @@ export const ARTICLE_CONTENTS: Record<string, React.ReactNode> = {
       </div>
     </>
   ),
+
+  // ==========================================
+  // 11. CARA HITUNG RATA-RATA NILAI RAPOR SNBP 2026
+  // ==========================================
+  'cara-hitung-rata-rata-nilai-rapor-snbp': (
+    <>
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        1. Dua Rumus Komponen Penilaian SNBP 2026
+      </h2>
+      <p>
+        Banyak siswa salah mengira bahwa kelulusan SNBP hanya ditentukan oleh nilai rata-rata umum di atas kertas rapor. Sejak regulasi transformasi seleksi nasional diberlakukan oleh BPPP Kemendikbudristek, penilaian rapor dipecah menjadi dua komponen dengan pembobotan matematis:
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose my-6">
+        <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200">
+          <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full inline-block mb-2">
+            Komponen 1 (Bobot Minimal 50%)
+          </span>
+          <h4 className="text-base font-bold text-gray-900 mb-1">Rata-Rata Seluruh Mata Pelajaran</h4>
+          <p className="text-xs text-gray-600 leading-relaxed">
+            Dihitung dari total penjumlahan seluruh nilai mapel (Agama, PPKn, Bahasa Indonesia, Matematika, Bahasa Inggris, Sejarah, dsb.) dari <strong>semester 1 sampai semester 5</strong> dibagi total mata pelajaran. Komponen ini mengukur konsistensi belajar secara komprehensif.
+          </p>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-sky-50 border border-sky-200">
+          <span className="text-[10px] font-black uppercase tracking-wider text-sky-800 bg-sky-200/60 px-2 py-0.5 rounded-full inline-block mb-2">
+            Komponen 2 (Bobot Maksimal 50%)
+          </span>
+          <h4 className="text-base font-bold text-gray-900 mb-1">Mapel Pendukung Prodi &amp; Prestasi</h4>
+          <p className="text-xs text-gray-600 leading-relaxed">
+            Dihitung khusus dari <strong>2 mata pelajaran pendukung</strong> prodi pilihan (misalnya Kedokteran: Biologi &amp; Kimia; Manajemen: Matematika &amp; Ekonomi), ditambah poin kurasi <strong>maksimal 3 sertifikat prestasi</strong> atau nilai portofolio.
+          </p>
+        </div>
+      </div>
+
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        2. Simulasi Perhitungan Nilai Rapor SNBP
+      </h2>
+      <p>
+        Misalkan kamu memilih program studi <strong>Ilmu Komputer / Informatika</strong> di PTN A:
+      </p>
+      <div className="card p-5 rounded-2xl bg-white border border-gray-200 shadow-2xs my-4 not-prose space-y-3">
+        <div className="flex items-center justify-between text-xs border-b border-gray-100 pb-2">
+          <span className="font-semibold text-gray-600">Rata-rata seluruh mapel sem 1-5 (Komponen 1):</span>
+          <span className="font-black text-gray-900">89.40 (x 50% = 44.70)</span>
+        </div>
+        <div className="flex items-center justify-between text-xs border-b border-gray-100 pb-2">
+          <span className="font-semibold text-gray-600">Rata-rata Mapel Pendukung (Matematika Tingkat Lanjut):</span>
+          <span className="font-black text-gray-900">93.20 (x 30% = 27.96)</span>
+        </div>
+        <div className="flex items-center justify-between text-xs border-b border-gray-100 pb-2">
+          <span className="font-semibold text-gray-600">Sertifikat Juara 2 OSN Informatika Tingkat Provinsi:</span>
+          <span className="font-black text-amber-700">+ 18.00 poin prestasi</span>
+        </div>
+        <div className="flex items-center justify-between text-sm pt-1">
+          <span className="font-black text-gray-900">Total Skor Estimasi Kelayakan SNBP:</span>
+          <span className="font-black text-amber-900 text-base">90.66 / 100</span>
+        </div>
+      </div>
+
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        3. Pentingnya Indeks Sekolah &amp; Rekam Jejak Alumni
+      </h2>
+      <p>
+        Perlu diingat: Skor rapor tinggi tidak serta merta menjamin kelulusan jika indeks sekolahmu di PTN tersebut rendah. PTN mengalikan skor mentah dengan <strong>faktor pengali akreditasi sekolah dan IPK alumni sekolahmu yang sedang berkuliah di PTN tersebut</strong>.
+      </p>
+
+      <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 my-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h4 className="text-sm font-black text-gray-900">Cek Rasionalisasi Rapor Otomatis di otwptn</h4>
+          <p className="text-xs text-gray-600">Input nilaimu sekali, AI langsung menghitung perbandingan dengan passing grade prodi.</p>
+        </div>
+        <Link href="/dashboard/kalkulator" className="btn-brand-primary px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap">
+          Gunakan Kalkulator SNBP <ArrowRight size={13} className="inline ml-1" />
+        </Link>
+      </div>
+    </>
+  ),
+
+  // ==========================================
+  // 12. SERTIFIKAT YANG BISA LOLOS SNBP PUSPRESNAS
+  // ==========================================
+  'sertifikat-yang-bisa-lolos-snbp-puspresnas': (
+    <>
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        1. Aturan Kurasi 3 Sertifikat Prestasi Maksimal di SNBP 2026
+      </h2>
+      <p>
+        Sistem SNPMB memberikan fasilitas pengunggahan <strong>maksimal 3 sertifikat prestasi terbaik</strong> bagi peserta SNBP. Mengingat slot yang sangat terbatas, mengunggah sertifikat yang salah atau tidak berbobot bisa menjadi bumerang.
+      </p>
+
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        2. Tingkatan &amp; Bobot Sertifikat yang Diakui PTN
+      </h2>
+      <div className="space-y-3 not-prose my-6">
+        <div className="p-4 rounded-2xl bg-white border border-amber-200 shadow-2xs">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-5 h-5 rounded-full bg-amber-400 text-gray-950 font-black text-xs flex items-center justify-center">1</span>
+            <h4 className="text-sm font-black text-gray-900">Puspresnas / BPTI Kemendikbudristek (Prioritas Tertinggi)</h4>
+          </div>
+          <p className="text-xs text-gray-600">
+            Ajang resmi talenta nasional: <strong>OSN (Sains), O2SN (Olahraga), FLS2N (Seni), OPSI (Penelitian Siswa), LDBI/NSDC (Debat)</strong>. Sertifikat ini memiliki database terintegrasi langsung di sistem SNPMB.
+          </p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white border border-gray-200 shadow-2xs">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-5 h-5 rounded-full bg-gray-200 text-gray-800 font-black text-xs flex items-center justify-center">2</span>
+            <h4 className="text-sm font-black text-gray-900">Kementerian &amp; Lembaga Negara Resmi</h4>
+          </div>
+          <p className="text-xs text-gray-600">
+            Kejuaraan yang diadakan kementerian lain seperti Kemenpora, Kemenag (KSM, AKSIOMA), Kwarda/Kwarnas Pramuka Garuda, dan kejuaraan resmi KONI/PON.
+          </p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white border border-gray-200 shadow-2xs">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-5 h-5 rounded-full bg-gray-200 text-gray-800 font-black text-xs flex items-center justify-center">3</span>
+            <h4 className="text-sm font-black text-gray-900">Lomba Universitas Terakreditasi Nasional</h4>
+          </div>
+          <p className="text-xs text-gray-600">
+            Kompetisi karya tulis ilmiah, olimpiade matematika, atau lomba debat tingkat nasional yang diselenggarakan oleh fakultas/BEM di perguruan tinggi negeri terkemuka.
+          </p>
+        </div>
+      </div>
+
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        3. Tips Linearitas Sertifikat dengan Program Studi
+      </h2>
+      <p>
+        Sertifikat juara olimpiade Kimia memiliki bobot maksimal jika mendaftar di Teknik Kimia, Farmasi, atau Kedokteran. Namun sertifikat yang sama memiliki nilai tambah yang jauh lebih kecil jika mendaftar di jurusan Sastra Inggris atau Manajemen. <strong>Pilihlah 3 sertifikat yang paling linear dengan prodi pilihan pertamamu!</strong>
+      </p>
+
+      <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 my-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h4 className="text-sm font-black text-gray-900">Simpan &amp; Kurasi Sertifikatmu di Cloud Vault otwptn</h4>
+          <p className="text-xs text-gray-600">Fitur Penyimpanan Dokumen membantu mengurutkan sertifikat dengan bobot tertinggi.</p>
+        </div>
+        <Link href="/dashboard/dokumen" className="btn-brand-primary px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap">
+          Buka Penyimpanan Dokumen <ArrowRight size={13} className="inline ml-1" />
+        </Link>
+      </div>
+    </>
+  ),
+
+  // ==========================================
+  // 13. 7 KESALAHAN FATAL PENDAFTARAN SNBP
+  // ==========================================
+  'kesalahan-fatal-pendaftaran-snbp-gagal-lolos': (
+    <>
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        1. Mengapa Siswa Peringkat 1 Sekolah Bisa Gagal di SNBP?
+      </h2>
+      <p>
+        Setiap tahun, ribuan siswa berprestasi dengan rapor nyaris sempurna harus menelan kekecewaan di pengumuman SNBP. Kegagalan tersebut sering kali bukan karena nilai rapor kurang tinggi, melainkan akibat <strong>kesalahan strategi dan kelalaian teknis dalam pendaftaran</strong>.
+      </p>
+
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        2. Tujuh Kesalahan Fatal yang Wajib Kamu Hindari
+      </h2>
+      <div className="space-y-4 not-prose my-6">
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200">
+          <h4 className="text-sm font-bold text-rose-950 flex items-center gap-2 mb-1">
+            <AlertTriangle size={16} className="text-rose-600" /> 1. Tabrakan Pilihan Prodi dengan Teman Satu Sekolah
+          </h4>
+          <p className="text-xs text-rose-900 leading-relaxed">
+            Dua atau tiga siswa mendaftar jurusan yang sama di satu PTN. Jika kuota alumni sekolahmu hanya 1 orang, siswa dengan ranking lebih rendah otomatis langsung tereliminasi.
+          </p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200">
+          <h4 className="text-sm font-bold text-rose-950 flex items-center gap-2 mb-1">
+            <AlertTriangle size={16} className="text-rose-600" /> 2. Melanggar Aturan Wilayah Provinsi (Lintas Provinsi)
+          </h4>
+          <p className="text-xs text-rose-900 leading-relaxed">
+            Memilih 2 program studi di luar provinsi sekolah asal. Aturan SNPMB tegas: Jika memilih 2 prodi, salah satu PTN wajib berada di provinsi yang sama dengan sekolah asal.
+          </p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200">
+          <h4 className="text-sm font-bold text-rose-950 flex items-center gap-2 mb-1">
+            <AlertTriangle size={16} className="text-rose-600" /> 3. Mengunggah Portofolio Tidak Sesuai Template Resmi
+          </h4>
+          <p className="text-xs text-rose-900 leading-relaxed">
+            Format file video, surat pernyataan keaslian karya, atau template instruksi BPPP tidak dipatuhi, menyebabkan skor portofolio langsung gugur di tahap verifikasi awal.
+          </p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200">
+          <h4 className="text-sm font-bold text-rose-950 flex items-center gap-2 mb-1">
+            <AlertTriangle size={16} className="text-rose-600" /> 4. Memilih Prodi Pilihan 2 dengan Passing Grade Lebih Tinggi
+          </h4>
+          <p className="text-xs text-rose-900 leading-relaxed">
+            Meletakkan jurusan sangat ketat di pilihan 2. Hampir seluruh PTN top memprioritaskan pemilih pilihan 1. Meletakkan prodi favorit di pilihan 2 sering kali berujung kuota sudah habis terisi.
+          </p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200">
+          <h4 className="text-sm font-bold text-rose-950 flex items-center gap-2 mb-1">
+            <AlertTriangle size={16} className="text-rose-600" /> 5. Mengabaikan Riwayat Rekam Jejak Alumni
+          </h4>
+          <p className="text-xs text-rose-900 leading-relaxed">
+            Mendaftar di kampus yang belum pernah menerima satupun alumni dari sekolahmu, atau sekolahmu sedang terkena sanksi kuota (blacklist) akibat ada alumni yang tidak mengambil SNBP tahun sebelumnya.
+          </p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200">
+          <h4 className="text-sm font-bold text-rose-950 flex items-center gap-2 mb-1">
+            <AlertTriangle size={16} className="text-rose-600" /> 6. Terlambat Simpan Permanen Akun SNPMB
+          </h4>
+          <p className="text-xs text-rose-900 leading-relaxed">
+            Menunda finalisasi hingga jam-jam terakhir saat portal server mengalami lonjakan traffic tinggi dan error down.
+          </p>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200">
+          <h4 className="text-sm font-bold text-rose-950 flex items-center gap-2 mb-1">
+            <AlertTriangle size={16} className="text-rose-600" /> 7. Asal Pilih Prodi Cadangan Tanpa Niat Mengambil
+          </h4>
+          <p className="text-xs text-rose-900 leading-relaxed">
+            Ingat: Lulus SNBP berarti kamu diblokir permanen dari UTBK-SNBT dan seluruh Jalur Mandiri di Indonesia!
+          </p>
+        </div>
+      </div>
+    </>
+  ),
+
+  // ==========================================
+  // 14. PERBEDAAN SNBP DAN SNBT 2026
+  // ==========================================
+  'perbedaan-snbp-dan-snbt-2026-panduan-lengkap': (
+    <>
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        1. Tabel Perbandingan Lengkap SNBP vs SNBT 2026
+      </h2>
+      <p>
+        Sebelum menentukan fokus belajarmu, pahami perbedaan fundamental antara kedua jalur seleksi nasional yang diselenggarakan oleh BPPP SNPMB:
+      </p>
+
+      <div className="card p-5 rounded-2xl bg-white border border-gray-200 shadow-2xs my-6 not-prose overflow-x-auto">
+        <table className="w-full text-xs text-left text-gray-700">
+          <thead className="text-[11px] font-black uppercase bg-amber-50 text-amber-900">
+            <tr>
+              <th className="p-3">Aspek Penilaian</th>
+              <th className="p-3">SNBP (Prestasi)</th>
+              <th className="p-3">SNBT (Tes UTBK)</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            <tr>
+              <td className="p-3 font-bold">Kriteria Utama</td>
+              <td className="p-3">Nilai Rapor semester 1-5 + Sertifikat/Portofolio</td>
+              <td className="p-3">Skor Ujian Tertulis Berbasis Komputer (UTBK)</td>
+            </tr>
+            <tr>
+              <td className="p-3 font-bold">Peserta yang Berhak</td>
+              <td className="p-3">Hanya siswa eligible angkatan 2026</td>
+              <td className="p-3">Lulusan 2026, 2025, dan 2024 (Gap Year)</td>
+            </tr>
+            <tr>
+              <td className="p-3 font-bold">Biaya Pendaftaran</td>
+              <td className="p-3">Gratis (Ditanggung Pemerintah)</td>
+              <td className="p-3">Rp200.000,- (Kecuali KIP-Kuliah)</td>
+            </tr>
+            <tr>
+              <td className="p-3 font-bold">Kuota Minimum PTN</td>
+              <td className="p-3">Minimal 20% daya tampung kampus</td>
+              <td className="p-3">Minimal 40% (PTN-BLU/Satker) / 30% (PTN-BH)</td>
+            </tr>
+            <tr>
+              <td className="p-3 font-bold">Konsekuensi Kelulusan</td>
+              <td className="p-3 text-rose-700 font-bold">Diblokir dari UTBK &amp; Mandiri</td>
+              <td className="p-3">Hanya diblokir dari Mandiri jika mendaftar ulang</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        2. Haruskah Tetap Belajar UTBK Meskipun Ikut SNBP?
+      </h2>
+      <p>
+        <strong>JAWABANNYA: SANGAT WAJIB!</strong> Kuota SNBP secara nasional rata-rata hanya menerima sekitar 20% dari total pendaftar. Menjadikan SNBP sebagai satu-satunya harapan tanpa menyiapkan materi TPS, Literasi Bahasa, dan Penalaran Matematika untuk UTBK-SNBT adalah salah satu kesalahan terbesar pejuang kampus.
+      </p>
+    </>
+  ),
 }

@@ -117,7 +117,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
           <div className="flex items-center justify-between gap-4 py-4 border-y border-gray-100 flex-wrap">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-amber-100 p-1 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-amber-50 border border-amber-200/80 p-0.5 flex items-center justify-center overflow-hidden flex-shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={article.author.avatar} alt="" className="w-full h-full object-contain" />
               </div>
@@ -530,7 +530,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
         {/* Author Bio Box */}
         <div className="card p-6 rounded-3xl bg-white shadow-sm border border-gray-100 mt-8 flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
-          <div className="w-16 h-16 rounded-full bg-amber-100 p-2 flex-shrink-0 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200/80 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={article.author.avatar} alt="" className="w-full h-full object-contain" />
           </div>
@@ -584,26 +584,6 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
       </article>
-
-      {/* Sticky Bottom Lead Magnet Bar */}
-      <aside aria-label="Simulasi SNBP" className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:max-w-md z-40">
-        <div className="p-4 rounded-2xl bg-gray-950/95 backdrop-blur-md text-white shadow-2xl border border-amber-400/50 flex items-center justify-between gap-3 animate-in slide-in-from-bottom duration-300">
-          <div className="min-w-0">
-            <span className="text-[10px] font-black uppercase text-amber-400 flex items-center gap-1">
-              <Sparkles size={11} className="text-amber-400" /> Cek Peluang SNBP 2026
-            </span>
-            <p className="text-xs text-gray-200 font-semibold truncate">
-              Rasionalisasi nilai rapor &amp; daya tampung prodi impian
-            </p>
-          </div>
-          <Link
-            href="/dashboard/kalkulator"
-            className="btn bg-amber-400 hover:bg-amber-300 text-gray-950 font-black text-xs px-3.5 py-2 rounded-xl whitespace-nowrap shadow-md flex-shrink-0"
-          >
-            Coba Gratis
-          </Link>
-        </div>
-      </aside>
     </div>
   )
 }
