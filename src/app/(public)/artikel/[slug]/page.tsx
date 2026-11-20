@@ -49,9 +49,9 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             '@type': 'BlogPosting',
             headline: article.title,
             description: article.excerpt,
-            url: `https://otwptn.com/artikel/${article.slug}`,
+            url: `https://www.otwptn.com/artikel/${article.slug}`,
             datePublished: '2026-10-28T08:00:00.000Z',
-            dateModified: '2026-10-28T10:00:00.000Z',
+            dateModified: '2026-11-20T10:00:00.000Z',
             author: {
               '@type': 'Person',
               name: article.author.name,
@@ -62,13 +62,34 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
               name: 'otwptn | PT. Lembaga Sains Nasional',
               logo: {
                 '@type': 'ImageObject',
-                url: 'https://otwptn.com/logo.png',
+                url: 'https://www.otwptn.com/logo.png',
               },
             },
             keywords: article.tags.join(', '),
           }),
         }}
       />
+
+      {/* FAQ Schema JSON-LD for Rich Snippets */}
+      {article.faqs && article.faqs.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'FAQPage',
+              mainEntity: article.faqs.map(faq => ({
+                '@type': 'Question',
+                name: faq.q,
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: faq.a,
+                },
+              })),
+            }),
+          }}
+        />
+      )}
 
       <article className="max-w-4xl mx-auto px-6">
         {/* Breadcrumb */}
@@ -459,6 +480,44 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
           )}
         </div>
 
+        {/* FAQ Section with Rich Accordion & PAA Keyword Targeting */}
+        {article.faqs && article.faqs.length > 0 && (
+          <div className="mt-12 pt-8 border-t border-amber-200/60 not-prose">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-2xl bg-amber-400 text-gray-950 flex items-center justify-center font-black text-lg shadow-sm">
+                ?
+              </div>
+              <div>
+                <h3 className="text-lg md:text-xl font-black text-gray-900">
+                  Pertanyaan Sering Diajukan (FAQ {article.category})
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Jawaban resmi berdasarkan regulasi terbaru SNPMB BPPP Kemdikbudristek
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {article.faqs.map((faq, idx) => (
+                <details
+                  key={idx}
+                  className="group rounded-2xl bg-white border border-amber-200/80 p-4 md:p-5 shadow-2xs open:bg-amber-50/50 open:border-amber-400 transition-colors"
+                >
+                  <summary className="font-bold text-sm md:text-base text-gray-900 cursor-pointer list-none flex items-center justify-between gap-4">
+                    <span>{faq.q}</span>
+                    <span className="text-amber-600 font-black text-xl transition-transform group-open:rotate-45 flex-shrink-0">
+                      +
+                    </span>
+                  </summary>
+                  <p className="text-xs md:text-sm text-gray-700 leading-relaxed mt-3 pt-3 border-t border-amber-100">
+                    {faq.a}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Tags */}
         <div className="flex items-center gap-2 flex-wrap pt-8 mt-10 border-t border-gray-100">
           <span className="text-xs font-bold text-gray-400">Topik Terkait:</span>
@@ -525,6 +584,26 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
       </article>
+
+      {/* Sticky Bottom Lead Magnet Bar */}
+      <aside aria-label="Simulasi SNBP" className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:max-w-md z-40">
+        <div className="p-4 rounded-2xl bg-gray-950/95 backdrop-blur-md text-white shadow-2xl border border-amber-400/50 flex items-center justify-between gap-3 animate-in slide-in-from-bottom duration-300">
+          <div className="min-w-0">
+            <span className="text-[10px] font-black uppercase text-amber-400 flex items-center gap-1">
+              <Sparkles size={11} className="text-amber-400" /> Cek Peluang SNBP 2026
+            </span>
+            <p className="text-xs text-gray-200 font-semibold truncate">
+              Rasionalisasi nilai rapor &amp; daya tampung prodi impian
+            </p>
+          </div>
+          <Link
+            href="/dashboard/kalkulator"
+            className="btn bg-amber-400 hover:bg-amber-300 text-gray-950 font-black text-xs px-3.5 py-2 rounded-xl whitespace-nowrap shadow-md flex-shrink-0"
+          >
+            Coba Gratis
+          </Link>
+        </div>
+      </aside>
     </div>
   )
 }

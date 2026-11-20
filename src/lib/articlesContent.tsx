@@ -3,7 +3,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   Sparkles, CheckCircle2, AlertTriangle, ArrowRight, Video, FolderLock,
-  CalendarCheck, Gamepad2, Users, Award, DollarSign, BookOpen, ShieldCheck, Flame
+  CalendarCheck, Gamepad2, Users, Award, DollarSign, BookOpen, ShieldCheck, Flame,
+  FileText, School, UserCheck, Clock, ExternalLink
 } from 'lucide-react'
 
 export const ARTICLE_CONTENTS: Record<string, React.ReactNode> = {
@@ -485,6 +486,268 @@ export const ARTICLE_CONTENTS: Record<string, React.ReactNode> = {
         </div>
         <Link href="/career/content-creator" className="btn-brand-primary px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap">
           Daftar Content Creator <ArrowRight size={13} className="inline ml-1" />
+        </Link>
+      </div>
+    </>
+  ),
+
+  // ==========================================
+  // 9. CARA DAFTAR SNBP 2026 (VIRAL GSC SURGE +490%)
+  // ==========================================
+  'cara-daftar-snbp': (
+    <>
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100/90 text-amber-900 text-xs font-black mb-2">
+        <Flame size={14} className="text-amber-600 fill-amber-500 animate-pulse" />
+        Panduan Resmi BPPP SNPMB 2026 Terlengkap
+      </div>
+
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-2">
+        1. Alur Resmi &amp; Timeline Seleksi SNBP 2026
+      </h2>
+      <p>
+        <strong>SNBP (Seleksi Nasional Berdasarkan Prestasi)</strong> adalah jalur seleksi nasional masuk Perguruan Tinggi Negeri (PTN) tanpa tes tulis berbasis rekam jejak nilai rapor dan prestasi unggul. Proses pendaftaran SNBP dilakukan secara terpusat melalui portal resmi <strong>SNPMB BPPP Kemendikbudristek</strong>.
+      </p>
+
+      {/* Official Infographic Visual */}
+      <figure className="my-6">
+        <Image
+          src="/images/jadwal/timeline-snbp-2026-seleksi-nasional-prestasi.webp"
+          alt="Timeline dan Alur Cara Daftar SNBP 2026 Resmi BPPP SNPMB Kemdikbud"
+          width={1200}
+          height={675}
+          className="w-full h-auto rounded-2xl border border-amber-200 shadow-lg"
+          priority
+        />
+        <figcaption className="text-center text-xs text-gray-500 font-semibold mt-2.5">
+          Infografis Timeline &amp; Alur Resmi Pendaftaran SNBP 2026 — Divalidasi oleh Tim Riset Akademik otwptn.com
+        </figcaption>
+      </figure>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 not-prose my-6">
+        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200">
+          <Clock size={18} className="text-amber-800 mb-1.5" />
+          <h4 className="text-xs font-bold text-gray-900">Registrasi Akun Siswa</h4>
+          <p className="text-[11px] text-gray-600 mt-0.5">Awal Januari s.d. Pertengahan Februari 2026</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200">
+          <FileText size={18} className="text-amber-800 mb-1.5" />
+          <h4 className="text-xs font-bold text-gray-900">Pendaftaran Resmi SNBP</h4>
+          <p className="text-[11px] text-gray-600 mt-0.5">Pertengahan s.d. Akhir Februari 2026</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200">
+          <Award size={18} className="text-emerald-800 mb-1.5" />
+          <h4 className="text-xs font-bold text-gray-900">Pengumuman Kelulusan</h4>
+          <p className="text-[11px] text-gray-600 mt-0.5">Akhir Maret 2026 (Pukul 15.00 WIB)</p>
+        </div>
+      </div>
+
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        2. Syarat Kuota Siswa Eligible SNBP Berdasarkan Akreditasi Sekolah
+      </h2>
+      <p>
+        Tidak semua siswa kelas 12 dapat mendaftar SNBP. Hanya siswa yang masuk dalam <strong>kuota siswa eligible</strong> yang berhak melakukan pendaftaran prodi di portal SNBP. Kuota eligible ditentukan secara proporsional berdasarkan akreditasi sekolah asal:
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 not-prose my-6">
+        <div className="p-5 rounded-2xl bg-white border-2 border-amber-400 shadow-sm relative overflow-hidden">
+          <span className="absolute top-0 right-0 bg-amber-400 text-gray-950 text-[10px] font-black px-2.5 py-0.5 rounded-bl-lg">TOP TIER</span>
+          <h4 className="text-base font-black text-gray-900">Akreditasi A</h4>
+          <div className="text-2xl font-black text-amber-700 my-1">40%</div>
+          <p className="text-xs text-gray-600 leading-relaxed">
+            Siswa terbaik di jurusannya (IPA/IPS/Bahasa/Kejuruan) berdasarkan ranking akumulasi rapor semester 1 s.d. 5.
+          </p>
+        </div>
+        <div className="p-5 rounded-2xl bg-white border border-gray-200 shadow-sm">
+          <h4 className="text-base font-black text-gray-900">Akreditasi B</h4>
+          <div className="text-2xl font-black text-gray-700 my-1">25%</div>
+          <p className="text-xs text-gray-600 leading-relaxed">
+            Siswa terbaik di sekolah dengan kuota seperempat total siswa angkatan per jurusan peminatan.
+          </p>
+        </div>
+        <div className="p-5 rounded-2xl bg-white border border-gray-200 shadow-sm">
+          <h4 className="text-base font-black text-gray-900">Akreditasi C &amp; Lainnya</h4>
+          <div className="text-2xl font-black text-gray-500 my-1">5%</div>
+          <p className="text-xs text-gray-600 leading-relaxed">
+            Siswa terbaik peringkat teratas yang ditetapkan oleh pihak sekolah.
+          </p>
+        </div>
+      </div>
+
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        3. Langkah Step-by-Step Cara Daftar SNBP 2026 di Portal SNPMB
+      </h2>
+      <p>
+        Berikut adalah panduan teknis langkah demi langkah pendaftaran SNBP di portal resmi <code>portal-snpmb.bppp.kemdikbud.go.id</code>:
+      </p>
+
+      <div className="space-y-4 not-prose my-6">
+        <div className="p-5 rounded-2xl bg-white border border-gray-200 shadow-2xs flex gap-4">
+          <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-900 font-black flex items-center justify-center flex-shrink-0 text-sm">1</div>
+          <div>
+            <h4 className="text-sm font-black text-gray-900 mb-1">Registrasi &amp; Simpan Permanen Akun SNPMB Siswa</h4>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Buka situs resmi SNPMB, pilih menu <strong>Daftar Akun Siswa</strong>, masukkan kombinasi <strong>NISN, NPSN, dan tanggal lahir</strong> sesuai data Dapodik/EMIS. Lakukan aktivasi via tautan email, unggah pasfoto formal terbaru (background polos), lalu lakukan <strong>Simpan Permanen Akun</strong> sebelum batas tenggat.
+            </p>
+          </div>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-white border border-gray-200 shadow-2xs flex gap-4">
+          <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-900 font-black flex items-center justify-center flex-shrink-0 text-sm">2</div>
+          <div>
+            <h4 className="text-sm font-black text-gray-900 mb-1">Login ke Portal SNBP &amp; Validasi Data Rapor PDSS</h4>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Setelah sekolah menyelesaikan finalisasi PDSS (Pangkalan Data Sekolah dan Siswa), login ke portal SNBP menggunakan email dan password terdaftar. Periksa kesesuaian nilai rapor semester 1 s.d. 5. Jika ada selisih nilai, segera laporkan ke pihak kurikulum/BK sekolah sebelum finalisasi.
+            </p>
+          </div>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-white border border-gray-200 shadow-2xs flex gap-4">
+          <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-900 font-black flex items-center justify-center flex-shrink-0 text-sm">3</div>
+          <div>
+            <h4 className="text-sm font-black text-gray-900 mb-1">Pemilihan Program Studi &amp; PTN (Aturan Domisili Provinsi)</h4>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Setiap siswa berhak memilih <strong>maksimal 2 program studi</strong> dari 1 PTN atau 2 PTN berbeda. <em>PENTING:</em> Jika kamu memilih 2 prodi, <strong>salah satu PTN WAJIB berada di provinsi yang sama dengan sekolah asalmu</strong>. Jika hanya memilih 1 prodi, kamu bebas memilih PTN di provinsi mana saja di seluruh Indonesia.
+            </p>
+          </div>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-white border border-gray-200 shadow-2xs flex gap-4">
+          <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-900 font-black flex items-center justify-center flex-shrink-0 text-sm">4</div>
+          <div>
+            <h4 className="text-sm font-black text-gray-900 mb-1">Unggah Portofolio Khusus &amp; Maksimal 3 Sertifikat Prestasi</h4>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Bagi peminat program studi bidang <strong>Seni dan Olahraga</strong>, wajib mengunggah dokumen &amp; video portofolio sesuai format template resmi BPPP. Selain itu, seluruh peserta dapat mengunggah <strong>maksimal 3 sertifikat prestasi terbaik</strong> (Puspresnas, OSN, O2SN, FLS2N, atau kejuaraan bereputasi lainnya) dengan melampirkan bukti piagam sah.
+            </p>
+          </div>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-white border border-gray-200 shadow-2xs flex gap-4">
+          <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-900 font-black flex items-center justify-center flex-shrink-0 text-sm">5</div>
+          <div>
+            <h4 className="text-sm font-black text-gray-900 mb-1">Finalisasi Simpan Permanen &amp; Cetak Kartu Peserta SNBP</h4>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Cek kembali seluruh data prodi pilihan dan berkas lampiran. Klik <strong>Simpan Permanen</strong>. Ingat: data yang sudah difinalisasi <strong>tidak dapat diubah kembali dengan alasan apapun</strong>. Unduh dan cetak <strong>Kartu Tanda Peserta SNBP</strong> sebagai bukti sah pendaftaran.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Critical Warning Alert */}
+      <div className="card p-5 rounded-2xl bg-rose-50 border-2 border-rose-300 my-6">
+        <h4 className="text-sm font-black text-rose-950 flex items-center gap-2 mb-1.5">
+          <AlertTriangle size={18} className="text-rose-600 flex-shrink-0" /> Peringatan Krusial Konsekuensi Kelulusan SNBP:
+        </h4>
+        <p className="text-xs text-rose-900 leading-relaxed">
+          Sesuai Permendikbudristek terbaru, siswa yang dinyatakan <strong>LOLOS SNBP 2026 TIDAK DAPAT MENDAFTAR UTBK-SNBT 2026</strong> dan secara sistemik <strong>DIBLOKIR dari seluruh Jalur Seleksi Mandiri di PTN mana pun se-Indonesia</strong>. Oleh karena itu, jangan pernah memilih program studi &ldquo;asal coba-coba&rdquo; jika kamu tidak bersedia mengambilnya saat diterima!
+        </p>
+      </div>
+
+      {/* Interactive Tool Lead Magnet */}
+      <div className="card p-6 md:p-8 rounded-3xl bg-gradient-to-br from-amber-500 to-amber-600 text-white my-8 shadow-xl">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="text-center md:text-left">
+            <span className="text-[11px] font-black uppercase tracking-wider bg-white/20 px-3 py-1 rounded-full inline-block mb-2">
+              Fitur AI Unggulan otwptn
+            </span>
+            <h3 className="text-xl md:text-2xl font-black text-white leading-tight">
+              Hitung Peluang Lolos SNBP 2026 Kamu Sekarang!
+            </h3>
+            <p className="text-xs md:text-sm text-amber-100 mt-2 max-w-xl">
+              Jangan tebak-tebak buah manggis. Masukkan nilai rapor semester 1-5 dan sertifikatmu, algoritma AI otwptn langsung merasionalisasi peluangmu terhadap kuota prodi dan rekam jejak alumni sekolahmu.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0 w-full md:w-auto">
+            <Link
+              href="/dashboard/kalkulator"
+              className="btn bg-gray-950 hover:bg-black text-white px-6 py-3 rounded-full text-xs md:text-sm font-black text-center shadow-lg hover:scale-105 transition-transform"
+            >
+              Cek Peluang Gratis <ArrowRight size={14} className="inline ml-1" />
+            </Link>
+            <Link
+              href="/dashboard/essay"
+              className="btn bg-white hover:bg-amber-50 text-gray-900 px-5 py-3 rounded-full text-xs md:text-sm font-bold text-center"
+            >
+              Review Portofolio
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        4. Strategi Memilih Jurusan Agar Tidak Bertabrakan dengan Teman Satu Sekolah
+      </h2>
+      <p>
+        Banyak siswa yang memiliki nilai rapor tinggi justru gugur di SNBP karena <strong>memilih jurusan yang sama dengan teman seangkatan yang memiliki nilai lebih unggul atau indeks sertifikat lebih tinggi</strong>. PTN umumnya membatasi alokasi penerimaan dari satu sekolah tertentu untuk menjaga diversitas asal daerah.
+      </p>
+      <p>
+        Lakukan pemetaan internal bersama guru BK, gunakan fitur <strong>Tracking Jalur &amp; Rapor Profil otwptn</strong>, dan pilih kombinasi prodi prioritas yang memiliki peluang kelolosan paling maksimal.
+      </p>
+    </>
+  ),
+
+  // ==========================================
+  // 10. SYARAT SNBP 2026
+  // ==========================================
+  'syarat-snbp': (
+    <>
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        1. Ketentuan Umum &amp; Persyaratan Peserta SNBP 2026
+      </h2>
+      <p>
+        Seleksi Nasional Berdasarkan Prestasi (SNBP) menetapkan syarat kualifikasi ketat bagi siswa maupun sekolah. Kriteria ini dirancang agar penerimaan mahasiswa baru jalur prestasi berlangsung adil, transparan, dan terstandarisasi secara nasional.
+      </p>
+
+      {/* Infographic Visual */}
+      <figure className="my-6">
+        <Image
+          src="/images/jadwal/timeline-snbp-2026-seleksi-nasional-prestasi.webp"
+          alt="Syarat dan Timeline Lengkap SNBP 2026 Resmi BPPP Kemendikbud"
+          width={1200}
+          height={675}
+          className="w-full h-auto rounded-2xl border border-amber-200 shadow-md"
+        />
+        <figcaption className="text-center text-xs text-gray-500 font-semibold mt-2">
+          Ketentuan Resmi Seleksi Siswa Eligible &amp; Registrasi SNBP 2026
+        </figcaption>
+      </figure>
+
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        2. Syarat Wajib Siswa Pendaftar SNBP 2026
+      </h2>
+      <ul className="space-y-3 list-disc list-inside text-sm text-gray-700">
+        <li><strong>Siswa SMA/MA/SMK Kelas 12 (Angkatan 2026):</strong> Memiliki prestasi akademik unggul dan masuk kuota pemeringkatan sekolah.</li>
+        <li><strong>Memiliki NISN Aktif:</strong> Terdaftar resmi dan valid di basis data Dapodik (Kemendikbud) atau EMIS (Kemenag).</li>
+        <li><strong>Nilai Rapor Lengkap di PDSS:</strong> Seluruh nilai rapor semester 1 sampai 5 telah diisi dan disahkan secara final oleh sekolah di sistem PDSS.</li>
+        <li><strong>Memiliki Akun SNPMB Siswa:</strong> Telah membuat dan menyelesaikan simpan permanen akun SNPMB pada periode registrasi akun.</li>
+        <li><strong>Portofolio Resmi:</strong> Khusus pemilih program studi bidang Seni rupa/desain, Musik, Tari, Teater, Perfilman, Fotografi, dan Olahraga.</li>
+      </ul>
+
+      <h2 className="text-xl md:text-2xl font-black text-gray-900 pt-4">
+        3. Komponen Nilai &amp; Pembobotan Mata Pelajaran Pendukung
+      </h2>
+      <p>
+        Penilaian SNBP tidak lagi hanya menghitung nilai rata-rata umum seluruh mata pelajaran. Kemendikbudristek menetapkan dua komponen penilaian:
+      </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose my-6">
+        <div className="p-5 rounded-2xl bg-amber-50/80 border border-amber-200">
+          <span className="text-xs font-black text-amber-900 uppercase">Komponen 1 (Min. 50%)</span>
+          <h4 className="text-sm font-bold text-gray-900 my-1">Rata-Rata Seluruh Mata Pelajaran</h4>
+          <p className="text-xs text-gray-600">Menghargai konsistensi dan ketekunan belajar siswa di semua bidang studi semester 1 s.d. 5.</p>
+        </div>
+        <div className="p-5 rounded-2xl bg-amber-50/80 border border-amber-200">
+          <span className="text-xs font-black text-amber-900 uppercase">Komponen 2 (Maks. 50%)</span>
+          <h4 className="text-sm font-bold text-gray-900 my-1">Mapel Pendukung &amp; Sertifikat Prestasi</h4>
+          <p className="text-xs text-gray-600">Fokus pada 2 mata pelajaran yang relevan dengan program studi pilihan serta maksimal 3 sertifikat kejuaraan.</p>
+        </div>
+      </div>
+
+      <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 my-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h4 className="text-sm font-black text-gray-900">Ingin Tahu Mapel Pendukung Jurusan Pilihanmu?</h4>
+          <p className="text-xs text-gray-600">Gunakan fitur Direktori Jalur &amp; Kalkulator Peluang otwptn untuk mencocokkan nilaimu.</p>
+        </div>
+        <Link href="/dashboard/kalkulator" className="btn-brand-primary px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap">
+          Cek Mapel Pendukung <ArrowRight size={13} className="inline ml-1" />
         </Link>
       </div>
     </>

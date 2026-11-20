@@ -12,6 +12,7 @@ export interface Article {
   }
   featured?: boolean
   tags: string[]
+  faqs?: { q: string; a: string }[]
 }
 
 export const ARTICLES: Article[] = [
@@ -259,21 +260,58 @@ export const ARTICLES: Article[] = [
       role: 'Mentor Senior Jalur Prestasi UI',
       avatar: '/ptn-logos/ui.png',
     },
-    tags: ['Syarat SNBP', 'Siswa Eligible', 'Akreditasi Sekolah', 'Aturan SNBP'],
+    tags: ['Syarat SNBP', 'Siswa Eligible', 'Kuota Eligible Akreditasi A', 'Akreditasi Sekolah', 'Aturan SNBP 2026', 'Mapel Pendukung SNBP'],
+    faqs: [
+      {
+        q: 'Apa saja syarat utama siswa agar bisa mendaftar SNBP 2026?',
+        a: 'Syarat utama pendaftaran SNBP 2026 meliputi: (1) Siswa SMA/MA/SMK kelas terakhir (lulusan tahun 2026) dengan prestasi unggul; (2) Memiliki NISN aktif dan terdaftar di Dapodik/EMIS; (3) Memiliki nilai rapor semester 1 s.d. 5 yang telah difinalisasi di PDSS oleh sekolah; (4) Masuk kuota siswa eligible sekolah; (5) Memiliki akun SNPMB Siswa yang sudah disimpan permanen; (6) Mengunggah portofolio resmi bagi pemilih prodi seni atau olahraga.',
+      },
+      {
+        q: 'Bagaimana kriteria pemeringkatan siswa eligible oleh sekolah?',
+        a: 'Pemeringkatan siswa eligible dilakukan oleh pihak sekolah dengan memperhitungkan nilai rata-rata semua mata pelajaran semester 1 sampai 5. Jika terdapat nilai yang sama, sekolah berhak menambahkan kriteria kualifikasi lain berupa prestasi lomba akademik maupun non-akademik yang terverifikasi.',
+      },
+    ],
   },
   {
     slug: 'cara-daftar-snbp',
-    title: 'Cara Daftar SNBP 2026: Panduan Step-by-Step Registrasi Akun SNPMB Hingga Finalisasi',
-    excerpt: 'Tutorial lengkap pendaftaran SNBP melalui portal SNPMB: pembuatan akun, verifikasi data PDSS, pemilihan 2 program studi, upload berkas prestasi, dan pencetakan kartu tanda peserta.',
+    title: 'Cara Daftar SNBP 2026: Panduan Alur Resmi Portal SNPMB, Kuota Eligible & Tips Lolos',
+    excerpt: 'Panduan lengkap cara daftar SNBP 2026 di portal resmi SNPMB: alur registrasi akun siswa, syarat kuota eligible (akreditasi A 40%, B 25%), pemilihan prodi, upload 3 sertifikat prestasi, hingga simpan permanen.',
     category: 'SNBP',
     readTime: '7 menit baca',
-    date: '27 Oktober 2026',
+    date: '20 November 2026',
     author: {
       name: 'Kak Nabila FK UI',
       role: 'Mentor Bimbingan SNPMB',
       avatar: '/ptn-logos/ui.png',
     },
-    tags: ['Cara Daftar SNBP', 'Portal SNPMB', 'Finalisasi SNBP', 'Pilihan Prodi'],
+    featured: true,
+    tags: ['Cara Daftar SNBP', 'Pendaftaran SNBP', 'SNBP 2026', 'Alur SNBP', 'Daftar Akun SNBP', 'Kuota Eligible Akreditasi A', 'Portal SNPMB', 'Finalisasi SNBP', 'Syarat SNBP'],
+    faqs: [
+      {
+        q: 'Bagaimana alur dan cara daftar SNBP 2026 di portal resmi SNPMB?',
+        a: 'Alur resmi pendaftaran SNBP 2026 terdiri dari: (1) Registrasi Akun SNPMB Siswa dengan NISN, NPSN, dan tanggal lahir di portal-snpmb.bppp.kemdikbud.go.id; (2) Verifikasi email dan simpan permanen akun SNPMB; (3) Penetapan siswa eligible oleh sekolah sesuai kuota akreditasi; (4) Pengisian dan finalisasi nilai PDSS oleh sekolah; (5) Login siswa ke portal SNBP untuk memilih maksimal 2 program studi; (6) Pengunggahan portofolio seni/olahraga (jika ada) dan maksimal 3 sertifikat prestasi; (7) Finalisasi simpan permanen dan pencetakan Kartu Tanda Peserta SNBP.',
+      },
+      {
+        q: 'Berapa persen kuota siswa eligible SNBP untuk akreditasi A, B, dan C?',
+        a: 'Berdasarkan regulasi resmi BPPP SNPMB: Sekolah dengan Akreditasi A berhak mendaftarkan 40% siswa terbaik di jurusannya, Akreditasi B berhak mendaftarkan 25% siswa terbaik, dan Akreditasi C serta lainnya berhak mendaftarkan 5% siswa terbaik berdasarkan nilai rapor semester 1 s.d. 5.',
+      },
+      {
+        q: 'Apakah siswa yang lolos SNBP 2026 boleh ikut UTBK-SNBT atau Seleksi Mandiri?',
+        a: 'TIDAK BOLEH. Siswa yang dinyatakan lulus seleksi SNBP 2026 secara otomatis diblokir sistem untuk mendaftar UTBK-SNBT 2026 maupun Jalur Mandiri di seluruh PTN se-Indonesia. Pastikan kamu hanya memilih jurusan yang 100% siap kamu ambil.',
+      },
+      {
+        q: 'Berapa sertifikat prestasi maksimal yang bisa diunggah pada pendaftaran SNBP?',
+        a: 'Setiap siswa diperbolehkan mengunggah MAKSIMAL 3 SERTIFIKAT PRESTASI terbaik (tingkat internasional, nasional, provinsi, atau kabupaten/kota dari lembaga kredibel seperti Puspresnas Kemendikbudristek). Pilihlah sertifikat yang paling linear dan relevan dengan program studi yang kamu pilih.',
+      },
+      {
+        q: 'Apa aturan pemilihan program studi dan PTN pada SNBP 2026?',
+        a: 'Siswa dapat memilih maksimal 2 program studi dari satu PTN atau dua PTN berbeda. Jika memilih dua program studi, salah satu program studi WAJIB berada di PTN pada provinsi yang sama dengan SMA/SMK/MA asal sekolahmu. Jika hanya memilih satu program studi, bebas memilih PTN di provinsi mana pun di Indonesia.',
+      },
+      {
+        q: 'Kapan jadwal pembuatan akun SNPMB dan pendaftaran SNBP 2026 dibuka?',
+        a: 'Registrasi Akun SNPMB Siswa dijadwalkan dibuka mulai awal Januari 2026 hingga pertengahan Februari 2026. Pendaftaran resmi SNBP dibuka pada pertengahan Februari 2026 dan pengumuman hasil kelulusan diumumkan pada akhir Maret 2026.',
+      },
+    ],
   },
   {
     slug: 'cara-hitung-peluang-masuk-ptn-tanpa-tes',
