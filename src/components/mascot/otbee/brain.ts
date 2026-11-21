@@ -6,6 +6,7 @@ export type BrainEvent =
   | { type: 'success' | 'error' | 'info'; text?: string }
   | { type: 'say'; text: string; ms?: number }
   | { type: 'act'; clip: ClipName; view?: ViewName; text?: string }
+  | { type: 'attack-target'; el: HTMLElement; text: string; ms?: number }
   | { type: 'nav-start' | 'nav-end' }
   | { type: 'cs-chat-open' }
   | { type: 'cs-chat-close' }

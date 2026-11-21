@@ -19,7 +19,7 @@ import {
   FileCheck2, Wand2
 } from 'lucide-react'
 import MascotLoading from '@/components/ui/MascotLoading'
-import { OtbeeAvatar } from '@/components/mascot/otbee'
+import { OtbeeAvatar, otbeeBrain } from '@/components/mascot/otbee'
 import { useOtbeeMascot } from '@/components/mascot/OtbeeMascotContext'
 
 interface Issue {
@@ -141,17 +141,6 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  // Interactive Angry Otbee Mascot Popover
-  const [otbeeAngryPopup, setOtbeeAngryPopup] = useState<{
-    open: boolean
-    issueIndex: number
-    rant: string
-    quote: string
-    problem?: string
-    suggestion?: string
-    category: string
-  } | null>(null)
 
   const handleExportTxt = () => {
     if (!editor) return
@@ -323,7 +312,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
     return () => clearInterval(timer)
   }, [save])
 
-  // Trigger Angry Otbee Popover and Mascot Action
+  // Trigger Wandering Mascot to jump onto sentence and attack it with speech bubble
   const triggerAngryOtbee = useCallback((issue: Issue, index: number) => {
     setActiveIssueIndex(index)
     setSidebarOpen(true)
@@ -331,31 +320,32 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
 
     const rantText = issue.otbeeRant || (
       issue.category === 'structure'
-        ? 'Woyyy kalimat pembuka ini klise banget woy! Panitia seleksi baca 10.000 esai tiap tahun, kalau gaya surat izin gini kamu auto-skip woy!'
+        ? 'Kalimat pembuka ini klise banget! Panitia seleksi baca ribuan esai tiap tahun, kalau gaya surat izin dinas gini auto-skip woy!'
         : issue.category === 'argument'
-        ? 'Woyy mana bukti prestasimu?! Jangan cuma ngomong berminat doang, cantumin nama proyek & dampak angkanya woy!'
+        ? 'Mana bukti prestasimu?! Jangan cuma ngomong berminat doang tapi nol karya nyata! Cantumin nama proyek & dampak angkanya woy!'
         : issue.category === 'language'
-        ? 'Woyy metaforanya lebay banget buset dah! Bikin kalimat yang lugas dan sesuai kaidah PUEBI resmi woy!'
-        : 'Woyy alurnya lompat-lompat woy! Kasih kata penghubung biar enak dibaca kurator kampus!'
+        ? 'Metaforanya lebay banget buset dah! Bikin kalimat yang lugas dan sesuai kaidah PUEBI resmi woy!'
+        : 'Alur narasinya lompat-lompat woy! Kasih kata penghubung biar enak dibaca kurator kampus!'
     )
 
-    setOtbeeAngryPopup({
-      open: true,
-      issueIndex: index,
-      rant: rantText,
-      quote: issue.quote,
-      problem: issue.problem || issue.comment,
-      suggestion: issue.suggestion,
-      category: issue.category,
-    })
-
-    // Trigger mascot animation if available
-    try {
-      mascotAct?.('angry', { text: `Woyy revisi woy!! ${rantText.slice(0, 75)}...` })
-    } catch {
-      // safe fallback
+    const el = editorRef.current?.querySelector(`[data-comment-id="ai-${index}"]`) as HTMLElement | null
+    if (el) {
+      el.classList.add('ai-mark-flash')
+      setTimeout(() => el.classList.remove('ai-mark-flash'), 1200)
+      otbeeBrain.emit({
+        type: 'attack-target',
+        el,
+        text: rantText,
+        ms: 9000,
+      })
+    } else {
+      otbeeBrain.emit({
+        type: 'act',
+        clip: 'angry',
+        text: `Woyyy revisi woy!! ${rantText}`,
+      })
     }
-  }, [mascotAct])
+  }, [])
 
   // Click on highlighted text inside editor -> Focus AI issue card & trigger Otbee reaction
   useEffect(() => {
@@ -457,7 +447,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
     if (from !== -1) {
       editor.chain().focus().setTextSelection({ from, to }).insertContent(suggestion).run()
       save(true)
-      setOtbeeAngryPopup(null)
+      otbeeBrain.emit({ type: 'act', clip: 'cheer', text: 'Nah mantap! Kalimatnya jadi jauh lebih berbobot!' })
     }
   }
 
@@ -934,82 +924,6 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
               <span className="text-[11px] font-mono font-bold text-slate-700">{wordCount} Kata</span>
             </div>
           </div>
-
-          {/* FLOATING ANGRY OTBEE POPOVER OVER EDITOR */}
-          {otbeeAngryPopup && otbeeAngryPopup.open && (
-            <div className="fixed bottom-6 left-6 md:left-72 z-50 max-w-md w-[calc(100vw-3rem)] bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-amber-500/5 backdrop-blur-xl border-2 border-rose-500/80 rounded-3xl p-5 shadow-2xl animate-in zoom-in-95 duration-200 text-slate-900 dark:text-white">
-              <div className="flex items-start gap-4">
-                {/* Angry Otbee Avatar Animation */}
-                <div className="flex-shrink-0 flex flex-col items-center">
-                  <div className="w-16 h-16 rounded-2xl bg-amber-400/20 border border-amber-400/50 flex items-center justify-center overflow-hidden shadow-inner">
-                    <OtbeeAvatar action="angry" view="front" size={68} />
-                  </div>
-                  <span className="text-[9px] font-black uppercase tracking-wider text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-0.5">
-                    <Flame size={10} /> Emosi!
-                  </span>
-                </div>
-
-                {/* Speech Bubble Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-black uppercase tracking-wider text-rose-600 dark:text-rose-400">
-                        🔥 Otbee Marah-Marah!
-                      </span>
-                      <span className="text-[10px] px-2 py-0.2 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">
-                        {CATEGORY_LABEL[otbeeAngryPopup.category] || otbeeAngryPopup.category}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => setOtbeeAngryPopup(null)}
-                      className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                    >
-                      <X size={15} />
-                    </button>
-                  </div>
-
-                  {/* Comic Dialogue */}
-                  <div className="bg-white/90 dark:bg-[#1c1e27]/90 border border-rose-200 dark:border-rose-900/50 rounded-2xl p-3 shadow-xs">
-                    <p className="text-xs font-black text-rose-700 dark:text-rose-300 leading-snug">
-                      &quot;{otbeeAngryPopup.rant}&quot;
-                    </p>
-
-                    {/* Quoted weak sentence */}
-                    <p className="text-[11px] italic text-slate-600 dark:text-slate-400 mt-2 border-l-2 border-rose-400 pl-2">
-                      &ldquo;{otbeeAngryPopup.quote}&rdquo;
-                    </p>
-
-                    {/* Problem */}
-                    {otbeeAngryPopup.problem && (
-                      <p className="text-[11px] text-slate-700 dark:text-slate-300 mt-1.5 font-medium leading-relaxed">
-                        <strong>Masalah:</strong> {otbeeAngryPopup.problem}
-                      </p>
-                    )}
-
-                    {/* Suggested Replacement */}
-                    {otbeeAngryPopup.suggestion && (
-                      <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-800">
-                        <p className="text-[10px] font-black uppercase text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
-                          <CheckCircle2 size={12} /> Alternatif Kalimat Kuat:
-                        </p>
-                        <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 mt-1 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 p-2 rounded-xl">
-                          &ldquo;{otbeeAngryPopup.suggestion}&rdquo;
-                        </p>
-
-                        <button
-                          onClick={() => handleReplaceSentence(otbeeAngryPopup.quote, otbeeAngryPopup.suggestion)}
-                          className="mt-2 w-full py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-[11px] flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
-                        >
-                          <Wand2 size={13} />
-                          <span>Ganti Kalimat Ini Otomatis</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* RIGHT: AI REVIEW SIDEBAR */}
@@ -1267,8 +1181,9 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                                 <button
                                   onClick={() => focusIssueInEditor(i)}
                                   className="text-[10px] font-extrabold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-0.5 cursor-pointer"
+                                  title="Maskot Otbee akan terbang ke kalimat ini, lompat-lompat dan protes keras"
                                 >
-                                  <Flame size={11} /> Tanya Otbee
+                                  <Flame size={11} /> Panggil Otbee Marah
                                 </button>
                               </div>
 

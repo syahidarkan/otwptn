@@ -956,6 +956,70 @@ export function createController(d: ControllerDeps) {
  if (settleTimer) clearTimeout(settleTimer); settleTimer = setTimeout(() => decide(false), SETTLE_MS)
  }
 
+ const attackTarget = async (el: HTMLElement, text: string, ms = 8500) => {
+   if (!el || !el.isConnected) return
+   token++
+   const tok = token
+
+   try {
+     el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+   } catch {
+     // safe
+   }
+
+   d.container.style.pointerEvents = 'auto'
+   d.container.style.opacity = '1'
+   d.pop.style.transform = 'scale(1)'
+   d.pop.style.opacity = '1'
+
+   phase = 'traveling'
+   d.setBubble(null)
+
+   await wait(240)
+   if (tok !== token) return
+
+   const r = el.getBoundingClientRect()
+   const targetX = r.left + Math.min(r.width * 0.45, 120) + window.scrollX
+   const targetY = r.top + window.scrollY - 2
+
+   const cur = anchor?.resolve() ?? pos
+   const ok = await jumpTo(tok, cur, { x: targetX, y: targetY })
+   if (!ok && tok !== token) return
+
+   anchor = {
+     kind: 'control',
+     el,
+     resolve() {
+       if (!el.isConnected) return null
+       const q = el.getBoundingClientRect()
+       return {
+         x: q.left + Math.min(q.width * 0.45, 120) + window.scrollX,
+         y: q.top + window.scrollY - 2,
+       }
+     },
+   }
+
+   phase = 'resting'
+   place({ x: targetX, y: targetY })
+   setPose(1, 0)
+
+   fx('smoke')
+   fx('exclaim')
+   act('angry', { force: true, text: `Woyyy revisi woy!! ${text}`, ms })
+
+   setTimeout(() => {
+     if (tok === token && phase === 'resting') {
+       fx('smoke')
+       act('kick', { force: true })
+       setTimeout(() => {
+         if (tok === token && phase === 'resting') {
+           act('angry', { force: true })
+         }
+       }, 650)
+     }
+   }, 850)
+ }
+
  const unsub = otbeeBrain.subscribe(e => {
  if (e.type ==='nav-start') { navStartedAt = performance.now(); despawn() }
 		else if (e.type ==='nav-end') {
@@ -970,6 +1034,7 @@ export function createController(d: ControllerDeps) {
  else if (e.type ==='info') act('nod', { text: e.text, force: true })
  else if (e.type ==='say') say(e.text, e.ms)
  else if (e.type ==='act') act(e.clip, { text: e.text, force: true })
+ else if (e.type ==='attack-target') attackTarget(e.el, e.text, e.ms)
  else if (e.type ==='cs-chat-open') {
  setPose(1, 0)
  act('wave', {

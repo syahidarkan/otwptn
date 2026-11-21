@@ -311,7 +311,7 @@ export default function FloatingMascot() {
     <div
       id="otbee-floating-container"
       ref={containerRef}
-      style={{ position: 'absolute', left: 0, top: 0, zIndex: 25, willChange: 'transform', opacity: 0, pointerEvents: 'none' }}
+      style={{ position: 'absolute', left: 0, top: 0, zIndex: 45, willChange: 'transform', opacity: 0, pointerEvents: 'none' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -322,7 +322,7 @@ export default function FloatingMascot() {
           style={{
             position: 'absolute',
             left: '50%',
-            zIndex: 35,
+            zIndex: 50,
             ...(bubble?.below ? { top: '100%', marginTop: 10 } : { bottom: '100%', marginBottom: 10 }),
             transform: `translateX(calc(-50% + ${bubble?.shift ?? 0}px))`,
             background: '#ffffff',
