@@ -207,14 +207,22 @@ export class ContextAwareness {
     const labelText = (el.closest('label')?.textContent || '').toLowerCase()
     const fieldMeta = `${nameAttr} ${idAttr} ${placeholder} ${ariaLabel} ${labelText}`
 
-    // 1. Name Field
-    if (/(^|\b|_)(nama|name|fullname|full_name|username)($|\b|_)/i.test(fieldMeta)) {
+    // 0. Explicit exclusion for non-person entities (mapel, sekolah, kampus, prodi, etc.)
+    const isNonPersonEntity = /(mapel|mata_pelajaran|pelajaran|subject|sekolah|school|kampus|ptn|univ|universitas|jurusan|prodi|program_studi|prestasi|sertifikat|lomba|kejuaraan|organisasi|kegiatan|proyek|project|bank|instansi|perusahaan|judul|title)/i.test(fieldMeta)
+
+    // Mapel (Mata Pelajaran) -> strictly ignore so Otbee doesn't greet subjects as people!
+    if (/(mapel|mata_pelajaran|pelajaran|subject)/i.test(fieldMeta)) {
+      return
+    }
+
+    // 1. Student Personal Name Field (strictly requires personal name identifiers and excludes non-person entities)
+    if (!isNonPersonEntity && /(nama_lengkap|nama_siswa|full_name|fullname|student_name|user_name|username|^name$|^nama$|nama_kamu|nama_anda)/i.test(fieldMeta)) {
       if (val.length >= 2 && !val.includes('@') && !/^\d+$/.test(val)) {
         const cleanName = val.split(/\s+/)[0] // First name
         const capitalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1).toLowerCase()
         this.callbacks.setName(capitalized)
         this.callbacks.act('wave', {
-          text: `Haii nama kamu ${capitalized} ya? Salam kenal! Senang ketemu kamu 👋🐝`,
+          text: `Haii ${capitalized}! Salam kenal ya! Senang ketemu kamu 👋🐝`,
           force: true,
           ms: 5000,
         })
