@@ -1181,9 +1181,9 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
                                 <button
                                   onClick={() => focusIssueInEditor(i)}
                                   className="text-[10px] font-extrabold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-0.5 cursor-pointer"
-                                  title="Maskot Otbee akan terbang ke kalimat ini, lompat-lompat dan protes keras"
+                                  title="Lihat dan sorot kalimat ini di naskah esai"
                                 >
-                                  <Flame size={11} /> Panggil Otbee Marah
+                                  <Flame size={11} /> Lihat Bagian Revisi
                                 </button>
                               </div>
 
