@@ -187,7 +187,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Tim Riset Akademik otwptn',
       role: 'Spesialis Kebijakan SNPMB',
-      avatar: '/logo-head.webp',
+      avatar: '/avatars/avatar-7.png',
     },
     tags: ['Apa itu SNBP', 'SNBP 2026', 'SNPMB', 'Nilai Rapor', 'Seleksi Nasional'],
   },
@@ -349,7 +349,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Tim Riset Akademik otwptn',
       role: 'Data Analyst PTN Non-Tes',
-      avatar: '/logo-head.webp',
+      avatar: '/avatars/avatar-7.png',
     },
     tags: ['Kalkulator Peluang', 'Indeks Sekolah', 'Daya Tampung PTN', 'Rapor Ideal'],
   },
@@ -377,7 +377,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Tim Riset Akademik otwptn',
       role: 'Spesialis Seleksi Masuk PTN Non-Tes',
-      avatar: '/logo-head.webp',
+      avatar: '/avatars/avatar-7.png',
     },
     tags: ['Masuk PTN Tanpa Tes', 'Jalur Non-Tes PTN', 'SNBP 2026', 'Jalur Prestasi', 'Panduan Lengkap PTN'],
   },
@@ -391,7 +391,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Tim Riset Akademik otwptn',
       role: 'Spesialis Jalur Keagamaan & Prestasi',
-      avatar: '/logo-head.webp',
+      avatar: '/avatars/avatar-7.png',
     },
     tags: ['Jalur Tahfidz', 'Tahfidz Quran PTN', 'Penghafal Quran', 'Masuk PTN Tanpa Tes', 'UNAIR Golden Ticket'],
   },
@@ -419,7 +419,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Tim Riset Akademik otwptn',
       role: 'Spesialis Seleksi Masuk PTN Non-Tes',
-      avatar: '/logo-head.webp',
+      avatar: '/avatars/avatar-7.png',
     },
     tags: ['Jalur Pramuka Garuda', 'Pramuka Garuda PTN 2026', 'Jalur Prestasi Pramuka', 'SJP IPB', 'SM UNS'],
   },
@@ -465,7 +465,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Tim Produk & Komunitas otwptn',
       role: 'Pengembang Ekosistem Belajar',
-      avatar: '/logo-head.webp',
+      avatar: '/avatars/avatar-4.png',
     },
     tags: ['Otbee TV', 'Study Cam PTN', 'Study With Me', 'Video Call Belajar', 'Komunitas SNBP'],
   },
@@ -479,7 +479,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Tim Riset Akademik otwptn',
       role: 'Kurator Portofolio & Dokumen',
-      avatar: '/logo-head.webp',
+      avatar: '/avatars/avatar-7.png',
     },
     tags: ['Penyimpanan Dokumen PTN', 'Upload Sertifikat SNBP', 'Berkas PPKB UI', 'Portofolio Non-Tes'],
   },
@@ -507,7 +507,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Tim Edukasi & Gamifikasi otwptn',
       role: 'Spesialis Literasi Bahasa',
-      avatar: '/logo-head.webp',
+      avatar: '/avatars/avatar-9.png',
     },
     tags: ['Game Belajar PTN', 'Kata Baku Online', 'Latihan Literasi Bahasa', 'Game Edukasi PTN'],
   },
@@ -539,7 +539,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Tim People & Partnership otwptn',
       role: 'Koordinator Program Pelajar',
-      avatar: '/logo-head.webp',
+      avatar: '/avatars/avatar-10.png',
     },
     tags: ['Student Ambassador OtwPTN', 'Duta Pelajar SMA', 'Program Ambassador Pendidikan', 'Portofolio Kepemimpinan'],
   },
@@ -553,7 +553,7 @@ export const ARTICLES: Article[] = [
     author: {
       name: 'Tim Creative & Marketing otwptn',
       role: 'Lead Creator Partnership',
-      avatar: '/logo-head.webp',
+      avatar: '/avatars/avatar-5.png',
     },
     tags: ['Content Creator OtwPTN', 'Lowongan Creator TikTok', 'Kerja Remote Pelajar Mahasiswa', 'Creator Edukasi'],
   },

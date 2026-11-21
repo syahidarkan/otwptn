@@ -294,6 +294,13 @@ export default function FloatingMascot() {
 
   const first = useRef(true)
   useEffect(() => {
+    pathRef.current = pathname ?? '/'
+    if ((pathname ?? '/') === '/' && (typeof window === 'undefined' || window.scrollY < 260)) {
+      isDockedRef.current = true
+      setIsDockedAtHero(true)
+      progressValRef.current = 0
+      setGrowthProgress(0)
+    }
     if (first.current) { first.current = false; return }
     ctl.current?.onPathChange()
   }, [pathname])

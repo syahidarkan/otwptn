@@ -749,6 +749,9 @@ export default function KomunitasPage() {
                                   )}
                                   <span className="text-xs font-bold text-gray-900">{author}</span>
                                   <span className="text-[10px] text-gray-400">{handle}</span>
+                                  <span className="text-[9px] font-bold text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <Target size={9} /> {r.profiles?.target_ptns?.[0] || 'Pejuang PTN'}
+                                  </span>
                                 </div>
                                 <span className="text-[10px] text-gray-400">{timeStr}</span>
                               </div>
@@ -1021,8 +1024,8 @@ export default function KomunitasPage() {
                         {!msg.isMe && (
                           <div className="flex items-center gap-2">
                             <span className="text-[11px] font-black text-gray-900">{msg.sender}</span>
-                            <span className="text-[9px] font-bold text-amber-800 bg-amber-100/70 px-2 py-0.2 rounded-full">
-                              {msg.ptn}
+                            <span className="text-[9px] font-bold text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <Target size={9} /> {msg.ptn}
                             </span>
                           </div>
                         )}

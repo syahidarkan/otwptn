@@ -142,7 +142,11 @@ export default async function ArtikelPage({
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center p-0.5 overflow-hidden flex-shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={article.author.avatar} alt="" className="w-full h-full object-contain" />
+                      <img
+                        src={article.author.avatar}
+                        alt=""
+                        className={`w-full h-full ${article.author.avatar.includes('/ptn-logos/') ? 'object-contain p-0.5' : 'object-cover'}`}
+                      />
                     </div>
                     <div>
                       <p className="text-xs font-bold text-gray-900 leading-none">{article.author.name}</p>

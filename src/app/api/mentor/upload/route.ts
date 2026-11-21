@@ -41,9 +41,32 @@ export async function POST(request: Request) {
     const supabase = createServiceClient()
     const bucketName = 'uploads'
 
-    const { error: uploadError } = await supabase.storage
+    // Ensure bucket exists
+    const { data: buckets } = await supabase.storage.listBuckets().catch(() => ({ data: null }))
+    const hasBucket = (buckets ?? []).some(b => b.name === bucketName)
+    if (!hasBucket) {
+      await supabase.storage.createBucket(bucketName, { public: true }).catch(() => {})
+    }
+
+    let { error: uploadError } = await supabase.storage
       .from(bucketName)
-      .upload(path, bytes, { contentType: file.type || 'application/octet-stream', upsert: false })
+      .upload(path, bytes, { contentType: file.type || 'application/octet-stream', upsert: true })
+
+    let activeBucket = bucketName
+
+    if (uploadError) {
+      // Fallback: try payment-proofs or avatars bucket
+      for (const fallback of ['payment-proofs', 'avatars']) {
+        const { error: fbErr } = await supabase.storage
+          .from(fallback)
+          .upload(path, bytes, { contentType: file.type || 'application/octet-stream', upsert: true })
+        if (!fbErr) {
+          uploadError = null
+          activeBucket = fallback
+          break
+        }
+      }
+    }
 
     if (uploadError) {
       console.error('[Mentor Upload Error]', uploadError)
@@ -51,7 +74,7 @@ export async function POST(request: Request) {
     }
 
     const { data: { publicUrl } } = supabase.storage
-      .from(bucketName)
+      .from(activeBucket)
       .getPublicUrl(path)
 
     return NextResponse.json({ url: publicUrl })

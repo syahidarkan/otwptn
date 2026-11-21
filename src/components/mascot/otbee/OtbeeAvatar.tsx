@@ -82,6 +82,7 @@ export default function OtbeeAvatar({
   useEffect(() => { cbDone.current = onClipDone })
   const facingRef = useRef<1 | -1>(facing)
   useEffect(() => { facingRef.current = facing }, [facing])
+  const pointerPosRef = useRef<{ x: number; y: number } | null>(null)
 
   // --- load geometry for the displayed view
   useEffect(() => {
@@ -171,6 +172,7 @@ export default function OtbeeAvatar({
     let lastRectCheck = 0
 
     const move = (e: PointerEvent) => {
+      pointerPosRef.current = { x: e.clientX, y: e.clientY }
       const now = performance.now()
       if (now < dizzyLockUntil) {
         mixer.setPointer(null)
@@ -272,6 +274,18 @@ export default function OtbeeAvatar({
       if (!run || pausedRef.current) return
       raf = requestAnimationFrame(frame)
       const dt = (now - prev) / 1000; prev = now
+
+      // Dynamic pointer tracking relative to moving/jumping body each frame
+      if (followPointer && pointerPosRef.current && svgRef.current) {
+        const r = svgRef.current.getBoundingClientRect()
+        if (r.width > 0 && r.height > 0) {
+          const cx = r.left + r.width / 2, cy = r.top + r.height * 0.3
+          const px = clamp((pointerPosRef.current.x - cx) / (window.innerWidth * 0.35), -1, 1) * facingRef.current
+          const py = clamp((pointerPosRef.current.y - cy) / (window.innerHeight * 0.35), -1, 1)
+          mixer.setPointer({ x: px, y: py })
+        }
+      }
+
       const P = mixer.update(dt)
       const d = dataRef.current
       if (!d) return
@@ -289,7 +303,7 @@ export default function OtbeeAvatar({
     return () => { run = false; cancelAnimationFrame(raf) }
   }, [mixer])
 
-  if (!data) return <svg ref={svgRef} width={size * 0.88} height={size} className={className} style={style} aria-hidden />
+  if (!data) return <svg ref={svgRef} width={size * 0.88} height={size} className={className} style={{ width: `${(size * 0.88).toFixed(1)}px`, height: `${size}px`, maxWidth: `${(size * 0.88).toFixed(1)}px`, maxHeight: `${size}px`, flexShrink: 0, ...style }} aria-hidden />
 
   const { w, h } = data
   const [bx0, by0, bx1, by1] = data.box ?? [0, 0, w, h]
@@ -343,6 +357,11 @@ export default function OtbeeAvatar({
       height={size}
       className={className}
       style={{
+        width: `${pxW.toFixed(1)}px`,
+        height: `${size}px`,
+        maxWidth: `${pxW.toFixed(1)}px`,
+        maxHeight: `${size}px`,
+        flexShrink: 0,
         overflow: 'visible',
         display: 'block',
         cursor: onClick ? 'pointer' : undefined,

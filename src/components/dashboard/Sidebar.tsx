@@ -93,6 +93,7 @@ export default function Sidebar() {
   const pathname = usePathname()
   const [name, setName] = useState('')
   const [school, setSchool] = useState('')
+  const [targetPTN, setTargetPTN] = useState('')
   const [tier, setTier] = useState('free')
   const [isAdmin, setIsAdmin] = useState(false)
   const [isApprovedCreator, setIsApprovedCreator] = useState(false)
@@ -220,17 +221,17 @@ export default function Sidebar() {
       if (!data.user) return
       const userMetaName = data.user.user_metadata?.full_name || data.user.user_metadata?.name
       const userEmailFallback = data.user.email?.split('@')[0]
-      supabase.from('profiles').select('full_name, tier, avatar_url, school_name, school, is_admin, role, is_active, is_creator').eq('id', data.user.id).maybeSingle().then(({ data: profile }) => {
+      supabase.from('profiles').select('full_name, tier, avatar_url, school_name, school, is_admin, role, is_active, is_creator, target_ptns').eq('id', data.user.id).maybeSingle().then(({ data: profile }) => {
         const finalName = profile?.full_name || userMetaName || userEmailFallback || 'Pejuang PTN'
         setName(finalName)
         setSchool(profile?.school_name || profile?.school || '')
+        const ptn = (profile?.target_ptns as string[] | null)?.[0] ?? ''
+        setTargetPTN(ptn)
         setTier(profile?.tier || 'free')
         setIsAdmin(!!profile?.is_admin)
-        // Admin/superadmin bypass too, matching dashboard/creator's page + API gate -
-        // otherwise AdminSwitcher's "Konten Kreator" preview lands on a page whose own
-        // sidebar doesn't show the link that got them there.
-        const isStaffAdmin = !!profile?.is_admin || profile?.role === 'superadmin' || profile?.role === 'admin'
-        setIsApprovedCreator((profile?.is_creator === true && profile?.is_active === true) || isStaffAdmin)
+        // Only active approved creators see Creator Hub menu; regular members or admins in member mode do not see it unless on the creator page
+        const isRealCreator = profile?.is_creator === true && profile?.is_active === true
+        setIsApprovedCreator(isRealCreator)
         if (profile?.avatar_url) {
           setAvatar(profile.avatar_url)
           try { localStorage.setItem('otwptn_user_avatar', profile.avatar_url) } catch {}
@@ -300,7 +301,7 @@ export default function Sidebar() {
               </p>
             )}
             {collapsed && group.category && <div className="pt-2" />}
-            {group.items.filter(item => item.id !== 'nav-creator' || isApprovedCreator).map(item => {
+            {group.items.filter(item => item.id !== 'nav-creator' || isApprovedCreator || pathname.startsWith('/dashboard/creator')).map(item => {
               const { id, label, href, icon: Icon, children } = item
               const isDirectActive = pathname === href
               const isParentActive = isDirectActive || (href !== '/dashboard' && pathname?.startsWith(href))
@@ -525,8 +526,17 @@ export default function Sidebar() {
                     </span>
                   ) : null}
                 </div>
-                <p className="text-[10px] font-semibold text-gray-400 truncate">
-                  {school || '+ Tambahkan sekolah...'}
+                <p className="text-[10px] font-semibold text-gray-400 truncate flex items-center gap-1">
+                  {targetPTN ? (
+                    <>
+                      <span className="text-amber-500 font-bold">🎯</span>
+                      <span className="truncate">{targetPTN}</span>
+                    </>
+                  ) : school ? (
+                    <span className="truncate">{school}</span>
+                  ) : (
+                    <span>+ Atur target PTN...</span>
+                  )}
                 </p>
               </div>
             </button>
@@ -644,7 +654,7 @@ export default function Sidebar() {
                   Papan peringkat
                 </Link>
 
-                {isApprovedCreator && (
+                {(isApprovedCreator || (isAdmin && pathname.startsWith('/dashboard/creator'))) && (
                   <Link
                     href="/dashboard/creator"
                     onClick={() => setProfileMenuOpen(false)}

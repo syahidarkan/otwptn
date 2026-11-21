@@ -218,24 +218,27 @@ export function createController(d: ControllerDeps) {
  let lastAnchorCheck = 0
  let cachedAnchorSpot: Spot | null = null
 
- const tick = () => {
- raf = requestAnimationFrame(tick)
- if (typeof document !== 'undefined' && document.hidden) return
- if ((phase !=='resting' && phase !=='hero-docked') || !anchor) return
+	const tick = () => {
+		raf = requestAnimationFrame(tick)
+		if (typeof document !== 'undefined' && document.hidden) return
 
- // When docked at hero, position is static in document coordinates; avoid calling getBoundingClientRect 60fps!
- if (phase ==='hero-docked') {
- if (pointerMoved && !isTouch && !isPrivacy) {
- const dxFace = pointerX + window.scrollX - pos.x
- const dead = 34 * scale()
- if (Math.abs(dxFace) > dead) {
- const want = dxFace < 0 ? -1 : 1
- if (want !== flip) setPose(want, 0)
- }
- pointerMoved = false
- }
- return
- }
+		// Continuous cursor tracking & facing even when traveling/jumping/hopping
+		if (pointerMoved && !isTouch && !isPrivacy && !isDragging) {
+			const dxFace = pointerX + window.scrollX - pos.x
+			const dead = 34 * scale()
+			if (Math.abs(dxFace) > dead) {
+				const want = dxFace < 0 ? -1 : 1
+				if (want !== flip) setPose(want, 0)
+			}
+		}
+
+		// When docked at hero, position is static in document coordinates; avoid calling getBoundingClientRect 60fps!
+		if (phase ==='hero-docked') {
+			pointerMoved = false
+			return
+		}
+
+		if (phase !== 'resting' || !anchor) return
 
  const now = performance.now()
  // Resolve anchor position at 60fps every rAF frame so when standing on moving/marquee elements, Otbee tracks buttery smooth
@@ -316,11 +319,30 @@ export function createController(d: ControllerDeps) {
  place(target)
  setPose(1, 0)
  d.container.style.pointerEvents ='auto'
- d.container.style.opacity ='1'
- phase ='hero-docked'
+		d.pop.getAnimations().forEach(a => a.cancel())
+		d.pop.style.transform = 'scale(1)'
+		d.pop.style.opacity = '1'
+		d.container.style.pointerEvents ='auto'
+		d.container.style.opacity ='1'
+		phase ='hero-docked'
  d.onDockChange?.(true)
  triggerHeroGreeting()
  }
+
+	const ensureDockAtHero = () => {
+		token++
+		let attempts = 0
+		const check = () => {
+			if (disposed || d.pathname() !== '/' || !inHeroSection(d.pathname())) return
+			const spot = document.getElementById('hero-mascot-spot')
+			if (spot) {
+				dockAtHero()
+			} else if (++attempts < 25) {
+				requestAnimationFrame(check)
+			}
+		}
+		check()
+	}
 
  const returnToHero = async () => {
  if (phase ==='hero-docked' || phase ==='returning-to-hero') return
@@ -484,7 +506,8 @@ export function createController(d: ControllerDeps) {
  phase ='hidden'
  anchor = null
  d.setBubble(null)
- d.container.style.pointerEvents ='none'
+		d.container.style.pointerEvents ='none'
+		d.container.style.opacity = '0'
  fx('smoke')
  d.pop.animate([{ transform:'scale(1)', opacity: 1 }, { transform:'scale(.15)', opacity: 0 }], { duration: 260, easing:'ease-in', fill:'forwards' })
  }
@@ -935,7 +958,13 @@ export function createController(d: ControllerDeps) {
 
  const unsub = otbeeBrain.subscribe(e => {
  if (e.type ==='nav-start') { navStartedAt = performance.now(); despawn() }
- else if (e.type ==='nav-end') spawnWhenReady(getMascotConfigForPath(d.pathname()))
+		else if (e.type ==='nav-end') {
+			if (d.pathname() === '/' && inHeroSection(d.pathname())) {
+				ensureDockAtHero()
+			} else {
+				spawnWhenReady(getMascotConfigForPath(d.pathname()))
+			}
+		}
  else if (e.type ==='success') act('cheer', { text: e.text ??'Berhasil!', force: true })
  else if (e.type ==='error') act('sad', { text: e.text ??'Waduh, ada kendala', force: true, ms: 4200 })
  else if (e.type ==='info') act('nod', { text: e.text, force: true })
@@ -1009,11 +1038,14 @@ export function createController(d: ControllerDeps) {
  }
  }, 150)
  },
- onPathChange() {
- // programmatic / back-forward navigation that never went through the honey loader
- if (performance.now() - navStartedAt > 7000) { despawn(); spawnWhenReady(getMascotConfigForPath(d.pathname())) }
- else setTimeout(() => { if (!disposed && phase ==='hidden') spawnWhenReady(getMascotConfigForPath(d.pathname())) }, 5000)
- },
+		onPathChange() {
+			if (d.pathname() === "/" && inHeroSection(d.pathname())) {
+				ensureDockAtHero()
+				return
+			}
+			despawn()
+			spawnWhenReady(getMascotConfigForPath(d.pathname()))
+		},
  undockFromHero() {
  return undockFromHero()
  },

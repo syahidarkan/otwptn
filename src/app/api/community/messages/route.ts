@@ -62,7 +62,7 @@ export async function GET(request: Request) {
     if (prof && !memberMap.has(prof.id)) {
       const ptnStr = Array.isArray(prof.target_ptns) && prof.target_ptns.length > 0
         ? prof.target_ptns[0]
-        : prof.school_name || 'Pejuang PTN'
+        : 'Pejuang PTN'
       memberMap.set(prof.id, {
         id: prof.id,
         name: prof.full_name || 'Siswa OtwPTN',
@@ -79,7 +79,7 @@ export async function GET(request: Request) {
     const prof = m.profiles
     const ptnStr = Array.isArray(prof?.target_ptns) && prof.target_ptns.length > 0
       ? prof.target_ptns[0]
-      : prof?.school_name || 'Target PTN'
+      : 'Pejuang PTN'
 
     const d = new Date(m.created_at)
     const timeStr = !isNaN(d.getTime())
@@ -185,7 +185,7 @@ export async function POST(request: Request) {
   const prof = (msg as any).profiles
   const ptnStr = Array.isArray(prof?.target_ptns) && prof.target_ptns.length > 0
     ? prof.target_ptns[0]
-    : prof?.school_name || 'Target PTN'
+    : 'Pejuang PTN'
 
   const d = new Date(msg.created_at)
   const timeStr = !isNaN(d.getTime())

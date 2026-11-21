@@ -119,7 +119,11 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-amber-50 border border-amber-200/80 p-0.5 flex items-center justify-center overflow-hidden flex-shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={article.author.avatar} alt="" className="w-full h-full object-contain" />
+                <img
+                  src={article.author.avatar}
+                  alt=""
+                  className={`w-full h-full ${article.author.avatar.includes('/ptn-logos/') ? 'object-contain p-0.5' : 'object-cover'}`}
+                />
               </div>
               <div>
                 <p className="text-xs font-bold text-gray-900 leading-none">{article.author.name}</p>
@@ -530,9 +534,13 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
         {/* Author Bio Box */}
         <div className="card p-6 rounded-3xl bg-white shadow-sm border border-gray-100 mt-8 flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
-          <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200/80 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
+          <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200/80 p-0.5 flex-shrink-0 flex items-center justify-center overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={article.author.avatar} alt="" className="w-full h-full object-contain" />
+            <img
+              src={article.author.avatar}
+              alt=""
+              className={`w-full h-full ${article.author.avatar.includes('/ptn-logos/') ? 'object-contain p-1' : 'object-cover'}`}
+            />
           </div>
           <div className="flex-1">
             <h3 className="text-sm font-black text-gray-900">{article.author.name}</h3>

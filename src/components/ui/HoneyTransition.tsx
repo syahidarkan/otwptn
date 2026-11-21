@@ -296,8 +296,16 @@ export const HoneyOverlay = forwardRef<HTMLDivElement, Props>(function HoneyOver
             transition: 'opacity 250ms ease-out, transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1)',
           }}
         >
-          <div className="relative flex flex-col items-center animate-bounce">
-            <OtbeeAvatar size={92} action="fly" />
+          <div
+            className="relative flex flex-col items-center animate-bounce"
+            style={{ width: 92, minWidth: 92, maxWidth: 92 }}
+          >
+            <OtbeeAvatar
+              size={92}
+              action="fly"
+              followPointer={true}
+              style={{ width: 92, height: 92, maxWidth: 92, maxHeight: 92, flexShrink: 0 }}
+            />
             <div className="mt-3 px-4 py-2 rounded-full bg-white/95 shadow-xl border border-amber-200/80 backdrop-blur-md">
               <p className="text-sm font-bold text-amber-950 flex items-center gap-1.5 whitespace-nowrap">
                 <span>Sebentar ya, Otbee siapin halamannya...</span>
