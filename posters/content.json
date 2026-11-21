@@ -1,0 +1,685 @@
+{
+  "site": "otwptn.com",
+  "handle": "otwptncom",
+  "brandIntro": {
+    "headline": [
+      "Masuk PTN",
+      "tanpa tes?"
+    ],
+    "headlineAccent": "Ada jalurnya.",
+    "tagline": "Masuk PTN impianmu tanpa ujian.",
+    "jalurTitle": "Satu tempat untuk semua jalur non-tes",
+    "jalur": [
+      "SNBP",
+      "PPKB UI",
+      "IUP",
+      "Mandiri prestasi"
+    ],
+    "featuresTitle": [
+      "Fitur",
+      "otwptn"
+    ],
+    "features": [
+      {
+        "icon": "route",
+        "name": "Tracking Jalur"
+      },
+      {
+        "icon": "essay",
+        "name": "Essay AI Review"
+      },
+      {
+        "icon": "percent",
+        "name": "Kalkulator Peluang"
+      },
+      {
+        "icon": "chat",
+        "name": "Otbee AI"
+      },
+      {
+        "icon": "mentor",
+        "name": "Mentor Alumni"
+      }
+    ],
+    "peekTitle": [
+      "Intip",
+      "aplikasinya!"
+    ],
+    "free": {
+      "label": "Akun Gratis",
+      "price": "0",
+      "items": [
+        "Kalkulator peluang 1x/bulan",
+        "Chat Otbee AI 3x/hari",
+        "Review essay AI 1x/bulan",
+        "Gabung circle belajar"
+      ]
+    },
+    "premium": {
+      "label": "Akun Premium",
+      "badge": "UNLOCK SEMUA",
+      "price": "29rb",
+      "items": [
+        "Kalkulator peluang unlimited",
+        "Chat Otbee AI unlimited",
+        "Review essay AI unlimited",
+        "100% modul & video e-course",
+        "Fitur atur strategi"
+      ]
+    },
+    "footerLead": "temukan kami di"
+  },
+  "socials": [
+    "ig",
+    "x",
+    "threads",
+    "tiktok"
+  ],
+  "fitur": {
+    "tracking": {
+      "name": "Tracking Jalur",
+      "title": [
+        "Semua jalur,",
+        "kepantau."
+      ],
+      "bubble": "Ikut 3 jalur, deadline-nya beda-beda? Tenang, semuanya ada di satu dashboard.",
+      "steps": [
+        {
+          "icon": "flag",
+          "t": "Pilih jalur",
+          "d": "SNBP, PPKB UI, IUP, mandiri"
+        },
+        {
+          "icon": "check",
+          "t": "Lengkapi berkas",
+          "d": "Checklist dokumen wajib tiap jalur"
+        },
+        {
+          "icon": "route",
+          "t": "Pantau tahapan",
+          "d": "Progres tiap jalur dalam persen"
+        },
+        {
+          "icon": "trophy",
+          "t": "Sampai pengumuman",
+          "d": "Gak ada tahap yang kelewat"
+        }
+      ],
+      "cta": "Mulai tracking di otwptn.com"
+    },
+    "essay": {
+      "name": "Essay AI Review",
+      "lines": [
+        "ESAIMU",
+        "DIBEDAH",
+        "AI!"
+      ],
+      "sub": "Dibandingin sama ratusan esai yang beneran lolos PPKB UI.",
+      "before": "Sejak kecil saya bermimpi menjadi insinyur.",
+      "beforeTag": "KLISE",
+      "after": "Saat merakit lengan robot untuk lomba, saya sadar ingin mendalami Teknik Mesin.",
+      "afterTag": "LEBIH KUAT",
+      "score": "80",
+      "pillars": [
+        "Hook pembuka",
+        "Alur cerita",
+        "Relevansi prodi",
+        "Tata bahasa"
+      ],
+      "tagline": "-coba gratis di otwptn.com/essay-review-"
+    },
+    "kalkulator": {
+      "name": "Kalkulator Peluang",
+      "top": "Berapa peluang lolosmu?",
+      "number": "85",
+      "note": "*contoh hasil kalkulasi",
+      "factors": [
+        {
+          "t": "5.000+ prodi",
+          "d": "146 PTN se-Indonesia"
+        },
+        {
+          "t": "Data 5 tahun",
+          "d": "peminat & daya tampung 2021-2025"
+        },
+        {
+          "t": "Nilai yang lolos",
+          "d": "rekam jejak alumni lolos"
+        }
+      ],
+      "cta": "Hitung peluangmu di otwptn.com"
+    },
+    "otbee": {
+      "name": "Otbee AI",
+      "time": "02.14",
+      "date": "Malam sebelum deadline",
+      "notifs": [
+        {
+          "me": true,
+          "text": "Otbee, aku cocoknya jalur non-tes yang mana? Rapor lumayan, ada 2 sertifikat lomba."
+        },
+        {
+          "me": false,
+          "text": "Dari rapor dan sertifikatmu, PPKB UI dan SNBP layak dikejar barengan. Mau aku susun langkahnya?"
+        },
+        {
+          "me": false,
+          "text": "1. Lengkapi sertifikat   2. Revisi esai motivasi   3. Upload rapor sem 5"
+        }
+      ],
+      "headline": [
+        "Panik jam 2 pagi?",
+        "Otbee AI masih bangun."
+      ],
+      "sub": "Konsultan jalur non-tes yang bisa kamu tanya kapan aja."
+    },
+    "mentor": {
+      "name": "Mentor Alumni",
+      "title": [
+        "Dibimbing yang",
+        "udah lolos duluan."
+      ],
+      "you": {
+        "label": "Kamu",
+        "sub": "SMA kelas 12",
+        "tag": "Target PPKB UI"
+      },
+      "mentor": {
+        "label": "Mentor Alumni",
+        "sub": "UI · ITB · UGM",
+        "tag": "Lolos jalur non-tes"
+      },
+      "link": "jalur yang sama",
+      "gets": [
+        {
+          "icon": "essay",
+          "t": "Review esai & berkas",
+          "d": "Dibedah kalimat per kalimat, revisi via WhatsApp"
+        },
+        {
+          "icon": "video",
+          "t": "Sesi 1-on-1",
+          "d": "Video call privat di paket Honeycomb & Royal Jelly"
+        },
+        {
+          "icon": "mentor",
+          "t": "Satu jalur sama kamu",
+          "d": "Mentor lolos lewat jalur yang kamu incar"
+        }
+      ],
+      "note": "Tersedia di paket Nectar, Honeycomb & Royal Jelly"
+    }
+  },
+  "harga": {
+    "headline": [
+      "Investasi",
+      "paling kecil",
+      "buat masuk PTN."
+    ],
+    "sub": "Rp29rb sebulan, lebih murah dari 2 gelas kopi kekinian. Semua fitur AI kebuka tanpa batas.",
+    "price": "29rb",
+    "plan": "Akun Premium",
+    "unlocks": [
+      "Kalkulator peluang",
+      "Essay AI Review",
+      "Chat Otbee AI",
+      "Modul & e-course"
+    ],
+    "mentorLine": "Butuh mentor juga? Paket bimbingan mulai Rp89rb",
+    "cta": "Upgrade di otwptn.com"
+  },
+  "momen": {
+    "eligible": {
+      "lines": [
+        "UDAH",
+        "ELIGIBLE",
+        "SNBP?"
+      ],
+      "congrats": "Selamat! Sekarang yang nentuin: pilihan prodimu.",
+      "warn": "Jangan asal pilih prodi",
+      "tips": [
+        {
+          "t": "Maks 2 prodi",
+          "d": "Boleh dari 1 atau 2 PTN."
+        },
+        {
+          "t": "Beda PTN?",
+          "d": "Salah satunya wajib di provinsi sekolahmu."
+        },
+        {
+          "t": "Nilaimu dihitung dari",
+          "d": "Rata-rata semua mapel (min. 50%) + maks 2 mapel pendukung & prestasi (maks. 50%)."
+        }
+      ],
+      "cta": "Cek peluang tiap prodi di otwptn.com",
+      "source": "Sumber: snpmb.id"
+    },
+    "snbp": {
+      "title": [
+        "PENDAFTARAN",
+        "SNBP 2027"
+      ],
+      "hMinus": "H-[XX]",
+      "dates": [
+        {
+          "k": "Pendaftaran akun siswa",
+          "v": "[TANGGAL]"
+        },
+        {
+          "k": "Pendaftaran SNBP",
+          "v": "[TANGGAL]"
+        },
+        {
+          "k": "Pengumuman",
+          "v": "[TANGGAL]"
+        }
+      ],
+      "checklist": [
+        "Akun SNPMB siswa sudah aktif",
+        "Nilai rapor sem 1-5 dicek di PDSS",
+        "Pilihan prodi (maks 2) udah mantap",
+        "Portofolio / sertifikat prestasi siap"
+      ],
+      "bubble": "Jangan nunggu hari terakhir, server suka penuh!",
+      "cta": "Siapin semuanya di otwptn.com",
+      "note": "Jadwal resmi cek di snpmb.id"
+    },
+    "mandiri": {
+      "title": [
+        "Siap terbang",
+        "lewat jalur mandiri?"
+      ],
+      "sub": "Tiap kampus punya jalur mandiri sendiri, syarat dan jadwalnya beda-beda. Kebanyakan minta berkas dan esai yang kuat.",
+      "passes": [
+        {
+          "code": "PPKB",
+          "name": "PPKB UI",
+          "from": "Rapor & prestasi",
+          "date": "[TANGGAL]"
+        },
+        {
+          "code": "MDR",
+          "name": "Mandiri PTN incaranmu",
+          "from": "Cek syarat kampus",
+          "date": "[TANGGAL]"
+        }
+      ],
+      "cta": "Siapin esai & berkas di otwptn.com",
+      "note": "Syarat & jadwal tiap jalur cek di situs resmi kampus"
+    }
+  },
+  "rekrut": {
+    "mentor": {
+      "title": [
+        "DICARI:",
+        "KAKAK MENTOR"
+      ],
+      "sub": "Kamu alumni jalur non-tes di PTN? Bantu adik-adik pejuang PTN lolos lewat jalur yang sama.",
+      "reqs": [
+        "Mahasiswa / alumni PTN yang lolos jalur non-tes",
+        "Mau bimbing esai, berkas & strategi",
+        "Bisa sesi online, jadwal fleksibel"
+      ],
+      "gets": [
+        "Honor mentoring tiap mentee",
+        "Komisi tambahan dari referral",
+        "Jadwal kamu yang atur"
+      ],
+      "cta": "Daftar di otwptn.com/mentor"
+    },
+    "ambassador": {
+      "title": [
+        "JADI",
+        "AMBASSADOR",
+        "OTWPTN!"
+      ],
+      "bubble1": "Ajak temen,",
+      "bubble2": "dapet s.d. Rp75rb!",
+      "steps": [
+        {
+          "n": "1",
+          "t": "Daftar ambassador",
+          "d": "Gratis, langsung dapat kode referral."
+        },
+        {
+          "n": "2",
+          "t": "Bagikan kodemu",
+          "d": "Ke temen, adik kelas, grup sekolah."
+        },
+        {
+          "n": "3",
+          "t": "Dapat komisi",
+          "d": "Tunai s.d. Rp75rb per orang yang daftar paket bimbingan."
+        }
+      ],
+      "who": "Buat siswa SMA/SMK & mahasiswa di mana aja",
+      "cta": "Gabung di otwptn.com"
+    }
+  },
+  "edukasi": {
+    "peta": {
+      "title": [
+        "Peta jalur",
+        "masuk PTN"
+      ],
+      "sub": "Gak cuma lewat tes. Ini rute-rute yang bisa kamu ambil:",
+      "lines": [
+        {
+          "name": "SNBP",
+          "color": "#FFD400",
+          "tag": "Non-tes",
+          "stops": [
+            "Ranking rapor sekolah",
+            "Eligible",
+            "Pilih maks 2 prodi",
+            "Pengumuman"
+          ]
+        },
+        {
+          "name": "Mandiri prestasi",
+          "color": "#F59E0B",
+          "tag": "Non-tes / beda tiap kampus",
+          "stops": [
+            "Cek syarat kampus",
+            "Rapor, prestasi, esai",
+            "Seleksi berkas",
+            "Pengumuman"
+          ]
+        },
+        {
+          "name": "SNBT",
+          "color": "#111111",
+          "tag": "Pakai tes UTBK",
+          "stops": [
+            "Daftar UTBK",
+            "Tes",
+            "Pilih prodi",
+            "Pengumuman"
+          ]
+        }
+      ],
+      "note": "Sumber: snpmb.id & situs resmi tiap kampus",
+      "cta": "Pantau semua jalurmu di otwptn.com"
+    },
+    "rapor": {
+      "title": [
+        "Cara SNBP",
+        "ngitung",
+        "nilaimu"
+      ],
+      "intro": "Biar gak nebak-nebak, ini resepnya:",
+      "parts": [
+        {
+          "pct": "min 50%",
+          "t": "Rata-rata rapor",
+          "d": "Semua mapel, semester 1 sampai 5."
+        },
+        {
+          "pct": "maks 50%",
+          "t": "Nilai pendukung",
+          "d": "Maks 2 mapel pendukung prodi + prestasi / portofolio."
+        }
+      ],
+      "extra": [
+        {
+          "t": "Eligible dulu",
+          "d": "Sekolah yang menentukan siswa eligible dari peringkat rapor, sesuai kuota akreditasi."
+        },
+        {
+          "t": "Bobot beda tiap PTN",
+          "d": "Pembagian persennya ditentukan tiap PTN."
+        }
+      ],
+      "note": "Sumber: snpmb.id",
+      "cta": "Hitung peluangmu di otwptn.com"
+    }
+  },
+  "v2": {
+    "platform1": {
+      "badge": "#1",
+      "lines": [
+        "PLATFORM",
+        "MASUK PTN",
+        "TANPA TES"
+      ],
+      "stats": [
+        {
+          "v": "40+",
+          "k": "jalur non-tes"
+        },
+        {
+          "v": "146",
+          "k": "PTN"
+        },
+        {
+          "v": "5.000+",
+          "k": "prodi"
+        }
+      ],
+      "statsNote": "Data peminat & daya tampung SNPMB 2021-2025",
+      "banner": "Satu aplikasi sampai jadi maba PTN",
+      "cards": [
+        {
+          "t": "Ratusan esai lolos PPKB UI",
+          "d": "jadi benchmark Essay AI Review"
+        },
+        {
+          "t": "Kalkulator peluang",
+          "d": "pakai data 5 tahun + rekam nilai yang lolos"
+        },
+        {
+          "t": "Mentor alumni UI · ITB · UGM",
+          "d": "yang lolos lewat jalur yang sama"
+        }
+      ],
+      "cta": "Mulai gratis di otwptn.com"
+    },
+    "essayGratis": {
+      "title": [
+        "AI ESSAY REVIEWER"
+      ],
+      "big": "GRATIS!!!",
+      "statement": "Esaimu dinilai pakai rubrik penguji, dibandingin sama ratusan esai yang beneran lolos PPKB UI.",
+      "pill": "Deadline esai makin dekat? Cek dulu sebelum submit!",
+      "jalur": [
+        "PPKB UI",
+        "PBUB UGM",
+        "SJP IPB",
+        "Talent Scouting UI"
+      ],
+      "sticker": "Ratusan esai lolos",
+      "cta": "otwptn.com/essay-review"
+    },
+    "mandiriList": {
+      "title": [
+        "JALUR MANDIRI",
+        "NON-TES 2027"
+      ],
+      "sub": "Gak lolos SNBP bukan akhir. Ini sebagian jalur mandiri tanpa UTBK yang bisa kamu kejar:",
+      "items": [
+        {
+          "logo": "ui",
+          "n": "PPKB UI",
+          "u": "Universitas Indonesia"
+        },
+        {
+          "logo": "ui",
+          "n": "SJP UI",
+          "u": "Universitas Indonesia"
+        },
+        {
+          "logo": "ui",
+          "n": "Talent Scouting UI",
+          "u": "Universitas Indonesia"
+        },
+        {
+          "logo": "ugm",
+          "n": "PBUB UGM",
+          "u": "Universitas Gadjah Mada"
+        },
+        {
+          "logo": "undip",
+          "n": "SBUB Undip",
+          "u": "Universitas Diponegoro"
+        },
+        {
+          "logo": "unpad",
+          "n": "SMUP Minat & Bakat",
+          "u": "Universitas Padjadjaran"
+        },
+        {
+          "logo": "itb",
+          "n": "SSU Nilai Rapor",
+          "u": "Institut Teknologi Bandung"
+        },
+        {
+          "logo": "its",
+          "n": "SMITS FLAT",
+          "u": "Institut Teknologi Sepuluh Nopember"
+        },
+        {
+          "logo": "ipb",
+          "n": "Jalur Ketua OSIS",
+          "u": "IPB University"
+        },
+        {
+          "logo": "unair",
+          "n": "SMUA Prestasi",
+          "u": "Universitas Airlangga"
+        },
+        {
+          "logo": "ub",
+          "n": "SMUB Prestasi",
+          "u": "Universitas Brawijaya"
+        },
+        {
+          "logo": "uns",
+          "n": "SMJKI UNS",
+          "u": "Universitas Sebelas Maret"
+        }
+      ],
+      "more": "+ 30 jalur lain lengkap dengan syarat & deadline di otwptn.com/jalur",
+      "note": "Syarat & jadwal tiap jalur bisa berubah, cek situs resmi kampus."
+    },
+    "pricelist": {
+      "title": [
+        "PRICELIST",
+        "PAKET OTWPTN"
+      ],
+      "sub": "Pilih sesuai kebutuhanmu. Semua paket mentor udah termasuk Akun Premium.",
+      "rows": [
+        {
+          "n": "Akun Premium",
+          "p": "29rb",
+          "per": "/bulan",
+          "d": "Semua fitur AI unlimited + e-course",
+          "tag": ""
+        },
+        {
+          "n": "Nectar",
+          "p": "89rb",
+          "per": "1,5 bulan",
+          "d": "2x review esai/berkas tertulis oleh mentor alumni",
+          "tag": "Direview mentor"
+        },
+        {
+          "n": "Honeycomb",
+          "p": "179rb",
+          "per": "2,5 bulan",
+          "d": "5x putaran revisi + 2x sesi Zoom 1-on-1 + grup WA",
+          "tag": "Paling banyak dipilih"
+        },
+        {
+          "n": "Royal Jelly",
+          "p": "349rb",
+          "per": "3 bulan",
+          "d": "Bimbingan 1-on-1 unlimited sampai pengumuman",
+          "tag": "Paling lengkap"
+        }
+      ],
+      "note": "Harga mulai dari (jalur Essay/Prestasi, individu). Ada paket Squad bertiga yang lebih hemat.",
+      "cta": "Lihat detail di otwptn.com/upgrade"
+    },
+    "creator": {
+      "title": [
+        "DICARI:",
+        "CONTENT",
+        "CREATOR!"
+      ],
+      "sub": "Suka ngonten di TikTok/IG dan pengen bantu pejuang PTN? Jadi Marketing Partner otwptn.",
+      "pills": [
+        "Paid per video",
+        "Free Akun Premium",
+        "Kerja fleksibel (WFA)",
+        "Sertifikat resmi"
+      ],
+      "req": "Usia 16-24 tahun · Siswa SMA/SMK, gap year, atau mahasiswa · Gak wajib banyak followers",
+      "cta": "Daftar di otwptn.com/career"
+    },
+    "otbeeTV": {
+      "title": [
+        "OTBEE TV"
+      ],
+      "sub": "Cari temen belajar bareng, live!",
+      "body": "Belajar tatap muka virtual sama sesama pejuang PTN se-Indonesia. Nambah semangat, nambah relasi.",
+      "pills": [
+        "Study cam live",
+        "Filter sesuai PTN incaran",
+        "Gratis buat semua akun"
+      ],
+      "cta": "Nyalain kamera di otwptn.com"
+    },
+    "games": {
+      "title": [
+        "ARENA",
+        "PPU & PBM"
+      ],
+      "sub": "Latihan skrining kosa kata baku, penalaran bahasa & PUEBI. Main solo atau tantang temen!",
+      "games": [
+        {
+          "n": "Padanan Kata",
+          "t": "PPU"
+        },
+        {
+          "n": "Benerin Kalimat",
+          "t": "PBM"
+        },
+        {
+          "n": "Wordle Baku",
+          "t": "PUEBI"
+        },
+        {
+          "n": "Battle Campuran",
+          "t": "Duel"
+        }
+      ],
+      "xp": "Duel berhadiah XP & ranking mingguan",
+      "cta": "Main gratis di otwptn.com"
+    },
+    "nilai": {
+      "title": [
+        "Gini cara SNBP",
+        "ngitung nilaimu"
+      ],
+      "intro": "Biar gak nebak-nebak pas pilih prodi:",
+      "parts": [
+        {
+          "pct": "min 50%",
+          "t": "Rata-rata rapor",
+          "d": "Semua mapel, semester 1-5"
+        },
+        {
+          "pct": "maks 50%",
+          "t": "Nilai pendukung",
+          "d": "Maks 2 mapel pendukung prodi + prestasi/portofolio"
+        }
+      ],
+      "tips": [
+        "Bobot persisnya ditentukan tiap PTN",
+        "Eligible ditentukan sekolah dari peringkat rapor"
+      ],
+      "cta": "Simulasiin nilaimu di otwptn.com/kalkulator",
+      "source": "Sumber: snpmb.id"
+    }
+  }
+}
