@@ -543,8 +543,32 @@ export function createController(d: ControllerDeps) {
  busy = false
  if (disposed || my !== spawnTok) return
  if (inHeroSection(d.pathname())) return
- const pk = pickSpot(scanSurfaces({ scale: scale() }), { band: [0.5, 0.8], scale: scale() })
- if (pk) { clearInterval(iv); spawn(pk, cfg) }
+  const cands = scanSurfaces({ scale: scale() })
+  let pk = pickSpot(cands, { band: [0.5, 0.8], scale: scale() })
+  if (!pk) pk = pickSpot(cands, { band: [0.2, 0.9], scale: scale() })
+  if (!pk && tries > 6) {
+    const fallbackTarget = document.getElementById("printable-essay-paper") || document.querySelector(".card") || document.querySelector("aside") || document.body
+    if (fallbackTarget) {
+      const r = fallbackTarget.getBoundingClientRect()
+      const targetX = Math.min(Math.max(r.left + 50, window.innerWidth - 140), r.right - 50)
+      pk = {
+        anchor: {
+          kind: "edge",
+          el: fallbackTarget,
+          resolve() {
+            if (!fallbackTarget.isConnected) return null
+            const q = fallbackTarget.getBoundingClientRect()
+            return { x: Math.min(Math.max(q.left + 50, window.innerWidth - 140), q.right - 50) + window.scrollX, y: Math.max(80, q.top + window.scrollY - 2) }
+          }
+        },
+        x: targetX,
+        y: Math.max(80, r.top - 2),
+        air: 1,
+        score: 1,
+      }
+    }
+  }
+  if (pk) { clearInterval(iv); spawn(pk, cfg) }
  })
  }, 260)
  }
@@ -983,8 +1007,19 @@ export function createController(d: ControllerDeps) {
    const targetY = r.top + window.scrollY - 2
 
    const cur = anchor?.resolve() ?? pos
-   const ok = await jumpTo(tok, cur, { x: targetX, y: targetY })
-   if (!ok && tok !== token) return
+   const isNewSpawn = !anchor && cur.x === 0 && cur.y === 0
+   if (isNewSpawn) {
+     place({ x: targetX, y: targetY })
+     d.pop.animate([
+       { transform: "scale(.12)", opacity: 0 },
+       { transform: "scale(1.2)", opacity: 1, offset: 0.62 },
+       { transform: "scale(1)", opacity: 1 },
+     ], { duration: 450, easing: "cubic-bezier(.3,1.6,.4,1)", fill: "both" })
+     fx("smoke")
+   } else {
+     const ok = await jumpTo(tok, cur, { x: targetX, y: targetY })
+     if (!ok && tok !== token) return
+   }
 
    anchor = {
      kind: 'control',

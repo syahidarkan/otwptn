@@ -230,7 +230,6 @@ export default function FloatingMascot() {
   // Unlike richer pages, there's no reasonably-sized alternative surface to fall back to here, so
   // hide the roaming mascot outright instead of trying to make placement avoid a card this small.
   const hidden = !!pathname && (
-    pathname.startsWith('/dashboard/essay/') ||
     pathname.startsWith('/admin') ||
     pathname === '/login' ||
     pathname === '/register'
