@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('tier, role, is_mentor, is_admin, is_creator')
+    .select('tier, role, is_mentor, is_admin, is_creator, tier_expires_at')
     .eq('id', user.id)
     .maybeSingle()
 
@@ -27,7 +27,8 @@ export async function POST(request: Request) {
     profile?.is_mentor === true ||
     profile?.is_creator === true
   )
-  const tier = profile?.tier ?? 'free'
+  const isExpired = Boolean(profile?.tier_expires_at && new Date(profile.tier_expires_at).getTime() < Date.now())
+  const tier = (isExpired && !isStaff) ? 'free' : (profile?.tier ?? 'free')
   const isUnlimited = isStaff || (tier !== 'free')
   const limit = isUnlimited ? null : (TIER_KALKULATOR_LIMIT[tier] ?? null)
 
