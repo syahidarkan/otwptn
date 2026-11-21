@@ -132,7 +132,7 @@ Berikan respons HANYA dalam JSON valid (tanpa markdown backtick):
       "category": "<pilih salah satu: structure | coherence | argument | language>",
       "problem": "<penjelasan singkat mengapa kalimat ini lemah / bermasalah, misalnya: 'Format surat dinas resmi, bukan gaya esai personal', 'Klaim abstrak tanpa bukti data metrik', 'Metafora hiperbolis berlebihan', dll>",
       "suggestion": "<rekomendasi kalimat alternatif pengganti yang siap pakai dan jauh lebih berbobot>",
-      "otbeeRant": "<celotehan komik marah-marah tapi memotivasi khas maskot lebah Otbee yang cerewet, contoh: 'Woyy masa nulis gini, panitia auto skip woy!', 'Aduhh jangan kayak surat izin RT dong! Mana bukti karyamu?!', 'Woyy metaforanya lebay banget, to the point aja!'>",
+      "otbeeRant": "<celotehan komik marah-marah organik, savage, dan lucu ala AI Coach GoSpeak (bukan template kaku, JANGAN pakai kata 'woyy woyy' berulang-ulang!). Gunakan bahasa gaul santai, tajam, sarkastik tapi membangun layaknya teman ambis yang gregetan. Contoh gaya: 'Astaga naga... lu nulis esai seleksi PTN apa surat permohonan bansos ke kelurahan?! Hapus pembuka kayak gini, bikin panitia auto ngantuk!', 'Klaim lu setinggi langit tapi buktinya nol besar anjir! Panitia butuh data & karya konkret, bukan janji manis doang!', 'Bisa-bisanya metafora selebay ini masuk esai? Jurusan lu Sistem Informasi bukan sastra pujangga, to the point aja ngapa!', 'Vibes penutupnya pasrah banget, lu mau masuk kampus impian apa mau pamit pensiun dini?! Bikin komitmen visi yang berani!'>",
       "comment": "<saran kalimat pengganti atau catatan perbaikan spesifik, 1 kalimat tegas>"
     }
   ]
@@ -175,7 +175,7 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
         category: 'structure',
         problem: 'Kalimat pembuka klise dan generik, belum langsung memikat rasa ingin tahu panitia.',
         suggestion: 'Mulai dengan momen observasi spesifik atau insiden nyata yang mengubah cara pandangmu.',
-        otbeeRant: 'Woyyy kalimat pembuka kayak gini udah dibaca panitia 10.000 kali woy! Ganti hook yang bikin penasaran!',
+        otbeeRant: 'Astaga naga... lu nulis esai seleksi PTN apa surat permohonan bansos ke kelurahan?! Hapus pembuka kayak gini, panitia auto ngantuk!',
         comment: 'Kalimat pembuka klise dan generik. Mulailah dengan momen spesifik yang mengubah cara pandangmu.',
       },
       {
@@ -183,7 +183,7 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
         category: 'argument',
         problem: 'Klaim motivasi tanpa menyertakan bukti aksi nyata (STAR) dan angka terukur.',
         suggestion: 'Sertakan nama proyek, kompetisi, atau peran konkret beserta dampaknya (misal jumlah partisipan/efisiensi).',
-        otbeeRant: 'Woyy mana buktinya?! Jangan cuma ngomong berminat doang, tunjukin aksi nyatamu!',
+        otbeeRant: 'Klaim lu setinggi langit tapi buktinya nol besar anjir! Panitia butuh metrik dan karya nyata, bukan dongeng pengantar tidur!',
         comment: 'Klaim tanpa bukti konkret. Cantumkan nama kegiatan nyata dan metrik yang pernah kamu hasilkan.',
       },
       {
@@ -191,7 +191,7 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
         category: 'structure',
         problem: 'Penutup terlalu mirip surat permohonan resmi dan kurang menunjukkan visi kontribusi terukur.',
         suggestion: 'Ubah penutup menjadi komitmen visi 5 tahun ke depan bagi almamater dan masyarakat luas.',
-        otbeeRant: 'Woyy penutupnya mirip surat permohonan izin woy! Bikin komitmen visi yang menggelegar!',
+        otbeeRant: 'Vibes penutupnya pasrah banget, lu mau masuk kampus impian apa mau pamit pensiun dini?! Tulis visi kontribusi yang berani!',
         comment: 'Penutup menyerupai surat dinas. Ganti dengan pernyataan visi dan kontribusi spesifik di masa depan.',
       },
     ]

@@ -429,6 +429,11 @@ function Eye({ name, p, uid, reg }: { name: string; p: PartData; uid: string; re
         fill="none" stroke="#1a120d" strokeWidth={Math.max(1.6, ew * 0.11)} strokeLinecap="round" opacity={0} />
       <path ref={reg(name + ':happy')} d={`M ${cx - ew / 2} ${cy + eh * 0.16} Q ${cx} ${cy - eh * 0.34} ${cx + ew / 2} ${cy + eh * 0.16}`}
         fill="none" stroke="#1a120d" strokeWidth={Math.max(1.6, ew * 0.11)} strokeLinecap="round" opacity={0} />
+      {/* angry sharp slanted eyebrow (slanted down inwards towards center) */}
+      <path ref={reg(name + ':angry')} d={name === 'eyeL'
+        ? `M ${cx - ew * 0.62} ${cy - eh * 0.48} Q ${cx} ${cy - eh * 0.35} ${cx + ew * 0.65} ${cy - eh * 0.08}`
+        : `M ${cx - ew * 0.65} ${cy - eh * 0.08} Q ${cx} ${cy - eh * 0.35} ${cx + ew * 0.62} ${cy - eh * 0.48}`}
+        fill="none" stroke="#1a120d" strokeWidth={Math.max(2.8, ew * 0.18)} strokeLinecap="round" opacity={0} />
     </g>
   )
 }
@@ -445,6 +450,7 @@ function Mouth({ p, uid, reg }: { p: PartData; uid: string; reg: (k: string) => 
         <clipPath id={cid}><path ref={reg('mouth:clip')} d="" /></clipPath>
         <path ref={reg('mouth:fill')} d="" fill="#4a1519" />
         <ellipse ref={reg('mouth:tongue')} cx={0} cy={0} rx={1} ry={1} fill="#ee8a86" clipPath={`url(#${cid})`} />
+        <path ref={reg('mouth:teeth')} d="" fill="#ffffff" stroke="#2b1710" strokeWidth="0.8" clipPath={`url(#${cid})`} opacity={0} />
         <path ref={reg('mouth:line')} d="" fill="none" stroke="#2b1710" strokeLinecap="round" />
       </g>
     </g>
@@ -531,22 +537,29 @@ function applyPose(
       setT(name, rot(P.bag, pv))
     } else if (name.startsWith('cheek')) {
       const sxc = 1 - 0.25 * Math.max(0, name === 'cheekL' ? yaw : name === 'cheekR' ? -yaw : 0) - 0.08 * Math.abs(yaw)
-      setT(name, `${tr(0)} ${scl(P.cheek * sxc, P.cheek, part.center ?? pv)}`)
+      const isAngry = P.mouthCurve < -0.2
+      const cheekScale = isAngry ? 0 : P.cheek
+      setT(name, `${tr(0)} ${scl(cheekScale * sxc, cheekScale, part.center ?? pv)}`)
+      setO(name, isAngry ? 0 : 1)
     } else if (name.startsWith('eye')) {
       const rawBlink = P.blink + (name === 'eyeL' ? P.winkL : name === 'eyeR' ? P.winkR : Math.max(P.winkL, P.winkR))
       const b = clamp(rawBlink, 0, 1)
       const c = part.center ?? pv
       const es = P.eyeScale
+      const isLeft = name === 'eyeL'
+      const isAngry = P.mouthCurve < -0.3
+      const angryAmt = isAngry ? Math.min(1, (-P.mouthCurve - 0.3) * 1.5) : 0
       const sxe = name === 'eyeL' ? 1 - 0.3 * Math.max(0, yaw) - 0.08 * Math.max(0, -yaw) : name === 'eyeR' ? 1 - 0.3 * Math.max(0, -yaw) - 0.08 * Math.max(0, yaw) : 1 - 0.1 * Math.abs(yaw)
       setT(name, `${tr(0)} ${scl(sxe, 1, c)}`)
       // the open eye always squashes shut first, and the arc only appears once it is (almost) flat -> never two eyes at once
       const closing = Math.max(b, P.eyeArc)
-      setT(name + ':body', scl(es, es * Math.max(0.05, 1 - closing * 0.95), c))
+      setT(name + ':body', scl(es, es * Math.max(0.05, 1 - closing * 0.95), c) + (isAngry ? ` rotate(${isLeft ? 8 : -8} ${c[0]} ${c[1]})` : ''))
       const arcAmt = smooth(0.86, 0.97, closing)
       const happy = P.eyeArc >= b
       setO(name + ':body', 1 - arcAmt)
       setO(name + ':closed', happy ? 0 : arcAmt)
       setO(name + ':happy', happy ? arcAmt : 0)
+      setO(name + ':angry', angryAmt)
       const pe = part.eye!.pupilE
       setT(name + ':look', `translate(${(P.lookX * pe[2] * 0.95).toFixed(2)} ${(P.lookY * pe[3] * 0.9).toFixed(2)})`)
     } else if (name === 'mouth') {
@@ -567,19 +580,39 @@ function drawMouth(part: PartData, P: Pose, els: Record<string, SVGElement | nul
   const w = Number(g.getAttribute('data-w')) || 18
   const open = clamp(P.mouthOpen, 0, 1), curve = clamp(P.mouthCurve, -1, 1)
   const half = w / 2
-  const fill = els['mouth:fill'], line = els['mouth:line'], clip = els['mouth:clip'], tongue = els['mouth:tongue']
+  const fill = els['mouth:fill'], line = els['mouth:line'], clip = els['mouth:clip'], tongue = els['mouth:tongue'], teeth = els['mouth:teeth']
   if (open < 0.07) {
     line?.setAttribute('d', `M ${-half * 0.9} ${(-curve * w * 0.05).toFixed(2)} Q 0 ${(curve * w * 0.3).toFixed(2)} ${half * 0.9} ${(-curve * w * 0.05).toFixed(2)}`)
     line?.setAttribute('stroke-width', (w * 0.1).toFixed(2))
     line?.setAttribute('opacity', '1')
-    fill?.setAttribute('d', ''); clip?.setAttribute('d', ''); tongue?.setAttribute('opacity', '0')
+    fill?.setAttribute('d', ''); clip?.setAttribute('d', ''); tongue?.setAttribute('opacity', '0'); teeth?.setAttribute('opacity', '0')
+  } else if (curve < -0.2) {
+    // Fierce angry shouting grimace with clenched white teeth
+    const depth = w * (0.2 + open * 0.5)
+    const topY = (-curve * w * 0.12).toFixed(2)
+    const midTopY = (curve * w * 0.18).toFixed(2)
+    const botY = (depth * 1.1).toFixed(2)
+    const dd = `M ${-half * 1.05} ${topY} Q 0 ${midTopY} ${half * 1.05} ${topY} Q ${(half * 0.85).toFixed(2)} ${botY} 0 ${(depth * 1.25).toFixed(2)} Q ${(-half * 0.85).toFixed(2)} ${botY} ${-half * 1.05} ${topY} Z`
+    fill?.setAttribute('d', dd); clip?.setAttribute('d', dd)
+    fill?.setAttribute('fill', '#260608')
+    line?.setAttribute('opacity', '0')
+    tongue?.setAttribute('opacity', '0')
+    if (teeth) {
+      teeth.setAttribute('opacity', '1')
+      const teethD = `M ${-half * 1.1} ${Number(topY) - 2} Q 0 ${Number(midTopY) - 2} ${half * 1.1} ${Number(topY) - 2} L ${half * 1.1} ${(depth * 0.45).toFixed(2)} Q 0 ${(depth * 0.5).toFixed(2)} ${-half * 1.1} ${(depth * 0.45).toFixed(2)} Z`
+      teeth.setAttribute('d', teethD)
+    }
   } else {
+    // Normal happy / neutral open mouth
     const depth = w * (0.12 + open * 0.52)
     const corner = -curve * w * 0.06
     const dd = `M ${-half} ${corner.toFixed(2)} Q 0 ${(curve * w * 0.1 + corner).toFixed(2)} ${half} ${corner.toFixed(2)} Q ${(half * 0.9).toFixed(2)} ${(depth * 1.45).toFixed(2)} 0 ${(depth * 1.4).toFixed(2)} Q ${(-half * 0.9).toFixed(2)} ${(depth * 1.45).toFixed(2)} ${-half} ${corner.toFixed(2)} Z`
     fill?.setAttribute('d', dd); clip?.setAttribute('d', dd)
+    fill?.setAttribute('fill', '#4a1519')
     line?.setAttribute('opacity', '0')
+    teeth?.setAttribute('opacity', '0')
     tongue?.setAttribute('opacity', '1')
+    tongue?.setAttribute('fill', '#ee8a86')
     tongue?.setAttribute('cx', '0'); tongue?.setAttribute('cy', (depth * 1.02).toFixed(2))
     tongue?.setAttribute('rx', (w * 0.3).toFixed(2)); tongue?.setAttribute('ry', (depth * 0.5 + 0.5).toFixed(2))
   }
@@ -729,6 +762,27 @@ function spawn(g: SVGGElement, d: ViewData, type: FxEvent['type'], side: -1 | 1)
           { transform: `translate(${hcx + dx * 1.3}px,${hcy + dy * 0.6 + hw * 0.9}px) rotate(${360 + Math.random() * 360}deg) scale(0.9)`, opacity: 0 },
         ], 1500 + Math.random() * 500, 'cubic-bezier(.2,.6,.4,1)', Math.random() * 120)
       }
+      break
+    }
+    case 'anger': {
+      // Anime 4-cornered red angry vein mark 💢
+      const x = hcx + side * hw * 0.45, y = hcy - hw * 0.42
+      const grp = mk('g', {}) as SVGElement
+      const veinColor = '#DC2626'
+      const sw = 3.2 * S
+      const p1 = mk('path', { d: `M ${-10 * S} ${-3 * S} Q ${-3 * S} ${-3 * S} ${-3 * S} ${-10 * S}`, fill: 'none', stroke: veinColor, 'stroke-width': sw, 'stroke-linecap': 'round' })
+      const p2 = mk('path', { d: `M ${3 * S} ${-10 * S} Q ${3 * S} ${-3 * S} ${10 * S} ${-3 * S}`, fill: 'none', stroke: veinColor, 'stroke-width': sw, 'stroke-linecap': 'round' })
+      const p3 = mk('path', { d: `M ${10 * S} ${3 * S} Q ${3 * S} ${3 * S} ${3 * S} ${10 * S}`, fill: 'none', stroke: veinColor, 'stroke-width': sw, 'stroke-linecap': 'round' })
+      const p4 = mk('path', { d: `M ${-3 * S} ${10 * S} Q ${-3 * S} ${3 * S} ${-10 * S} ${3 * S}`, fill: 'none', stroke: veinColor, 'stroke-width': sw, 'stroke-linecap': 'round' })
+      grp.appendChild(p1); grp.appendChild(p2); grp.appendChild(p3); grp.appendChild(p4)
+      grp.style.transformBox = 'fill-box'; grp.style.transformOrigin = 'center'
+      add(grp, [
+        { transform: at(x, y, 0.2), opacity: 0 },
+        { transform: at(x, y, 1.4), opacity: 1, offset: 0.2 },
+        { transform: at(x, y, 1.0), opacity: 1, offset: 0.45 },
+        { transform: at(x, y, 1.35), opacity: 1, offset: 0.75 },
+        { transform: at(x, y - 6 * S, 0.7), opacity: 0 },
+      ], 1300, 'cubic-bezier(.2,.8,.3,1)')
       break
     }
   }

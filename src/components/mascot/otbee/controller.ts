@@ -1039,12 +1039,13 @@ export function createController(d: ControllerDeps) {
    setPose(1, 0)
 
    fx('smoke')
-   fx('exclaim')
-   act('angry', { force: true, text: `Woyyy revisi woy!! ${text}`, ms })
+   fx('anger')
+   act('angry', { force: true, text, ms })
 
    setTimeout(() => {
      if (tok === token && phase === 'resting') {
        fx('smoke')
+       fx('anger')
        act('kick', { force: true })
        setTimeout(() => {
          if (tok === token && phase === 'resting') {

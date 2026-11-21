@@ -57,7 +57,7 @@ const E: Record<Ease, (t: number) => number> = {
 // ---------------------------------------------------------------- clips
 /** [time(s), value, ease-of-the-segment-arriving-at-this-key] */
 export type Key = [number, number, Ease?]
-export type FxType = 'sparkle' | 'zzz' | 'heart' | 'dust' | 'stars' | 'question' | 'exclaim' | 'note' | 'sweat' | 'confetti' | 'bulb' | 'smoke'
+export type FxType = 'sparkle' | 'zzz' | 'heart' | 'dust' | 'stars' | 'question' | 'exclaim' | 'note' | 'sweat' | 'confetti' | 'bulb' | 'smoke' | 'anger'
 export interface Clip {
   dur: number
   loop?: boolean
@@ -483,16 +483,16 @@ export const CLIPS = {
       armR: [[0, 120], [0.22, 60, 'sine'], [0.45, 125, 'sine'], [0.68, 75, 'sine'], [0.9, 120, 'sine']],
       elbowL: [[0, 50], [0.45, 80, 'sine'], [0.9, 50, 'sine']],
       elbowR: [[0, 80], [0.45, 50, 'sine'], [0.9, 80, 'sine']],
-      cheek: [[0, 2.4], [0.45, 2.8, 'sine'], [0.9, 2.4, 'sine']],
+      cheek: [[0, 0], [0.9, 0]],
       mouthCurve: [[0, -1], [0.9, -1]],
       mouthOpen: [[0, 0.85], [0.22, 1.0, 'o'], [0.45, 0.65, 'i'], [0.68, 0.95, 'o'], [0.9, 0.85, 'io']],
       mouthDrawn: [[0, 1]],
       antL: [[0, 32], [0.45, -32, 'sine'], [0.9, 32, 'sine']],
       antR: [[0, -32], [0.45, 32, 'sine'], [0.9, -32, 'sine']],
-      eyeScale: [[0, 1.25], [0.45, 1.35, 'sine'], [0.9, 1.25, 'sine']],
+      eyeScale: [[0, 1.15], [0.45, 1.25, 'sine'], [0.9, 1.15, 'sine']],
       wingAmp: [[0, 42], [0.9, 42]],
       wingHz: [[0, 16], [0.9, 16]],
-    }, fx: [{ t: 0.1, type: 'smoke' }, { t: 0.35, type: 'exclaim' }, { t: 0.6, type: 'smoke' }, { t: 0.8, type: 'sweat' }],
+    }, fx: [{ t: 0.08, type: 'anger', side: 1 }, { t: 0.25, type: 'smoke' }, { t: 0.55, type: 'anger', side: -1 }, { t: 0.78, type: 'exclaim' }],
   },
 } satisfies Record<string, Clip>
 export type ClipName = keyof typeof CLIPS

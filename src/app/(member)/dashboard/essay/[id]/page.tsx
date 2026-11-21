@@ -320,12 +320,12 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
 
     const rantText = issue.otbeeRant || (
       issue.category === 'structure'
-        ? 'Kalimat pembuka ini klise banget! Panitia seleksi baca ribuan esai tiap tahun, kalau gaya surat izin dinas gini auto-skip woy!'
+        ? 'Astaga naga... lu nulis esai seleksi PTN apa surat permohonan bansos ke kelurahan?! Hapus pembuka kayak gini, kurator auto ngeskip!'
         : issue.category === 'argument'
-        ? 'Mana bukti prestasimu?! Jangan cuma ngomong berminat doang tapi nol karya nyata! Cantumin nama proyek & dampak angkanya woy!'
+        ? 'Klaim lu setinggi langit tapi buktinya nol besar anjir! Panitia butuh metrik dan karya nyata, bukan janji manis doang!'
         : issue.category === 'language'
-        ? 'Metaforanya lebay banget buset dah! Bikin kalimat yang lugas dan sesuai kaidah PUEBI resmi woy!'
-        : 'Alur narasinya lompat-lompat woy! Kasih kata penghubung biar enak dibaca kurator kampus!'
+        ? 'Bisa-bisanya metafora selebay ini masuk esai! Ini seleksi kampus top bukan lomba puisi senja, to the point aja ngapa!'
+        : 'Ini alur mikirnya lompat-lompat bikin pusing! Rapiin koherensinya biar argumenmu nyambung dan enak dibaca!'
     )
 
     const el = editorRef.current?.querySelector(`[data-comment-id="ai-${index}"]`) as HTMLElement | null
@@ -527,7 +527,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
             category: 'structure',
             problem: 'Kalimat pembuka terlalu umum dan kurang memiliki hook personal yang kuat.',
             suggestion: 'Ganti dengan kalimat observasi tantangan nyata di lingkunganmu yang memantik ketertarikanmu pada prodi ini.',
-            otbeeRant: 'Woyyy kalimat pembukanya jangan kayak surat dinas resmi woy! Kasih hook yang bikin kurator penasaran!',
+            otbeeRant: 'Astaga naga... lu nulis esai seleksi PTN apa surat permohonan bansos ke kelurahan?! Hapus pembuka kayak gini, kurator auto ngeskip!',
             comment: 'Ganti pembuka klise dengan hook masalah konkret yang kamu amati langsung.',
           },
           {
@@ -535,7 +535,7 @@ export default function EssayEditorPage({ params }: { params: Promise<{ id: stri
             category: 'argument',
             problem: 'Klaim motivasi tanpa menyertakan metrik angka capaian terukur.',
             suggestion: 'Sertakan capaian nyata (misal efisiensi waktu, jumlah pengguna, atau peringkat lomba).',
-            otbeeRant: 'Woyy mana bukti angkanya?! Jangan cuma bilang tertarik doang, tunjukin data proyekmu!',
+            otbeeRant: 'Klaim lu setinggi langit tapi buktinya nol besar anjir! Panitia butuh metrik dan karya nyata, bukan janji manis doang!',
             comment: 'Tambahkan data kuantitatif untuk memperkuat kredibilitas pengalamanmu.',
           },
         ],
