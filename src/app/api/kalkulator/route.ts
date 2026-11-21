@@ -13,12 +13,25 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('tier, role, is_mentor').eq('id', user.id).maybeSingle()
-  const isStaff = profile?.role === 'superadmin' || profile?.role === 'mentor' || profile?.is_mentor === true
-  const tier = profile?.tier ?? 'free'
-  const limit = isStaff ? null : (TIER_KALKULATOR_LIMIT[tier] ?? null)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tier, role, is_mentor, is_admin, is_creator')
+    .eq('id', user.id)
+    .maybeSingle()
 
-  if (!isStaff && tier === 'free') {
+  const isStaff = Boolean(
+    profile?.is_admin ||
+    profile?.role === 'admin' ||
+    profile?.role === 'superadmin' ||
+    profile?.role === 'mentor' ||
+    profile?.is_mentor === true ||
+    profile?.is_creator === true
+  )
+  const tier = profile?.tier ?? 'free'
+  const isUnlimited = isStaff || (tier !== 'free')
+  const limit = isUnlimited ? null : (TIER_KALKULATOR_LIMIT[tier] ?? null)
+
+  if (!isUnlimited && tier === 'free') {
     const allowed = await rateLimit('kalkulator_free', user.id, 1, 7 * 86400)
     if (!allowed) {
       return NextResponse.json({

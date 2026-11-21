@@ -60,12 +60,25 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return new Response('Unauthorized', { status: 401 })
 
-  const { data: profile } = await supabase.from('profiles').select('tier, role, is_mentor').eq('id', user.id).maybeSingle()
-  const isStaff = profile?.role === 'superadmin' || profile?.role === 'mentor' || profile?.is_mentor === true
-  const tier = profile?.tier ?? 'free'
-  const limit = isStaff ? null : (TIER_OTBEE_LIMIT[tier] ?? null)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tier, role, is_mentor, is_admin, is_creator')
+    .eq('id', user.id)
+    .maybeSingle()
 
-  if (!isStaff && tier === 'free') {
+  const isStaff = Boolean(
+    profile?.is_admin ||
+    profile?.role === 'admin' ||
+    profile?.role === 'superadmin' ||
+    profile?.role === 'mentor' ||
+    profile?.is_mentor === true ||
+    profile?.is_creator === true
+  )
+  const tier = profile?.tier ?? 'free'
+  const isUnlimited = isStaff || (tier !== 'free')
+  const limit = isUnlimited ? null : (TIER_OTBEE_LIMIT[tier] ?? null)
+
+  if (!isUnlimited && tier === 'free') {
     // 3 chats per 2 days (48 hours = 172800 seconds)
     const allowed = await rateLimit('otbee_free', user.id, 3, 172800)
     if (!allowed) {
