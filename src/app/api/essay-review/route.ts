@@ -128,15 +128,18 @@ Berikan respons HANYA dalam JSON valid (tanpa markdown backtick):
   ],
   "issues": [
     {
-      "quote": "<KUTIP PERSIS kata-per-kata maksimal 12 kata dari teks esai di atas yang memiliki kelemahan kalimat/diksi>",
+      "quote": "<KUTIP PERSIS kata-per-kata 3 sampai 12 kata dari teks esai di atas yang memiliki kelemahan>",
       "category": "<pilih salah satu: structure | coherence | argument | language>",
+      "problem": "<penjelasan singkat mengapa kalimat ini lemah / bermasalah, misalnya: 'Format surat dinas resmi, bukan gaya esai personal', 'Klaim abstrak tanpa bukti data metrik', 'Metafora hiperbolis berlebihan', dll>",
+      "suggestion": "<rekomendasi kalimat alternatif pengganti yang siap pakai dan jauh lebih berbobot>",
+      "otbeeRant": "<celotehan komik marah-marah tapi memotivasi khas maskot lebah Otbee yang cerewet, contoh: 'Woyy masa nulis gini, panitia auto skip woy!', 'Aduhh jangan kayak surat izin RT dong! Mana bukti karyamu?!', 'Woyy metaforanya lebay banget, to the point aja!'>",
       "comment": "<saran kalimat pengganti atau catatan perbaikan spesifik, 1 kalimat tegas>"
     }
   ]
 }
 
 PERINGATAN KHUSUS UNTUK ARRAY "issues":
-- Hasilkan antara 4 sampai 8 issues.
+- Hasilkan antara 8 sampai 15 issues yang tersebar di seluruh paragraf esai (pembuka, isi, studi kasus, alasan memilih kampus, hingga penutup).
 - Nilai field "quote" WAJIB merupakan kutipan persis (exact match kata, huruf, tanda baca) yang ada dalam teks esai di atas agar sistem bisa melakukan highlight otomatis pada teks.`
 
   let result: any = null
@@ -146,7 +149,7 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
       model,
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
-      max_tokens: 1500,
+      max_tokens: 2500,
     })
 
     const rawContent = completion.choices[0].message.content ?? '{}'
@@ -158,11 +161,40 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
     result.isFallback = false
   } catch (apiErr) {
     console.warn('[AI Essay Review] Primary AI call failed, generating heuristic evaluation:', apiErr)
-    const firstSentence = content.split(/[.!?]/)[0]?.trim() || content.slice(0, 30)
-    const midSentence = content.slice(Math.floor(content.length / 2), Math.floor(content.length / 2) + 40).trim()
+    const sentences = content.split(/[.!?\n]+/).map(s => s.trim()).filter(s => s.length > 15)
+    const firstSentence = sentences[0] || content.slice(0, 40)
+    const midSentence = sentences[Math.floor(sentences.length / 2)] || content.slice(40, 90)
+    const lastSentence = sentences[sentences.length - 1] || content.slice(-40)
 
     // Calibrated heuristic scores based on word count & NLP benchmark
     const baseScore = wordCount < 100 ? 35 : wordCount < 200 ? 52 : wordCount < 300 ? 65 : wordCount < 500 ? 72 : 78
+
+    const generatedIssues = [
+      {
+        quote: firstSentence.slice(0, 45).trim(),
+        category: 'structure',
+        problem: 'Kalimat pembuka klise dan generik, belum langsung memikat rasa ingin tahu panitia.',
+        suggestion: 'Mulai dengan momen observasi spesifik atau insiden nyata yang mengubah cara pandangmu.',
+        otbeeRant: 'Woyyy kalimat pembuka kayak gini udah dibaca panitia 10.000 kali woy! Ganti hook yang bikin penasaran!',
+        comment: 'Kalimat pembuka klise dan generik. Mulailah dengan momen spesifik yang mengubah cara pandangmu.',
+      },
+      {
+        quote: midSentence.slice(0, 45).trim(),
+        category: 'argument',
+        problem: 'Klaim motivasi tanpa menyertakan bukti aksi nyata (STAR) dan angka terukur.',
+        suggestion: 'Sertakan nama proyek, kompetisi, atau peran konkret beserta dampaknya (misal jumlah partisipan/efisiensi).',
+        otbeeRant: 'Woyy mana buktinya?! Jangan cuma ngomong berminat doang, tunjukin aksi nyatamu!',
+        comment: 'Klaim tanpa bukti konkret. Cantumkan nama kegiatan nyata dan metrik yang pernah kamu hasilkan.',
+      },
+      {
+        quote: lastSentence.slice(0, 45).trim(),
+        category: 'structure',
+        problem: 'Penutup terlalu mirip surat permohonan resmi dan kurang menunjukkan visi kontribusi terukur.',
+        suggestion: 'Ubah penutup menjadi komitmen visi 5 tahun ke depan bagi almamater dan masyarakat luas.',
+        otbeeRant: 'Woyy penutupnya mirip surat permohonan izin woy! Bikin komitmen visi yang menggelegar!',
+        comment: 'Penutup menyerupai surat dinas. Ganti dengan pernyataan visi dan kontribusi spesifik di masa depan.',
+      },
+    ]
 
     result = {
       structure: Math.min(baseScore + 2, 80),
@@ -172,25 +204,14 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
       overall: Math.round((baseScore + nlpBenchmark.benchmarkRankPercentile) / 2),
       feedback: wordCount < 200
         ? `Esai kamu baru ${wordCount} kata - jauh di bawah standar minimal esai PTN non-tes (300-600 kata). Pada tahap ini, evaluasi mendalam belum bisa dilakukan karena konten yang ada terlalu sedikit untuk menunjukkan kemampuan argumentasi dan storytelling kamu. Prioritas utama: tulis lebih banyak, ceritakan pengalaman nyata dengan metode STAR.`
-        : `Esai kamu (${wordCount} kata) memiliki kemiripan ${nlpBenchmark.similarityScore}% terhadap korpus esai lolos PPKB UI bidang ${nlpBenchmark.topMatchingFaculty}. Namun masih perlu penguatan aksi nyata terukur dan eliminasi frasa klise sebelum layak dikurasi panitia seleksi.`,
+        : `Esai kamu (${wordCount} kata) memiliki keselarasan narasi ${nlpBenchmark.similarityScore}% terhadap profil esai lolos seleksi PTN bidang ${nlpBenchmark.topMatchingFaculty}. Perkuat aksi nyata terukur dan eliminasi frasa klise sebelum masuk kurasi final.`,
       suggestions: [
         'Tambah panjang esai minimal 300 kata - esai terlalu pendek tidak akan lolos kurasi awal panitia seleksi.',
         'Gunakan pendekatan STAR (Situation, Task, Action, Result) untuk menceritakan capaianmu secara terukur dengan data.',
         'Jelaskan alasan spesifik mengapa kurikulum atau laboratorium di kampus target sangat kamu butuhkan.',
         'Perhalus kalimat pembuka - hindari klise pembuka dan ganti dengan hook observasi masalah nyata.',
       ],
-      issues: [
-        {
-          quote: firstSentence.slice(0, 40),
-          category: 'structure',
-          comment: 'Kalimat pembuka klise dan generik. Mulailah dengan momen spesifik yang mengubah perspektifmu.',
-        },
-        {
-          quote: midSentence.slice(0, 40),
-          category: 'argument',
-          comment: 'Klaim tanpa bukti konkret. Cantumkan nama program, lomba, atau kegiatan nyata yang pernah kamu ikuti.',
-        },
-      ],
+      issues: generatedIssues,
       nlpBenchmark,
       isFallback: true,
     }
