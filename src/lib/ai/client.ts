@@ -24,7 +24,11 @@ export interface ProviderDef {
  */
 export function extractJsonFromAi<T = any>(content: string | undefined | null): T {
   if (!content) return {} as T
-  const trimmed = content.trim()
+  let trimmed = content.trim()
+
+  // Strip <think>...</think> blocks from reasoning models
+  trimmed = trimmed.replace(/<think>[\s\S]*?<\/think>/gi, '').trim()
+
   try {
     return JSON.parse(trimmed) as T
   } catch {
@@ -60,9 +64,21 @@ export function getActiveProviders(): ProviderDef[] {
       apiKey: groqKey,
       timeout: 12000,
       modelMap: {
-        fast: 'openai/gpt-oss-120b',
+        fast: 'openai/gpt-oss-20b',
         default: 'openai/gpt-oss-120b',
         complex: 'openai/gpt-oss-120b',
+      },
+    })
+    // Groq secondary fallback
+    providers.push({
+      name: 'Groq (Fast Fallback)',
+      baseURL: 'https://api.groq.com/openai/v1',
+      apiKey: groqKey,
+      timeout: 10000,
+      modelMap: {
+        fast: 'qwen/qwen3.8-27b',
+        default: 'openai/gpt-oss-20b',
+        complex: 'qwen/qwen3.8-27b',
       },
     })
   }
@@ -96,9 +112,9 @@ export function getActiveProviders(): ProviderDef[] {
       apiKey: geminiKey.trim(),
       timeout: 12000,
       modelMap: {
-        fast: 'gemini-2.0-flash',
-        default: 'gemini-2.0-flash',
-        complex: 'gemini-2.0-flash',
+        fast: 'gemini-3.8-flash',
+        default: 'gemini-3.8-flash',
+        complex: 'gemini-3.8-flash',
       },
     })
   }
@@ -177,7 +193,37 @@ export function getAiClient(task: 'default' | 'fast' | 'complex' = 'default'): A
 
                     return result
                   } catch (err: any) {
-                    lastError = err
+                    // If error was caused by response_format rejection (e.g. model does not support JSON mode), retry without response_format immediately
+                    if (
+                      params?.response_format &&
+                      (err?.status === 400 ||
+                        err?.message?.includes('response_format') ||
+                        err?.message?.includes('json') ||
+                        err?.message?.includes('supported'))
+                    ) {
+                      try {
+                        const { response_format, ...paramsWithoutRf } = params
+                        const retryResult = await clientInstance.chat.completions.create(
+                          {
+                            ...paramsWithoutRf,
+                            model: providerModel,
+                          },
+                          options
+                        )
+
+                        const retryChoice = retryResult.choices?.[0]
+                        if (retryChoice?.message && !retryChoice.message.content && (retryChoice.message as any).reasoning) {
+                          retryChoice.message.content = (retryChoice.message as any).reasoning
+                        }
+
+                        return retryResult
+                      } catch (retryErr: any) {
+                        lastError = retryErr
+                      }
+                    } else {
+                      lastError = err
+                    }
+
                     console.warn(
                       `[AI-Rotate] Provider "${p.name}" (model: ${providerModel}) failed: ${err?.message || err}. Rotating to next available provider...`
                     )

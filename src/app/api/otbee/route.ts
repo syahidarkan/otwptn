@@ -107,45 +107,68 @@ export async function POST(request: Request) {
     })
   }
 
-  const { client, model } = getAiClient('fast')
+  try {
+    const { client, model } = getAiClient('fast')
 
-  const stream = await client.chat.completions.create({
-    model,
-    messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
-      ...messages,
-    ],
-    stream: true,
-    max_tokens: 1500,
-  })
+    const stream = await client.chat.completions.create({
+      model,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        ...messages,
+      ],
+      stream: true,
+      max_tokens: 1500,
+    })
 
-  const encoder = new TextEncoder()
-  let fullContent = ''
+    const encoder = new TextEncoder()
+    let fullContent = ''
 
-  const readable = new ReadableStream({
-    async start(controller) {
-      for await (const chunk of stream) {
-        const delta = chunk.choices[0]?.delta?.content ?? ''
-        if (delta) {
-          fullContent += delta
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content: delta })}\n\n`))
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of stream) {
+            const delta = chunk.choices[0]?.delta?.content ?? ''
+            if (delta) {
+              fullContent += delta
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content: delta })}\n\n`))
+            }
+          }
+        } catch (streamErr) {
+          console.warn('[Otbee Stream Interrupted]:', streamErr)
         }
-      }
-      controller.enqueue(encoder.encode('data: [DONE]\n\n'))
-      controller.close()
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+        controller.close()
 
-      if (conversation_id) {
-        const allMessages = [...messages, { role: 'assistant', content: fullContent, created_at: new Date().toISOString() }]
-        await supabase.from('otbee_conversations').update({ messages: allMessages, updated_at: new Date().toISOString() }).eq('id', conversation_id).eq('user_id', user.id)
-      }
-    },
-  })
+        if (conversation_id && fullContent) {
+          const allMessages = [...messages, { role: 'assistant', content: fullContent, created_at: new Date().toISOString() }]
+          await supabase.from('otbee_conversations').update({ messages: allMessages, updated_at: new Date().toISOString() }).eq('id', conversation_id).eq('user_id', user.id)
+        }
+      },
+    })
 
-  return new Response(readable, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-    },
-  })
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    })
+  } catch (err: any) {
+    console.error('[Otbee API Exception]:', err)
+    const fallbackText = 'Halo! Server asisten Otbee sedang mengalami lonjakan antrean. Silakan tanyakan kembali dalam beberapa saat, atau kamu bisa melihat panduan jalur mandiri di menu Direktori Jalur!'
+    const encoder = new TextEncoder()
+    const readable = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content: fallbackText })}\n\n`))
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+        controller.close()
+      },
+    })
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+      },
+    })
+  }
 }

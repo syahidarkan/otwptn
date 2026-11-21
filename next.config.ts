@@ -16,12 +16,12 @@ const enforcedCsp = [
 // report endpoint, fix violations, then promote to enforced.
 const reportOnlyCsp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
+  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com https://*.supabase.co https://i.ytimg.com",
   "media-src 'self' blob: data: https://*.supabase.co",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://cloudflareinsights.com",
   "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://challenges.cloudflare.com https://*.mayar.id https://*.myr.id",
   "worker-src 'self' blob:",
   "manifest-src 'self'",

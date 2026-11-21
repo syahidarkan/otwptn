@@ -87,6 +87,10 @@ Berikan rekomendasi strategi dalam JSON valid berikut (HANYA JSON):
 
     const result = extractJsonFromAi(completion.choices[0].message.content ?? '{}')
 
+    if (!result || !result.catatan_strategi) {
+      throw new Error('AI returned empty strategy payload')
+    }
+
     await supabase.from('strategi_sessions').insert({
       user_id: user.id,
       kalkulator_session_id: kalkulator_session_id ?? null,
@@ -95,7 +99,44 @@ Berikan rekomendasi strategi dalam JSON valid berikut (HANYA JSON):
     })
 
     return NextResponse.json(result)
-  } catch {
-    return NextResponse.json({ error: 'AI service unavailable' }, { status: 503 })
+  } catch (err) {
+    console.warn('[AI Strategi Fallback]:', err)
+    const p1 = (input_data.pilihan_1 as { ptn: string; prodi: string } | undefined)
+    const p2 = (input_data.pilihan_2 as { ptn: string; prodi: string } | undefined)
+    const certs = (input_data.certificates as Array<{ title: string; category?: string }> | undefined) ?? []
+
+    const fallbackResult = {
+      pilihan_1: p1 ? {
+        prodi: p1.prodi,
+        ptn: p1.ptn,
+        alasan: `Pilihan 1 fokus pada jurusan impian utama. Pastikan konsistensi nilai rapor mata pelajaran pendukung prodi di atas rerata ${input_data.avg_rapor}.`,
+      } : null,
+      pilihan_2: p2 ? {
+        prodi: p2.prodi,
+        ptn: p2.ptn,
+        alasan: 'Pilihan 2 berfungsi sebagai jaring pengaman strategis dengan keketatan yang lebih moderat dibandingkan pilihan 1.',
+      } : null,
+      sertifikat_utama: certs[0]?.title ?? null,
+      sertifikat_kedua: certs[1]?.title ?? null,
+      sertifikat_pendukung: certs.slice(2).map(c => c.title),
+      catatan_strategi: `Dengan rerata rapor ${input_data.avg_rapor} dan posisi paralel ${input_data.school_rank_tier}, optimalkan portofolio sertifikat yang paling linear dengan prodi pilihan dan hindari memilih dua prodi dengan keketatan super tinggi di kampus yang sama.`,
+      action_items: [
+        'Pastikan urutan sertifikat diunggah sesuai linearitas mata pelajaran pendukung prodi.',
+        'Kroscek kuota daya tampung SNBP 2026 dan peminat tahun sebelumnya di portal resmi SNPMB.',
+        'Siapkan opsi alternatif jalur mandiri prestasi (PPKB, PBUB, atau SJP) sebagai rencana akselerasi.',
+      ],
+      isFallback: true,
+    }
+
+    try {
+      await supabase.from('strategi_sessions').insert({
+        user_id: user.id,
+        kalkulator_session_id: kalkulator_session_id ?? null,
+        input_data,
+        result_json: fallbackResult,
+      })
+    } catch {}
+
+    return NextResponse.json(fallbackResult)
   }
 }

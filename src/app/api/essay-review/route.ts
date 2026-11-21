@@ -137,7 +137,11 @@ PERINGATAN KHUSUS UNTUK ARRAY "issues":
 
     const rawContent = completion.choices[0].message.content ?? '{}'
     result = extractJsonFromAi(rawContent)
+    if (!result || typeof result.overall !== 'number' || !result.feedback) {
+      throw new Error('AI response missing required JSON fields')
+    }
     result.nlpBenchmark = nlpBenchmark
+    result.isFallback = false
   } catch (apiErr) {
     console.warn('[AI Essay Review] Primary AI call failed, generating heuristic evaluation:', apiErr)
     const firstSentence = content.split(/[.!?]/)[0]?.trim() || content.slice(0, 30)
