@@ -43,7 +43,7 @@ interface ConversationRow {
 
 const PROMPT_CATEGORIES = [
   {
-    category: 'Strategi Jalur SNBP & SNBT',
+    category: 'Strategi Jalur Non-Tes & Rapor',
     icon: Compass,
     color: 'from-amber-400 to-amber-500',
     prompts: [
@@ -386,11 +386,11 @@ export default function OtbeePage() {
               <div className="flex items-center gap-2">
                 <span className="text-sm font-black text-gray-900 dark:text-white tracking-tight">Otbee AI</span>
                 <span className="px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-900 dark:text-amber-300 text-[10px] font-black uppercase tracking-wider border border-amber-400/30">
-                  Tutor SNBP & UTBK
+                  Spesialis Jalur Non-Tes
                 </span>
               </div>
               <p className="text-[11px] font-bold text-gray-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
-                <span>Rasionalisasi Nilai & Pembimbing Esai</span>
+                <span>Konsultan Rapor, Esai & Mandiri Prestasi</span>
                 <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-zinc-600" />
                 <span className="text-emerald-600 dark:text-emerald-400 font-black">Aktif Siaga</span>
               </p>
@@ -516,7 +516,9 @@ export default function OtbeePage() {
                 >
                   {m.role === 'assistant' && (
                     <div className="flex-shrink-0 -mt-1 select-none">
-                      <OtbeeAvatar headOnly size={36} paused={!sending} action={sending ? 'talk' : 'idle'} />
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-100 to-amber-50 dark:from-amber-950/40 dark:to-zinc-800 border border-amber-200/80 dark:border-amber-600/30 flex items-center justify-center shadow-xs p-0.5">
+                        <OtbeeAvatar headOnly size={44} paused={false} action={sending && i === messages.length - 1 ? 'talk' : 'idle'} />
+                      </div>
                     </div>
                   )}
 
@@ -555,7 +557,9 @@ export default function OtbeePage() {
               {streamingText && (
                 <div className="flex gap-3 items-start justify-start">
                   <div className="flex-shrink-0 -mt-1 select-none">
-                    <OtbeeAvatar headOnly size={36} action="talk" />
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-300 dark:from-amber-500 dark:to-amber-600 flex items-center justify-center shadow-md p-0.5 animate-pulse">
+                      <OtbeeAvatar headOnly size={44} paused={false} action="talk" />
+                    </div>
                   </div>
                   <div className="max-w-[85%] sm:max-w-[78%] backdrop-blur-xl bg-white/95 dark:bg-[#1e2028] border border-white/90 dark:border-[#2e313d] text-gray-900 dark:text-slate-100 rounded-3xl rounded-tl-xs shadow-sm p-5 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap font-medium">
                     {streamingText}
@@ -568,7 +572,9 @@ export default function OtbeePage() {
               {sending && !streamingText && (
                 <div className="flex gap-3 items-start justify-start">
                   <div className="flex-shrink-0 -mt-1 select-none">
-                    <OtbeeAvatar headOnly size={36} action="thinking" />
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-300 to-amber-200 dark:from-amber-600 dark:to-amber-700 flex items-center justify-center shadow-sm p-0.5">
+                      <OtbeeAvatar headOnly size={44} paused={false} action="talk" />
+                    </div>
                   </div>
                   <div className="px-4 py-3 rounded-2xl bg-white/90 dark:bg-[#1e2028] border border-white/90 dark:border-[#2e313d] shadow-sm text-gray-600 dark:text-slate-300 text-xs font-bold flex items-center gap-2">
                     <span className="flex gap-1">
@@ -625,7 +631,7 @@ export default function OtbeePage() {
                         handleSend()
                       }
                     }}
-                    placeholder="Tulis pertanyaanmu seputar SNBP, essay, rapor, atau UTBK..."
+                    placeholder="Tanyakan peluang nilai rapor, strategi SNBP, esai PPKB UI, atau sertifikat prestasimu..."
                     disabled={sending}
                     className="flex-1 bg-transparent text-xs sm:text-sm font-semibold outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 resize-none max-h-28 py-1.5 leading-relaxed"
                   />

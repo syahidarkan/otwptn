@@ -17,11 +17,11 @@ interface Message {
 }
 
 const QUICK_QUESTIONS = [
-  'Berapa harga paket & fiturnya?',
-  'Apa beda paket Nectar & Honeycomb?',
-  'Cara kerja Kalkulator Peluang Rapor',
-  'Gimana bimbingan essay sama mentor?',
-  'Email resmi OtwPTN',
+  'Akun premium belum aktif',
+  'Limit review AI / chat habis',
+  'Mentor belum kirim link grup WA',
+  'Kendala upload berkas / fitur',
+  'Nomor WhatsApp admin resmi',
 ]
 
 function formatChatText(content: string) {
@@ -374,13 +374,13 @@ export default function CustomerServiceWidget() {
 
                 {/* Big Title */}
                 <div className="text-center pt-1 pb-1">
-                  <h2 className="text-[25px] sm:text-[27px] font-black text-gray-950 tracking-tight leading-[1.18]">
-                    Your{' '}
+                  <h2 className="text-[24px] sm:text-[26px] font-black text-gray-950 tracking-tight leading-[1.18]">
+                    Otbee{' '}
                     <span className="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 bg-clip-text text-transparent">
-                      Smart Assistant
+                      Helpdesk CS
                     </span>
                     <br />
-                    for Any Tasks
+                    Bantuan Teknis
                   </h2>
                 </div>
 
@@ -410,8 +410,8 @@ export default function CustomerServiceWidget() {
                   </div>
 
                   {/* Subtitle */}
-                  <p className="text-xs font-semibold text-gray-500 text-center max-w-[250px] leading-relaxed mt-2">
-                    Get instant help and support with any task or problem
+                  <p className="text-xs font-semibold text-gray-500 text-center max-w-[260px] leading-relaxed mt-2">
+                    Bantuan seputar aktivasi akun, pembayaran, kuota fitur, dan link grup mentor
                   </p>
 
                   {/* If there are existing messages in session, show continue action */}
@@ -503,11 +503,11 @@ export default function CustomerServiceWidget() {
                     </div>
                     <div className="text-left">
                       <h3 className="text-xs sm:text-sm font-black text-gray-900 tracking-tight leading-tight">
-                        Otbee AI Assistant
+                        Otbee Helpdesk CS
                       </h3>
                       <div className="flex items-center gap-1 text-[9.5px] font-bold text-emerald-600">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        <span>Aktif Siaga</span>
+                        <span>Bantuan Teknis Siaga</span>
                       </div>
                     </div>
                   </div>

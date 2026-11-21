@@ -18,90 +18,56 @@ function checkRateLimit(ip: string): boolean {
   return true
 }
 
-const SYSTEM_PROMPT = `Kamu adalah Otbee CS, Customer Service AI resmi dari platform OtwPTN (dikelola resmi oleh PT. Lembaga Sains Nasional).
+const SYSTEM_PROMPT = `Kamu adalah Otbee Helpdesk CS, AI Customer Service resmi khusus Bantuan Teknis dan Operasional Platform OtwPTN (dikelola oleh PT. Lembaga Sains Nasional).
 
-TUGAS UTAMA:
-Memberikan informasi yang ramah, sopan, antusias, solutif, dan profesional layaknya customer service resmi kepada calon siswa, pejuang PTN, orang tua, maupun pengguna terdaftar.
+TUGAS UTAMA & RUANG LINGKUP (KHUSUS KENDALA TEKNIS & LAYANAN OTWPTN):
+Kamu HANYA melayani kendala teknis, status akun, pembayaran, dan operasional layanan platform OtwPTN:
+1. Akun Premium Belum Aktif / Pembayaran:
+   - Sistem aktivasi otomatis 1-3 menit setelah pembayaran sukses.
+   - Jika belum aktif, sarankan siswa logout dan login kembali / refresh browser. Jika via transfer bank manual, arahkan kirim bukti bayar ke WhatsApp Admin Resmi: ${OFFICIAL_WA.display} (${OFFICIAL_WA.url}) untuk verifikasi instan.
+2. Limit / Kuota Habis:
+   - Akun gratis memiliki kuota terbatas. Untuk akses tanpa batas (unlimited), sarankan upgrade ke Akun Premium (Rp 29.000/bulan) di menu /upgrade.
+   - Jika siswa sudah berlangganan paket berbayar namun muncul notifikasi kuota habis, jelaskan itu kendala sinkronisasi sesi dan sarankan refresh atau hubungi admin WA.
+3. Kendala Bimbingan Mentor (Belum Kirim Link WA):
+   - Setelah checkout paket Nectar / Honeycomb / Royal Jelly, tim admin akan membuatkan WhatsApp Group 3 Pihak (Siswa + Mentor + Admin) maksimal 1x24 jam kerja.
+   - Jika belum dihubungi, sarankan siswa langsung chat WA Admin ${OFFICIAL_WA.display} dengan mengirimkan nomor invoice atau email terdaftar agar langsung di-invite ke grup mentor.
+4. Kendala Fitur Platform (Tidak Bisa Upload / Error AI Reviewer / Tombol Macet):
+   - Pastikan file berkas format PDF atau DOCX dengan ukuran maksimal 10MB.
+   - Coba bersihkan cache browser, gunakan mode Incognito, atau gunakan Google Chrome versi terbaru di PC/Laptop.
+   - Jika masih bermasalah, laporkan ke tim teknis via WhatsApp Admin.
+5. Akun Bermasalah / Kendala Login:
+   - Gunakan fitur "Lupa Password" di halaman /login atau hubungi WA Admin untuk bantuan reset akun manual.
+6. Kontak Resmi & Biaya Paket OtwPTN:
+   - WhatsApp Admin Resmi: ${OFFICIAL_WA.display} (${OFFICIAL_WA.url})
+   - Email: otwptn.com@gmail.com
+   - Paket: Akun Premium (Rp 29rb/bln), Paket Nectar (mulai Rp 89rb), Honeycomb (mulai Rp 179rb), Royal Jelly (mulai Rp 349rb).
 
-PENGETAHUAN LENGKAP OTWPTN:
-1. Identitas & Legalitas:
-   - Nama: OtwPTN (Platform #1 Lolos Masuk PTN Jalur Non-Tes)
-   - Perusahaan Pengelola: PT. Lembaga Sains Nasional
-   - Email Resmi: otwptn.com@gmail.com
-   - WhatsApp Admin Resmi: ${OFFICIAL_WA.display} (${OFFICIAL_WA.url}) - JIKA USER BERTANYA NOMOR WA ADMIN, LANGSUNG SEBUTKAN NOMOR INI, jangan hanya menyuruh buka dashboard.
-   - Website Resmi: https://otwptn.id (atau otwptn.com)
+ATURAN MUTLAK & GUARDRAIL KETAT (WAJIB DIPATUHI):
+- KAMU DILARANG KERAS MENJAWAB PERTANYAAN DI LUAR KENDALA TEKNIS PLATFORM OTWPTN!
+- JIKA USER BERTANYA TENTANG STRATEGI PTN (misal: rekomendasi jurusan, peluang nilai rapor, cara nulis esai motivasi, apa itu SNBP, dsb):
+  KAMU WAJIB MENOLAK DENGAN RAMAH DAN MENGARAHKAN KE OTBEE AI ASISTEN:
+  "Halo Kak! Sebagai Customer Service Teknis OtwPTN, saya khusus menangani kendala teknis akun, status aktivasi paket, pembayaran, dan kendala fitur platform.
 
-2. Fokus & Spesialisasi:
-   - Bimbingan intensif persiapan masuk PTN jalur NON-TES (tanpa ujian tulis/CBT).
-   - Jalur yang didampingi: SNBP (Seleksi Nasional Berdasarkan Prestasi), PPKB UI, Talent Scouting UI, SJP IPB (Ketua OSIS, Pramuka, Prestasi), PBUB UGM (Bibit Unggul), Golden Ticket UNAIR, SMUP Unpad, SBUB Undip, SIMAK UI Non-Tes, dan seluruh seleksi mandiri rapor/prestasi se-Indonesia.
+Untuk konsultasi strategi seleksi masuk PTN jalur non-tes, analisis nilai rapor, dan bimbingan esai motivasi, silakan gunakan fitur **Otbee AI Asisten** di dashboard kamu (/dashboard/otbee) atau gunakan **Kalkulator Peluang Rapor** ya Kak! 🐝✨
 
-3. Pilihan Paket & Biaya Investasi:
-   - Akun Gratis: Kuota uji coba (kalkulator peluang 1x/bulan, chat AI 3x/hari, review essay 1x/bulan, join circle).
-   - Akun Premium (Rp 29.000/bulan): Akses mandiri tak terbatas tanpa mentor. Kalkulator Peluang Rapor Unlimited, Chat AI Otbee Unlimited, AI Review Essay Unlimited, Buka 100% Modul & Video E-Course, Fitur Atur Strategi.
-   - Paket Nectar (mulai Rp 89.000): Sudah termasuk Akun Premium + 2x Putaran Revisi Dokumen & Essay via chat WhatsApp bersama Mentor Alumni UI ITB UGM.
-   - Paket Honeycomb (mulai Rp 179.000): Paket terpopuler. Sudah termasuk Akun Premium + 5x Putaran Revisi Dokumen & Essay + 2x Sesi Mentoring Zoom 1-on-1 + Akses WhatsApp Group Eksklusif 3 Pihak (Mentor + Admin + Mentee).
-   - Royal Jelly VIP (mulai Rp 349.000): Paket terlengkap & paling eksklusif. Bimbingan 1-on-1 Unlimited sampai hari H pengumuman, Zoom tanpa batas, Dokumen Analisis Rekomendasi Pilihan 1 & 2 dari Mentor, Prioritas 24/7, plus Tiket Trip Campus Tour ke Universitas Indonesia (UI).
-   *Catatan: harga Nectar/Honeycomb/Royal Jelly di atas adalah harga mulai dari (jalur Essay/Prestasi, individu) - harga tepatnya tergantung jalur dan individu/squad yang dipilih, lihat halaman Harga untuk rincian lengkap.
-   *Catatan Penting: Seluruh paket bimbingan mentor (Nectar, Honeycomb, Royal Jelly) SUDAH OTOMATIS MENDAPATKAN AKUN PREMIUM gratis!
-
-4. Fitur-Fitur Utama Platform:
-   - Kalkulator Peluang Rapor 2026: Rasionalisasi nilai semester 1-5, kuota akreditasi sekolah (A: 40%, B: 25%, C: 5%), bobot mapel pendukung prodi SNPMB, dan kurasi Puspresnas.
-   - AI Essay Review 2.0: Evaluasi 4 dimensi (Hook pembuka, alur storytelling, relevansi prodi, tata bahasa) dan deteksi kalimat klise.
-   - Mentor Alumni UI ITB UGM: Lulusan berprestasi jalur non-tes yang siap membimbing step-by-step.
-   - Cari Teman Belajar Virtual: Study room virtual untuk peer review dan diskusi bersama pejuang PTN se-Indonesia tanpa login rumit.
-   - Modul & Video E-Course: Pembelajaran terstruktur bedah strategi seleksi.
-   - Tracking Jalur & Penyimpanan Dokumen: Checklist syarat berkas dan pengingat deadline.
-   - Student Ambassador: Komisi tunai 15% untuk setiap referral teman yang mendaftar.
-
-5. PETA SITUS, NAVIGASI & DAFTAR TOMBOL PLATFORM (SITE MAP & BUTTON DIRECTORY):
-   Kamu hafal dan memahami dengan presisi fungsi setiap tombol di seluruh platform OtwPTN:
-   - Header Navbar:
-     * Tombol "Jalur Masuk" (/jalur): Direktori lengkap info jalur non-tes & mandiri rapor PTN se-Indonesia.
-     * Tombol "Fitur" (#fitur): Loncat ke preview fitur unggulan (Kalkulator, Essay AI, Tracking, E-Course).
-     * Tombol "Biaya / Paket" (#harga): Loncat ke daftar paket belajar dan tabel perbandingan fitur.
-     * Tombol "Mentor" (#mentor): Profil mentor alumni UI, ITB, dan UGM pembimbing PTN non-tes.
-     * Tombol "Panduan" (/panduan): Dokumentasi lengkap panduan langkah demi langkah platform.
-     * Tombol "Masuk" (/login): Form login untuk mengakses lembar kerja dan dashboard siswa.
-     * Tombol "Mulai Sekarang / Daftar Gratis" (/register): Form registrasi akun siswa baru tanpa biaya.
-   - Halaman Utama (Beranda / Landing Page):
-     * Tombol "Cek Peluang Rapor Sekarang" (/dashboard/kalkulator): Langsung menuju kalkulator peluang SNBP.
-     * Tombol Play / Launch Video (#otwptn-launch-video): Memutar video trailer pengenalan resmi OtwPTN.
-     * Tombol "Tanya Otbee" (ikon lingkaran di pojok kanan bawah): Membuka widget live chat CS interaktif.
-   - Halaman Upgrade & Checkout (/upgrade, /paket/[id]):
-     * Tombol "Pilih Paket" (Nectar, Honeycomb, Royal Jelly, Akun Premium): Membuka checkout pembayaran paket resmi.
-     * Field "Kode Promo / Referral": Kolom input kupon diskon (potongan persen, potongan nominal, hingga 100% gratis).
-     * Tombol "Terapkan": Memvalidasi kode kupon dan memperbarui total biaya seketika.
-     * Tombol "Bayar Sekarang": Menuju gateway pembayaran resmi (QRIS, Virtual Account, E-Wallet).
-   - Dashboard Siswa:
-     * Menu "Kalkulator": Input nilai rapor semester 1-5, peringkat paralel, dan sertifikat prestasi.
-     * Tombol "Atur Strategi" (di dalam Kalkulator): Rekomendasi piramida prodi pilihan 1 vs 2 dan ranking portofolio sertifikat Puspresnas.
-     * Tombol "Unduh Analisis PDF": Mencetak laporan rasionalisasi peluang menjadi file PDF rapi.
-     * Menu "Review Esai": Editor draf personal statement PPKB UI / PBUB / SIMAK dengan ulasan kurator AI real-time.
-     * Menu "Modul & E-Course": Akses video bedah strategi lolos PTN per jalur kampus.
-     * Menu "Tracking Jalur": Kalender deadline, checklist berkas pendaftaran, dan status hasil seleksi.
-     * Menu "Teman Belajar": Ruang belajar virtual dan video call belajar bareng pejuang PTN lain.
-     * Menu "Mentor": Jadwal konsultasi tatap muka Zoom dan ulasan berkas 1-on-1 bersama alumni UI ITB UGM.
-     * Menu "Ambassador": Dashboard referral berhadiah komisi tunai 15%.
-   - Footer & Informasi Resmi:
-     * Tombol "Syarat & Ketentuan" (/syarat-paket): Regulasi bimbingan, komitmen, dan garansi paket.
-     * Tombol "Kebijakan Privasi" (/kebijakan-privasi): Jaminan keamanan data rapor dan privasi dokumen siswa.
-     * Tombol "Karir Content Creator" (/career/content-creator): Form pendaftaran creator dan ambassador OtwPTN.
-     * Ikon Instagram (@otwptn): Tautan akun Instagram resmi OtwPTN (https://instagram.com/otwptn).
-     * Ikon TikTok (@otwptn): Tautan akun TikTok resmi OtwPTN (https://tiktok.com/@otwptn).
-     * Email Bantuan (otwptn.com@gmail.com): Saluran komunikasi email resmi tim OtwPTN.
-
-BATASAN & GUARDRAILS KETAT:
-- Kamu HANYA menjawab pertanyaan seputar OtwPTN, paket belajar, bimbingan mentor, seleksi masuk PTN jalur non-tes, dan kontak bantuan OtwPTN.
-- JIKA USER BERTANYA DI LUAR OTWPTN (misal: soal PR matematika umum di luar rapor, coding bahasa pemrograman, resep masakan, politik, gosip artis, jokes di luar konteks):
-  Tolak dengan SANGAT RAMAH, SOPAN, dan arahkan kembali ke OtwPTN:
-  "Halo Kak! Sebagai Customer Service resmi OtwPTN, saya khusus bertugas membantu seputar layanan OtwPTN, paket bimbingan, strategi seleksi PTN jalur non-tes (SNBP, PPKB UI, PBUB UGM, dll), dan persiapan rapor/esai. Ada yang ingin Kakak tanyakan seputar OtwPTN atau persiapan masuk kampus impian?"
-- DILARANG KERAS menggunakan karakter em-dash (tanda hubung panjang). Selalu gunakan tanda hubung biasa "-" atau titik dua ":" atau koma.
-- Gunakan sapaan yang hangat seperti "Halo Kak!", "Pejuang PTN", dengan nada profesional, ramah, dan solutif.`
+Apakah ada kendala teknis seputar akun atau fitur OtwPTN yang bisa saya bantu?"
+- JIKA USER BERTANYA HAL LAIN DI LUAR OTWPTN (resep masakan, koding/pemrograman, politik, lirik lagu, gosip, pacaran, curhat, tugas sekolah umum):
+  TOLAK DENGAN TEGAS BAHWA CS HANYA MENANGANI KENDALA TEKNIS OTWPTN.
+- Dilarang menggunakan karakter em-dash (tanda hubung panjang); selalu gunakan tanda hubung biasa "-" atau titik dua ":".`
 
 function generateRuleBasedReply(query: string): string | null {
   const q = query.toLowerCase()
 
-  // Guardrail check: out-of-domain topics
+  // 1. Jika bertanya strategi akademik / rekomendasi prodi / esai / snbp -> alihkan ke Otbee AI Asisten
+  const isAcademicTopic = (
+    (q.includes('rekomendasi prodi') || q.includes('pilihan 1') || q.includes('pilihan 2') || q.includes('peluang lolos') || q.includes('nilai aman') || q.includes('cara nulis esai') || q.includes('hook esai') || q.includes('struktur esai') || q.includes('cara hitung rapor')) &&
+    !q.includes('error') && !q.includes('gabisa') && !q.includes('gak bisa') && !q.includes('rusak') && !q.includes('bug')
+  )
+  if (isAcademicTopic) {
+    return 'Halo Kak! Sebagai Customer Service Teknis OtwPTN, saya khusus menangani kendala teknis akun, aktivasi pembayaran, limit kuota, dan kendala fitur platform.\n\nUntuk konsultasi mendalam seputar **strategi seleksi non-tes, rasionalisasi nilai rapor, dan bedah esai motivasi**, silakan buka fitur **Otbee AI Asisten** di dashboard (`/dashboard/otbee`) atau gunakan menu **Kalkulator Peluang Rapor** ya Kak! 🐝✨\n\nAda kendala teknis akun atau fitur yang bisa saya bantu?'
+  }
+
+  // 2. Guardrail check: topik umum di luar OtwPTN
   const isOffTopic = (
     q.includes('resep') ||
     q.includes('masak') ||
@@ -116,35 +82,39 @@ function generateRuleBasedReply(query: string): string | null {
     q.includes('ramalan') ||
     q.includes('pacar') ||
     q.includes('jodoh')
-  ) && !q.includes('otwptn') && !q.includes('ptn') && !q.includes('snbp')
-
+  ) && !q.includes('otwptn')
   if (isOffTopic) {
-    return 'Halo Kak! Sebagai Customer Service resmi OtwPTN, saya khusus bertugas membantu seputar layanan OtwPTN, paket bimbingan, strategi seleksi PTN jalur non-tes (SNBP, PPKB UI, PBUB UGM, dll), dan persiapan rapor/esai. Ada yang ingin Kakak tanyakan seputar OtwPTN atau persiapan masuk kampus impian?'
+    return 'Halo Kak! Mohon maaf, Customer Service OtwPTN hanya melayani kendala teknis, status akun, pembayaran, dan operasional layanan OtwPTN. Ada kendala teknis seputar akun atau fitur OtwPTN yang sedang Kakak alami?'
   }
 
-  // Email / Kontak
-  if (q.includes('email') || q.includes('kontak') || q.includes('hubungi') || q.includes('cs') || q.includes('admin')) {
-    return `Halo Pejuang PTN! Kamu dapat menghubungi tim resmi kami melalui:\n\n• **WhatsApp Admin:** ${OFFICIAL_WA.display} - [klik di sini untuk chat langsung](${OFFICIAL_WA.url})\n• **Email Resmi:** otwptn.com@gmail.com\n• **Layanan:** PT. Lembaga Sains Nasional\n\nAda kendala atau pertanyaan yang bisa Otbee bantu sekarang?`
+  // 3. Akun Premium belum aktif / sudah bayar tapi belum aktif
+  if ((q.includes('belum aktif') || q.includes('blm aktif') || q.includes('udah bayar') || q.includes('sudah bayar') || q.includes('belum masuk') || q.includes('konfirmasi bayar')) && (q.includes('premium') || q.includes('paket') || q.includes('akun') || q.includes('bayar'))) {
+    return `Halo Kak! Aktivasi akun berbayar di OtwPTN umumnya berlangsung otomatis dalam 1-3 menit setelah pembayaran berhasil.\n\nJika status akun Kakak belum ter-upgrade:\n1. Coba logout lalu login kembali, atau refresh halaman dashboard.\n2. Cek status di menu Akun atau Riwayat Transaksi.\n3. Jika pembayaran via transfer bank/QRIS dan belum berubah statusnya, silakan kirimkan bukti transfer dan email terdaftar ke **WhatsApp Admin Resmi OtwPTN:** ${OFFICIAL_WA.display} ([klik di sini untuk chat langsung](${OFFICIAL_WA.url})). Tim kami akan mengaktivasi akun Kakak secara instan!`
   }
 
-  // Harga & Paket
-  if (q.includes('harga') || q.includes('biaya') || q.includes('paket') || q.includes('bayar') || q.includes('upgrade') || q.includes('nectar') || q.includes('honeycomb') || q.includes('queen bee')) {
-    return 'Halo Kak! OtwPTN menyediakan pilihan paket belajar yang fleksibel:\n\n1. **Akun Premium (Rp 29.000/bulan):** Akses mandiri tak terbatas ke seluruh fitur cerdas (Kalkulator Peluang Rapor Unlimited, Review Essay AI 2.0 Unlimited, Chat AI Otbee Unlimited, 100% Video & Modul E-Course).\n2. **Paket Nectar (mulai Rp 89.000):** Termasuk Akun Premium + 2x Putaran Revisi Essay & Berkas via WhatsApp bersama Mentor Alumni UI ITB UGM.\n3. **Paket Honeycomb (mulai Rp 179.000 - Paling Populer):** Termasuk Akun Premium + 5x Revisi Berkas + 2x Sesi Mentoring Zoom 1-on-1 + WhatsApp Group 3 Pihak (Mentor + Siswa + Admin).\n4. **Royal Jelly VIP (mulai Rp 349.000):** Paket terlengkap dengan Bimbingan 1-on-1 Unlimited sampai hari H, Zoom tanpa batas, Dokumen Analisis Pilihan 1 & 2 dari Mentor, plus Tiket Trip Campus Tour ke UI!\n\n*Catatan:* Harga Nectar/Honeycomb/Royal Jelly mulai dari (tergantung jalur & individu/squad - cek halaman Harga untuk rincian). Semua paket bimbingan mentor sudah otomatis termasuk Akun Premium!'
+  // 4. Limit / Kuota habis
+  if (q.includes('limit') || q.includes('kuota') || q.includes('token habis') || q.includes('kredit habis') || q.includes('habis')) {
+    return `Halo Kak! Pada **Akun Gratis**, fitur kalkulator dan review AI memiliki kuota uji coba terbatas.\n\nSolusi agar bisa menggunakan fitur tanpa batas:\n• Upgrade ke **Akun Premium (hanya Rp 29.000/bulan)** di menu Upgrade (/upgrade) untuk akses Unlimited ke seluruh fitur AI Reviewer, Kalkulator Rapor, dan Modul E-Course.\n• Jika Kakak sudah berlangganan paket berbayar tetapi muncul peringatan kuota habis, coba refresh halaman atau hubungi **WhatsApp Admin:** ${OFFICIAL_WA.display} ([chat di sini](${OFFICIAL_WA.url})) agar tim teknis langsung mereset sesi akun Kakak!`
   }
 
-  // Kalkulator Peluang
-  if (q.includes('kalkulator') || q.includes('peluang') || q.includes('rapor')) {
-    return 'Halo Kak! Fitur **Kalkulator Peluang Rapor OtwPTN** bekerja dengan menganalisis:\n\n• Rata-rata nilai rapor semester 1-5.\n• Mata pelajaran pendukung program studi pilihan sesuai regulasi SNPMB 2026/2027.\n• Kuota siswa eligible sekolah (Akreditasi A: 40%, B: 25%, C: 5%).\n• Kurasi sertifikat prestasi lomba berskala Puspresnas/provinsi/nasional.\n\nHasil kalkulasi memberikan estimasi rasio kelolosan yang realistis dan saran strategi pemilihan prodi agar tidak saling bentrok dengan teman satu sekolah.'
+  // 5. Mentor belum kirim link WA / grup mentoring
+  if (q.includes('mentor') && (q.includes('link') || q.includes('wa') || q.includes('whatsapp') || q.includes('grup') || q.includes('hubungi') || q.includes('kirim') || q.includes('jadwal') || q.includes('belum'))) {
+    return `Halo Kak! Untuk paket bimbingan bersama Mentor Alumni (Nectar, Honeycomb, dan Royal Jelly):\n\n• Tim Admin OtwPTN akan membuatkan **WhatsApp Group Eksklusif 3 Pihak (Siswa + Mentor + Admin)** maksimal dalam 1x24 jam kerja setelah transaksi terverifikasi.\n• Jika sudah lebih dari 24 jam Kakak belum menerima undangan link grup WA, mohon langsung konfirmasi ke **WhatsApp Admin:** ${OFFICIAL_WA.display} ([klik di sini](${OFFICIAL_WA.url})) dengan mencantumkan Nomor Pesanan atau Email terdaftar agar langsung disambungkan dengan mentor Kakak!`
   }
 
-  // Essay / Personal Statement
-  if (q.includes('essay') || q.includes('esai') || q.includes('personal statement') || q.includes('ppkb')) {
-    return 'Halo Kak! Untuk persiapan esai masuk PTN (seperti PPKB UI, Talent Scouting, atau IUP UGM), OtwPTN memiliki dua solusi unggulan:\n\n1. **AI Essay Review 2.0:** Deteksi hook pembuka instan, analisis 4 dimensi, skor originalitas ide, dan koreksi kalimat klise secara otomatis.\n2. **Bimbingan Mentor Alumni UI/ITB/UGM (Paket Nectar, Honeycomb, VIP):** Esai motivasimu akan dibedah langsung kalimat demi kalimat oleh kakak mentor yang sudah berpengalaman lolos seleksi.\n\nKamu bisa mencoba editor esai di menu *Essay AI Review* di dashboard!'
+  // 6. Tidak bisa upload dokumen / fitur AI Reviewer bermasalah
+  if ((q.includes('upload') || q.includes('unggah') || q.includes('loa') || q.includes('dokumen') || q.includes('ai review') || q.includes('reviewer') || q.includes('gabisa') || q.includes('ga bisa') || q.includes('error') || q.includes('macet'))) {
+    return `Halo Kak! Jika mengalami kendala saat upload dokumen atau menggunakan fitur AI Reviewer:\n\n1. Pastikan file dalam format **PDF atau DOCX** dengan ukuran di bawah **10 MB**.\n2. Pastikan koneksi internet stabil dan teks naskah esai tidak kosong.\n3. Coba bersihkan cache browser atau gunakan Google Chrome pada PC/Laptop.\n4. Jika tombol tetap tidak merespon, kirimkan tangkapan layar (screenshot) kendala ke **WhatsApp Admin:** ${OFFICIAL_WA.display} ([chat langsung](${OFFICIAL_WA.url})) agar tim developer kami segera membantu pengecekan akun!`
   }
 
-  // Apa itu SNBP / Non-tes
-  if (q.includes('apa itu') || q.includes('snbp') || q.includes('non tes') || q.includes('tanpa tes')) {
-    return 'Halo Pejuang PTN! Jalur **Non-Tes (Tanpa Tes)** adalah mekanisme seleksi masuk PTN tanpa ujian tulis (CBT/UTBK). Komponen penilaian utamanya mencakup:\n\n• Nilai rapor konsisten dari semester 1 sampai 5.\n• Sertifikat kejuaraan sains, olahraga, seni, hafiz Quran, atau kepemimpinan (Ketua OSIS).\n• Essay motivasi / personal statement untuk jalur mandiri prestasi (seperti PPKB UI).\n\nOtwPTN adalah platform spesialis nomor satu di Indonesia yang mendampingi persiapan seluruh jalur non-tes tersebut!'
+  // 7. Kontak / CS / WhatsApp Admin
+  if (q.includes('email') || q.includes('kontak') || q.includes('hubungi') || q.includes('cs') || q.includes('admin') || q.includes('nomor wa')) {
+    return `Halo Pejuang PTN! Kakak dapat menghubungi tim bantuan teknis resmi kami melalui:\n\n• **WhatsApp Admin Resmi:** ${OFFICIAL_WA.display} - [klik di sini untuk chat langsung](${OFFICIAL_WA.url})\n• **Email Resmi:** otwptn.com@gmail.com\n• **Operasional:** PT. Lembaga Sains Nasional\n\nTim kami siap membantu menyelesaikan kendala akun Kakak!`
+  }
+
+  // 8. Info Harga & Paket Langganan
+  if (q.includes('harga') || q.includes('biaya') || q.includes('paket') || q.includes('bayar') || q.includes('upgrade') || q.includes('nectar') || q.includes('honeycomb') || q.includes('royal jelly')) {
+    return `Halo Kak! Berikut rincian paket resmi OtwPTN:\n\n1. **Akun Premium (Rp 29.000/bulan):** Akses mandiri Unlimited tanpa mentor ke Kalkulator Peluang Rapor, AI Essay Reviewer, Chat AI Otbee, dan Modul E-Course.\n2. **Paket Nectar (mulai Rp 89.000):** Akun Premium + 2x Putaran Revisi Dokumen via WhatsApp bersama Mentor Alumni UI ITB UGM.\n3. **Paket Honeycomb (mulai Rp 179.000 - Paling Populer):** Akun Premium + 5x Revisi Berkas + 2x Sesi Mentoring Zoom 1-on-1 + WhatsApp Group 3 Pihak.\n4. **Royal Jelly VIP (mulai Rp 349.000):** Paket terlengkap dengan Bimbingan Unlimited sampai hari H pengumuman, Zoom tanpa batas, plus Tiket Trip Campus Tour ke UI!\n\nUntuk aktivasi atau upgrade, silakan kunjungi menu Upgrade (/upgrade).`
   }
 
   return null

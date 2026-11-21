@@ -290,7 +290,7 @@ export default function OtbeeAvatar({
       const d = dataRef.current
       if (!d) return
       const tx = 1
-      applyPose(d, shownRef.current, P, tx, setT, setO, els.current)
+      applyPose(d, shownRef.current, P, tx, setT, setO, els.current, headOnly)
     }
     wakeAvatarLoopRef.current = () => {
       prev = performance.now()
@@ -462,6 +462,7 @@ function applyPose(
   d: ViewData, view: ViewName, P: Pose, turnX: number,
   setT: (k: string, v: string) => void, setO: (k: string, v: number) => void,
   els: Record<string, SVGElement | null>,
+  headOnly = false,
 ) {
   const bx = d.box ?? [0, 0, d.w, d.h]
   const H = bx[3] - bx[1]
@@ -494,7 +495,9 @@ function applyPose(
       // floating face.
       const originX = pv[0] + yaw * hw * 0.16 * sideK, originY = pv[1] - pit * hh * 0.12
       const headCenter: [number, number] = [pv[0], pv[1] - 50]
-      setT('head', `translate(${(P.headX * H).toFixed(2)} ${(P.headY * H - pit * 8).toFixed(2)}) ${tr(1)} ${rot(P.headRot * 0.35 + yaw * 2.5 * sideK, headCenter)} ${scl(1 - 0.09 * Math.abs(yaw) * sideK, 1 - 0.06 * Math.abs(pit), [originX, originY])}`)
+      const rotFactor = headOnly ? 0.95 : 0.45
+      const pitMultiplier = headOnly ? 16 : 8
+      setT('head', `translate(${(P.headX * H).toFixed(2)} ${(P.headY * H - pit * pitMultiplier).toFixed(2)}) ${tr(headOnly ? 1.4 : 1)} ${rot(P.headRot * rotFactor + yaw * 3.2 * sideK, headCenter)} ${scl(1 - 0.09 * Math.abs(yaw) * sideK, 1 - 0.06 * Math.abs(pit), [originX, originY])}`)
     } else if (name === 'goggles') {
       setT(name, `${tr(0.18)} ${scl(1 - 0.04 * Math.abs(yaw), 1, part.center ?? pv)}`)
     } else if (name.startsWith('wing')) {
